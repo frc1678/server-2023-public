@@ -1,11 +1,11 @@
 """Holds variables + functions that are shared across server files."""
 # External imports
-import json
 import os
 # No internal imports
 
 # The directory this script is located in
 MAIN_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+
 
 def create_file_path(path_after_main, create_directories=True):
     """Joins the path of the directory this script is in with the path
@@ -19,7 +19,7 @@ def create_file_path(path_after_main, create_directories=True):
     Defaults to true."""
     # Removes trailing slash in 'path_after_main' (if it exists)
     path_after_main = path_after_main.rstrip('/')
-    
+
     if create_directories is True:
         # Checks if the last item in the path is a file
         if '.' in path_after_main.split('/')[-1]:
@@ -28,7 +28,7 @@ def create_file_path(path_after_main, create_directories=True):
         # The last item is a directory
         else:
             directories = path_after_main
-        # 'os.makedirs' recursively creates directories (i.e. it will 
+        # 'os.makedirs' recursively creates directories (i.e. it will
         # create multiple directories, if needed)
         os.makedirs(os.path.join(MAIN_DIRECTORY, directories), exist_ok=True)
     return os.path.join(MAIN_DIRECTORY, path_after_main)
