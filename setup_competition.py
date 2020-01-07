@@ -18,7 +18,7 @@ COMPETITION_CODE = input('Input the competition code from TBA: ')
 # Second capture group: Matches 1 or more letters
 CODE_MATCH = re.fullmatch(r'(?P<year>[0-9]{4})(?P<comp_code>[a-zA-Z]+)', COMPETITION_CODE)
 if CODE_MATCH is None:
-    raise Exception('Competition code is not in the correct format')
+    raise ValueError('Competition code is not in the correct format.')
 # Creates the competition.txt file, writes the competition code to it so it can be used in other
 # scripts.
 with open(utils.create_file_path('data/competition.txt'), 'w') as file:
