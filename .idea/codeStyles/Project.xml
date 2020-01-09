@@ -1,0 +1,16 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <option name="AUTODETECT_INDENTS" value="false" />
+    <option name="LINE_SEPARATOR" value="&#10;" />
+    <Python>
+      <option name="NEW_LINE_AFTER_COLON" value="true" />
+    </Python>
+    <editorconfig>
+      <option name="ENABLED" value="false" />
+    </editorconfig>
+    <codeStyleSettings language="Python">
+      <option name="RIGHT_MARGIN" value="100" />
+      <option name="SOFT_MARGINS" value="100" />
+    </codeStyleSettings>
+  </code_scheme>
+</component>
