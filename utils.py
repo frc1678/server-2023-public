@@ -1,3 +1,4 @@
+#!/usr/bin/python3.6
 """Holds variables + functions that are shared across server files."""
 # External imports
 import os
