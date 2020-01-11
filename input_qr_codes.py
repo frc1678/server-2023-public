@@ -1,28 +1,23 @@
 #!/usr/bin/python3.6
-"""Writes inputted QR codes to a text file to be used in parse_qr_codes.py
-Asks what the input method is (Over QR scanner, or USB)
-Appends the QR codes to data/qr_input.txt
+"""Takes user input for QR codes over QR scanner, and runs parse_qr_codes()
+
+Takes user input for QR codes
+Removes end tab from QR scanner, and splits user input by tabs for parse_qr_codes.py
 QR Scanner 'Endmarke' setting must be set to tabs
 """
 # No external imports
-# No internal imports
+# Internal imports
+import parse_qr_codes
 
-# Asks user what method to read the QR codes over
-WHERE_TO_READ = input('Enter "0" to input through QR scanner, and "1" to input through USB: ')
+# Takes user input for the QR data
+QR_DATA = input('Scan data here: ')
 
-# if the user inputs 0, the input method is through the QR scanner, it isn't necessary to parse
-# through this input, that is handled in parse_qr_codes.py
-if WHERE_TO_READ == '0':
-    QR_DATA = input('Scan data here: ')
+# If the user input is nothing, nothing gets added to the database
+if QR_DATA == '':
+    raise ValueError('There is no data entered')
 
-    if QR_DATA == '':
-        raise ValueError('There is no data entered')
+# '\t' refers to tab character, rstrip removes trailing tab from end mark of last QR code
+QR_DATA = QR_DATA.rstrip('\t').split('\t')
 
-    # Writes the QR codes to the qr input text file
-    with open('data/qr_input.txt', 'a') as file:
-        file.write(QR_DATA)
-
-# TODO: Add QR input over USB
-
-else:
-    print('Please enter a valid option for QR input')
+# Parses the QR codes, see parse_qr_codes.py for more info
+parse_qr_codes.parse_qr_codes(QR_DATA)
