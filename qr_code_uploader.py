@@ -40,7 +40,7 @@ def upload_qr_codes(qr_codes):
     for qr_code in qr_codes:
         # Adds QR code to its dataset if it hasn't already been added
         # Identifies QR code type based on its first character
-        if qr_code.startswith(schema['subjective']['_start_character']):
+        if qr_code.startswith(schema['subjective_aim']['_start_character']):
             if qr_code in qr_subj or qr_code in raw_data['qr_subj']:
                 print(f'Duplicate QR code not uploaded: "{qr_code}"')
             else:
