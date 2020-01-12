@@ -16,24 +16,29 @@ def create_file_path(path_after_main, create_directories=True):
     example, the path_after_main for server.py would be 'server.py'
     because it is located directly in the main directory.
     create_directories will create the directories in the path if they
-    do not exist.  Assumes that all files names include a period.
-    Defaults to true."""
-    # Removes trailing slash in 'path_after_main' (if it exists)
-    path_after_main = path_after_main.rstrip('/')
-
+    do not exist.  Assumes that all files names include a period, and
+    all paths are input in Linux/Unix style.
+    create_directories defaults to True.
+    """
+    # Removes trailing slash in 'path_after_main' (if it exists) and split by '/'
+    path_after_main = path_after_main.rstrip('/').split('/')
     if create_directories is True:
         # Checks if the last item in the path is a file
-        if '.' in path_after_main.split('/')[-1]:
-            # Removes everything after the last '/' (including the '/')
-            directories = '/'.join(path_after_main.split('/')[:-1])
+        if '.' in path_after_main[-1]:
+            # Only try to create directories if there are directories specified before filename
+            if len(path_after_main) > 1:
+                # The '*' before the variable name expands the list into arguments for the function
+                directories = os.path.join(*path_after_main[:-1])
+            # Make directories a blank string
+            else:
+                directories = ''
         # The last item is a directory
         else:
-            directories = path_after_main
+            directories = os.path.join(*path_after_main)
         # 'os.makedirs' recursively creates directories (i.e. it will
         # create multiple directories, if needed)
         os.makedirs(os.path.join(MAIN_DIRECTORY, directories), exist_ok=True)
-    return os.path.join(MAIN_DIRECTORY, path_after_main)
-
+    return os.path.join(MAIN_DIRECTORY, *path_after_main)
 
 def get_bool(value):
     """Get boolean from string"""
