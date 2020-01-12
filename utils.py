@@ -33,3 +33,12 @@ def create_file_path(path_after_main, create_directories=True):
         # create multiple directories, if needed)
         os.makedirs(os.path.join(MAIN_DIRECTORY, directories), exist_ok=True)
     return os.path.join(MAIN_DIRECTORY, path_after_main)
+
+
+def get_bool(value):
+    """Get boolean from string"""
+    if value.upper() in ["1", "T", "TRUE"]:
+        return True
+    if value.upper() in ["0", "F", "FALSE"]:
+        return False
+    raise ValueError(f"Unable to convert {value} to boolean.")
