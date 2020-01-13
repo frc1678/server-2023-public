@@ -7,7 +7,7 @@ import re
 from pymongo import MongoClient
 # Internal imports
 import utils
-import database_communicator
+import local_database_communicator
 
 # Makes connection with local database through port 27017, the default listening port of MongoDB
 DB = MongoClient('localhost', 27017).scouting_system
@@ -32,4 +32,4 @@ if DB.competitions.count_documents({'tba_event_code': COMPETITION_CODE}) != 0:
 # Extracts the year with capture group
 YEAR = int(CODE_MATCH.group('year'))
 # Inserts document into collection
-database_communicator.add_competition(COMPETITION_CODE)
+local_database_communicator.add_competition(COMPETITION_CODE)

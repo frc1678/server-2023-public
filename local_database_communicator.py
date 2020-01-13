@@ -1,14 +1,14 @@
 #!/usr/bin/python3.6
 """Holds functions for database communication
 
-All communication with the MongoDB local database go through this file
+All communication with the MongoDB local database goes through this file
 """
 # External imports
-from pymongo import MongoClient
+import pymongo
 # Internal imports
 import utils
 
-DB = MongoClient('localhost', 27017).scouting_system
+DB = pymongo.MongoClient('localhost', 27017).scouting_system
 
 
 def append_document(data, path, competition='current'):
