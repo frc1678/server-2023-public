@@ -10,6 +10,7 @@ import utils
 
 DB = MongoClient('localhost', 27017).scouting_system
 
+
 def append_document(data, path, competition='current'):
     """Appends the 'competitions' collection with new data
 
@@ -29,8 +30,7 @@ def append_document(data, path, competition='current'):
 
 
 def add_competition(competition_code):
-    """Adds a new document for the competition into the 'competitions' collection
-    """
+    """Adds a new document for the competition into the 'competitions' collection"""
     # Extracts the year from the competition_code
     year = int(competition_code[0:4])
     DB.competitions.insert_one({
