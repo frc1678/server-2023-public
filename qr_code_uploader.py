@@ -10,7 +10,7 @@ Appends new QR codes to raw.obj and raw.subj
 import yaml
 from pymongo import MongoClient
 # Internal imports
-from utils import create_file_path
+import utils
 
 def upload_qr_codes(qr_codes):
     """Uploads QR codes into the current competition document.
@@ -22,16 +22,12 @@ def upload_qr_codes(qr_codes):
     """
 
     # Gets the starting character for each QR code type, used to identify QR code type
-    with open(create_file_path('schema/match_collection_qr_schema.yml')) as schema_file:
+    with open(utils.create_file_path('schema/match_collection_qr_schema.yml')) as schema_file:
         schema = yaml.load(schema_file, yaml.Loader)
-
-    # Gets TBA event code of current competition
-    with open('data/competition.txt') as file:
-        competition_code = file.read()
 
     # Acquires the raw data from competition document
     db = MongoClient('localhost', 27017).scouting_system
-    raw_data = db.competitions.find_one({'tba_event_code': competition_code})['raw']
+    raw_data = db.competitions.find_one({'tba_event_code': utils.TBA_EVENT_CODE})['raw']
 
     # Creates two lists to store QR codes separated into objective and subjective
     qr_obj = []
@@ -55,8 +51,8 @@ def upload_qr_codes(qr_codes):
 
     # Adds the objective and subjective QR codes to the local database if the lists aren't empty
     if qr_obj != []:
-        db.competitions.update_one({'tba_event_code': competition_code},
+        db.competitions.update_one({'tba_event_code': utils.TBA_EVENT_CODE},
                                    {'$push': {'raw.qr_obj': {'$each': qr_obj}}})
     if qr_subj != []:
-        db.competitions.update_one({'tba_event_code': competition_code},
+        db.competitions.update_one({'tba_event_code': utils.TBA_EVENT_CODE},
                                    {'$push': {'raw.qr_subj': {'$each': qr_subj}}})
