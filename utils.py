@@ -51,7 +51,7 @@ def get_bool(value):
 
 
 # Specifies which event - string such as '2020cada'.
-with open(create_file_path('data/competition.txt')) as file:
+with open(create_file_path(COMPETITION_CODE_FILE)) as file:
     # Remove trailing newline (if it exists) from file data.
     # Many file editors will automatically add a newline at the end of files.
     TBA_EVENT_CODE = file.read().rstrip('\n')
