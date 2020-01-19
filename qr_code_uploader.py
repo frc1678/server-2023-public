@@ -27,7 +27,7 @@ def upload_qr_codes(qr_codes):
 
     # Acquires the raw data from competition document
     db = MongoClient('localhost', 27017).scouting_system
-    raw_data = db.competitions.find_one({'tba_event_code': utils.TBA_EVENT_CODE})['raw']
+    raw_data = db.competitions.find_one({'tba_event_key': utils.TBA_EVENT_KEY})['raw']
 
     # Creates two lists to store QR codes separated into objective and subjective
     qr_obj = []
@@ -51,8 +51,8 @@ def upload_qr_codes(qr_codes):
 
     # Adds the objective and subjective QR codes to the local database if the lists aren't empty
     if qr_obj != []:
-        db.competitions.update_one({'tba_event_code': utils.TBA_EVENT_CODE},
+        db.competitions.update_one({'tba_event_key': utils.TBA_EVENT_KEY},
                                    {'$push': {'raw.qr_obj': {'$each': qr_obj}}})
     if qr_subj != []:
-        db.competitions.update_one({'tba_event_code': utils.TBA_EVENT_CODE},
+        db.competitions.update_one({'tba_event_key': utils.TBA_EVENT_KEY},
                                    {'$push': {'raw.qr_subj': {'$each': qr_subj}}})

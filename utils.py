@@ -4,7 +4,7 @@
 import os
 # No internal imports
 
-COMPETITION_CODE_FILE = 'data/competition.txt'
+_TBA_KEY_FILE = 'data/competition.txt'
 
 # The directory this script is located in
 MAIN_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +41,7 @@ def create_file_path(path_after_main, create_directories=True):
         os.makedirs(os.path.join(MAIN_DIRECTORY, directories), exist_ok=True)
     return os.path.join(MAIN_DIRECTORY, *path_after_main)
 
+
 def get_bool(value):
     """Get boolean from string"""
     if value.upper() in ["1", "T", "TRUE"]:
@@ -50,8 +51,14 @@ def get_bool(value):
     raise ValueError(f"Unable to convert {value} to boolean.")
 
 
+def save_event_key(tba_event_key):
+    """Saves event key in data/tba_event_key.txt"""
+    with open(_TBA_KEY_FILE, 'w') as file:
+        file.write(tba_event_key)
+
+
 # Specifies which event - string such as '2020cada'.
-with open(create_file_path(COMPETITION_CODE_FILE)) as file:
+with open(create_file_path(_TBA_KEY_FILE)) as file:
     # Remove trailing newline (if it exists) from file data.
     # Many file editors will automatically add a newline at the end of files.
-    TBA_EVENT_CODE = file.read().rstrip('\n')
+    TBA_EVENT_KEY = file.read().rstrip('\n')

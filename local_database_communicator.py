@@ -10,6 +10,7 @@ import utils
 
 DB = MongoClient('localhost', 27017).scouting_system
 
+
 def overwrite_data_points(data, path, overwrite, competition='current'):
     """Updates data in the 'competitions' collection by overwriting previous data
 
@@ -20,13 +21,10 @@ def overwrite_data_points(data, path, overwrite, competition='current'):
     """
     if competition == 'current':
         # Obtains the event_code from competition.txt, the file created in setup_competition
-        with open(utils.create_file_path(utils.COMPETITION_CODE_FILE, create_directories=False),
-                  'r') as file:
-            event_code = file.read()
-    else:
-        event_code = competition
+        competition = utils.TBA_EVENT_KEY
     # Adds data to the correct path within the competition document
-    DB.competitions.update_one({"tba_event_code": event_code, path: overwrite}, {"$set": {path + '.$': data}})
+    DB.competitions.update_one({"tba_event_key": competition, path: overwrite},
+                               {"$set": {path + '.$': data}})
 
 
 def append_document(data, path, competition='current'):
@@ -38,13 +36,9 @@ def append_document(data, path, competition='current'):
     """
     if competition == 'current':
         # Obtains the event_code from competition.txt, the file created in setup_competition
-        with open(utils.create_file_path(utils.COMPETITION_CODE_FILE, create_directories=False),
-                  'r') as file:
-            event_code = file.read()
-    else:
-        event_code = competition
+        competition = utils.TBA_EVENT_KEY
     # Adds data to the correct path within the competition document
-    DB.competitions.update_one({"tba_event_code": event_code}, {'$push': {path: {'$each': data}}})
+    DB.competitions.update_one({"tba_event_key": competition}, {'$push': {path: {'$each': data}}})
 
 
 def select_from_database(query, projection):
@@ -96,13 +90,13 @@ def select_one_from_database(query, projection=None):
     return new_result
 
 
-def add_competition(competition_code):
+def add_competition(tba_event_key):
     """Adds a new document for the competition into the 'competitions' collection"""
     # Extracts the year from the competition_code
-    year = int(competition_code[0:4])
+    year = int(tba_event_key[0:4])
     DB.competitions.insert_one({
         'year': year,
-        'tba_event_code': competition_code,
+        'tba_event_key': tba_event_key,
         'raw': {
             'qr_obj': [],
             'qr_subj': [],
