@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Houses upload_qr_codes() which appends unique QR codes to local competition document
 
 Checks for duplicates within set of QR codes to add, and the database.

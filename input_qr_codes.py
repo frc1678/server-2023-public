@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Takes user input for QR codes from QR scanner and sends them to local database
 
 QR scanner 'Endmarke' setting must be set to tabs

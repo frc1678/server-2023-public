@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Main server file. Runs computations in infinite loop.
 
 Runs on an Ubuntu 18.04 LTS computer in the stands at

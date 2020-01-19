@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Sets up the MongoDB document for a competition.
 Run before every competition.
 """

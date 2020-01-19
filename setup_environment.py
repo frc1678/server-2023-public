@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Sets up a machine for use or testing of the server.
 
 To be run for every new clone of server-2020.
