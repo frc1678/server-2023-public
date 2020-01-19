@@ -1,58 +1,46 @@
 #!/usr/bin/python3.6
-"""Houses parse_qr_codes() which parses and appends unique QR codes to local competition document
+"""Houses upload_qr_codes() which appends unique QR codes to local competition document
 
-Splits QR codes into objective and subjective.
-Checks for duplicates within set of QR codes to add, and the set of QR codes to add and the
-database.
-Appends new QR codes to raw.obj and raw.subj
+Checks for duplicates within set of QR codes to add, and the database.
+Appends new QR codes to raw.qr
 """
 # External imports
 import yaml
-from pymongo import MongoClient
+import warnings
 # Internal imports
+import local_database_communicator
 import utils
 
 def upload_qr_codes(qr_codes):
     """Uploads QR codes into the current competition document.
 
-    Adds each QR code into its appropriate dataset.
     Prevents duplicate QR codes from being uploaded to the database.
 
     qr_codes is a list of QR code strings to upload
     """
-
     # Gets the starting character for each QR code type, used to identify QR code type
     with open(utils.create_file_path('schema/match_collection_qr_schema.yml')) as schema_file:
         schema = yaml.load(schema_file, yaml.Loader)
 
-    # Acquires the raw data from competition document
-    db = MongoClient('localhost', 27017).scouting_system
-    raw_data = db.competitions.find_one({'tba_event_key': utils.TBA_EVENT_KEY})['raw']
+    # Acquires current qr data using local_database_communicator.py
+    qr_data = local_database_communicator.select_one_from_database({'tba_event_key':
+                                                    utils.TBA_EVENT_KEY}, {'raw': 1})['qr']
 
-    # Creates two lists to store QR codes separated into objective and subjective
-    qr_obj = []
-    qr_subj = []
+    # Creates a set to store QR codes
+    # This is a set in order to prevent addition of duplicate qr codes
+    qr = set()
 
     for qr_code in qr_codes:
-        # Adds QR code to its dataset if it hasn't already been added
-        # Identifies QR code type based on its first character
-        if qr_code.startswith(schema['subjective_aim']['_start_character']):
-            if qr_code in qr_subj or qr_code in raw_data['qr_subj']:
-                print(f'Duplicate QR code not uploaded: "{qr_code}"')
-            else:
-                qr_subj.append(qr_code)
-        elif qr_code.startswith(schema['objective_tim']['_start_character']):
-            if qr_code in qr_obj or qr_code in raw_data['qr_obj']:
-                print(f'Duplicate QR code not uploaded: "{qr_code}"')
-            else:
-                qr_obj.append(qr_code)
+        if qr_code in qr_data:
+            pass
+        # Checks to make sure the qr is valid by checking its starting character. If the starting
+        # character doesn't match either of the options, the QR is printed out.
+        elif not (qr_code.startswith(schema['subjective_aim']['_start_character']) or
+                qr_code.startswith(schema['objective_tim']['_start_character'])):
+            warnings.warn(f'Invalid QR code not uploaded: "{qr_code}"')
         else:
-            raise ValueError(f'Invalid QR code - no start character: "{qr_code}"')
+            qr.add(qr_code)
 
-    # Adds the objective and subjective QR codes to the local database if the lists aren't empty
-    if qr_obj != []:
-        db.competitions.update_one({'tba_event_key': utils.TBA_EVENT_KEY},
-                                   {'$push': {'raw.qr_obj': {'$each': qr_obj}}})
-    if qr_subj != []:
-        db.competitions.update_one({'tba_event_key': utils.TBA_EVENT_KEY},
-                                   {'$push': {'raw.qr_subj': {'$each': qr_subj}}})
+    # Adds the QR codes to the local database if the set isn't empty
+    if qr != set():
+        local_database_communicator.append_document(list(qr), 'raw.qr')

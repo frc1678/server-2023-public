@@ -98,8 +98,7 @@ def add_competition(tba_event_key):
         'year': year,
         'tba_event_key': tba_event_key,
         'raw': {
-            'qr_obj': [],
-            'qr_subj': [],
+            'qr': [],
             'pit': [],
         },
         'tba_cache': [],
@@ -107,7 +106,7 @@ def add_competition(tba_event_key):
             'replay_outdated_qr': [],
             'unconsolidated_obj_tim': [],
             'consolidated_obj_tim': [],
-            'calc_subj_aim': [],
+            'subj_aim': [],
             'calc_team': [],
             'calc_match': [],
             'calc_obj_tim': [],
