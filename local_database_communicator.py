@@ -13,23 +13,36 @@ DB = MongoClient('localhost', 27017).scouting_system
 
 
 def overwrite_data_points(data, path, overwrite, competition='current'):
-    """Updates data in the 'competitions' collection by overwriting previous data
+    """Updates data in an embedded array by overwriting previous data
 
     data is a string containing data to add to the collection
     path is a string joined by '.' communicating where within the collection the data is added
-    overwrite is a string communicating what to overwrite
+    overwrite is a string communicating what to overwrite within the array
     competition is the competition code
     """
     if competition == 'current':
-        # Obtains the event_code from competition.txt, the file created in setup_competition
         competition = utils.TBA_EVENT_KEY
     # Adds data to the correct path within the competition document
     DB.competitions.update_one({"tba_event_key": competition, path: overwrite},
                                {"$set": {path + '.$': data}})
 
 
+def overwrite_document(data, path, competition='current'):
+    """Updates data in an embedded document by overwriting previous data
+
+    data is a list containing data to add to the collection
+    path is a string joined by '.' communicating where within the collection the data is added
+    competition is the competition code
+    """
+    if competition == 'current':
+        # Obtains the event_code from competition.txt, the file created in setup_competition
+        competition = utils.TBA_EVENT_KEY
+    # Adds data to the correct path within the competition document
+    DB.competitions.update_one({"tba_event_key": competition}, {"$set": {path: data}})
+
+
 def append_document(data, path, competition='current'):
-    """Appends the 'competitions' collection with new data
+    """Appends the database with new data
 
     data is a list containing data to add to the collection
     path is a string joined by '.' communicating where within the collection the data is added
@@ -61,6 +74,7 @@ def select_one_from_database(query, projection=None):
     query is a dictionary containing the selection filter
     projection is a dictionary containing the data field to collect
     """
+    # Infers projection from query if projection is not specified
     if projection is None:
         query_keys = query.keys()
         for i in query_keys:
@@ -73,11 +87,16 @@ def select_one_from_database(query, projection=None):
             if i == 'processed':
                 projection = {'processed': 1}
                 break
+    # Finds the query within the database
     result = DB.competitions.find_one(query, projection)
+    # Simplifies the result
     new_result = result
     if result is not None:
+        # Removes the id
         result.pop('_id')
         keys = list(result.keys())
+        # Removes unnecessary path information to simplify the result of the function and make it
+        # easier to use
         for i in keys:
             if i == 'raw':
                 new_result = result.get('raw')
