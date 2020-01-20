@@ -110,9 +110,32 @@ def select_one_from_database(query, projection=None):
     return new_result
 
 
+def select_from_within_array(path, filter):
+    """Selects data from an embedded document within an array
+
+    path is a string joined by '.' communicating where within the collection the data is located
+    filter is a list containing a key and value pair that exists within the document"""
+    result = DB.competitions.aggregate([
+       {
+          '$project': {
+             path: {
+                '$filter': {
+                   'input': f'${path}',
+                   'as': 'item',
+                   'cond': {'$eq': ['$$item.' + filter[0], filter[1]]}
+                }
+             }
+          }
+       }
+    ])
+    new_result = []
+    for i in result:
+        new_result.append(i)
+    return new_result
+
 def add_competition(tba_event_key):
     """Adds a new document for the competition into the 'competitions' collection"""
-    # Extracts the year from the competition_code
+    # Extracts the year from the 'tba_event_key'
     year = int(tba_event_key[0:4])
     DB.competitions.insert_one({
         'year': year,
