@@ -51,7 +51,5 @@ def cache_exists(api_url):
     caches = [cache for cache in caches if len(cache['tba_cache']) > 0]
     return len(caches) > 0
 
-EVENT_CODE = utils.TBA_EVENT_KEY
-
 with open(utils.create_file_path('data/api_keys/tba_key.txt')) as file:
     API_KEY = file.read().rstrip('\n')

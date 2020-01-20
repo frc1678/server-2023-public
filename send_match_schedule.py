@@ -77,7 +77,7 @@ def run_command(command, return_output=False):
     subprocess.run(command, check=True)
     return None
 
-print(f'You are working with the competition {tba_communicator.EVENT_CODE}. Is that right?')
+print(f'You are working with the competition {utils.TBA_EVENT_KEY}. Is that right?')
 while True:
     if input('Hit enter to continue, or Ctrl-C to exit:') == '':
         break
@@ -90,7 +90,7 @@ with open(utils.create_file_path('data/tablet_serials.json')) as file:
 TABLET_FILE_PATH = '/storage/self/primary/Download/match_schedule.csv'
 LOCAL_FILE_PATH = utils.create_file_path('data/match_schedule.csv')
 
-create_match_schedule_csv(LOCAL_FILE_PATH, f'event/{tba_communicator.EVENT_CODE}/matches/simple')
+create_match_schedule_csv(LOCAL_FILE_PATH, f'event/{utils.TBA_EVENT_KEY}/matches/simple')
 
 # LOCAL_COPY contains the text of the match_schedule.csv file, which we compare with the output of
 # cat (run on tablets through adb shell) for file validations
