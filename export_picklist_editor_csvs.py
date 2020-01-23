@@ -10,15 +10,15 @@ import datetime
 import local_database_communicator
 import utils
 
-# Read competition code set by setup_competition.py
-CODE = utils.TBA_EVENT_KEY
+# Read competition key set by setup_competition.py
+KEY = utils.TBA_EVENT_KEY
 
-# Finds all documents matching the competiton code, returns specified fields
+# Finds all documents matching the competiton key, returns specified fields
 # Supresses _id, which isn't exported
 TEAM_DATA = local_database_communicator.select_from_database(
-    {'tba_event_code': CODE}, {'raw.pit': 1, 'processed.calc_team': 1, '_id': 0})
+    {'tba_event_key': KEY}, {'raw.pit': 1, 'processed.calc_team': 1, '_id': 0})
 TEAM_IN_MATCH_DATA = local_database_communicator.select_from_database(
-    {'tba_event_code': CODE}, {'processed.consolidated_obj_tim': 1, '_id': 0})
+    {'tba_event_key': KEY}, {'processed.consolidated_obj_tim': 1, '_id': 0})
 
 
 def make_lists(collection_data, first_keys):
