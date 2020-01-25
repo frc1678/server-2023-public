@@ -3,6 +3,7 @@
 """Holds variables + functions that are shared across server files."""
 # External imports
 import os
+import subprocess
 # No internal imports
 
 _TBA_KEY_FILE = 'data/competition.txt'
@@ -63,3 +64,24 @@ with open(create_file_path(_TBA_KEY_FILE)) as file:
     # Remove trailing newline (if it exists) from file data.
     # Many file editors will automatically add a newline at the end of files.
     TBA_EVENT_KEY = file.read().rstrip('\n')
+
+
+def run_command(command, return_output=False):
+    """Runs a command using subprocess.
+    command (string) is the terminal command to be run
+    returns the standard output of the command if return_output is True
+    """
+    # We use .split(' ') because subprocess.run() expects the command as a list of strings
+    # Example, .run(['echo', 'hello']) instead of .run('echo hello')
+    command = command.split(' ')
+    if return_output is True:
+        output = subprocess.run(command, check=True, stdout=subprocess.PIPE).stdout
+        # output is a byte-like string and needs to be decoded
+        # Remove trailing newlines
+        output = output.decode('utf-8').rstrip('\n')
+        # Replace '\r\n' with '\n' to match the UNIX format for newlines
+        output = output.replace('\r\n', '\n')
+        return output
+    subprocess.run(command, check=True)
+    return None
+

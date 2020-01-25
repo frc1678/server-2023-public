@@ -9,7 +9,6 @@ ADB stands for Android Debug Bridge."""
 # External imports
 import csv
 import json
-import subprocess
 import time
 # Internal imports
 import tba_communicator
@@ -55,27 +54,10 @@ def validate_file(device_id):
     Parameter 'device_id' is the serial number of the device"""
     # Reads the match_schedule.csv file on the tablet
     # The -s flag specifies a device by its serial number
-    tablet_data = run_command(f'adb -s {device_id} shell cat {TABLET_FILE_PATH}',
+    tablet_data = utils.run_command(f'adb -s {device_id} shell cat {TABLET_FILE_PATH}',
                               return_output=True)
     return tablet_data == LOCAL_COPY
 
-def run_command(command, return_output=False):
-    """Runs a command using subprocess.
-
-    command (string) is the terminal command to be run
-    returns the standard output of the command if return_output is True"""
-    # We use .split(' ') because subprocess.run() expects the command as a list of strings
-    # Example, .run(['echo', 'hello']) instead of .run('echo hello')
-    command = command.split(' ')
-    if return_output is True:
-        output = subprocess.run(command, check=True, stdout=subprocess.PIPE).stdout
-        # output is a byte-like string and needs to be decoded
-        # Replace '\r\n' with '\n' to match the UNIX format for newlines
-        # Remove trailing newlines
-        output = output.decode('utf-8').replace('\r\n', '\n').rstrip('\n')
-        return output
-    subprocess.run(command, check=True)
-    return None
 
 print(f'You are working with the competition {utils.TBA_EVENT_KEY}. Is that right?')
 while True:
@@ -106,7 +88,7 @@ while True:
     # 'adb devices' returns the serial numbers of all devices connected over ADB.
     # Example output of 'adb devices':
     # "List of devices attached\nHA0XUZA9\tdevice\n9AMAY1E53P\tdevice"
-    OUTPUT = run_command('adb devices', return_output=True)
+    OUTPUT = utils.run_command('adb devices', return_output=True)
     # [1:] removes 'List of devices attached'
     OUTPUT = OUTPUT.rstrip('\n').split('\n')[1:]
     # Remove '\tdevice' from each line
@@ -120,7 +102,7 @@ while True:
             # Calls 'adb push' command, which uses the Android Debug
             # Bridge (ADB) to copy the match schedule file to the tablet.
             # The -s flag specifies the device by its serial number.
-            run_command(f'adb -s {device} push {LOCAL_FILE_PATH} {TABLET_FILE_PATH}')
+            utils.run_command(f'adb -s {device} push {LOCAL_FILE_PATH} {TABLET_FILE_PATH}')
 
             if validate_file(device) is True:
                 DEVICES_WITH_FILE.append(device)
