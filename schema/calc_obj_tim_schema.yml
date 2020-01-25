@@ -1,0 +1,54 @@
+# Used for calculating objective team in match data in Server
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file, should match end of file name
+  # Incremented every merged schema change
+  version: 1
+
+# Calculations built around counting timeline actions with certain specifications.
+timeline_counts:
+  auto_balls_low:
+    action_type: outtake
+    stage: auto
+    scoring_location: low
+  auto_balls_high:
+    action_type: outtake
+    stage: auto
+    scoring_location: high
+  tele_balls_low:
+    action_type: outtake
+    stage: tele
+    scoring_location: low
+  tele_balls_high:
+    action_type: outtake
+    stage: tele
+    scoring_location: high
+
+# Calculations built around saying whether or not a robot has completed a certain action in a match.
+timeline_bools:
+  control_panel_rotation:
+    action_type: control_panel_rotation
+  control_panel_position:
+    action_type: control_panel_position
+
+# Calculations built around measuring the time between two actions.
+cycle_time:
+  incap:
+    action_type: [start_incap, end_incap]
+
+# Calculations built around pulling data from TBA.
+tba:
+  auto_line:
+    initLineRobot: Exited
+  climb:
+    endgameRobot: Hang
+  park:
+    endgameRobot: Park
+  solo_level_climb:
+    self:
+      endgameRobot: Hang
+    partner:
+      endgameRobot: [None, Unknown]
+    alliance:
+      endgameRungIsLevel: IsLevel
