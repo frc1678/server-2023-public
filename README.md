@@ -1,6 +1,6 @@
 # 1678 Server 2020
 
-Run `setup_environment.py` when you clone the repository
+Run `setup_environment.py` when you clone the repository.
 
 This will install a [virtual python environment](https://docs.python.org/3/glossary.html#term-virtual-environment)
 in the main project directory. It will then install the external dependencies into this environment from PyPI using 
