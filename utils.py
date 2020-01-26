@@ -6,6 +6,7 @@ import os
 import subprocess
 # No internal imports
 
+
 _TBA_KEY_FILE = 'data/competition.txt'
 
 # The directory this script is located in
@@ -51,6 +52,20 @@ def get_bool(value):
     if value.upper() in ["0", "F", "FALSE"]:
         return False
     raise ValueError(f"Unable to convert {value} to boolean.")
+
+
+def catch_function_errors(fn, *args, **kwargs):
+    """Returns function return value or None if there are errors"""
+    try:
+        result = fn(*args, **kwargs)
+    # Keyboard interrupts should stop server
+    except KeyboardInterrupt:
+        raise
+    # Notify user that error occurred
+    except Exception as err:
+        print(f'Function {fn.__name__}: {err.__class__} - {err}')
+        result = None
+    return result
 
 
 def save_event_key(tba_event_key):
