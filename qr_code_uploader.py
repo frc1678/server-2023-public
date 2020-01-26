@@ -7,7 +7,6 @@ Appends new QR codes to raw.qr
 """
 # External imports
 import yaml
-import warnings
 # Internal imports
 import local_database_communicator
 import utils
@@ -24,8 +23,8 @@ def upload_qr_codes(qr_codes):
         schema = yaml.load(schema_file, yaml.Loader)
 
     # Acquires current qr data using local_database_communicator.py
-    qr_data = local_database_communicator.select_one_from_database({'tba_event_key':
-                                                    utils.TBA_EVENT_KEY}, {'raw': 1})['qr']
+    qr_data = local_database_communicator.select_one_from_database(
+        {'tba_event_key': utils.TBA_EVENT_KEY}, {'raw': 1})['qr']
 
     # Creates a set to store QR codes
     # This is a set in order to prevent addition of duplicate qr codes
@@ -37,8 +36,8 @@ def upload_qr_codes(qr_codes):
         # Checks to make sure the qr is valid by checking its starting character. If the starting
         # character doesn't match either of the options, the QR is printed out.
         elif not (qr_code.startswith(schema['subjective_aim']['_start_character']) or
-                qr_code.startswith(schema['objective_tim']['_start_character'])):
-            warnings.warn(f'Invalid QR code not uploaded: "{qr_code}"')
+                  qr_code.startswith(schema['objective_tim']['_start_character'])):
+            utils.log_warning(f'Invalid QR code not uploaded: "{qr_code}"')
         else:
             qr.add(qr_code)
 

@@ -136,7 +136,7 @@ def select_from_within_array(path, **filters):
         new_result.append(i)
     return new_result
 
-  
+
 def add_competition(tba_event_key):
     """Adds a new document for the competition into the 'competitions' collection"""
     # Extracts the year from the 'tba_event_key'

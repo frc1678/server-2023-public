@@ -102,7 +102,7 @@ def decompress_data(data, section):
                 # Value is not one of the currently known dictionaries
                 else:
                     raise NotImplementedError(
-                        f"Decompression of {uncompressed_name} as a dict not supported.")
+                        f'Decompression of {uncompressed_name} as a dict not supported.')
 
             else:  # Normal list, split by internal separator
                 value = value.split(SCHEMA[section]['_separator_internal'])
@@ -179,6 +179,7 @@ def decompress_qr(qr_data):
         subjective_qr = False
     else:
         raise ValueError(f'QR type unknown - Invalid first character for QR: {qr_data[0]}')
+
     # Remove identification character
     qr_data = qr_data[1:]
     # Split into generic data and objective/subjective data
@@ -191,7 +192,7 @@ def decompress_qr(qr_data):
         subjective_data = qr_data[1].split(SCHEMA['subjective_aim']['_separator'])
         decompressed_data.update(decompress_data(subjective_data, 'subjective_aim'))
         if set(decompressed_data.keys()) != SUBJECTIVE_QR_FIELDS:
-            raise ValueError("QR Missing data fields")
+            raise ValueError('QR missing data fields')
     else:  # Decompress objective QR
         objective_data = qr_data[1].split(SCHEMA['objective_tim']['_separator'])
         decompressed_data.update(decompress_data(objective_data, 'objective_tim'))

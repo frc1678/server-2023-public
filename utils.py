@@ -1,9 +1,11 @@
 #!/usr/bin/python3.6
-# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
+# Copyright (c) 2020 FRC Team 1678: Citrus Circuits
 """Holds variables + functions that are shared across server files."""
 # External imports
+import logging
 import os
 import subprocess
+import traceback
 # No internal imports
 
 
@@ -54,6 +56,10 @@ def get_bool(value):
     raise ValueError(f"Unable to convert {value} to boolean.")
 
 
+# Set the basic config for logging functions
+logging.basicConfig(filename='server.log', filemode='a', format='%(asctime)s %(message)s')
+
+
 def catch_function_errors(fn, *args, **kwargs):
     """Returns function return value or None if there are errors"""
     try:
@@ -63,6 +69,7 @@ def catch_function_errors(fn, *args, **kwargs):
         raise
     # Notify user that error occurred
     except Exception as err:
+        logging.error(f'{str(exception)}\n{"".join(traceback.format_stack()[:-1])}')
         print(f'Function {fn.__name__}: {err.__class__} - {err}')
         result = None
     return result
@@ -73,6 +80,17 @@ def save_event_key(tba_event_key):
     with open(_TBA_KEY_FILE, 'w') as file:
         file.write(tba_event_key)
 
+
+def log_warning(warning):
+    """Logs warnings to server.log
+
+    'warning' is the warning message
+    Logs to server.log in this directory
+    """
+    # Logs warning, also contains a traceback
+    logging.warning(f'{warning}\n{"".join(traceback.format_stack()[:-1])}')
+    # Prints warning to console
+    print(f'WARNING: {warning}')
 
 # Specifies which event - string such as '2020cada'.
 with open(create_file_path(_TBA_KEY_FILE)) as file:

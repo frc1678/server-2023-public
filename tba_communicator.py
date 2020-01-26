@@ -28,7 +28,7 @@ def tba_request(api_url):
     try:
         request = requests.get(full_url, request_headers)
     except requests.exceptions.ConnectionError:
-        print('Error: No internet connection.')
+        utils.log_warning('Error: No internet connection.')
         return None
     # A 200 status code means the request was successful
     # 304 means that data was not modified since the last timestamp
