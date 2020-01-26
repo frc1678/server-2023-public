@@ -32,10 +32,10 @@ OBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('objective_tim
 SUBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('subjective_aim'))
 
 
-def convert_data_type(value, type_):
+def convert_data_type(value, type_, name=None):
     """Convert from QR string representation to database data type"""
     # Enums are stored as int in the database
-    if type_ in ['int', 'Enum']:
+    if type_ == 'int':
         return int(value)
     if type_ == 'float':
         return float(value)
@@ -43,6 +43,8 @@ def convert_data_type(value, type_):
         return utils.get_bool(value)
     if type_ == 'str':
         return value  # Value is already a str
+    if type_ == 'Enum':
+        return get_decompressed_name(value, name)
     raise ValueError(f'Type {type_} not recognized')
 
 
@@ -53,8 +55,12 @@ def get_decompressed_name(compressed_name, section):
     section: str - Section of schema that name comes from
     """
     for key, value in SCHEMA[section].items():
-        if value[0] == compressed_name:
-            return key
+        if isinstance(value, list):
+            if value[0] == compressed_name:
+                return key
+        else:
+            if value == compressed_name:
+                return key
     raise ValueError(f'Retrieving Variable Name {compressed_name} from {section} failed.')
 
 
@@ -103,10 +109,11 @@ def decompress_data(data, section):
                 typed_value = []
                 # Convert all values in list to schema specified types
                 for item in value:
+                    # Name does not need to be specified because lists will not contain enums
                     typed_value.append(convert_data_type(item, uncompressed_type[-1]))
 
         else:  # Normal data type
-            typed_value = convert_data_type(value, uncompressed_type)
+            typed_value = convert_data_type(value, uncompressed_type, uncompressed_name)
         decompressed_data[uncompressed_name] = typed_value
     return decompressed_data
 
@@ -123,19 +130,43 @@ def decompress_generic_qr(data):
     return decompress_data(data, 'generic_data')
 
 
+def get_timeline_info():
+    """Loads information about timeline fields"""
+    timeline_fields = []
+    for field, field_list in SCHEMA['timeline'].items():
+        field_data = {
+            'name': field,
+            'length': field_list[0],
+            'type': field_list[1],
+            'position': field_list[2],
+        }
+        timeline_fields.append(field_data)
+    # Sort timeline_fields by the position they appear in
+    timeline_fields.sort(key=lambda x: x['position'])
+    return timeline_fields
+
+
 def decompress_timeline(data):
     """Decompress the timeline based on schema"""
     decompressed_timeline = []  # Timeline is a list of dictionaries
     # Return empty list if timeline is empty
     if data == '':
         return decompressed_timeline
-    # Split data by separator specified in schema
-    data = data.split(SCHEMA['timeline']['_separator'])
-    # Loop through each timeline entry
-    for entry in data:
-        # Split entry
-        entry = entry.split(SCHEMA['timeline']['_separator_internal'])
-        decompressed_timeline.append(decompress_data(entry, 'timeline'))
+    timeline_length = sum([entry['length'] for entry in _TIMELINE_FIELDS])
+    # Split into list of actions. Each action is a string of length timeline_length
+    timeline_actions = [data[i:i + timeline_length] for i in range(0, len(data), timeline_length)]
+    for action in timeline_actions:
+        decompressed_action = dict()
+        current_position = 0
+        for entry in _TIMELINE_FIELDS:
+            # Get untyped value by slicing action string from current position to next position
+            next_position = current_position + entry['length']
+            untyped_value = action[current_position:next_position]
+            # Set action value to the converted data type
+            decompressed_action[entry['name']] = convert_data_type(
+                untyped_value, entry['type'], entry['name'])
+            current_position = next_position
+        decompressed_timeline.append(decompressed_action)
     return decompressed_timeline
 
 
@@ -167,3 +198,6 @@ def decompress_qr(qr_data):
         if set(decompressed_data.keys()) != OBJECTIVE_QR_FIELDS:
             raise ValueError('QR missing data fields')
     return decompressed_data
+
+
+_TIMELINE_FIELDS = get_timeline_info()
