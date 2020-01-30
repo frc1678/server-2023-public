@@ -2,15 +2,16 @@
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Decompresses objective and subjective match collection QR codes"""
 # External imports
+import enum
 import yaml
 # Internal imports
 import utils
 
-# Load latest match collection compression QR code schema
-with open(utils.create_file_path('schema/match_collection_qr_schema.yml', False),
-          'r') as file:
-    # Specify loader to avoid warnings about default loader
-    SCHEMA = yaml.load(file, yaml.Loader)
+
+class QRType(enum.Enum):
+    """Enum that stores QR types"""
+    OBJECTIVE = 0
+    SUBJECTIVE = 1
 
 
 def _get_data_fields(section):
@@ -25,11 +26,6 @@ def _get_data_fields(section):
         if not field.startswith('_'):
             data_fields.add(field)
     return data_fields
-
-
-_GENERIC_DATA_FIELDS = _get_data_fields('generic_data')
-OBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('objective_tim'))
-SUBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('subjective_aim'))
 
 
 def convert_data_type(value, type_, name=None):
@@ -170,30 +166,28 @@ def decompress_timeline(data):
     return decompressed_timeline
 
 
-def decompress_qr(qr_data):
-    """Decompress a full QR"""
-    # Determine QR type
-    if qr_data.startswith(SCHEMA['subjective_aim']['_start_character']):
-        subjective_qr = True
-    elif qr_data.startswith(SCHEMA['objective_tim']['_start_character']):
-        subjective_qr = False
-    else:
-        raise ValueError(f'QR type unknown - Invalid first character for QR: {qr_data[0]}')
+def get_qr_type(first_char):
+    """Returns the qr type from QRType enum based on first character."""
+    if first_char == SCHEMA['objective_tim']['_start_character']:
+        return QRType.OBJECTIVE
+    if first_char == SCHEMA['subjective_aim']['_start_character']:
+        return QRType.SUBJECTIVE
+    raise ValueError(f'QR type unknown - Invalid first character for QR: {first_char}')
 
-    # Remove identification character
-    qr_data = qr_data[1:]
+
+def decompress_single_qr(qr_data, qr_type):
+    """Decompress a full QR"""
     # Split into generic data and objective/subjective data
     qr_data = qr_data.split(SCHEMA['generic_data']['_section_separator'])
     # Generic QR is first section of QR
     decompressed_data = decompress_generic_qr(qr_data[0])
-
     # Decompress subjective QR
-    if subjective_qr:
+    if qr_type == QRType.SUBJECTIVE:
         subjective_data = qr_data[1].split(SCHEMA['subjective_aim']['_separator'])
         decompressed_data.update(decompress_data(subjective_data, 'subjective_aim'))
         if set(decompressed_data.keys()) != SUBJECTIVE_QR_FIELDS:
             raise ValueError('QR missing data fields')
-    else:  # Decompress objective QR
+    elif qr_type == QRType.OBJECTIVE:  # Decompress objective QR
         objective_data = qr_data[1].split(SCHEMA['objective_tim']['_separator'])
         decompressed_data.update(decompress_data(objective_data, 'objective_tim'))
         if set(decompressed_data.keys()) != OBJECTIVE_QR_FIELDS:
@@ -201,4 +195,35 @@ def decompress_qr(qr_data):
     return decompressed_data
 
 
+def decompress_qrs(split_qrs):
+    """Decompresses a list of QRs. Returns dict of decompressed QRs split by type."""
+    output = {
+        'unconsolidated_obj_tim': [],
+        'subj_aim': []
+    }
+    for qr in split_qrs:
+        qr_type = utils.catch_function_errors(get_qr_type, qr[0])
+        if qr_type is None:
+            continue
+        # Remove identification character
+        qr = qr[1:]
+        decompressed_qr = utils.catch_function_errors(decompress_single_qr, qr, qr_type)
+        if decompressed_qr is None:
+            continue
+        if qr_type == QRType.OBJECTIVE:
+            output['unconsolidated_obj_tim'].append(decompressed_qr)
+        elif qr_type == QRType.SUBJECTIVE:
+            output['subj_aim'].append(decompressed_qr)
+    return output
+
+
+# Load latest match collection compression QR code schema
+with open(utils.create_file_path('schema/match_collection_qr_schema.yml', False),
+          'r') as file:
+    # Specify loader to avoid warnings about default loader
+    SCHEMA = yaml.load(file, yaml.Loader)
+
+_GENERIC_DATA_FIELDS = _get_data_fields('generic_data')
+OBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('objective_tim'))
+SUBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('subjective_aim'))
 _TIMELINE_FIELDS = get_timeline_info()
