@@ -55,7 +55,7 @@ def validate_file(device_id):
     # Reads the match_schedule.csv file on the tablet
     # The -s flag specifies a device by its serial number
     tablet_data = utils.run_command(f'adb -s {device_id} shell cat {TABLET_FILE_PATH}',
-                              return_output=True)
+                                    return_output=True)
     return tablet_data == LOCAL_COPY
 
 
