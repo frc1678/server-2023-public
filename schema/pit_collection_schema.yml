@@ -1,0 +1,32 @@
+# Used for Pit Collection data storage by Pit Scout and for storage of this data in MongoDB
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file
+  # Incremented every merged schema change
+  version: 1
+
+# Stores data type/structure
+schema:
+  team_number: int
+  can_cross_trench: bool
+  drivetrain: Enum
+  drivetrain_motors: int
+  drivetrain_motor_type: Enum
+  has_ground_intake: bool
+
+
+# Stores Enum data
+enums:
+  # Drivetrain type
+  drivetrain:
+    tank: 0
+    mecanum: 1
+    swerve: 2
+    other: 3
+  # Type of the motors on the drivetrain, independent of drivetrain type
+  drivetrain_motor_type:
+    minicim: 0
+    cim: 1
+    neo: 2
+    falcon: 3
