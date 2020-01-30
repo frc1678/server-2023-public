@@ -11,6 +11,7 @@ import yaml
 import local_database_communicator
 import utils
 
+
 def upload_qr_codes(qr_codes):
     """Uploads QR codes into the current competition document.
 
@@ -44,3 +45,5 @@ def upload_qr_codes(qr_codes):
     # Adds the QR codes to the local database if the set isn't empty
     if qr != set():
         local_database_communicator.append_document(list(qr), 'raw.qr')
+
+    return qr
