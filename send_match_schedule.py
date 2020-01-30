@@ -4,7 +4,8 @@
 Retrieve match schedule from TBA,
 send match schedule file to scout tablets over ADB,
 and verify that the file is successfully transferred.
-ADB stands for Android Debug Bridge."""
+ADB stands for Android Debug Bridge.
+"""
 
 # External imports
 import csv
@@ -51,7 +52,8 @@ def validate_file(device_id):
     Compares the match_schedule.csv on the tablet to the locally stored
     version of the same file.
 
-    Parameter 'device_id' is the serial number of the device"""
+    Parameter 'device_id' is the serial number of the device
+    """
     # Reads the match_schedule.csv file on the tablet
     # The -s flag specifies a device by its serial number
     tablet_data = utils.run_command(f'adb -s {device_id} shell cat {TABLET_FILE_PATH}',
