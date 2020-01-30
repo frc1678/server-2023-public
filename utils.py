@@ -59,7 +59,6 @@ def get_bool(value):
 # Set the basic config for logging functions
 logging.basicConfig(filename='server.log', filemode='a', format='%(asctime)s %(message)s')
 
-
 def catch_function_errors(fn, *args, **kwargs):
     """Returns function return value or None if there are errors"""
     try:
@@ -92,12 +91,6 @@ def log_warning(warning):
     # Prints warning to console
     print(f'WARNING: {warning}')
 
-# Specifies which event - string such as '2020cada'.
-with open(create_file_path(_TBA_KEY_FILE)) as file:
-    # Remove trailing newline (if it exists) from file data.
-    # Many file editors will automatically add a newline at the end of files.
-    TBA_EVENT_KEY = file.read().rstrip('\n')
-
 
 def run_command(command, return_output=False):
     """Runs a command using subprocess.
@@ -117,4 +110,11 @@ def run_command(command, return_output=False):
         return output
     subprocess.run(command, check=True)
     return None
+
+
+# Specifies which event - string such as '2020cada'.
+with open(create_file_path(_TBA_KEY_FILE)) as file:
+    # Remove trailing newline (if it exists) from file data.
+    # Many file editors will automatically add a newline at the end of files.
+    TBA_EVENT_KEY = file.read().rstrip('\n')
 
