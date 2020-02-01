@@ -148,7 +148,7 @@ def add_competition(tba_event_key):
             'qr': [],
             'pit': [],
         },
-        'tba_cache': [],
+        'tba_cache': {},
         'processed': {
             'replay_outdated_qr': [],
             'unconsolidated_obj_tim': [],
