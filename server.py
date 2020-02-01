@@ -37,6 +37,11 @@ MAIN_QUEUE['raw']['qr'].extend(
     local_database_communicator.select_from_within_array('raw.qr')[0]['raw']['qr']
 )
 
+BLACKLISTED = local_database_communicator.select_from_within_array(
+    'processed.replay_outdated_qr')[0]['processed']['replay_outdated_qr']
+# Selecting only the non-blacklisted ones
+MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLACKLISTED]
+
 while True:
     RAW_SCANNER = input('Scan Data Here: ')
     QR_DATA = RAW_SCANNER.rstrip('\t').split('\t')
