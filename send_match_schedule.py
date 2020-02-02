@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Create match schedule and send it to devices.
 
 Retrieve match schedule from TBA,
