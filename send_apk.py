@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Send APK file to tablets over ADB.
 
 Uses subprocess to send an APK to the tablets
