@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Sends web requests to The Blue Alliance (TBA) APIv3
 
 Caches data to prevent duplicate data retrieval from the TBA API.
