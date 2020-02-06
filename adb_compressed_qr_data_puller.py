@@ -1,20 +1,24 @@
 #!/usr/bin/python3.6
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-'''adb_compressed_qr_data_puller is a tablet communicator'''
+"""adb_compressed_qr_data_puller is a tablet communicator"""
 # External imports
 import time
 # Internal imports
 import utils
 
+
 def adb_pull_tablet_data(local_file_path, tablet_file_path):
-    '''adb_pull_tablet_data is a function for pulling data off tablets
+    """adb_pull_tablet_data is a function for pulling data off tablets
 
     adb_pull_tablet_data is given a local path and a tablet path.
     It takes the file or directory that is specified as tablet path and
     puts in the directory specified as local path. The directory that is put
     in the local path is a subdirectory of a directory with the name of
     the serial number of the tablet that was pulled from.
-    '''
+    
+    Usage:
+    adb_pull_tablet_data('/path/to/output/directory', '/path/to/tablet/data')
+    """
     # Stores output from 'adb devices'
     # 'adb devices' returns the serial numbers of all devices connected over ADB.
     # Example output of 'adb devices':
