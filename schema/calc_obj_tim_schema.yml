@@ -4,50 +4,62 @@
 schema_file:
   # Version of schema file
   # Incremented every merged schema change
-  version: 2
+  version: 3
 
 # Calculations built around counting timeline actions with certain key:value pairs.
 timeline_counts:
   auto_balls_low:
+    type: int
     action_type: score_ball_low
     time: [135, 150]
   auto_balls_high:
+    type: int
     action_type: score_ball_high
     time: [135, 150]
   tele_balls_low:
+    type: int
     action_type: score_ball_low
     time: [0, 134]
   tele_balls_high:
+    type: int
     action_type: score_ball_high
     time: [0, 134]
 
 # Calculations built around saying whether or not a robot has completed a certain action in a match.
 timeline_bools:
   control_panel_rotation:
+    type: bool
     action_type: control_panel_rotation
   control_panel_position:
+    type: bool
     action_type: control_panel_position
 
 # Calculations built around measuring the time between two timeline actions.
 # First item in each list is the start item key:value pair requirements, second item is the end item.
 timeline_cycle_time:
   incap:
-    - action_type: start_incap
-    - action_type: end_incap
+    type: int
+    start_action: start_incap
+    end_action: end_incap
   climb_time:
-    - action_type: start_climb
-    - action_type: end_climb
+    type: int
+    start_action: start_climb
+    end_action: end_climb
 
 # Calculations built around pulling data from TBA.
 # key is the name in our local MongoDB database, value is a dict of TBA key to TBA value
 tba:
   auto_line:
+    type: bool
     initLineRobot: Exited
   climb:
+    type: bool
     endgameRobot: Hang
   park:
+    type: bool
     endgameRobot: Park
   solo_level_climb:
+    type: bool
     self:
       endgameRobot: Hang
     partner:
