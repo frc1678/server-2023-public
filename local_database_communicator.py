@@ -153,10 +153,14 @@ def add_competition(tba_event_key):
         'processed': {
             'replay_outdated_qr': [],
             'unconsolidated_obj_tim': [],
-            'consolidated_obj_tim': [],
-            'subj_aim': [],
-            'calc_team': [],
-            'calc_match': [],
             'calc_obj_tim': [],
+            'subj_aim': [],
+            'calc_obj_team': [],
+            'calc_subj_team': [],
+            'calc_match': [],
+            'calc_predicted_aim': [],
+            'calc_predicted_team': [],
+            'calc_tba_team': [],
+            'calc_pick_ability_team': [],
         },
     })
