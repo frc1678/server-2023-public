@@ -114,7 +114,8 @@ def select_from_within_array(path, **filters):
     """Selects data from an embedded document within an array
 
     path is a string joined by '.' communicating where within the collection the data is located
-    filters are of the format foo=bar"""
+    filters are of the format foo=bar
+    """
     all_the_filters = []
     for key, value in filters.items():
         all_the_filters.append({'$eq': ['$$item.' + key, value]})
