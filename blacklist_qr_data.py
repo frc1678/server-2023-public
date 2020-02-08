@@ -75,13 +75,13 @@ BLACKLISTED_QRS = DB.competitions.find_one({'tba_event_key': EVENT_KEY}) \
     ['processed']['replay_outdated_qr']
 
 for qr_code in DB.competitions.find_one({'tba_event_key': EVENT_KEY})['raw']['qr']:
+    # If the QR code is already blacklisted, go to the next QR code
+    if qr_code in BLACKLISTED_QRS:
+        continue
     # Iterates through all regex pattern objects
     for PATTERN in PATTERNS:
         if re.search(PATTERN, qr_code) is None:
             # If the pattern doesn't match, go to the next QR code
-            break
-        # If the qr_code is already blacklisted, go to the next QR code
-        if qr_code in BLACKLISTED_QRS:
             break
     # If none of the other statements are true, add it to to_blacklist
     else:
