@@ -7,8 +7,9 @@ Run before every competition.
 import re
 from pymongo import MongoClient
 # Internal imports
-import utils
+import cloud_database_communicator
 import local_database_communicator
+import utils
 
 # Makes connection with local database through port 27017, the default listening port of MongoDB
 DB = MongoClient('localhost', 27017).scouting_system
@@ -31,3 +32,4 @@ if len([comp for comp in DB.competitions.find({'tba_event_key': COMPETITION_KEY}
 YEAR = int(CODE_MATCH.group('year'))
 # Inserts document into collection
 local_database_communicator.add_competition(COMPETITION_KEY)
+cloud_database_communicator.add_competition_cloud(COMPETITION_KEY)

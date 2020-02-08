@@ -144,11 +144,11 @@ def select_from_within_array(path, **filters):
     return new_result
 
 
-def add_competition(tba_event_key):
+def add_competition(tba_event_key, db=DB):
     """Adds a new document for the competition into the 'competitions' collection"""
     # Extracts the year from the 'tba_event_key'
     year = int(tba_event_key[0:4])
-    DB.competitions.insert_one({
+    db.competitions.insert_one({
         'year': year,
         'tba_event_key': tba_event_key,
         'raw': {

@@ -8,6 +8,7 @@ competition. This script runs all of the computations in the server.
 # No external imports
 # Internal imports
 import decompressor
+import cloud_database_communicator
 import local_database_communicator
 import qr_code_uploader
 
@@ -31,7 +32,13 @@ def get_empty_modified_data():
     return modified_data
 
 
+# Tracks if cloud database has been updated since the latest server restart
+# Is used to determine if raw.qr should be completely emptied or just pushed to
+SERVER_RESTART_SINCE_CLOUD_UPDATE = True
+# Instantiate the queue that stores what changes need to be pushed to cloud
 CLOUD_DB_QUEUE = get_empty_modified_data()
+# Instantiate the queue that tracks what data has been changed
+# This queue is used to determine what calculations need to be run and what data to run them on.
 MAIN_QUEUE = get_empty_modified_data()
 MAIN_QUEUE['raw']['qr'].extend(
     local_database_communicator.select_from_within_array('raw.qr')[0]['raw']['qr']
@@ -76,10 +83,19 @@ while True:
 
     # TODO: Team calcs (driver ability)
 
-    # TODO: Send data to cloud DB
+    # Send data to cloud database
     # Merge CLOUD_DB_QUEUE and MAIN_QUEUE
     for key in MAIN_QUEUE:
         for dataset, data in MAIN_QUEUE[key].items():
             CLOUD_DB_QUEUE[key][dataset].extend(data)
     # Empty main queue
     MAIN_QUEUE = get_empty_modified_data()
+    # Send data to cloud
+    CLOUD_WRITE_RESULT = cloud_database_communicator.push_changes_to_db(
+        CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE
+    )
+    # push_changes_to_db returns None on connection errors
+    if CLOUD_WRITE_RESULT is not None:
+        CLOUD_DB_QUEUE = get_empty_modified_data()
+        if SERVER_RESTART_SINCE_CLOUD_UPDATE:
+            SERVER_RESTART_SINCE_CLOUD_UPDATE = False
