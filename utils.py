@@ -9,12 +9,6 @@ import traceback
 # No internal imports
 
 
-_TBA_KEY_FILE = 'data/competition.txt'
-
-# The directory this script is located in
-MAIN_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-
-
 def create_file_path(path_after_main, create_directories=True):
     """Joins the path of the directory this script is in with the path
     that is passed to this function.
@@ -55,9 +49,6 @@ def get_bool(value):
         return False
     raise ValueError(f"Unable to convert {value} to boolean.")
 
-
-# Set the basic config for logging functions
-logging.basicConfig(filename='server.log', filemode='a', format='%(asctime)s %(message)s')
 
 def catch_function_errors(fn, *args, **kwargs):
     """Returns function return value or None if there are errors"""
@@ -132,9 +123,19 @@ def avg(nums, weights=None, default=0):
     return weighted_sum / sum(weights)
 
 
-# Specifies which event - string such as '2020cada'.
-with open(create_file_path(_TBA_KEY_FILE)) as file:
-    # Remove trailing newline (if it exists) from file data.
-    # Many file editors will automatically add a newline at the end of files.
-    TBA_EVENT_KEY = file.read().rstrip('\n')
+_TBA_KEY_FILE = 'data/competition.txt'
 
+# The directory this script is located in
+MAIN_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+
+# Set the basic config for logging functions
+logging.basicConfig(filename='server.log', filemode='a', format='%(asctime)s %(message)s')
+
+try:
+    # Specifies which event - string such as '2020cada'.
+    with open(create_file_path(_TBA_KEY_FILE)) as file:
+        # Remove trailing newline (if it exists) from file data.
+        # Many file editors will automatically add a newline at the end of files.
+        TBA_EVENT_KEY = file.read().rstrip('\n')
+except FileNotFoundError:
+    log_warning(f'ERROR Loading TBA Key: File {_TBA_KEY_FILE} NOT FOUND')
