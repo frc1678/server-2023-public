@@ -25,7 +25,7 @@ if CODE_MATCH is None:
 # Also writes the competition code to it so it can be used in other scripts.
 utils.save_event_key(COMPETITION_KEY)
 # Checks that the competition inputted by the user is not already in the database
-if DB.competitions.count_documents({'tba_event_key': COMPETITION_KEY}) != 0:
+if len([comp for comp in DB.competitions.find({'tba_event_key': COMPETITION_KEY})]) != 0:
     raise Exception(f'The competition {COMPETITION_KEY} already exists in the database.')
 # Extracts the year with capture group
 YEAR = int(CODE_MATCH.group('year'))
