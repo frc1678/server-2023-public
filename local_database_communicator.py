@@ -35,7 +35,6 @@ def overwrite_document(data, path, competition='current'):
     competition is the competition code
     """
     if competition == 'current':
-        # Obtains the event_code from competition.txt, the file created in setup_competition
         competition = utils.TBA_EVENT_KEY
     # Adds data to the correct path within the competition document
     DB.competitions.update_one({"tba_event_key": competition}, {"$set": {path: data}})
@@ -49,7 +48,6 @@ def append_document(data, path, competition='current'):
     competition is the competition code
     """
     if competition == 'current':
-        # Obtains the event_code from competition.txt, the file created in setup_competition
         competition = utils.TBA_EVENT_KEY
     # Adds data to the correct path within the competition document
     DB.competitions.update_one({"tba_event_key": competition}, {'$push': {path: {'$each': data}}})
@@ -116,10 +114,18 @@ def select_from_within_array(path, **filters):
     path is a string joined by '.' communicating where within the collection the data is located
     filters are of the format foo=bar
     """
+    # If the filter 'competition' is explicitly given, don't treat it as a normal filter,
+    # since tba_event_key will not be in path. Default to current competition
+    if 'competition' in filters.keys():
+        competition = filters['competition']
+        filters.pop('competition')
+    else:
+        competition = utils.TBA_EVENT_KEY
     all_the_filters = []
     for key, value in filters.items():
         all_the_filters.append({'$eq': ['$$item.' + key, value]})
     result = DB.competitions.aggregate([
+        {'$match': {'tba_event_key': competition}},
         {
             '$project': {
                 path: {
