@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """adb_compressed_qr_data_puller is a tablet communicator"""
 # External imports

@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/env python3
 # Copyright (c) 2020 FRC Team 1678: Citrus Circuits
 """Holds variables + functions that are shared across server files."""
 # External imports

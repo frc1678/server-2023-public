@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Export data from local MongoDB database to CSV file for picklist editor spreadsheet.
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Adds QR codes to a blacklist in the local database based on match number or blacklists
 a specific QR code based on match number and tablet serial number.
