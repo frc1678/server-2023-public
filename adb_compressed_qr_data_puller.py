@@ -36,8 +36,8 @@ def adb_pull_tablet_data(local_file_path, tablet_file_path):
         # Checks if device is finished
         if device not in devices_finished:
             # Creates directory for each tablet in data/
-            utils.create_file_path(f'data/{device}')
+            utils.create_file_path(f'{local_file_path}/{device}')
             # Calls 'adb push' command, which uses the Android Debug
             # Bridge (ADB) to copy the match schedule file to the tablet.
             # The -s flag specifies the device by its serial number.
-            utils.run_command(f'adb -s {device} pull {tablet_file_path} {local_file_path}{device}')
+            utils.run_command(f'adb -s {device} pull {tablet_file_path} {local_file_path}/{device}')
