@@ -1,0 +1,48 @@
+# Used for running team calcs in Server
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file
+  # Incremented every merged schema change
+  version: 1
+
+# Stores fields that will be added to database but do not require calculations
+data:
+  team_number: int
+
+# Averages of fields in consolidated TIMs
+averages:
+  auto_avg_balls_low:
+    tim_fields: [auto_balls_low]
+    type: float
+  auto_avg_balls_high:
+    tim_fields: [auto_balls_high]
+    type: float
+  auto_avg_balls_total:
+    tim_fields: [auto_balls_low, auto_balls_high]
+    type: float
+  tele_avg_balls_low:
+    tim_fields: [tele_balls_low]
+    type: float
+  tele_avg_balls_high:
+    tim_fields: [tele_balls_high]
+    type: float
+  tele_avg_balls_total:
+    tim_fields: [tele_balls_low, tele_balls_high]
+    type: float
+
+# Counts of occurrences in consolidated TIMs
+counts:
+  tele_cp_rotation_successes:
+    tim_fields:
+      control_panel_rotation: True
+    type: int
+  tele_cp_position_successes:
+    tim_fields:
+      control_panel_position: True
+    type: int
+  climb_all_attempts:
+    tim_fields:
+      not:
+        climb_time: null
+    type: int
