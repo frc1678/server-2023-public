@@ -51,9 +51,11 @@ MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLA
 
 while True:
     RAW_SCANNER = input('Scan Data Here: ')
-    QR_DATA = RAW_SCANNER.rstrip('\t').split('\t')
-    # Upload QRs to MongoDB and add uploaded QRs to queue
-    MAIN_QUEUE['raw']['qr'].extend(qr_code_uploader.upload_qr_codes(QR_DATA))
+    # Do not try to upload blank string
+    if RAW_SCANNER != '':
+        QR_DATA = RAW_SCANNER.rstrip('\t').split('\t')
+        # Upload QRs to MongoDB and add uploaded QRs to queue
+        MAIN_QUEUE['raw']['qr'].extend(qr_code_uploader.upload_qr_codes(QR_DATA))
 
     # Decompress all inputted QRs
     DECOMPRESSED_QRS = decompressor.decompress_qrs(MAIN_QUEUE['raw']['qr'])
