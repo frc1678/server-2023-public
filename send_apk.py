@@ -13,30 +13,31 @@ import time
 import utils
 
 
+def install_apk(device_serial):
+    """Installs chosen APK to either phone or tablet depending on user input."""
+    # Convert serial number to human-readable format
+    device_name = DEVICE_NAMES[device_serial]
+    print(f'Loading APK onto {device_name}')
+    # Calls 'adb push' command, which uses the Android Debug Bridge (ADB) to send the APK file
+    # The -s flag specifies the device_serial by its serial number.
+    # return_output=True returns the output of adb
+    validate = utils.run_command(
+        f'adb -s {device_serial} install -r {LOCAL_FILE_PATH}', return_output=True)
+    # If .apk is loaded successfully, ADB will output a string containing 'Success'
+    if 'Success' in validate:
+        DEVICES_WITH_APK.append(device_serial)
+        print(f'Loaded {LOCAL_FILE_PATH} onto {device_name}')
+    else:
+        utils.log_warning(f'Failed Loading {LOCAL_FILE_PATH} onto {device_name}.')
+
+
 if len(sys.argv) == 2:
     # Extract LOCAL_FILE_PATH from second argument
     # LOCAL_FILE_PATH is a string
     LOCAL_FILE_PATH = sys.argv[1]
 else:
     print('Error: Local APK file path is not being passed as an argument. Exiting...')
-    sys.exit(0)
-
-
-def install_apk():
-    """Installs chosen APK to either phone or tablet depending on user input."""
-    if device not in DEVICES_WITH_APK:
-        # Calls 'adb push' command, which uses the Android Debug
-        # Bridge (ADB) to send the APK file to the tablet.
-        # The -s flag specifies the device by its serial number.
-        # return_output=True mutes the 'success' usually returned by this command
-        validate = utils.run_command(
-            f'adb -s {device} install -r {LOCAL_FILE_PATH}', return_output=True)
-        if validate == 'Success':
-            DEVICES_WITH_APK.append(device)
-            # Convert serial number to human-readable name
-            device_name = DEVICE_NAMES[device]
-            print(f'Loaded {LOCAL_FILE_PATH} onto {device_name}')
-
+    sys.exit(1)
 
 # Gets the tablet serial numbers from a local file
 with open(utils.create_file_path('data/tablet_serials.json')) as file:
@@ -46,16 +47,18 @@ with open(utils.create_file_path('data/tablet_serials.json')) as file:
 DEVICES_WITH_APK = []
 
 # Phones and Tablets use different APKs
-# This specifies which type of device it will be sent to so it will not send to both
-CHOSEN_DEVICE = input('Would you like the apk to be sent to Tablet or Phone?(t/p) ')
-TABLET_SERIALS = []
-PHONE_SERIALS = []
-if CHOSEN_DEVICE.lower() == 't':
+# This specifies which type of device_serial it will be sent to so it will not send to both
+CHOSEN_DEVICE = input('Would you like the apk to be sent to Tablet or Phone?(t/p) ').lower()
+if CHOSEN_DEVICE == 't':
     CHOSEN_DEVICE_VALUE = 'tablet'
-if CHOSEN_DEVICE.lower() == 'p':
+elif CHOSEN_DEVICE == 'p':
     CHOSEN_DEVICE_VALUE = 'phone'
-print(f'Attempting to send file "{LOCAL_FILE_PATH}". Please plug '
-      f'{CHOSEN_DEVICE_VALUE}s into computer to begin.')
+else:
+    print('Error: (t)ablet or (p)hone not specified.')
+    sys.exit(1)
+
+print(f'Attempting to send file "{LOCAL_FILE_PATH}".')
+
 while True:
     # Stores output from 'adb devices'
     # 'adb devices' returns the serial numbers of all devices connected over ADB.
@@ -66,17 +69,30 @@ while True:
     OUTPUT = OUTPUT.rstrip('\n').split('\n')[1:]
     # Remove '\tdevice' from each line
     DEVICES = [line.split('\t')[0] for line in OUTPUT]
+    TABLET_SERIALS, PHONE_SERIALS = [], []
+
+    # Determine if each connected device_serial is a tablet or phone and if it needs the APK
     for serial in DEVICES:
         if serial.split('A')[0] == 'H':
-            TABLET_SERIALS.append(serial)
+            # Only add device_serial if it does not already have the apk
+            if serial not in DEVICES_WITH_APK:
+                TABLET_SERIALS.append(serial)
         if serial.split('A')[0] == '9':
-            PHONE_SERIALS.append(serial)
+            # Only add device_serial if it does not already have the apk
+            if serial not in DEVICES_WITH_APK:
+                PHONE_SERIALS.append(serial)
+
     # Wait for USB connection to initialize
     time.sleep(.1)  # .1 seconds
-
-    if CHOSEN_DEVICE.lower() == 't':
+    if CHOSEN_DEVICE == 't':
+        # APK has been installed onto all connected tablets
+        if TABLET_SERIALS == []:
+            break
         for device in TABLET_SERIALS:
-            install_apk()
-    if CHOSEN_DEVICE.lower() == 'p':
+            install_apk(device)
+    if CHOSEN_DEVICE == 'p':
+        # APK has been installed onto all connected phones
+        if PHONE_SERIALS == []:
+            break
         for device in PHONE_SERIALS:
-            install_apk()
+            install_apk(device)
