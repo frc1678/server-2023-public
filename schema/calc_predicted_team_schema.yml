@@ -1,0 +1,17 @@
+# Contains team predictions
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file
+  # Incremented every merged schema change
+  version: 1
+
+# Not used for calcs
+data:
+  team_number: int
+
+# Special types, won't be part of the main calc loops
+calculations:
+  predicted_rps:
+    type: float
+    requires: [predicted_score, predicted_rp1, predicted_rp2]
