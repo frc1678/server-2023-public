@@ -21,7 +21,7 @@ def tba_request(api_url):
     cached = local_database_communicator.select_one_from_database(
         {'tba_event_key': utils.TBA_EVENT_KEY}, {f'tba_cache.{api_url}': 1})
     # Check if cache exists
-    if cached != {}:
+    if cached is not None and api_url in cached:
         cached = cached[api_url]
         request_headers['If-Modified-Since'] = cached['timestamp']
     print(f'Retrieving data from {full_url}')
