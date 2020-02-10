@@ -1,0 +1,24 @@
+# Used for calculating subjective team data in server
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file
+  # Incremented every merged schema change
+  version: 1
+
+# Stores fields that will be added to database but do not require calculations
+data:
+  team_number: int
+
+# Information on calculations that will be performed
+calculations:
+  driver_agility:
+    type: float
+    requires: [agility]
+  driver_speed:
+    type: float
+    requires: [speed]
+  driver_ability:
+    type: float
+    requires: [driver_agility, driver_speed]
+    weights: [0.5, 0.5]

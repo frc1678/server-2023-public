@@ -1,0 +1,31 @@
+# Used for calculating match predictions about an alliance in Server
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file
+  # Incremented every merged schema change
+  version: 1
+
+# Stores fields that will be added to database but do not require calculations
+data:
+  match_number: int
+  alliance_color: Enum
+
+# Information on calculations that will be performed
+calculations:
+  predicted_score:
+    type: float
+    requires: [calc_obj_team, calc_tba_team]
+  # Climb RP
+  predicted_rp1:
+    type: float
+    requires: [calc_obj_team, calc_tba_team]
+  # Energizer RP
+  predicted_rp2:
+    type: float
+    requires: [calc_obj_team]
+
+enums:
+  alliance_color:
+    red: red
+    blue: blue
