@@ -5,12 +5,17 @@
 Runs on an Ubuntu 18.04 LTS computer in the stands at
 competition. This script runs all of the computations in the server.
 """
-# No external imports
+# External imports
+import json
+import os
+import re
 # Internal imports
+import adb_compressed_qr_data_puller
 import decompressor
 import cloud_database_communicator
 import local_database_communicator
 import qr_code_uploader
+import utils
 
 
 def get_empty_modified_data():
@@ -49,7 +54,42 @@ BLACKLISTED = local_database_communicator.select_from_within_array(
 # Selecting only the non-blacklisted ones
 MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLACKLISTED]
 
+# Open the tablet serials file to find all device serials
+with open('data/tablet_serials.json') as serial_numbers:
+    DEVICE_SERIAL_NUMBERS = json.load(serial_numbers)
+
 while True:
+    # Parses 'adb devices' to find num of devices so that don't try to pull from nothing
+    if len(utils.run_command('adb devices', True).split('\n')) != 1:
+        TABLET_QR_DATA, DEVICE_FILE_PATHS = [], []
+        DEVICE_FILE_PATH = 'data/tablets'
+        # Pull all files from the 'Download' folder on the tablet
+        adb_compressed_qr_data_puller.adb_pull_tablet_data(DEVICE_FILE_PATH,
+                                                           '/storage/emulated/0/Download')
+        # Iterates through the 'data' folder
+        for device_dir in os.listdir(DEVICE_FILE_PATH):
+            if device_dir in DEVICE_SERIAL_NUMBERS.keys():
+                DEVICE_FILE_PATHS.append(device_dir)
+            # If the folder name is a device serial, it must be a tablet folder
+        for device in DEVICE_FILE_PATHS:
+            # Iterate through the downloads folder in the device folder
+            for file in os.listdir(f'{DEVICE_FILE_PATH}/{device}/Download'):
+                # Makes a regex pattern that matches the file name of a QR file
+                # Format of obj QR file pattern: <qual_num>_<team_num>_<serial_num>_<timestamp>.txt
+                obj_pattern = re.compile(r'[0-9]+_[0-9]+_[A-Z0-9]+_[0-9]+.txt')
+                # Format of subj QR file pattern: <qual_num>_<serial_num_<timestamp>.txt
+                subj_pattern = re.compile(r'[0-9]+_[0-9A-Z]+_[0-9]+.txt')
+                if re.fullmatch(obj_pattern, file) is not None or \
+                        re.fullmatch(subj_pattern, file) is not None:
+                    with open(f'{DEVICE_FILE_PATH}/{device}/Download/{file}') as qr_code_file:
+                        qr_code = qr_code_file.read()
+                        # If the QR code has a newline at the end, remove it
+                        qr_code = qr_code.rstrip('\n')
+                        # If the QR code isn't blacklisted or already in MAIN_QUEUE add it
+                        if qr_code not in BLACKLISTED and qr_code not in MAIN_QUEUE:
+                            TABLET_QR_DATA.append(qr_code)
+        # Add the QR codes to MAIN_QUEUE and upload them
+        MAIN_QUEUE['raw']['qr'].extend(qr_code_uploader.upload_qr_codes(TABLET_QR_DATA))
     RAW_SCANNER = input('Scan Data Here: ')
     # Do not try to upload blank string
     if RAW_SCANNER != '':
