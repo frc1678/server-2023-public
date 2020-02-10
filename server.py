@@ -68,8 +68,17 @@ while True:
         DECOMPRESSED_QRS['subj_aim'], 'processed.subj_aim'
     )
     # Add decompressed QRs to queues
+    # Iterate through both objective and subjective QRs
     for qr_type in DECOMPRESSED_QRS:
-        MAIN_QUEUE['processed'][qr_type].extend(DECOMPRESSED_QRS[qr_type])
+        for qr in DECOMPRESSED_QRS[qr_type]:
+            # Include match number in information to be added to queue
+            QR_ID = {'match_number': qr['match_number']}
+            # Only include team number for objective QRs
+            if qr_type == 'unconsolidated_obj_tim':
+                QR_ID['team_number'] = qr['team_number']
+            # Only add QR if it is not already in queue
+            if QR_ID not in MAIN_QUEUE['processed'][qr_type]:
+                MAIN_QUEUE['processed'][qr_type].append(QR_ID)
 
     # TODO Pull Matches from TBA
 
