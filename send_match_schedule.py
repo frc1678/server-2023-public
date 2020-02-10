@@ -11,7 +11,7 @@ ADB stands for Android Debug Bridge.
 
 # External imports
 import csv
-import io
+import hashlib
 import json
 import time
 # Internal imports
@@ -54,14 +54,14 @@ def get_team_list():
     """Returns team list from match schedule file"""
     teams = set()
     # Create stream from local match schedule copy to prevent extra handling for csv.reader
-    match_schedule_stream = io.StringIO(LOCAL_MATCH_SCHEDULE)
-    # Create csv reader from match schedule
-    match_schedule_reader = csv.reader(match_schedule_stream)
-    for match in match_schedule_reader:
-        # Filter match number from match schedule list
-        for team in match[1:]:
-            # Strip alliance color information from team number before adding it
-            teams.add(team[2:])
+    with open(MATCH_SCHEDULE_LOCAL_PATH) as file:
+        # Create csv reader from match schedule
+        match_schedule_reader = csv.reader(file)
+        for match in match_schedule_reader:
+            # Filter match number from match schedule list
+            for team in match[1:]:
+                # Strip alliance color information from team number before adding it
+                teams.add(team[2:])
     # Return a list of teams sorted by team number
     return sorted(list(teams), key=int)
 
@@ -82,15 +82,16 @@ def validate_file(device_id, local_file_path, tablet_file_path):
 
     Parameter 'device_id' is the serial number of the device
     """
-    # Reads the match_schedule.csv file on the tablet
-    # The -s flag specifies a device by its serial number
-    tablet_data = utils.run_command(f'adb -s {device_id} shell cat {tablet_file_path}',
+    # Find the hash of `tablet_file_path`
+    # The -s flag to adb specifies a device by its serial number
+    # The -b flag to sha256sum specifies 'brief,' meaning that only the hash is output
+    tablet_data = utils.run_command(f'adb -s {device_id} shell sha256sum -b {tablet_file_path}',
                                     return_output=True)
     if local_file_path == MATCH_SCHEDULE_LOCAL_PATH:
-        return tablet_data == LOCAL_MATCH_SCHEDULE
-    elif local_file_path == TEAM_LIST_LOCAL_PATH:
-        return tablet_data == LOCAL_TEAM_LIST
-    raise ValueError(f'Filepath {local_file_path} not recognized.')
+        return tablet_data == LOCAL_MATCH_SCHEDULE_HASH
+    if local_file_path == TEAM_LIST_LOCAL_PATH:
+        return tablet_data == LOCAL_TEAM_LIST_HASH
+    raise ValueError(f'File path {local_file_path} not recognized.')
 
 
 def push_file(serial_number, local_path, tablet_path):
@@ -118,8 +119,8 @@ def get_attached_devices():
 
 # Serial number to human-readable device name
 # Tablet serials are stored in a file not tracked by git
-with open(utils.create_file_path('data/tablet_serials.json')) as file:
-    DEVICE_NAMES = json.load(file)
+with open(utils.create_file_path('data/tablet_serials.json')) as tablet_serials_file:
+    DEVICE_NAMES = json.load(tablet_serials_file)
 
 # Set paths to read from and write to
 MATCH_SCHEDULE_TABLET_PATH = '/storage/self/primary/Download/match_schedule.csv'
@@ -136,42 +137,45 @@ while True:
 create_match_schedule_csv(MATCH_SCHEDULE_LOCAL_PATH, f'event/{utils.TBA_EVENT_KEY}/matches/simple')
 # LOCAL_MATCH_SCHEDULE contains the text of the match_schedule.csv file, which we compare with the
 # output of cat (run on tablets through adb shell) for file validations
-with open(MATCH_SCHEDULE_LOCAL_PATH, 'r') as file:
-    LOCAL_MATCH_SCHEDULE = file.read().rstrip('\n')
+
+with open(MATCH_SCHEDULE_LOCAL_PATH, 'rb') as match_schedule_file:
+    # Store sha256 sum of match schedule
+    LOCAL_MATCH_SCHEDULE_HASH = hashlib.sha256(match_schedule_file.read()).hexdigest()
 # Team list must be created after local match schedule copy is loaded
 write_team_list(TEAM_LIST_LOCAL_PATH)
-with open(TEAM_LIST_LOCAL_PATH, 'r') as file:
-    LOCAL_TEAM_LIST = file.read().rstrip('\n')
+with open(TEAM_LIST_LOCAL_PATH, 'rb') as team_list_file:
+    # Store sha256 sum of team list
+    LOCAL_TEAM_LIST_HASH = hashlib.sha256(team_list_file.read()).hexdigest()
 
 # Only upload schedules if file is ran, not imported
 if __name__ == '__main__':
     # List of devices to which 'match_schedule.csv' has already been sent
-    devices_with_schedule, devices_with_list = [], []
-    devices = get_attached_devices()
-    pixels = [serial for serial, name in DEVICE_NAMES.items()
-              if 'Pixel' in name and serial in devices]
+    DEVICES_WITH_SCHEDULE, DEVICES_WITH_LIST = [], []
+    DEVICES = get_attached_devices()
+    PIXELS = [serial for serial, name in DEVICE_NAMES.items()
+              if 'Pixel' in name and serial in DEVICES]
 
     print(f'Attempting to send:\n"{MATCH_SCHEDULE_LOCAL_PATH}"\n"{TEAM_LIST_LOCAL_PATH}"')
 
     while True:
         # Wait for USB connection to initialize
         time.sleep(0.1)
-        for device in devices:
+        for device in DEVICES:
             device_name = DEVICE_NAMES[device]
-            if device not in devices_with_schedule:
-                print(f'Attempting to load {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
+            if device not in DEVICES_WITH_SCHEDULE:
+                print(f'\nAttempting to load {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
                 if push_file(device, MATCH_SCHEDULE_LOCAL_PATH, MATCH_SCHEDULE_TABLET_PATH):
-                    devices_with_schedule.append(device)
+                    DEVICES_WITH_SCHEDULE.append(device)
                     print(f'Loaded {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
                 else:
                     # Give both serial number and device name in warning
                     utils.log_warning(
                         f'FAILED sending {MATCH_SCHEDULE_LOCAL_PATH} to {device_name} ({device})'
                     )
-            if device in pixels and device not in devices_with_list:
-                print(f'Attempting to load {TEAM_LIST_LOCAL_PATH} onto {device_name}')
+            if device in PIXELS and device not in DEVICES_WITH_LIST:
+                print(f'\nAttempting to load {TEAM_LIST_LOCAL_PATH} onto {device_name}')
                 if push_file(device, TEAM_LIST_LOCAL_PATH, TEAM_LIST_TABLET_PATH):
-                    devices_with_list.append(device)
+                    DEVICES_WITH_LIST.append(device)
                     print(f'Loaded {TEAM_LIST_LOCAL_PATH} to {device_name}')
                 else:
                     # Give both serial number and device name in warning
@@ -179,11 +183,19 @@ if __name__ == '__main__':
                         f'FAILED sending {TEAM_LIST_LOCAL_PATH} to {device_name} ({device})'
                     )
         # Update connected devices before checking if program should exit
-        devices = get_attached_devices()
-        pixels = [serial for serial, name in DEVICE_NAMES.items()
-                  if 'Pixel' in name and serial in devices]
-        if set(devices) == set(devices_with_schedule) and set(pixels) == set(devices_with_list):
+        DEVICES = get_attached_devices()
+        PIXELS = [serial for serial, name in DEVICE_NAMES.items()
+                  if 'Pixel' in name and serial in DEVICES]
+        if set(DEVICES) == set(DEVICES_WITH_SCHEDULE) and set(PIXELS) == set(DEVICES_WITH_LIST):
+            # Print blank lines for visual distinction
+            print('\n')
             # Schedule has been loaded onto all connected devices
-            print(f'Match schedule loaded onto {len(devices_with_schedule)} devices.')
-            print(f'Team list loaded onto {len(devices_with_list)} devices.')
+            if len(DEVICES_WITH_SCHEDULE) != 1:
+                print(f'Match schedule loaded onto {len(DEVICES_WITH_SCHEDULE)} devices.')
+            else:
+                print('Match schedule loaded onto 1 device.')
+            if len(DEVICES_WITH_LIST) != 1:
+                print(f'Team list loaded onto {len(DEVICES_WITH_LIST)} devices.')
+            else:
+                print('Team list loaded onto 1 device.')
             break
