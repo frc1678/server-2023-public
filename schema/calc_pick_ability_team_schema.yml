@@ -1,0 +1,44 @@
+# Used for calculating pick ability
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file
+  # Incremented every merged schema change
+  version: 1
+
+data:
+  team_number: int
+
+calculations:
+  first_pick_ability:
+    type: float
+    requires:
+      - auto_avg_balls_low
+      - tele_avg_balls_low
+      - auto_avg_balls_outer
+      - tele_avg_balls_outer
+      - auto_avg_balls_inner
+      - tele_avg_balls_inner
+    weights:
+      - 2
+      - 1
+      - 4
+      - 2
+      - 6
+      - 3
+  second_pick_ability:
+    type: float
+    requires:
+      - auto_avg_balls_low
+      - tele_avg_balls_low
+      - auto_avg_balls_outer
+      - tele_avg_balls_outer
+      - auto_avg_balls_inner
+      - tele_avg_balls_inner
+    weights:
+      - 2
+      - 1
+      - 4
+      - 2
+      - 6
+      - 3
