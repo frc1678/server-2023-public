@@ -1,0 +1,52 @@
+# Used for calculating team data based on tba data
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file
+  # Incremented every merged schema change
+  version: 1
+
+data:
+  team_number: int
+
+# Special calculations that can't be grouped into other calcs
+calculations:
+  auto_high_balls_percent_inner:
+    type: float
+  tele_high_balls_percent_inner:
+    type: float
+  auto_avg_balls_inner:
+    type: float
+  tele_avg_balls_inner:
+    type: float
+  auto_avg_balls_outer:
+    type: float
+  tele_avg_balls_outer:
+    type: float
+
+# Calcs based on counting team in match bools
+counts:
+  climb_all_successes:
+    type: int
+    tim_fields:
+      climb: true
+  climb_solo_level_successes:
+    type: int
+    tim_fields:
+      solo_level_climb: true
+  park_successes:
+    type: int
+    tim_fields:
+      park: true
+  auto_line_successes:
+    type: int
+    tim_fields:
+      auto_line: true
+
+# Calculations made by averaging
+averages:
+  climb_all_success_avg_time:
+    type: float
+    tim_fields:
+      not:
+        climb_time: null
