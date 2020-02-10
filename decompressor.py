@@ -122,7 +122,7 @@ def decompress_generic_qr(data):
         if entry[0] == 'A':
             schema_version = int(entry[1:])
             if schema_version != SCHEMA['schema_file']['version']:
-                raise LookupError(f'QR Schema (v{schema_version}) does not match Server version')
+                raise LookupError(f'QR Schema (v{schema_version}) does not match Server version (v{SCHEMA["schema_file"]["version"]})')
     return decompress_data(data, 'generic_data')
 
 
