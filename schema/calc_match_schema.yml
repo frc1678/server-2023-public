@@ -1,0 +1,15 @@
+# Schema for calculated match data
+
+# Contains information about this schema file
+schema_file:
+  # Version of schema file
+  # Incremented every merged schema change
+  version: 1
+
+# Non-calculated data
+data:
+  match_number: int
+
+calculations:
+  was_played:
+    type: bool
