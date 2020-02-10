@@ -149,6 +149,8 @@ def decompress_timeline(data):
     if data == '':
         return decompressed_timeline
     timeline_length = sum([entry['length'] for entry in _TIMELINE_FIELDS])
+    if len(data) % timeline_length != 0:
+        raise ValueError(f'Invalid timeline -- Timeline length invalid: {data}')
     # Split into list of actions. Each action is a string of length timeline_length
     timeline_actions = [data[i:i + timeline_length] for i in range(0, len(data), timeline_length)]
     for action in timeline_actions:
