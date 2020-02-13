@@ -17,7 +17,7 @@ def install_apk(device_serial):
     """Installs chosen APK to either phone or tablet depending on user input."""
     # Convert serial number to human-readable format
     device_name = DEVICE_NAMES[device_serial]
-    print(f'Loading APK onto {device_name}')
+    print(f'Loading {LOCAL_FILE_PATH} onto {device_name}')
     # Calls 'adb push' command, which uses the Android Debug Bridge (ADB) to send the APK file
     # The -s flag specifies the device_serial by its serial number.
     # return_output=True returns the output of adb
