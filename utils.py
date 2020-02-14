@@ -8,6 +8,8 @@ import subprocess
 import traceback
 # No internal imports
 
+# Set the basic config for logging functions
+logging.basicConfig(filename='server.log', level='NOTSET', filemode='a', format='%(asctime)s %(message)s')
 
 def create_file_path(path_after_main, create_directories=True):
     """Joins the path of the directory this script is in with the path
@@ -83,6 +85,26 @@ def log_warning(warning):
     print(f'WARNING: {warning}')
 
 
+def log_info(info):
+    """Logs info to server.log
+
+    'info' is the information being logged
+    to server.log in this directory
+    """
+    # Logs info, also contains a traceback
+    logging.info(f'{info}\n{"".join(traceback.format_stack()[:-1])}')
+
+
+def log_debug(debug):
+    """Logs debug to server.log
+
+    'debug' is the message being logged
+    to server.log in this directory
+    """
+    # Logs debug
+    logging.debug(f'{debug}\n')
+
+
 def run_command(command, return_output=False):
     """Runs a command using subprocess.
     command (string) is the terminal command to be run
@@ -127,9 +149,6 @@ _TBA_KEY_FILE = 'data/competition.txt'
 
 # The directory this script is located in
 MAIN_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-
-# Set the basic config for logging functions
-logging.basicConfig(filename='server.log', filemode='a', format='%(asctime)s %(message)s')
 
 try:
     # Specifies which event - string such as '2020cada'.
