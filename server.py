@@ -40,6 +40,8 @@ def get_empty_modified_data():
 # Tracks if cloud database has been updated since the latest server restart
 # Is used to determine if raw.qr should be completely emptied or just pushed to
 SERVER_RESTART_SINCE_CLOUD_UPDATE = True
+# Tracks if this is the first calculation cycle since server restart
+SERVER_RESTART = True
 # Instantiate the queue that stores what changes need to be pushed to cloud
 CLOUD_DB_QUEUE = get_empty_modified_data()
 # Instantiate the queue that tracks what data has been changed
@@ -97,6 +99,14 @@ while True:
         # Upload QRs to MongoDB and add uploaded QRs to queue
         MAIN_QUEUE['raw']['qr'].extend(qr_code_uploader.upload_qr_codes(QR_DATA))
 
+    # Empty decompressed QRs in the database if this is the first cycle since server restart
+    # Otherwise, decompressed QRs will potentially stack as server restarts could entail schema
+    # or decompression code changes, and selection purely by team/match number would not work as
+    # there are multiple QRs for a match
+    if SERVER_RESTART:
+        local_database_communicator.overwrite_document([], 'processed.unconsolidated_obj_tim')
+        local_database_communicator.overwrite_document([], 'processed.subj_aim')
+
     # Decompress all inputted QRs
     DECOMPRESSED_QRS = decompressor.decompress_qrs(MAIN_QUEUE['raw']['qr'])
     # Update database with decompressed objective QRs
@@ -150,3 +160,6 @@ while True:
         CLOUD_DB_QUEUE = get_empty_modified_data()
         if SERVER_RESTART_SINCE_CLOUD_UPDATE:
             SERVER_RESTART_SINCE_CLOUD_UPDATE = False
+
+    if SERVER_RESTART:
+        SERVER_RESTART = False
