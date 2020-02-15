@@ -203,6 +203,7 @@ def decompress_qrs(split_qrs):
         'unconsolidated_obj_tim': [],
         'subj_aim': []
     }
+    utils.log_info(f"Started decompression on qr batch")
     for qr in split_qrs:
         qr_type = utils.catch_function_errors(get_qr_type, qr[0])
         if qr_type is None:
@@ -216,6 +217,7 @@ def decompress_qrs(split_qrs):
             output['unconsolidated_obj_tim'].append(decompressed_qr)
         elif qr_type == QRType.SUBJECTIVE:
             output['subj_aim'].append(decompressed_qr)
+    utils.log_info(f"Finished decompression on qr batch")
     return output
 
 
