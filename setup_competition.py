@@ -31,5 +31,5 @@ if len([comp for comp in DB.competitions.find({'tba_event_key': COMPETITION_KEY}
 # Extracts the year with capture group
 YEAR = int(CODE_MATCH.group('year'))
 # Inserts document into collection
-local_database_communicator.add_competition(COMPETITION_KEY)
+local_database_communicator.add_competition(local_database_communicator.DB, COMPETITION_KEY)
 cloud_database_communicator.add_competition_cloud(COMPETITION_KEY)

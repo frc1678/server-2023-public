@@ -18,10 +18,9 @@ def tba_request(api_url):
     (the part after '/api/v3')"""
     full_url = f'https://www.thebluealliance.com/api/v3/{api_url}'
     request_headers = {'X-TBA-Auth-Key': API_KEY}
-    cached = local_database_communicator.select_one_from_database(
-        {'tba_event_key': utils.TBA_EVENT_KEY}, {f'tba_cache.{api_url}': 1})
+    cached = local_database_communicator.select_tba_cache(api_url)
     # Check if cache exists
-    if cached is not None and api_url in cached:
+    if cached != {}:
         cached = cached[api_url]
         request_headers['If-Modified-Since'] = cached['timestamp']
     print(f'Retrieving data from {full_url}')
@@ -36,9 +35,9 @@ def tba_request(api_url):
     if request.status_code == 304:
         return cached['data']
     if request.status_code == 200:
-        formatted_data = {api_url: {'timestamp': request.headers['Last-Modified'],
-                                    'data': request.json()}}
-        local_database_communicator.overwrite_document(formatted_data, 'tba_cache')
+        formatted_data = {'timestamp': request.headers['Last-Modified'],
+                                    'data': request.json()}
+        local_database_communicator.overwrite_tba_data(formatted_data, api_url)
         return request.json()
     raise Warning(f'Request failed with status code {request.status_code}')
 

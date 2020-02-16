@@ -24,8 +24,7 @@ def upload_qr_codes(qr_codes):
         schema = yaml.load(schema_file, yaml.Loader)
 
     # Acquires current qr data using local_database_communicator.py
-    qr_data = local_database_communicator.select_one_from_database(
-        {'tba_event_key': utils.TBA_EVENT_KEY}, {'raw': 1})['qr']
+    qr_data = local_database_communicator.read_dataset('raw.qr')
 
     # Creates a set to store QR codes
     # This is a set in order to prevent addition of duplicate qr codes
@@ -44,6 +43,6 @@ def upload_qr_codes(qr_codes):
 
     # Adds the QR codes to the local database if the set isn't empty
     if qr != set():
-        local_database_communicator.append_document(list(qr), 'raw.qr')
+        local_database_communicator.append_or_overwrite('raw.qr', list(qr))
 
     return qr

@@ -9,148 +9,118 @@ from pymongo import MongoClient
 # Internal imports
 import utils
 
-DB = MongoClient('localhost', 27017).scouting_system
 
+def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
+    """Filters by filter_by if given, or reads entire dataset
 
-def overwrite_data_points(data, path, overwrite, competition='current'):
-    """Updates data in an embedded array by overwriting previous data
-
-    data is a string containing data to add to the collection
-    path is a string joined by '.' communicating where within the collection the data is added
-    overwrite is a string communicating what to overwrite within the array
-    competition is the competition code
+    path is a string in dot notation showing which fields the data is under (eg. 'raw.pit').
+    competition is the competition code. **filter_by is of the form foo=bar
+    and is the key value pair to filter data by
     """
-    if competition == 'current':
-        competition = utils.TBA_EVENT_KEY
-    # Adds data to the correct path within the competition document
-    DB.competitions.update_one({"tba_event_key": competition, path: overwrite},
-                               {"$set": {path + '.$': data}})
-
-
-def overwrite_document(data, path, competition='current'):
-    """Updates data in an embedded document by overwriting previous data
-
-    data is a list containing data to add to the collection
-    path is a string joined by '.' communicating where within the collection the data is added
-    competition is the competition code
-    """
-    if competition == 'current':
-        competition = utils.TBA_EVENT_KEY
-    # Adds data to the correct path within the competition document
-    DB.competitions.update_one({"tba_event_key": competition}, {"$set": {path: data}})
-
-
-def append_document(data, path, competition='current'):
-    """Appends the database with new data
-
-    data is a list containing data to add to the collection
-    path is a string joined by '.' communicating where within the collection the data is added
-    competition is the competition code
-    """
-    if competition == 'current':
-        competition = utils.TBA_EVENT_KEY
-    # Adds data to the correct path within the competition document
-    DB.competitions.update_one({"tba_event_key": competition}, {'$push': {path: {'$each': data}}})
-
-
-def select_from_database(query, projection):
-    """Selects data from the 'competitions' collection
-
-    query is a dictionary containing the selection filter
-    projection is a dictionary containing the data field to collect
-    """
-    result = []
-    cursor = DB.competitions.find(query, projection)
-    for i in cursor:
-        result.append(i)
-    return result
-
-
-def select_one_from_database(query, projection=None):
-    """Selects a single data set from the 'competitions' collection
-
-    query is a dictionary containing the selection filter
-    projection is a dictionary containing the data field to collect
-    """
-    # Infers projection from query if projection is not specified
-    if projection is None:
-        query_keys = query.keys()
-        for i in query_keys:
-            if i == 'raw':
-                projection = {'raw': 1}
-                break
-            if i == 'tba_cache':
-                projection = {'tba_cache': 1}
-                break
-            if i == 'processed':
-                projection = {'processed': 1}
-                break
-    # Finds the query within the database
-    result = DB.competitions.find_one(query, projection)
-    # Simplifies the result
-    new_result = result
-    if result is not None:
-        # Removes the id
-        result.pop('_id')
-        keys = list(result.keys())
-        # Removes unnecessary path information to simplify the result of the function and make it
-        # easier to use
-        for i in keys:
-            if i == 'raw':
-                new_result = result.get('raw')
-                break
-            elif i == 'tba_cache':
-                new_result = result.get('tba_cache')
-                break
-            elif i == 'processed':
-                new_result = result.get('processed')
-                break
-    return new_result
-
-
-def select_from_within_array(path, **filters):
-    """Selects data from an embedded document within an array
-
-    path is a string joined by '.' communicating where within the collection the data is located
-    filters are of the format foo=bar
-    """
-    # If the filter 'competition' is explicitly given, don't treat it as a normal filter,
-    # since tba_event_key will not be in path. Default to current competition
-    if 'competition' in filters.keys():
-        competition = filters['competition']
-        filters.pop('competition')
+    # If no filter_by is provided, finds all data within the specified path and returns a list
+    # of all documents under the field.
+    if len(filter_by) == 0:
+        result = DB.competitions.find_one({'tba_event_key': competition}, {path: 1, '_id': 0})
     else:
-        competition = utils.TBA_EVENT_KEY
-    all_the_filters = []
-    for key, value in filters.items():
-        all_the_filters.append({'$eq': ['$$item.' + key, value]})
-    result = DB.competitions.aggregate([
-        {'$match': {'tba_event_key': competition}},
-        {
-            '$project': {
-                path: {
-                    '$filter': {
-                        'input': f'${path}',
-                        'as': 'item',
-                        'cond': {'$and': all_the_filters}
+        # Sets up the $eq expression for every filter_by provided
+        all_the_filters = []
+        for key, value in filter_by.items():
+            all_the_filters.append({'$eq': ['$$item.' + key, value]})
+        # Uses MongoDB's aggregate function to find documents that match the conditions provided
+        # through filter_by
+        result = DB.competitions.aggregate([
+            {'$match': {'tba_event_key': competition}},
+            {
+                '$project': {
+                    '_id': 0,
+                    path: {
+                        '$filter': {
+                            'input': f'${path}',
+                            'as': 'item',
+                            'cond': {'$and': all_the_filters}
+                        }
                     }
                 }
             }
-        }
-    ])
-    new_result = []
-    for i in result:
-        new_result.append(i)
-    return new_result
+        ])
+        # Converts cursor to list
+        result = list(result)[0]
+    # Remove nesting
+    while isinstance(result, dict):
+        result = result[[*result.keys()][0]]
+    # Return list of embedded documents
+    return result
 
 
-def add_competition(tba_event_key, db=DB):
-    """Adds a new document for the competition into the 'competitions' collection"""
-    # Extracts the year from the 'tba_event_key'
-    year = int(tba_event_key[0:4])
+def select_tba_cache(api_url, competition=utils.TBA_EVENT_KEY):
+    """Finds cached tba data from MongoDB.
+
+    If cache exists, returns data. If not, returns None.
+    api_url is the url that caches are stored under.
+    competition is the competition code.
+    """
+    cached = DB.competitions.find_one(
+        {'tba_event_key': competition}, {f'tba_cache.{api_url}': 1, '_id': 0})['tba_cache']
+    return cached
+
+
+def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
+    """Overwrites data in a tba cache under an api url.
+
+    data is the new data to add. api_url is the url to add it under.
+    competition is the competition key.
+    """
+    # Takes data from tba_communicator and updates it under api_url
+    DB.competitions.update_one({'tba_event_key': competition},
+                               {'$set': {f'tba_cache.{api_url}': data}})
+
+
+def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
+    """Removes the document containing the specified filter_bys
+
+     path is a string showing where data is located
+     filter_by is a kwarg that show data points in the document
+     """
+    # Creates dictionary to contain the queries to apply to the specified path
+    if filter_by == {}:
+        DB.competitions.update_one({'tba_event_key': competition}, {'$set': {path: []}})
+        return
+    all_the_filters = []
+    # Adds every filter_by to the two dictionaries
+    for key, value in filter_by.items():
+        all_the_filters.append({key: {'$eq': value}})
+    # Uses MongoDB update_one() and $pull to remove the document that corresponds to the specified
+    # path, competition, and filter_bys
+    DB.competitions.update_one({'tba_event_key': competition},
+                               {'$pull': {path: {'$and': all_the_filters}}})
+
+
+def append_or_overwrite(path, data, query=None, competition=utils.TBA_EVENT_KEY):
+    """Appends data to dataset if it document doesn't exist. Overwrites if
+    it does exist.
+
+    query is the key-value pairs that are used to remove old data during overwrite.
+    path is a string in dot notation showing which fields the data is under (eg. 'raw.pit').
+    data is the new data to add or overwrite. competition is the competition key.
+    """
+    # Removes all documents that match the query if it exists.
+    # If there is no match, no documents are pulled
+    if query is not None:
+        DB.competitions.update_one({'tba_event_key': competition}, {'$pull': {path: query}})
+    # Add new data
+    DB.competitions.update_one({'tba_event_key': competition},
+                               {'$addToSet': {path: {'$each': data}}})
+
+
+def add_competition(db, competition=utils.TBA_EVENT_KEY):
+    """Adds a new document for the competition into the 'competitions' collection
+
+    competition is the competition code.
+    """
+    year = int(competition[0:4])
     db.competitions.insert_one({
         'year': year,
-        'tba_event_key': tba_event_key,
+        'tba_event_key': competition,
         'raw': {
             'qr': [],
             'pit': [],
@@ -170,3 +140,6 @@ def add_competition(tba_event_key, db=DB):
             'calc_pick_ability_team': [],
         },
     })
+
+
+DB = MongoClient('localhost', 27017).scouting_system

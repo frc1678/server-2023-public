@@ -89,7 +89,7 @@ def push_changes_to_db(local_change_list, server_restart):
 
 def add_competition_cloud(tba_event_key):
     """Adds competition document to cloud database."""
-    local_database_communicator.add_competition(tba_event_key, db=CLOUD_DB)
+    local_database_communicator.add_competition(CLOUD_DB, tba_event_key)
 
 
 # Connect to cloud database

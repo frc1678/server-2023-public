@@ -64,17 +64,13 @@ PATTERN = PATTERNS.append(re.compile(''.join(PATTERN_ELEMENTS)))
 # Stores the QRs that will be appended to the local database QR 'blacklist'
 TO_BLACKLIST = []
 
-# Makes a connection with the local database
-DB = local_database_communicator.DB
-
 # Takes TBA event key from utils.py
 EVENT_KEY = utils.TBA_EVENT_KEY
 
 # Stores the already blacklisted QR codes from the local database
-BLACKLISTED_QRS = DB.competitions.find_one({'tba_event_key': EVENT_KEY}) \
-    ['processed']['replay_outdated_qr']
+BLACKLISTED_QRS = local_database_communicator.read_dataset('processed.replay_outdated_qr')
 
-for qr_code in DB.competitions.find_one({'tba_event_key': EVENT_KEY})['raw']['qr']:
+for qr_code in local_database_communicator.read_dataset('raw.qr'):
     # If the QR code is already blacklisted, go to the next QR code
     if qr_code in BLACKLISTED_QRS:
         continue
@@ -88,7 +84,7 @@ for qr_code in DB.competitions.find_one({'tba_event_key': EVENT_KEY})['raw']['qr
         TO_BLACKLIST.append(qr_code)
 
 # Uses append_document to add the QR codes to the local competition document blacklist
-local_database_communicator.append_document(TO_BLACKLIST, 'processed.replay_outdated_qr')
+local_database_communicator.append_or_overwrite('processed.replay_outdated_qr', TO_BLACKLIST)
 
 # If to_blacklist is empty
 if not TO_BLACKLIST:
