@@ -4,6 +4,7 @@
 # External imports
 import logging
 import os
+import shlex
 import subprocess
 import traceback
 # No internal imports
@@ -110,9 +111,8 @@ def run_command(command, return_output=False):
     command (string) is the terminal command to be run
     returns the standard output of the command if return_output is True
     """
-    # We use .split(' ') because subprocess.run() expects the command as a list of strings
-    # Example, .run(['echo', 'hello']) instead of .run('echo hello')
-    command = command.split(' ')
+    # Use shlex.split to preserve spaces within quotes and preserve the quotes
+    command = shlex.split(command, posix=False)
     if return_output is True:
         output = subprocess.run(command, check=True, stdout=subprocess.PIPE).stdout
         # output is a byte-like string and needs to be decoded
