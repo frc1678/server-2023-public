@@ -41,3 +41,4 @@ def adb_pull_tablet_data(local_file_path, tablet_file_path):
             # Bridge (ADB) to copy the match schedule file to the tablet.
             # The -s flag specifies the device by its serial number.
             utils.run_command(f'adb -s {device} pull {tablet_file_path} {local_file_path}/{device}')
+            utils.log_info(f'pulled {tablet_file_path} to {local_file_path} on {device}')
