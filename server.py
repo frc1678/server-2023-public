@@ -11,6 +11,8 @@ import decompressor
 import cloud_database_communicator
 import local_database_communicator
 import qr_code_uploader
+import tba_communicator
+import utils
 
 
 def get_empty_modified_data():
@@ -46,6 +48,9 @@ BLACKLISTED = local_database_communicator.read_dataset('processed.replay_outdate
 # Selecting only the non-blacklisted ones
 MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLACKLISTED]
 
+# Where we get the match data from TBA
+MATCH_LIST = []
+
 while True:
     RAW_SCANNER = input('Scan Data Here: ')
     # Do not try to upload blank string
@@ -66,7 +71,20 @@ while True:
     for qr_type in DECOMPRESSED_QRS:
         MAIN_QUEUE['processed'][qr_type].extend(DECOMPRESSED_QRS[qr_type])
 
-    # TODO Pull Matches from TBA
+    # TBA_MATCH_DATA is a list of dictionaries
+    TBA_MATCH_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/matches')
+    # Makes a list of matches that have been retrieved
+    # match is a single dictionary from TBA_MATCH_DATA
+    for match in TBA_MATCH_DATA:
+        # match_key looks through match to find the match number and type
+        # Checks that we are only getting the qualification matches
+        if match['comp_level'] == 'qm':
+            if match.get('actual_time', 0) != 0 and match['match_number'] not in MATCH_LIST:
+                MATCH_LIST.append(match['match_number'])
+                MAIN_QUEUE['processed']['unconsolidated_obj_tim'].append(
+                    {'match_number': int(match['match_number'])})
+    # Where we get the rankings from TBA
+    TBA_RANKINGS_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/rankings')
 
     # TODO: Consolidation
 
