@@ -15,7 +15,7 @@ def adb_pull_tablet_data(local_file_path, tablet_file_path):
     puts in the directory specified as local path. The directory that is put
     in the local path is a subdirectory of a directory with the name of
     the serial number of the tablet that was pulled from.
-    
+
     Usage:
     adb_pull_tablet_data('/path/to/output/directory', '/path/to/tablet/data')
     """
@@ -41,4 +41,30 @@ def adb_pull_tablet_data(local_file_path, tablet_file_path):
             # Bridge (ADB) to copy the match schedule file to the tablet.
             # The -s flag specifies the device by its serial number.
             utils.run_command(f'adb -s {device} pull {tablet_file_path} {local_file_path}/{device}')
-            utils.log_info(f'pulled {tablet_file_path} to {local_file_path} on {device}')
+
+
+def adb_remove_files(tablet_file_path):
+    """This is a function used for removing files on the tablets over ADB
+
+    adb_remove_files finds the list of devices attatched then uses the line
+    utils.run_command(f'adb -s {device} shell rm -r {tablet_file_path}')
+    the adb -s {device} specifies which device to delete from and shell rm -r
+    deletes the file from the specified directory that is {tablet_file_path}
+    """
+    # Stores output from 'adb devices'
+    # 'adb devices' returns the serial numbers of all devices connected over ADB.
+    # Example output of 'adb devices':
+    # "List of devices attached\nHA0XUZA9\tdevice\n9AMAY1E53P\tdevice"
+    output = utils.run_command('adb devices', return_output=True)
+    # [1:] removes 'List of devices attached'
+    output = output.rstrip('\n').split('\n')[1:]
+    # Remove '\tdevice' from each line
+    devices = [line.split('\t')[0] for line in output]
+    # Wait for USB connection to initialize
+    time.sleep(.1)
+    for device in devices:
+        # Calls 'adb push' command, which uses the Android Debug
+        # Bridge (ADB) to copy the match schedule file to the tablet.
+        # The -s flag specifies the device by its serial number.
+        utils.run_command(f'adb -s {device} shell rm -r {tablet_file_path}')
+        utils.log_info(f'removed {tablet_file_path} on {device}')
