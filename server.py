@@ -7,6 +7,7 @@ competition. This script runs all of the computations in the server.
 """
 # No external imports
 # Internal imports
+import calculate_tims
 import decompressor
 import cloud_database_communicator
 import local_database_communicator
@@ -86,9 +87,10 @@ while True:
     # Where we get the rankings from TBA
     TBA_RANKINGS_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/rankings')
 
-    # TODO: Consolidation
-
-    # TODO: TIM calcs
+    # Consolidate & calculate TIMs for each match in the main queue
+    calculated_obj_tims = calculate_tims.update_calc_obj_tims(
+        MAIN_QUEUE['processed']['unconsolidated_obj_tim'])
+    MAIN_QUEUE['processed']['calc_obj_tim'] = calculated_obj_tims
 
     # TODO: Team calcs
 
