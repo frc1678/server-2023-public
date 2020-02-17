@@ -68,7 +68,7 @@ def push_changes_to_db(local_change_list, server_restart):
             if server_restart:
                 write_operations.append(pymongo.UpdateOne({'tba_event_key': utils.TBA_EVENT_KEY},
                                                           {'$set': {path: []}}))
-            if path in direct_push:
+            if path in direct_push and changed_documents != []:
                 write_operations.append(pymongo.UpdateOne(
                     {'tba_event_key': utils.TBA_EVENT_KEY},
                     {'$push': {path: {'$each': changed_documents}}}
@@ -80,7 +80,8 @@ def push_changes_to_db(local_change_list, server_restart):
     # Ordered must be true because we pull outdated data before pushing new data
     # Throws error on lost connection
     try:
-        CLOUD_DB.competitions.bulk_write(write_operations, ordered=True)
+        if write_operations:
+            CLOUD_DB.competitions.bulk_write(write_operations, ordered=True)
     except pymongo.errors.AutoReconnect:
         utils.log_warning('Cloud Database Write Timeout.')
         return None
