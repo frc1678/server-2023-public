@@ -4,10 +4,11 @@
 schema_file:
   # Version of schema file
   # Incremented every merged schema change
-  version: 1
+  version: 2
 
 # Stores data type/structure
 schema:
+  team_number: int
   climber_strap_installation_time: Enum
   climber_strap_installation_notes: str
 
