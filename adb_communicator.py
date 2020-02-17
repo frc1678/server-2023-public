@@ -46,7 +46,7 @@ def adb_pull_tablet_data(local_file_path, tablet_file_path):
 def adb_remove_files(tablet_file_path):
     """This is a function used for removing files on the tablets over ADB
 
-    adb_remove_files finds the list of devices attatched then uses the line
+    adb_remove_files finds the list of devices attached then uses the line
     utils.run_command(f'adb -s {device} shell rm -r {tablet_file_path}')
     the adb -s {device} specifies which device to delete from and shell rm -r
     deletes the file from the specified directory that is {tablet_file_path}
