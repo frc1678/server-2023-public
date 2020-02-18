@@ -23,9 +23,14 @@ def create_match_schedule_csv(local_file_path, tba_request_url):
     """Creates a CSV file based on database's cached matches
 
     Parameters: local_file_path (string): path to match_schedule.csv
-    tba_request_url: api_url for calling tba_communicator.tba_request()"""
+    tba_request_url: api_url for calling tba_communicator.tba_request()
+    :returns None on success, 1 on failure
+    """
     # Get matches from database
     matches = tba_communicator.tba_request(tba_request_url)
+    # Don't try to create match schedule if matches returns a blank list
+    if matches == []:
+        return 1
     # Filter out elimination matches; we don't use them for scouting
     matches = [match for match in matches if match['comp_level'] == 'qm']
     with open(local_file_path, 'w') as csv_file:
@@ -54,6 +59,11 @@ def create_match_schedule_csv(local_file_path, tba_request_url):
 def get_team_list():
     """Returns team list from match schedule file"""
     teams = set()
+    if not SEND_MATCH_SCHEDULE:
+        teams = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/teams/simple')
+        # TBA returns a dictionary of information about teams at the event, so extract team numbers
+        team_numbers = [team['team_number'] for team in teams]
+        return sorted(team_numbers)
     # Create stream from local match schedule copy to prevent extra handling for csv.reader
     with open(MATCH_SCHEDULE_LOCAL_PATH) as file:
         # Create csv reader from match schedule
@@ -64,7 +74,7 @@ def get_team_list():
                 # Strip alliance color information from team number before adding it
                 teams.add(team[2:])
     # Return a list of teams sorted by team number
-    return sorted(list(teams), key=int)
+    return sorted(map(int, teams))
 
 
 def write_team_list(output_file_path):
@@ -136,13 +146,18 @@ while True:
         break
 
 # Match schedule must be created before local copy is loaded
-create_match_schedule_csv(MATCH_SCHEDULE_LOCAL_PATH, f'event/{utils.TBA_EVENT_KEY}/matches/simple')
+if create_match_schedule_csv(MATCH_SCHEDULE_LOCAL_PATH,
+                             f'event/{utils.TBA_EVENT_KEY}/matches/simple') == 1:
+    SEND_MATCH_SCHEDULE = False
+else:
+    SEND_MATCH_SCHEDULE = True
+
 # LOCAL_MATCH_SCHEDULE contains the text of the match_schedule.csv file, which we compare with the
 # output of cat (run on tablets through adb shell) for file validations
-
-with open(MATCH_SCHEDULE_LOCAL_PATH, 'rb') as match_schedule_file:
-    # Store sha256 sum of match schedule
-    LOCAL_MATCH_SCHEDULE_HASH = hashlib.sha256(match_schedule_file.read()).hexdigest()
+if SEND_MATCH_SCHEDULE:
+    with open(MATCH_SCHEDULE_LOCAL_PATH, 'rb') as match_schedule_file:
+        # Store sha256 sum of match schedule
+        LOCAL_MATCH_SCHEDULE_HASH = hashlib.sha256(match_schedule_file.read()).hexdigest()
 # Team list must be created after local match schedule copy is loaded
 write_team_list(TEAM_LIST_LOCAL_PATH)
 with open(TEAM_LIST_LOCAL_PATH, 'rb') as team_list_file:
@@ -152,32 +167,34 @@ with open(TEAM_LIST_LOCAL_PATH, 'rb') as team_list_file:
 # Only upload schedules if file is ran, not imported
 if __name__ == '__main__':
     # List of devices to which 'match_schedule.csv' has already been sent
-    DEVICES_WITH_SCHEDULE, DEVICES_WITH_LIST = [], []
-    DEVICES = get_attached_devices()
-    PIXELS = [serial for serial, name in DEVICE_NAMES.items()
-              if 'Pixel' in name and serial in DEVICES]
+    DEVICES_WITH_SCHEDULE, DEVICES_WITH_LIST = set(), set()
+    DEVICES = set(get_attached_devices())
 
-    print(f'Attempting to send:\n"{MATCH_SCHEDULE_LOCAL_PATH}"\n"{TEAM_LIST_LOCAL_PATH}"')
+    print(f'Attempting to send:\n"{TEAM_LIST_LOCAL_PATH}"')
+    if SEND_MATCH_SCHEDULE:
+        print(f'{MATCH_SCHEDULE_LOCAL_PATH}"\n')
+    else:
+        print(f'Match Schedule for "{utils.TBA_EVENT_KEY}" not available')
 
     while True:
         # Wait for USB connection to initialize
         time.sleep(0.1)
         for device in DEVICES:
             device_name = DEVICE_NAMES[device]
-            if device not in DEVICES_WITH_SCHEDULE:
+            if device not in DEVICES_WITH_SCHEDULE and SEND_MATCH_SCHEDULE:
                 print(f'\nAttempting to load {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
                 if push_file(device, MATCH_SCHEDULE_LOCAL_PATH, MATCH_SCHEDULE_TABLET_PATH):
-                    DEVICES_WITH_SCHEDULE.append(device)
+                    DEVICES_WITH_SCHEDULE.add(device)
                     print(f'Loaded {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
                 else:
                     # Give both serial number and device name in warning
                     utils.log_warning(
                         f'FAILED sending {MATCH_SCHEDULE_LOCAL_PATH} to {device_name} ({device})'
                     )
-            if device in PIXELS and device not in DEVICES_WITH_LIST:
+            if device not in DEVICES_WITH_LIST:
                 print(f'\nAttempting to load {TEAM_LIST_LOCAL_PATH} onto {device_name}')
                 if push_file(device, TEAM_LIST_LOCAL_PATH, TEAM_LIST_TABLET_PATH):
-                    DEVICES_WITH_LIST.append(device)
+                    DEVICES_WITH_LIST.add(device)
                     print(f'Loaded {TEAM_LIST_LOCAL_PATH} to {device_name}')
                 else:
                     # Give both serial number and device name in warning
@@ -185,17 +202,16 @@ if __name__ == '__main__':
                         f'FAILED sending {TEAM_LIST_LOCAL_PATH} to {device_name} ({device})'
                     )
         # Update connected devices before checking if program should exit
-        DEVICES = get_attached_devices()
-        PIXELS = [serial for serial, name in DEVICE_NAMES.items()
-                  if 'Pixel' in name and serial in DEVICES]
-        if set(DEVICES) == set(DEVICES_WITH_SCHEDULE) and set(PIXELS) == set(DEVICES_WITH_LIST):
+        DEVICES = set(get_attached_devices())
+        if DEVICES == DEVICES_WITH_SCHEDULE and DEVICES == DEVICES_WITH_LIST:
             # Print blank lines for visual distinction
             print('\n')
             # Schedule has been loaded onto all connected devices
-            if len(DEVICES_WITH_SCHEDULE) != 1:
-                print(f'Match schedule loaded onto {len(DEVICES_WITH_SCHEDULE)} devices.')
-            else:
-                print('Match schedule loaded onto 1 device.')
+            if SEND_MATCH_SCHEDULE:
+                if len(DEVICES_WITH_SCHEDULE) != 1:
+                    print(f'Match schedule loaded onto {len(DEVICES_WITH_SCHEDULE)} devices.')
+                else:
+                    print('Match schedule loaded onto 1 device.')
             if len(DEVICES_WITH_LIST) != 1:
                 print(f'Team list loaded onto {len(DEVICES_WITH_LIST)} devices.')
             else:
