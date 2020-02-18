@@ -48,6 +48,7 @@ def create_match_schedule_csv(local_file_path, tba_request_url):
                 teams = [team_prefix + team.split('frc')[1] for team in teams]
                 new_row += teams
             csv_writer.writerow(new_row)
+        utils.log_info(f'Match schedule created at {local_file_path}, url is {tba_request_url}')
 
 
 def get_team_list():
@@ -102,6 +103,7 @@ def push_file(serial_number, local_path, tablet_path):
     push_command = f'adb -s {serial_number} push {local_path} {tablet_path}'
     utils.run_command(push_command)
     # Return bool indicating if file loaded correctly
+    utils.log_info(f'{tablet_path} pushed to {local_path} on {serial_number}')
     return validate_file(serial_number, local_path, tablet_path)
 
 

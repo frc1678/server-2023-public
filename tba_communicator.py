@@ -16,6 +16,7 @@ def tba_request(api_url):
 
     api_url is the suffix of the API request URL
     (the part after '/api/v3')"""
+    utils.log_info(f'tba request from {api_url} started')
     full_url = f'https://www.thebluealliance.com/api/v3/{api_url}'
     request_headers = {'X-TBA-Auth-Key': API_KEY}
     cached = local_database_communicator.select_tba_cache(api_url)
@@ -24,6 +25,7 @@ def tba_request(api_url):
         cached = cached[api_url]
         request_headers['If-Modified-Since'] = cached['timestamp']
     print(f'Retrieving data from {full_url}')
+    utils.log_info(f'tba request from {api_url} finished')
     try:
         request = requests.get(full_url, headers=request_headers)
     except requests.exceptions.ConnectionError:
