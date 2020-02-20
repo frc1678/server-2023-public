@@ -47,6 +47,8 @@ def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
         result = list(result)[0]
     # Remove nesting
     while isinstance(result, dict):
+        if not result:
+            return []
         result = result[[*result.keys()][0]]
     # Return list of embedded documents
     return result
