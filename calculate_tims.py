@@ -7,6 +7,7 @@ Usage: server.py calls update_calc_obj_tims to consolidate & calculate specified
 
 # External imports
 import statistics
+import copy
 # Internal imports
 import local_database_communicator
 import utils
@@ -108,47 +109,51 @@ def calculate_tim(unconsolidated_tims):
     # raises a ValueError if there are not TIMs in unconsolidated_tims
     if len(unconsolidated_tims) == 0:
         raise ValueError('Watch out! You are trying to consolidate a list of zero TIMs')
-    calculated_tim = {
-        'timeline_counts': {},
-        'timeline_bools': {},
-        'cycle_times': {}}
+    calculated_tim = {}
     # Timeline counts
     for calculation, filters in SCHEMA['timeline_counts'].items():
         unconsolidated_counts = []
         for tim in unconsolidated_tims:
             # Variable type of a calculation is in the schema, but it's not a filter
-            if 'type' in filters.keys():
-                filters.pop('type')
-            unconsolidated_counts.append(count_timeline_actions(tim, **filters))
-        calculated_tim['timeline_counts'][calculation] = consolidate_nums(unconsolidated_counts)
+            filters_ = copy.deepcopy(filters)
+            expected_type = filters_.pop('type')
+            new_count = count_timeline_actions(tim, **filters_)
+            if not isinstance(new_count, types_dict[expected_type]):
+                raise TypeError(f'Expected {new_count} calculation to be a {expected_type}')
+            unconsolidated_counts.append(new_count)
+        calculated_tim[calculation] = consolidate_nums(unconsolidated_counts)
     # Timeline bools
     for calculation, filters in SCHEMA['timeline_bools'].items():
         unconsolidated_bools = []
         for tim in unconsolidated_tims:
             # Variable type of a calculation is in the schema, but it's not a filter
-            if 'type' in filters.keys():
-                filters.pop('type')
-            unconsolidated_bools.append(count_timeline_actions(tim, **filters))
-        calculated_tim['timeline_bools'][calculation] = consolidate_bools(unconsolidated_bools)
+            filters_ = copy.deepcopy(filters)
+            expected_type = filters_.pop('type')
+            new_bool = bool(count_timeline_actions(tim, **filters_))
+            if not isinstance(new_bool, types_dict[expected_type]):
+                raise TypeError(f'Expected {new_bool} calculation to be a {expected_type}')
+            unconsolidated_bools.append(new_bool)
+        calculated_tim[calculation] = consolidate_bools(unconsolidated_bools)
     # Cycle times
     for calculation, action_types in SCHEMA['timeline_cycle_time'].items():
         unconsolidated_cycle_times = []
         for tim in unconsolidated_tims:
             # Variable type of a calculation is in the schema, but it's not a filter
-            if 'type' in filters.keys():
-                filters.pop('type')
+            filters_ = copy.deepcopy(action_types)
+            expected_type = filters_.pop('type')
             # action_types is a list of dictionaries, where each dictionary is
             # "action_type" to the name of either the start or end action
-            cycle_time = total_time_between_actions(
+            new_cycle_time = total_time_between_actions(
                 tim, action_types['start_action'], action_types['end_action'])
-            unconsolidated_cycle_times.append(cycle_time)
-        consolidated_cycle_time = consolidate_nums(unconsolidated_cycle_times)
-        calculated_tim['cycle_times'][calculation] = consolidated_cycle_time
+            if not isinstance(new_cycle_time, types_dict[expected_type]):
+                raise TypeError(f'Expected {new_cycle_time} calculation to be a {expected_type}')
+            unconsolidated_cycle_times.append(new_cycle_time)
+        calculated_tim[calculation] = consolidate_nums(unconsolidated_cycle_times)
     # Use any of the unconsolidated TIMs to get the team and match number,
     # since that should be the same for each unconsolidated TIM
     calculated_tim['match_number'] = unconsolidated_tims[0]['match_number']
     calculated_tim['team_number'] = unconsolidated_tims[0]['team_number']
-    calculated_tim['num_nuconsolidated_tims_found'] = len(unconsolidated_tims)
+    calculated_tim['num_unconsolidated_tims_found'] = len(unconsolidated_tims)
     return calculated_tim
 
 
@@ -178,5 +183,11 @@ def update_calc_obj_tims(tims):
         calculated_tims.append(calculated_tim)
     return calculated_tims
 
+types_dict = {
+    'float': float,
+    'int': int,
+    'str': str,
+    'bool': bool
+}
 
 SCHEMA = utils.read_schema('schema/calc_obj_tim_schema.yml')

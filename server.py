@@ -32,7 +32,8 @@ def get_empty_modified_data():
             'consolidated_obj_tim': [],
             'subj_aim': [],
             'calc_obj_tim': [],
-            'calc_team': [],
+            'calc_obj_team': [],
+            'calc_subj_team': [],
             'calc_match': []
         }
     }
@@ -107,6 +108,7 @@ while True:
     if SERVER_RESTART:
         local_database_communicator.remove_data('processed.unconsolidated_obj_tim')
         local_database_communicator.remove_data('processed.subj_aim')
+        local_database_communicator.remove_data('processed.calc_obj_tim')
 
     # Decompress all inputted QRs
     DECOMPRESSED_QRS = decompressor.decompress_qrs(MAIN_QUEUE['raw']['qr'])
@@ -151,6 +153,16 @@ while True:
     calculated_obj_tims = calculate_tims.update_calc_obj_tims(
         MAIN_QUEUE['processed']['unconsolidated_obj_tim'])
     MAIN_QUEUE['processed']['calc_obj_tim'] = calculated_obj_tims
+    local_database_communicator.append_or_overwrite('processed.calc_obj_tim', calculated_obj_tims)
+    matches_to_be_calculated = set()
+    teams_to_be_calculated = set()
+    for tim in calculated_obj_tims:
+        matches_to_be_calculated.add(tim['match_number'])
+        teams_to_be_calculated.add(tim['team_number'])
+    MAIN_QUEUE['processed']['calc_match'] = [
+        {'match_number': match} for match in matches_to_be_calculated]
+    MAIN_QUEUE['processed']['calc_obj_team'] = [
+        {'team_number': team} for team in teams_to_be_calculated]
 
     # TODO: Team calcs
 
