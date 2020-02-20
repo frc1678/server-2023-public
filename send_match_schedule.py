@@ -15,6 +15,7 @@ import hashlib
 import json
 import time
 # Internal imports
+import adb_communicator
 import tba_communicator
 import utils
 
@@ -105,35 +106,6 @@ def validate_file(device_id, local_file_path, tablet_file_path):
     raise ValueError(f'File path {local_file_path} not recognized.')
 
 
-def push_file(serial_number, local_path, tablet_path):
-    """Pushes file at `local_path` to `tablet_path` using ADB. Returns False on failure."""
-    # Calls 'adb push' command, which runs over the Android Debug Bridge (ADB) to copy the file at
-    # local_path to the tablet
-    # The -s flag specifies the device by its serial number.
-    push_command = f'adb -s {serial_number} push {local_path} {tablet_path}'
-    utils.run_command(push_command)
-    # Return bool indicating if file loaded correctly
-    utils.log_info(f'{tablet_path} pushed to {local_path} on {serial_number}')
-    return validate_file(serial_number, local_path, tablet_path)
-
-
-def get_attached_devices():
-    """Uses ADB to get a list of devices attached."""
-    # Get output from `adb_devices` command. Example output:
-    # "List of devices attached\nHA0XUZA9\tdevice\n9AMAY1E53P\tdevice"
-    adb_output = utils.run_command('adb devices', return_output=True)
-    # Split output by lines
-    # [1:] removes line one, 'List of devices attached'
-    adb_output = adb_output.rstrip('\n').split('\n')[1:]
-    # Remove '\tdevice' from each line
-    return [line.split('\t')[0] for line in adb_output]
-
-
-# Serial number to human-readable device name
-# Tablet serials are stored in a file not tracked by git
-with open(utils.create_file_path('data/tablet_serials.json')) as tablet_serials_file:
-    DEVICE_NAMES = json.load(tablet_serials_file)
-
 # Set paths to read from and write to
 MATCH_SCHEDULE_TABLET_PATH = '/storage/self/primary/Download/match_schedule.csv'
 MATCH_SCHEDULE_LOCAL_PATH = utils.create_file_path('data/match_schedule.csv')
@@ -168,7 +140,7 @@ with open(TEAM_LIST_LOCAL_PATH, 'rb') as team_list_file:
 if __name__ == '__main__':
     # List of devices to which 'match_schedule.csv' has already been sent
     DEVICES_WITH_SCHEDULE, DEVICES_WITH_LIST = set(), set()
-    DEVICES = set(get_attached_devices())
+    DEVICES = set(adb_communicator.get_attached_devices())
 
     print(f'Attempting to send:\n"{TEAM_LIST_LOCAL_PATH}"')
     if SEND_MATCH_SCHEDULE:
@@ -180,10 +152,11 @@ if __name__ == '__main__':
         # Wait for USB connection to initialize
         time.sleep(0.1)
         for device in DEVICES:
-            device_name = DEVICE_NAMES[device]
+            device_name = adb_communicator.DEVICE_SERIAL_NUMBERS[device]
             if device not in DEVICES_WITH_SCHEDULE and SEND_MATCH_SCHEDULE:
                 print(f'\nAttempting to load {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
-                if push_file(device, MATCH_SCHEDULE_LOCAL_PATH, MATCH_SCHEDULE_TABLET_PATH):
+                if adb_communicator.push_file(device, MATCH_SCHEDULE_LOCAL_PATH,
+                                              MATCH_SCHEDULE_TABLET_PATH, validate_file):
                     DEVICES_WITH_SCHEDULE.add(device)
                     print(f'Loaded {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
                 else:
@@ -193,7 +166,8 @@ if __name__ == '__main__':
                     )
             if device not in DEVICES_WITH_LIST:
                 print(f'\nAttempting to load {TEAM_LIST_LOCAL_PATH} onto {device_name}')
-                if push_file(device, TEAM_LIST_LOCAL_PATH, TEAM_LIST_TABLET_PATH):
+                if adb_communicator.push_file(device, TEAM_LIST_LOCAL_PATH, TEAM_LIST_TABLET_PATH,
+                                    validate_file):
                     DEVICES_WITH_LIST.add(device)
                     print(f'Loaded {TEAM_LIST_LOCAL_PATH} to {device_name}')
                 else:
@@ -202,7 +176,7 @@ if __name__ == '__main__':
                         f'FAILED sending {TEAM_LIST_LOCAL_PATH} to {device_name} ({device})'
                     )
         # Update connected devices before checking if program should exit
-        DEVICES = set(get_attached_devices())
+        DEVICES = set(adb_communicator.get_attached_devices())
         if DEVICES == DEVICES_WITH_SCHEDULE and DEVICES == DEVICES_WITH_LIST:
             # Print blank lines for visual distinction
             print('\n')

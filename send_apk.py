@@ -10,13 +10,14 @@ import json
 import sys
 import time
 # Internal imports
+import adb_communicator
 import utils
 
 
 def install_apk(device_serial):
     """Installs chosen APK to either phone or tablet depending on user input."""
     # Convert serial number to human-readable format
-    device_name = DEVICE_NAMES[device_serial]
+    device_name = adb_communicator.DEVICE_SERIAL_NUMBERS[device_serial]
     print(f'Loading {LOCAL_FILE_PATH} onto {device_name}')
     # Calls 'adb push' command, which uses the Android Debug Bridge (ADB) to send the APK file
     # The -s flag specifies the device_serial by its serial number.
@@ -41,10 +42,6 @@ else:
     print('Error: Local APK file path is not being passed as an argument. Exiting...')
     sys.exit(1)
 
-# Gets the tablet serial numbers from a local file
-with open(utils.create_file_path('data/tablet_serials.json')) as file:
-    DEVICE_NAMES = json.load(file)
-
 # List of devices to which the apk has already been sent
 DEVICES_WITH_APK = []
 
@@ -62,15 +59,7 @@ else:
 print(f'Attempting to send file "{LOCAL_FILE_PATH}".')
 
 while True:
-    # Stores output from 'adb devices'
-    # 'adb devices' returns the serial numbers of all devices connected over ADB.
-    # Example output of 'adb devices':
-    # "List of devices attached\nHA0XUZA9\tdevice\n9AMAY1E53P\tdevice"
-    OUTPUT = utils.run_command('adb devices', return_output=True)
-    # [1:] removes 'List of devices attached'
-    OUTPUT = OUTPUT.rstrip('\n').split('\n')[1:]
-    # Remove '\tdevice' from each line
-    DEVICES = [line.split('\t')[0] for line in OUTPUT]
+    DEVICES = adb_communicator.get_attached_devices()
     TABLET_SERIALS, PHONE_SERIALS = [], []
 
     # Determine if each connected device_serial is a tablet or phone and if it needs the APK
