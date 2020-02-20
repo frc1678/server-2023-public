@@ -4,7 +4,7 @@
 schema_file:
   # Version of schema file
   # Incremented every merged schema change
-  version: 1
+  version: 2
 
 # Not used for calcs
 data:
@@ -15,3 +15,6 @@ calculations:
   predicted_rps:
     type: float
     requires: [predicted_score, predicted_rp1, predicted_rp2]
+  predicted_rank:
+    type: int
+    requires: [predicted_rps]
