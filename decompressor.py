@@ -3,8 +3,10 @@
 """Decompresses objective and subjective match collection QR codes"""
 # External imports
 import enum
+import os
 import yaml
 # Internal imports
+import local_database_communicator
 import utils
 
 
@@ -221,12 +223,50 @@ def decompress_qrs(split_qrs):
     return output
 
 
+def check_scout_ids():
+    """Checks unconsolidated TIMs in `tim_queue` to see which scouts have not sent data.
+
+    This operation is done by `scout_id` -- if a match is missing data, then the scout_id will not
+    have sent data for the match.
+    returns None -- warnings are issued directly through `utils.log_warning`
+    """
+    # Load matches or matches and ids to ignore from ignore file
+    if os.path.exists(MISSING_TIM_IGNORE_FILE_PATH):
+        with open(MISSING_TIM_IGNORE_FILE_PATH) as ignore_file:
+            items_to_ignore = yaml.load(ignore_file, Loader=yaml.Loader)
+    else:
+        items_to_ignore = []
+    matches_to_ignore = [item['match_number'] for item in items_to_ignore if len(item) == 1]
+    tims = local_database_communicator.read_dataset('processed.unconsolidated_obj_tim')
+    matches = {}
+    for tim in tims:
+        match_number = tim['match_number']
+        matches[match_number] = matches.get(match_number, []) + [tim['scout_id']]
+
+    for match, scout_ids in matches.items():
+        if match in matches_to_ignore:
+            continue
+        unique_scout_ids = []
+        for id_ in scout_ids:
+            if id_ in unique_scout_ids:
+                if {'match_number': match, 'scout_id': id_} not in items_to_ignore:
+                    utils.log_warning(f'Duplicate Scout ID {id_} for Match {match}')
+            else:
+                unique_scout_ids.append(id_)
+        # Scout IDs are from 1-18 inclusive
+        for id_ in range(1, 19):
+            if id_ not in unique_scout_ids:
+                if {'match_number': match, 'scout_id': id_} not in items_to_ignore:
+                    utils.log_warning(f'Scout ID {id_} missing from Match {match}')
+
+
 # Load latest match collection compression QR code schema
 with open(utils.create_file_path('schema/match_collection_qr_schema.yml', False),
           'r') as file:
     # Specify loader to avoid warnings about default loader
     SCHEMA = yaml.load(file, yaml.Loader)
 
+MISSING_TIM_IGNORE_FILE_PATH = utils.create_file_path('data/missing_tim_ignore.yml')
 _GENERIC_DATA_FIELDS = _get_data_fields('generic_data')
 OBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('objective_tim'))
 SUBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('subjective_aim'))

@@ -129,6 +129,9 @@ while True:
             if QR_ID not in MAIN_QUEUE['processed'][qr_type]:
                 MAIN_QUEUE['processed'][qr_type].append(QR_ID)
 
+    # Notify about missing data
+    decompressor.check_scout_ids()
+
     # TBA_MATCH_DATA is a list of dictionaries
     TBA_MATCH_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/matches')
     # Makes a list of matches that have been retrieved
