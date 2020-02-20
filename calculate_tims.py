@@ -7,7 +7,6 @@ Usage: server.py calls update_calc_obj_tims to consolidate & calculate specified
 
 # External imports
 import statistics
-import yaml
 # Internal imports
 import local_database_communicator
 import utils
@@ -180,5 +179,4 @@ def update_calc_obj_tims(tims):
     return calculated_tims
 
 
-with open(utils.create_file_path('schema/calc_obj_tim_schema.yml')) as file:
-    SCHEMA = yaml.load(file, yaml.Loader)
+SCHEMA = utils.read_schema('schema/calc_obj_tim_schema.yml')

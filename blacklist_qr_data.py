@@ -11,7 +11,6 @@ number are added to the blacklist.
 # External imports
 import sys
 import re
-import yaml
 # Internal imports
 import utils
 import local_database_communicator
@@ -35,8 +34,7 @@ if not INVALID_MATCH.isnumeric():
     sys.exit()
 
 # Opens the schema document, to be used in regex's
-with open(utils.create_file_path('schema/match_collection_qr_schema.yml', False)) as schema_file:
-    SCHEMA = yaml.load(schema_file, yaml.Loader)
+SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')
 
 # Stores all of the elements of the regex to be joined to a string later
 PATTERN_ELEMENTS = [

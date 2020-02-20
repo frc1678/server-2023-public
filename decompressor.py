@@ -261,10 +261,7 @@ def check_scout_ids():
 
 
 # Load latest match collection compression QR code schema
-with open(utils.create_file_path('schema/match_collection_qr_schema.yml', False),
-          'r') as file:
-    # Specify loader to avoid warnings about default loader
-    SCHEMA = yaml.load(file, yaml.Loader)
+SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')
 
 MISSING_TIM_IGNORE_FILE_PATH = utils.create_file_path('data/missing_tim_ignore.yml')
 _GENERIC_DATA_FIELDS = _get_data_fields('generic_data')

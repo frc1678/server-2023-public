@@ -20,8 +20,7 @@ def upload_qr_codes(qr_codes):
     qr_codes is a list of QR code strings to upload
     """
     # Gets the starting character for each QR code type, used to identify QR code type
-    with open(utils.create_file_path('schema/match_collection_qr_schema.yml')) as schema_file:
-        schema = yaml.load(schema_file, yaml.Loader)
+    schema = utils.read_schema('schema/match_collection_qr_schema.yml')
 
     # Acquires current qr data using local_database_communicator.py
     qr_data = local_database_communicator.read_dataset('raw.qr')
