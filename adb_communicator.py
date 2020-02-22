@@ -7,6 +7,7 @@ import os
 import re
 import time
 # Internal imports
+import local_database_communicator
 import qr_code_uploader
 import utils
 
@@ -91,15 +92,15 @@ def pull_device_data():
     """Pulls tablet data from attached tablets."""
     # Parses 'adb devices' to find num of devices so that don't try to pull from nothing
     devices = get_attached_devices()
-    if devices == []:
-        return []
-    # Makes a regex pattern that matches the file name of a QR file
-    # Format of obj QR file pattern: <qual_num>_<team_num>_<serial_num>_<timestamp>.txt
-    obj_pattern = re.compile(r'[0-9]+_[0-9]+_[A-Z0-9]+_[0-9]+.txt')
-    # Format of subj QR file pattern: <qual_num>_<serial_num_<timestamp>.txt
-    subj_pattern = re.compile(r'[0-9]+_[0-9A-Z]+_[0-9]+.txt')
+    data = {
+        'qr': [],
+        'obj_pit': [],
+        'subj_pit': []
+    }
+    if not devices:
+        return data
 
-    tablet_qr_data, device_file_paths = [], []
+    device_file_paths = []
     device_file_path = utils.create_file_path('data/tablets')
     # Pull all files from the 'Download' folder on the tablet
     adb_pull_tablet_data(device_file_path, '/storage/emulated/0/Download')
@@ -112,13 +113,47 @@ def pull_device_data():
         # Iterate through the downloads folder in the device folder
         download_directory = os.path.join(device_file_path, device, 'Download')
         for file in os.listdir(download_directory):
-            if (re.fullmatch(obj_pattern, file) is not None or
-                    re.fullmatch(subj_pattern, file) is not None):
-                with open(os.path.join(download_directory, file)) as qr_code_file:
-                    tablet_qr_data.append(qr_code_file.read().rstrip('\n'))
-    # Add the QR codes to MAIN_QUEUE and upload them
-    return qr_code_uploader.upload_qr_codes(tablet_qr_data)
+            for dataset, pattern in FILENAME_REGEXES.items():
+                if re.fullmatch(pattern, file):
+                    with open(os.path.join(download_directory, file)) as data_file:
+                        # QR data is just read
+                        if dataset == 'qr':
+                            file_contents = data_file.read().rstrip('\n')
+                        else:
+                            file_contents = json.load(data_file)
+                        data[dataset].append(file_contents)
+                        break  # Filename will only match one regex
+    # Add QRs to database and make sure that only QRs that should be decompressed are added to queue
+    data['qr'] = qr_code_uploader.upload_qr_codes(data['qr'])
+    for dataset in ['obj_pit', 'subj_pit']:
+        current_data = local_database_communicator.read_dataset(dataset)
+        modified_data = []
+        for datapoint in data[dataset]:
+            if datapoint in current_data:
+                continue
+            # Specify query to ensure that each team only has one entry
+            local_database_communicator.append_or_overwrite(
+                f'raw.{dataset}', [datapoint], {'team_number': datapoint['team_number']}
+            )
+            modified_data.append({'team_number': datapoint['team_number']})
+        utils.log_info(f'{len(modified_data)} items uploaded to {dataset}')
+        data[dataset] = modified_data
+    return data
 
+
+# Store regex patterns to match files containing either pit or match data
+FILENAME_REGEXES = {
+    # Matches either objective or subjective QR filenames
+    # Format of objective QR file pattern: <qual_num>_<team_num>_<serial_num>_<timestamp>.txt
+    # Format of subjective QR file pattern: <qual_num>_<serial_num>_<timestamp>.txt
+    'qr': re.compile(
+        r'([0-9]{1,3}_[0-9]{1,4}_[A-Z0-9]+_[0-9]+\.txt)|([0-9]{1,3}_[0-9A-Z]+_[0-9]+\.txt)'
+    ),
+    # Format of objective pit file pattern: <team_number>_pit.json
+    'obj_pit': re.compile(r'[0-9]{1,4}_obj_pit\.json'),
+    # Format of subjective pit file pattern: <team_number>_subjective.json
+    'subj_pit': re.compile(r'[0-9]{1,4}_subj_pit\.json')
+}
 
 # Open the tablet serials file to find all device serials
 with open('data/tablet_serials.json') as serial_numbers:

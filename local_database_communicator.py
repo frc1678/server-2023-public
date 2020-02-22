@@ -125,7 +125,8 @@ def add_competition(db, competition=utils.TBA_EVENT_KEY):
         'tba_event_key': competition,
         'raw': {
             'qr': [],
-            'pit': [],
+            'obj_pit': [],
+            'subj_pit': []
         },
         'tba_cache': {},
         'processed': {

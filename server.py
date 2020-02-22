@@ -22,7 +22,8 @@ def get_empty_modified_data():
     modified_data = {
         'raw': {
             'qr': [],
-            'pit': []
+            'obj_pit': [],
+            'subj_pit': []
         },
         'processed': {
             'unconsolidated_obj_tim': [],
@@ -53,12 +54,21 @@ BLACKLISTED = local_database_communicator.read_dataset('processed.replay_outdate
 # Selecting only the non-blacklisted ones
 MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLACKLISTED]
 
+# Add existing pit data to main queue on server restart
+MAIN_QUEUE['raw']['obj_pit'] = [{'team_number': point['team_number']} for point in
+                                local_database_communicator.read_dataset('raw.obj_pit')]
+MAIN_QUEUE['raw']['subj_pit'] = [{'team_number': point['team_number']} for point in
+                                 local_database_communicator.read_dataset('raw.subj_pit')]
+
 # Where we get the match data from TBA
 MATCH_LIST = []
 
 
 while True:
-    MAIN_QUEUE['raw']['qr'].extend(adb_communicator.pull_device_data())
+    # TODO Pull team pictures from tablets
+    TABLET_DATA = adb_communicator.pull_device_data()
+    for dataset, refs in TABLET_DATA.items():
+        MAIN_QUEUE['raw'][dataset].extend(refs)
     RAW_SCANNER = input('Scan Data Here: ')
     # Do not try to upload blank string
     if RAW_SCANNER != '':
