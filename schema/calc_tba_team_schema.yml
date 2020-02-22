@@ -4,7 +4,7 @@
 schema_file:
   # Version of schema file
   # Incremented every merged schema change
-  version: 1
+  version: 2
 
 data:
   team_number: int
@@ -15,13 +15,7 @@ calculations:
     type: float
   tele_high_balls_percent_inner:
     type: float
-  auto_avg_balls_inner:
-    type: float
-  tele_avg_balls_inner:
-    type: float
-  auto_avg_balls_outer:
-    type: float
-  tele_avg_balls_outer:
+  climb_all_success_avg_time:
     type: float
 
 # Calcs based on counting team in match bools
@@ -42,11 +36,3 @@ counts:
     type: int
     tim_fields:
       auto_line: true
-
-# Calculations made by averaging
-averages:
-  climb_all_success_avg_time:
-    type: float
-    tim_fields:
-      not:
-        climb_time: null
