@@ -45,6 +45,10 @@ def update_array(path, change_list):
     # Remove nesting, making `to_add` only a list of changed documents
     while isinstance(to_add, dict):
         to_add = to_add[[*to_add.keys()][0]]
+    # No data matched or dataset does not exist, so warn & return blank list
+    if to_add is None:
+        utils.log_warning(f'No the dataset at {path} does not exist.')
+        return []
     write_operations.append(pymongo.UpdateOne(
         {'tba_event_key': utils.TBA_EVENT_KEY}, {'$push': {path: {'$each': to_add}}}
     ))

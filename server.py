@@ -27,10 +27,11 @@ def get_empty_modified_data():
         },
         'processed': {
             'unconsolidated_obj_tim': [],
-            'consolidated_obj_tim': [],
             'subj_aim': [],
             'calc_obj_tim': [],
+            'calc_tba_tim': [],
             'calc_obj_team': [],
+            'calc_tba_team': [],
             'calc_subj_team': [],
             'calc_match': []
         }
@@ -119,8 +120,15 @@ while True:
         if match['comp_level'] == 'qm':
             if match.get('actual_time', 0) != 0 and match['match_number'] not in MATCH_LIST:
                 MATCH_LIST.append(match['match_number'])
-                MAIN_QUEUE['processed']['unconsolidated_obj_tim'].append(
+                MAIN_QUEUE['processed']['calc_tba_tim'].append(
                     {'match_number': int(match['match_number'])})
+                TEAMS = [match['alliances'][alliance]['team_keys'] for alliance in ['red', 'blue']]
+                for alliance in TEAMS:
+                    for team in alliance:
+                        team = {'team_number': int(team[3:])}
+                        if team not in MAIN_QUEUE['processed']['calc_tba_team']:
+                            MAIN_QUEUE['processed']['calc_tba_team'].append(team)
+
     # Where we get the rankings from TBA
     TBA_RANKINGS_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/rankings')
 

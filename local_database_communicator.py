@@ -133,6 +133,7 @@ def add_competition(db, competition=utils.TBA_EVENT_KEY):
             'replay_outdated_qr': [],
             'unconsolidated_obj_tim': [],
             'calc_obj_tim': [],
+            'calc_tba_tim': [],
             'subj_aim': [],
             'calc_obj_team': [],
             'calc_subj_team': [],
