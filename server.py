@@ -8,6 +8,7 @@ competition. This script runs all of the computations in the server.
 # No external imports
 # Internal imports
 import adb_communicator
+import calculate_team
 import calculate_tims
 import decompressor
 import cloud_database_communicator
@@ -136,21 +137,25 @@ while True:
     TBA_RANKINGS_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/rankings')
 
     # Consolidate & calculate TIMs for each match in the main queue
-    calculated_obj_tims = calculate_tims.update_calc_obj_tims(
+    CALCULATED_OBJ_TIMS = calculate_tims.update_calc_obj_tims(
         MAIN_QUEUE['processed']['unconsolidated_obj_tim'])
-    MAIN_QUEUE['processed']['calc_obj_tim'] = calculated_obj_tims
-    local_database_communicator.append_or_overwrite('processed.calc_obj_tim', calculated_obj_tims)
-    matches_to_be_calculated = set()
-    teams_to_be_calculated = set()
-    for tim in calculated_obj_tims:
-        matches_to_be_calculated.add(tim['match_number'])
-        teams_to_be_calculated.add(tim['team_number'])
+    MAIN_QUEUE['processed']['calc_obj_tim'] = CALCULATED_OBJ_TIMS
+    local_database_communicator.append_or_overwrite('processed.calc_obj_tim', CALCULATED_OBJ_TIMS)
+    MATCHES_TO_BE_CALCULATED = set()
+    TEAMS_TO_BE_CALCULATED = set()
+    for tim in CALCULATED_OBJ_TIMS:
+        MATCHES_TO_BE_CALCULATED.add(tim['match_number'])
+        TEAMS_TO_BE_CALCULATED.add(tim['team_number'])
     MAIN_QUEUE['processed']['calc_match'] = [
-        {'match_number': match} for match in matches_to_be_calculated]
+        {'match_number': match} for match in MATCHES_TO_BE_CALCULATED]
     MAIN_QUEUE['processed']['calc_obj_team'] = [
-        {'team_number': team} for team in teams_to_be_calculated]
+        {'team_number': team} for team in TEAMS_TO_BE_CALCULATED]
 
-    # TODO: Team calcs
+    for team in MAIN_QUEUE['processed']['calc_obj_team']:
+        calculated_team = utils.catch_function_errors(calculate_team.calculate_obj_team, team)
+        if calculated_team is not None:
+            local_database_communicator.append_or_overwrite(
+                'processed.calc_obj_team', [calculated_team], query={'team_number': team})
 
     # TODO: Pull rankings from TBA
 
