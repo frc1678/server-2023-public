@@ -196,6 +196,11 @@ def decompress_single_qr(qr_data, qr_type):
         decompressed_data.update(decompress_data(objective_data, 'objective_tim'))
         if set(decompressed_data.keys()) != OBJECTIVE_QR_FIELDS:
             raise ValueError('QR missing data fields')
+        utils.log_info(
+                f'Match: {decompressed_data["match_number"]} '
+                f'Team: {decompressed_data["team_number"]} '
+                f'Scout_ID: {decompressed_data["scout_id"]}'
+                )
     return decompressed_data
 
 
