@@ -73,6 +73,7 @@ def export_team_data():
                     merged_team.update(document)
             # Use each team's merged data to write a row
             csv_writer.writerow(merged_team)
+    utils.log_info('Exported team data to CSV')
 
 
 def export_tim_data():
@@ -95,7 +96,7 @@ def export_tim_data():
         # Write rows using data in dictionary
         for document in TEAM_IN_MATCH_DATA:
             csv_writer.writerow(document)
-
+    utils.log_info('Exported TIM to CSV')
 
 # Export all data
 export_team_data()
