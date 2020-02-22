@@ -4,7 +4,11 @@
 schema_file:
   # Version of schema file
   # Incremented every merged schema change
-  version: 3
+  version: 5
+
+# Data that doesn't fit into other categorical calculations
+data:
+  confidence_rating: int
 
 # Calculations built around counting timeline actions with certain key:value pairs.
 timeline_counts:
