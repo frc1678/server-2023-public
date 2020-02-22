@@ -11,7 +11,8 @@ import datetime
 import local_database_communicator
 import utils
 
-TEAM_DATA = local_database_communicator.read_dataset('raw.pit')
+TEAM_DATA = local_database_communicator.read_dataset('raw.obj_pit')
+TEAM_DATA += local_database_communicator.read_dataset('raw.subj_pit')
 TEAM_DATA += local_database_communicator.read_dataset('processed.calc_subj_team')
 TEAM_IN_MATCH_DATA = local_database_communicator.read_dataset('processed.calc_obj_tim')
 

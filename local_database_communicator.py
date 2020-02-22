@@ -13,7 +13,8 @@ import utils
 def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     """Filters by filter_by if given, or reads entire dataset
 
-    path is a string in dot notation showing which fields the data is under (eg. 'raw.pit').
+    path is a string in dot notation showing which fields the data is under
+    (eg. 'raw.obj_pit').
     competition is the competition code. **filter_by is of the form foo=bar
     and is the key value pair to filter data by
     """
@@ -102,7 +103,8 @@ def append_or_overwrite(path, data, query=None, competition=utils.TBA_EVENT_KEY)
     it does exist.
 
     query is the key-value pairs that are used to remove old data during overwrite.
-    path is a string in dot notation showing which fields the data is under (eg. 'raw.pit').
+    path is a string in dot notation showing which fields the data is under
+    (eg. 'raw.obj_pit').
     data is the new data to add or overwrite. competition is the competition key.
     """
     # Removes all documents that match the query if it exists.
@@ -130,7 +132,6 @@ def add_competition(db, competition=utils.TBA_EVENT_KEY):
         },
         'tba_cache': {},
         'processed': {
-            'replay_outdated_qr': [],
             'unconsolidated_obj_tim': [],
             'calc_obj_tim': [],
             'calc_tba_tim': [],

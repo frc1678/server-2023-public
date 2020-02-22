@@ -27,13 +27,16 @@ def get_empty_modified_data():
         },
         'processed': {
             'unconsolidated_obj_tim': [],
-            'subj_aim': [],
             'calc_obj_tim': [],
             'calc_tba_tim': [],
+            'subj_aim': [],
             'calc_obj_team': [],
-            'calc_tba_team': [],
             'calc_subj_team': [],
-            'calc_match': []
+            'calc_match': [],
+            'calc_predicted_aim': [],
+            'calc_predicted_team': [],
+            'calc_tba_team': [],
+            'calc_pick_ability_team': [],
         }
     }
     return modified_data
