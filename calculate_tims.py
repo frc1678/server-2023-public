@@ -153,7 +153,8 @@ def calculate_tim(unconsolidated_tims):
     # since that should be the same for each unconsolidated TIM
     calculated_tim['match_number'] = unconsolidated_tims[0]['match_number']
     calculated_tim['team_number'] = unconsolidated_tims[0]['team_number']
-    calculated_tim['num_unconsolidated_tims_found'] = len(unconsolidated_tims)
+    # confidence_rating is the number of scouts that scouted one robot
+    calculated_tim['confidence_ranking'] = len(unconsolidated_tims)
     return calculated_tim
 
 
