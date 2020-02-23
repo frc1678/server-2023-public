@@ -7,6 +7,7 @@ import time
 import adb_communicator
 import utils
 
+
 def adb_font_size_enforcer():
     """Enforce tablet font size to 1.30, the largest supported size"""
     devices = adb_communicator.get_attached_devices()
@@ -19,4 +20,8 @@ def adb_font_size_enforcer():
             return_output=False
         )
 
+
+file_path = utils.create_file_path('data/tablets')
+utils.run_command(f'rm -R {file_path}', True)
+utils.run_command('mkdir data/tablets', True)
 adb_font_size_enforcer()
