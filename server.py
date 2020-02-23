@@ -5,17 +5,23 @@
 Runs on an Ubuntu 18.04 LTS computer in the stands at
 competition. This script runs all of the computations in the server.
 """
-# No external imports
+# External imports
+import pymongo
+import sys
 # Internal imports
 import adb_communicator
 import calculate_team
 import calculate_tims
 import decompressor
-import cloud_database_communicator
 import local_database_communicator
 import qr_code_uploader
 import tba_communicator
 import utils
+
+try:
+    import cloud_database_communicator
+except pymongo.errors.ConfigurationError:
+    utils.log_warning(f'Cloud database import failed. No internet.')
 
 
 def get_empty_modified_data():
@@ -116,6 +122,8 @@ while True:
 
     # TBA_MATCH_DATA is a list of dictionaries
     TBA_MATCH_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/matches')
+    if TBA_MATCH_DATA is None:
+        TBA_MATCH_DATA = []
     # Makes a list of matches that have been retrieved
     # match is a single dictionary from TBA_MATCH_DATA
     for match in TBA_MATCH_DATA:
@@ -162,6 +170,11 @@ while True:
     # TODO: Match calcs
 
     # TODO: Team calcs (driver ability)
+    if 'cloud_database_communicator' not in sys.modules:
+        try:
+            import cloud_database_communicator
+        except pymongo.errors.ConfigurationError:
+            utils.log_warning(f'Cloud database import failed. No internet.')
 
     # Send data to cloud database
     # Merge CLOUD_DB_QUEUE and MAIN_QUEUE
@@ -171,14 +184,14 @@ while True:
     # Empty main queue
     MAIN_QUEUE = get_empty_modified_data()
     # Send data to cloud
-    CLOUD_WRITE_RESULT = cloud_database_communicator.push_changes_to_db(
-        CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE
-    )
-    # push_changes_to_db returns None on connection errors
-    if CLOUD_WRITE_RESULT is not None:
-        CLOUD_DB_QUEUE = get_empty_modified_data()
-        if SERVER_RESTART_SINCE_CLOUD_UPDATE:
-            SERVER_RESTART_SINCE_CLOUD_UPDATE = False
+    if 'cloud_database_communicator' in sys.modules:
+        CLOUD_WRITE_RESULT = cloud_database_communicator.push_changes_to_db(
+            CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE
+        )
+        if CLOUD_WRITE_RESULT is not None:
+            CLOUD_DB_QUEUE = get_empty_modified_data()
+            if SERVER_RESTART_SINCE_CLOUD_UPDATE:
+                SERVER_RESTART_SINCE_CLOUD_UPDATE = False
 
     if SERVER_RESTART:
         SERVER_RESTART = False
