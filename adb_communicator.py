@@ -19,7 +19,7 @@ def delete_tablet_downloads():
     time.sleep(.1)
     for device in devices:
         utils.run_command(f'adb -s {device} shell rm -r /storage/sdcard0/Download/*')
-        utils.log_info(f'Removed Downloads on {DEVICES[device]})
+        utils.log_info(f'Removed Downloads on {DEVICES[device]}')
 
 
 def get_attached_devices():
