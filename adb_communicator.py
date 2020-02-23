@@ -12,6 +12,16 @@ import qr_code_uploader
 import utils
 
 
+def delete_tablet_downloads():
+    """Deletes all data from the Download folder of tablets"""
+    devices = get_attached_devices()
+    # Wait for USB connection to initialize
+    time.sleep(.1)
+    for device in devices:
+        utils.run_command(f'adb -s {device} shell rm -r /storage/sdcard0/Download/*')
+        utils.log_info(f'Removed Downloads on {DEVICES[device]})
+
+
 def get_attached_devices():
     """Uses ADB to get a list of devices attached."""
     # Get output from `adb_devices` command. Example output:
