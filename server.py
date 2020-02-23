@@ -10,7 +10,7 @@ import pymongo
 import sys
 # Internal imports
 import adb_communicator
-import calculate_team
+import calculate_obj_team
 import calculate_tims
 import decompressor
 import local_database_communicator
@@ -160,7 +160,7 @@ while True:
         {'team_number': team} for team in TEAMS_TO_BE_CALCULATED]
 
     for team in MAIN_QUEUE['processed']['calc_obj_team']:
-        calculated_team = utils.catch_function_errors(calculate_team.calculate_obj_team, team)
+        calculated_team = utils.catch_function_errors(calculate_obj_team.calculate_obj_team, team)
         if calculated_team is not None:
             local_database_communicator.append_or_overwrite(
                 'processed.calc_obj_team', [calculated_team], query={'team_number': team})
