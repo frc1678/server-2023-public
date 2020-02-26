@@ -118,7 +118,7 @@ def calculate_tim(unconsolidated_tims):
             filters_ = copy.deepcopy(filters)
             expected_type = filters_.pop('type')
             new_count = count_timeline_actions(tim, **filters_)
-            if not isinstance(new_count, types_dict[expected_type]):
+            if not isinstance(new_count, TYPE_CHECK_DICT[expected_type]):
                 raise TypeError(f'Expected {new_count} calculation to be a {expected_type}')
             unconsolidated_counts.append(new_count)
         calculated_tim[calculation] = consolidate_nums(unconsolidated_counts)
@@ -130,7 +130,7 @@ def calculate_tim(unconsolidated_tims):
             filters_ = copy.deepcopy(filters)
             expected_type = filters_.pop('type')
             new_bool = bool(count_timeline_actions(tim, **filters_))
-            if not isinstance(new_bool, types_dict[expected_type]):
+            if not isinstance(new_bool, TYPE_CHECK_DICT[expected_type]):
                 raise TypeError(f'Expected {new_bool} calculation to be a {expected_type}')
             unconsolidated_bools.append(new_bool)
         calculated_tim[calculation] = consolidate_bools(unconsolidated_bools)
@@ -145,7 +145,7 @@ def calculate_tim(unconsolidated_tims):
             # "action_type" to the name of either the start or end action
             new_cycle_time = total_time_between_actions(
                 tim, action_types['start_action'], action_types['end_action'])
-            if not isinstance(new_cycle_time, types_dict[expected_type]):
+            if not isinstance(new_cycle_time, TYPE_CHECK_DICT[expected_type]):
                 raise TypeError(f'Expected {new_cycle_time} calculation to be a {expected_type}')
             unconsolidated_cycle_times.append(new_cycle_time)
         calculated_tim[calculation] = consolidate_nums(unconsolidated_cycle_times)
@@ -184,7 +184,15 @@ def update_calc_obj_tims(tims):
         calculated_tims.append(calculated_tim)
     return calculated_tims
 
-types_dict = {
+
+TYPES_CONVERSION_DICT = {
+    'float': float,
+    'int': int,
+    'str': str,
+    'bool': utils.get_bool
+}
+
+TYPE_CHECK_DICT = {
     'float': float,
     'int': int,
     'str': str,

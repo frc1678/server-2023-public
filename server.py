@@ -11,7 +11,8 @@ import sys
 # Internal imports
 import adb_communicator
 import calculate_obj_team
-import calculate_tims
+import calculate_obj_tims
+import calculate_tba_tims
 import decompressor
 import local_database_communicator
 import qr_code_uploader
@@ -124,6 +125,7 @@ while True:
     TBA_MATCH_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/matches')
     if TBA_MATCH_DATA is None:
         TBA_MATCH_DATA = []
+    NEW_TBA_MATCHES = []
     # Makes a list of matches that have been retrieved
     # match is a single dictionary from TBA_MATCH_DATA
     for match in TBA_MATCH_DATA:
@@ -131,21 +133,14 @@ while True:
         # Checks that we are only getting the qualification matches
         if match['comp_level'] == 'qm':
             if match.get('actual_time', 0) != 0 and match['match_number'] not in MATCH_LIST:
-                MATCH_LIST.append(match['match_number'])
-                MAIN_QUEUE['processed']['calc_tba_tim'].append(
-                    {'match_number': int(match['match_number'])})
-                TEAMS = [match['alliances'][alliance]['team_keys'] for alliance in ['red', 'blue']]
-                for alliance in TEAMS:
-                    for team in alliance:
-                        team = {'team_number': int(team[3:])}
-                        if team not in MAIN_QUEUE['processed']['calc_tba_team']:
-                            MAIN_QUEUE['processed']['calc_tba_team'].append(team)
+                NEW_TBA_MATCHES.append({'match_number': match['match_number']})
+    MATCH_LIST.extend(NEW_TBA_MATCHES)
 
     # Where we get the rankings from TBA
     TBA_RANKINGS_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/rankings')
 
     # Consolidate & calculate TIMs for each match in the main queue
-    CALCULATED_OBJ_TIMS = calculate_tims.update_calc_obj_tims(
+    CALCULATED_OBJ_TIMS = calculate_obj_tims.update_calc_obj_tims(
         MAIN_QUEUE['processed']['unconsolidated_obj_tim'])
     MAIN_QUEUE['processed']['calc_obj_tim'] = CALCULATED_OBJ_TIMS
     local_database_communicator.append_or_overwrite('processed.calc_obj_tim', CALCULATED_OBJ_TIMS)
@@ -159,13 +154,18 @@ while True:
     MAIN_QUEUE['processed']['calc_obj_team'] = [
         {'team_number': team} for team in TEAMS_TO_BE_CALCULATED]
 
+    # Run TBA tim calcs
+    TBA_TIMS = calculate_tba_tims.update_calc_tba_tims(NEW_TBA_MATCHES)
+    for tim in TBA_TIMS:
+        tim_ref = {'team_number': tim['team_number'], 'match_number': tim['match_number']}
+        local_database_communicator.append_or_overwrite('processed.calc_tba_tim', [tim], tim_ref)
+        MAIN_QUEUE['processed']['calc_tba_tim'].append(tim_ref)
+
     for team in MAIN_QUEUE['processed']['calc_obj_team']:
         calculated_team = utils.catch_function_errors(calculate_obj_team.calculate_obj_team, team)
         if calculated_team is not None:
             local_database_communicator.append_or_overwrite(
                 'processed.calc_obj_team', [calculated_team], query={'team_number': team})
-
-    # TODO: Pull rankings from TBA
 
     # TODO: Match calcs
 
