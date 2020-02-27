@@ -19,7 +19,7 @@ def delete_tablet_downloads():
     time.sleep(.1)
     for device in devices:
         utils.run_command(f'adb -s {device} shell rm -r /storage/sdcard0/Download/*')
-        utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]}')
+        utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
 
 
 def get_attached_devices():
@@ -95,7 +95,7 @@ def adb_remove_files(tablet_file_path):
         # Bridge (ADB) to copy the match schedule file to the tablet.
         # The -s flag specifies the device by its serial number.
         utils.run_command(f'adb -s {device} shell rm -r {tablet_file_path}')
-        utils.log_info(f'removed {tablet_file_path} on {device}')
+        utils.log_info(f'removed {tablet_file_path} on {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
 
 
 def pull_device_data():
