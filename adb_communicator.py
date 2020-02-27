@@ -19,7 +19,7 @@ def delete_tablet_downloads():
     time.sleep(.1)
     for device in devices:
         utils.run_command(f'adb -s {device} shell rm -r /storage/sdcard0/Download/*')
-        utils.log_info(f'Removed Downloads on {DEVICES[device]}')
+        utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]}')
 
 
 def get_attached_devices():
@@ -121,7 +121,7 @@ def pull_device_data():
         # If the folder name is a device serial, it must be a tablet folder
     for device in device_file_paths:
         # Iterate through the downloads folder in the device folder
-        download_directory = os.path.join(device_file_path, device, 'Download')
+        download_directory = os.path.join(device_file_path, device)
         for file in os.listdir(download_directory):
             for dataset, pattern in FILENAME_REGEXES.items():
                 if re.fullmatch(pattern, file):
