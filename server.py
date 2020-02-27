@@ -142,30 +142,23 @@ while True:
     # Consolidate & calculate TIMs for each match in the main queue
     CALCULATED_OBJ_TIMS = calculate_obj_tims.update_calc_obj_tims(
         MAIN_QUEUE['processed']['unconsolidated_obj_tim'])
-    MAIN_QUEUE['processed']['calc_obj_tim'] = CALCULATED_OBJ_TIMS
+    MAIN_QUEUE['processed']['calc_obj_tim'] = [{'team_number': tim['team_number'],
+                                                'match_number': tim['match_number']} for tim in
+                                               CALCULATED_OBJ_TIMS]
     local_database_communicator.append_or_overwrite('processed.calc_obj_tim', CALCULATED_OBJ_TIMS)
-    MATCHES_TO_BE_CALCULATED = set()
-    TEAMS_TO_BE_CALCULATED = set()
     for tim in CALCULATED_OBJ_TIMS:
-        MATCHES_TO_BE_CALCULATED.add(tim['match_number'])
-        TEAMS_TO_BE_CALCULATED.add(tim['team_number'])
-    MAIN_QUEUE['processed']['calc_match'] = [
-        {'match_number': match} for match in MATCHES_TO_BE_CALCULATED]
-    MAIN_QUEUE['processed']['calc_obj_team'] = [
-        {'team_number': team} for team in TEAMS_TO_BE_CALCULATED]
+        MAIN_QUEUE['processed']['calc_obj_tim'].append(
+            {'match_number': tim['match_number'], 'team_number': tim['team_number']})
 
-    # Run TBA tim calcs
-    TBA_TIMS = calculate_tba_tims.update_calc_tba_tims(NEW_TBA_MATCHES)
-    for tim in TBA_TIMS:
-        tim_ref = {'team_number': tim['team_number'], 'match_number': tim['match_number']}
-        local_database_communicator.append_or_overwrite('processed.calc_tba_tim', [tim], tim_ref)
-        MAIN_QUEUE['processed']['calc_tba_tim'].append(tim_ref)
-
-    for team in MAIN_QUEUE['processed']['calc_obj_team']:
+    for ref in MAIN_QUEUE['processed']['calc_obj_tim']:
+        team = ref['team_number']
         calculated_team = utils.catch_function_errors(calculate_obj_team.calculate_obj_team, team)
         if calculated_team is not None:
             local_database_communicator.append_or_overwrite(
                 'processed.calc_obj_team', [calculated_team], query={'team_number': team})
+            CALC_TEAM_REF = {'team_number': team}
+            if CALC_TEAM_REF not in MAIN_QUEUE['processed']['calc_obj_team']:
+                 MAIN_QUEUE['processed']['calc_obj_team'].append(CALC_TEAM_REF)
 
     # TODO: Match calcs
 
