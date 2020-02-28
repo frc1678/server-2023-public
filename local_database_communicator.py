@@ -20,7 +20,7 @@ def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     """
     # If no filter_by is provided, finds all data within the specified path and returns a list
     # of all documents under the field.
-    if len(filter_by) == 0:
+    if filter_by == {}:
         result = DB.competitions.find_one({'tba_event_key': competition}, {path: 1, '_id': 0})
     else:
         # Sets up the $eq expression for every filter_by provided
@@ -107,9 +107,21 @@ def append_or_overwrite(path, data, query=None, competition=utils.TBA_EVENT_KEY)
     (eg. 'raw.obj_pit').
     data is the new data to add or overwrite. competition is the competition key.
     """
-    # Removes all documents that match the query if it exists.
-    # If there is no match, no documents are pulled
+    # If a query is specified to check for existing documents
     if query is not None:
+        # Find all data that matches the query
+        existing_data = read_dataset(path, **query)
+        # A list of documents with updated data
+        updated_documents = []
+        # For each document matching the query, update it with new data
+        for document in existing_data:
+            for pair in data:
+                document.update(pair)
+            # Add updated documents to list
+            updated_documents.append(document)
+        # The updated documents are now the data to add
+        data = updated_documents
+        # Removes all documents that match the query. If there is no match, none are removed.
         DB.competitions.update_one({'tba_event_key': competition}, {'$pull': {path: query}})
     # Add new data
     DB.competitions.update_one({'tba_event_key': competition},
