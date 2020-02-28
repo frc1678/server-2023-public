@@ -4,7 +4,7 @@
 schema_file:
   # Version of schema file
   # Incremented every merged schema change
-  version: 1
+  version: 2
 
 # Stores fields that will be added to database but do not require calculations
 data:
@@ -29,6 +29,12 @@ averages:
     type: float
   tele_avg_balls_total:
     tim_fields: [tele_balls_low, tele_balls_high]
+    type: float
+  avg_incap_time:
+    tim_fields: [incap]
+    type: float
+  avg_climb_time:
+    tim_fields: [climb_time]
     type: float
 
 # Counts of occurrences in consolidated TIMs
