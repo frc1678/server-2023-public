@@ -75,6 +75,17 @@ MAIN_QUEUE['raw']['subj_pit'] = [{'team_number': point['team_number']} for point
 # Where we get the match data from TBA
 MATCH_LIST = []
 
+while True:
+    USER_INPUT = input('Do you want to run server with write permission to cloud database?\n'
+                       '(If so, make sure you are on the server computer or that no one else is '
+                       'currently writing to the cloud database) [Y/n]').lower()
+    if USER_INPUT == 'y':
+        CLOUD_WRITE_PERMISSION = True
+        break
+    if USER_INPUT == 'n':
+        CLOUD_WRITE_PERMISSION = False
+        break
+    print('Please be sure to enter either "y" or "n"')
 
 while True:
     # TODO Pull team pictures from tablets
@@ -177,14 +188,12 @@ while True:
     # Empty main queue
     MAIN_QUEUE = get_empty_modified_data()
     # Send data to cloud
-    if 'cloud_database_communicator' in sys.modules:
+    if 'cloud_database_communicator' in sys.modules and CLOUD_WRITE_PERMISSION is True:
         CLOUD_WRITE_RESULT = cloud_database_communicator.push_changes_to_db(
-            CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE
-        )
+            CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE)
         if CLOUD_WRITE_RESULT is not None:
             CLOUD_DB_QUEUE = get_empty_modified_data()
             if SERVER_RESTART_SINCE_CLOUD_UPDATE:
                 SERVER_RESTART_SINCE_CLOUD_UPDATE = False
 
-    if SERVER_RESTART:
-        SERVER_RESTART = False
+    SERVER_RESTART = False
