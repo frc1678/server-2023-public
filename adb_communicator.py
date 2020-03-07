@@ -6,6 +6,7 @@ import json
 import os
 import re
 import time
+import shutil
 # Internal imports
 import local_database_communicator
 import qr_code_uploader
@@ -73,6 +74,11 @@ def adb_pull_tablet_data(local_file_path, tablet_file_path):
         if device not in devices_finished:
             # Creates directory for each tablet in data/
             utils.create_file_path(f'{local_file_path}/{device}')
+            # Deletes and re-creates pull directory, using adb pull to a directory with pre-existing
+            # files, adb pull creates another folder inside of directory and pulls to that directory
+            if os.path.exists(f'{local_file_path}/{device}'):
+                shutil.rmtree(f'{local_file_path}/{device}')
+                utils.create_file_path(f'{local_file_path}/{device}', True)
             # Calls 'adb push' command, which uses the Android Debug
             # Bridge (ADB) to copy the match schedule file to the tablet.
             # The -s flag specifies the device by its serial number.
