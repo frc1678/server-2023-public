@@ -3,13 +3,12 @@
 """Figures out the ratio of inner goals divided by high goals for each team,
 
 given the number of high goals every team scores in each AIM (Alliance In Match) and the total
-number of inner and outer goals scored by the AIM (which comes from TBA)
+number of inner and outer goals scored by the AIM (which comes from TBA).
 """
 # External imports:
 import numpy as np
 # Internal imports
 import local_database_communicator as ldc
-import tba_communicator as tba
 import utils
 
 
@@ -36,9 +35,9 @@ def least_squares(A, b):
 
 
 def inner_goal_proportions(stage='tele'):
-    """Returns the ratio of total inner goals to total high goals scored by a given team
+    """Returns the ratio of total inner goals to total high goals scored by a given team.
 
-    team_num (int) is the team to be calculated, and stage (str) is either 'auto' or 'tele'
+    team_num (int) is the team to be calculated, and stage (str) is either 'auto' or 'tele'.
     """
     # Our schema use 'auto'/'tele', but TBA uses 'auto'/'teleop'
     tba_stage = 'teleop' if stage == 'tele' else 'auto'

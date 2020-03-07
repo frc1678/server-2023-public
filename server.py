@@ -2,12 +2,12 @@
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Main server file. Runs computations in infinite loop.
 
-Runs on an Ubuntu 18.04 LTS computer in the stands at
-competition. This script runs all of the computations in the server.
+Runs on an Ubuntu 18.04 LTS computer in the stands at competition. This script runs all of the
+computations in the server.
 """
 # External imports
-import pymongo
 import sys
+import pymongo
 # Internal imports
 import adb_communicator
 import calculate_obj_team
@@ -99,10 +99,10 @@ while True:
         # Upload QRs to MongoDB and add uploaded QRs to queue
         MAIN_QUEUE['raw']['qr'].extend(qr_code_uploader.upload_qr_codes(QR_DATA))
 
-    # Empty decompressed QRs in the database if this is the first cycle since server restart
+    # Empty decompressed QRs in the database if this is the first cycle since server restart.
     # Otherwise, decompressed QRs will potentially stack as server restarts could entail schema
     # or decompression code changes, and selection purely by team/match number would not work as
-    # there are multiple QRs for a match
+    # there are multiple QRs for a match.
     if SERVER_RESTART:
         local_database_communicator.remove_data('processed.unconsolidated_obj_tim')
         local_database_communicator.remove_data('processed.subj_aim')
@@ -169,7 +169,7 @@ while True:
                 'processed.calc_obj_team', [calculated_team], query={'team_number': team})
             CALC_TEAM_REF = {'team_number': team}
             if CALC_TEAM_REF not in MAIN_QUEUE['processed']['calc_obj_team']:
-                 MAIN_QUEUE['processed']['calc_obj_team'].append(CALC_TEAM_REF)
+                MAIN_QUEUE['processed']['calc_obj_team'].append(CALC_TEAM_REF)
 
     # TODO: Match calcs
 

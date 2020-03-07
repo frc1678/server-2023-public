@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-"""Run TIM calculations dependent on TBA data"""
+"""Run TIM calculations dependent on TBA data."""
 # External imports
 import copy
 # Internal imports
@@ -27,7 +27,7 @@ def get_robot_number_and_alliance(team_num, match_data):
 
 
 def get_team_list_from_match(match_data):
-    """Extracts list of teams that played in the match with data given in match_data"""
+    """Extracts list of teams that played in the match with data given in match_data."""
     teams = []
     for alliance in ['red', 'blue']:
         for team in match_data['alliances'][alliance]['team_keys']:

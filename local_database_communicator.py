@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-"""Holds functions for database communication
+"""Holds functions for database communication.
 
-All communication with the MongoDB local database go through this file
+All communication with the MongoDB local database go through this file.
 """
 # External imports
 from pymongo import MongoClient
@@ -11,12 +11,12 @@ import utils
 
 
 def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
-    """Filters by filter_by if given, or reads entire dataset
+    """Filters by filter_by if given, or reads entire dataset.
 
     path is a string in dot notation showing which fields the data is under
     (eg. 'raw.obj_pit').
     competition is the competition code. **filter_by is of the form foo=bar
-    and is the key value pair to filter data by
+    and is the key value pair to filter data by.
     """
     # If no filter_by is provided, finds all data within the specified path and returns a list
     # of all documents under the field.
@@ -59,8 +59,7 @@ def select_tba_cache(api_url, competition=utils.TBA_EVENT_KEY):
     """Finds cached tba data from MongoDB.
 
     If cache exists, returns data. If not, returns None.
-    api_url is the url that caches are stored under.
-    competition is the competition code.
+    api_url is the url that caches are stored under, competition is the competition code.
     """
     cached = DB.competitions.find_one(
         {'tba_event_key': competition}, {f'tba_cache.{api_url}': 1, '_id': 0})['tba_cache']
@@ -79,10 +78,10 @@ def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
 
 
 def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
-    """Removes the document containing the specified filter_bys
+    """Removes the document containing the specified filter_bys.
 
-     path is a string showing where data is located
-     filter_by is a kwarg that show data points in the document
+     path is a string showing where data is located,
+     filter_by is a kwarg that show data points in the document.
      """
     # Creates dictionary to contain the queries to apply to the specified path
     if filter_by == {}:
@@ -99,15 +98,15 @@ def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
 
 
 def append_or_overwrite(path, data, query=None, competition=utils.TBA_EVENT_KEY):
-    """Appends data to dataset if it document doesn't exist. Overwrites if
-    it does exist.
+    """Appends data to dataset if it document doesn't exist.
 
-    query is the key-value pairs that are used to remove old data during overwrite.
-    path is a string in dot notation showing which fields the data is under
-    (eg. 'raw.obj_pit').
-    data is the new data to add or overwrite. competition is the competition key.
+    Overwrites if it does exist. Query is the key-value pairs that are used to remove old data
+    during overwrite. Path is a string in dot notation showing which fields the data is under
+    (eg. 'raw.obj_pit'). Data is the new data to add or overwrite. competition is the competition
+    key.
     """
-    # If a query is specified to check for existing documents
+    # Removes all documents that match the query if it exists
+    # If there is no match, no documents are pulled
     if query is not None:
         # Find all data that matches the query
         existing_data = read_dataset(path, **query)
@@ -129,7 +128,7 @@ def append_or_overwrite(path, data, query=None, competition=utils.TBA_EVENT_KEY)
 
 
 def add_competition(db, competition=utils.TBA_EVENT_KEY):
-    """Adds a new document for the competition into the 'competitions' collection
+    """Adds a new document for the competition into the 'competitions' collection.
 
     competition is the competition code.
     """

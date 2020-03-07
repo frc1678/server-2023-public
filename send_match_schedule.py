@@ -2,13 +2,10 @@
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Create match schedule and team list files and send them to devices.
 
-Retrieve match schedule from TBA,
-Create team list from match schedule,
-send match schedule file to scout tablets over ADB,
-and verify that the file is successfully transferred.
-ADB stands for Android Debug Bridge.
+Retrieve match schedule from TBA. Create team list from match schedule, send match schedule file to
+scout tablets over ADB, and verify that the file is successfully transferred. ADB stands for
+Android Debug Bridge.
 """
-
 # External imports
 import csv
 import hashlib
@@ -21,11 +18,11 @@ import utils
 
 
 def create_match_schedule_csv(local_file_path, tba_request_url):
-    """Creates a CSV file based on database's cached matches
+    """Creates a CSV file based on database's cached matches.
 
     Parameters: local_file_path (string): path to match_schedule.csv
     tba_request_url: api_url for calling tba_communicator.tba_request()
-    :returns None on success, 1 on failure
+    :returns None on success, 1 on failure.
     """
     # Get matches from database
     matches = tba_communicator.tba_request(tba_request_url)
@@ -37,7 +34,7 @@ def create_match_schedule_csv(local_file_path, tba_request_url):
     with open(local_file_path, 'w') as csv_file:
         csv_writer = csv.writer(csv_file)
         # Write the match key and teams to the CSV file row by row,
-        # but using a slightly different format from what's on the tba_cache of the database
+        # but using a slightly different format from what's on the tba_cache of the database.
         for match in matches:
             # match['key'] has event code, and underscore, then the match
             # example: '2019carv_qm118'
@@ -58,7 +55,7 @@ def create_match_schedule_csv(local_file_path, tba_request_url):
 
 
 def get_team_list():
-    """Returns team list from match schedule file"""
+    """Returns team list from match schedule file."""
     teams = set()
     if not SEND_MATCH_SCHEDULE:
         teams = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/teams/simple')
@@ -79,7 +76,7 @@ def get_team_list():
 
 
 def write_team_list(output_file_path):
-    """Writes team list to file"""
+    """Writes team list to file."""
     team_list = get_team_list()
     with open(output_file_path, 'w') as file:
         writer = csv.writer(file)
@@ -125,7 +122,7 @@ else:
     SEND_MATCH_SCHEDULE = True
 
 # LOCAL_MATCH_SCHEDULE contains the text of the match_schedule.csv file, which we compare with the
-# output of cat (run on tablets through adb shell) for file validations
+# output of cat (run on tablets through adb shell) for file validations.
 if SEND_MATCH_SCHEDULE:
     with open(MATCH_SCHEDULE_LOCAL_PATH, 'rb') as match_schedule_file:
         # Store sha256 sum of match schedule
@@ -167,7 +164,7 @@ if __name__ == '__main__':
             if device not in DEVICES_WITH_LIST:
                 print(f'\nAttempting to load {TEAM_LIST_LOCAL_PATH} onto {device_name}')
                 if adb_communicator.push_file(device, TEAM_LIST_LOCAL_PATH, TEAM_LIST_TABLET_PATH,
-                                    validate_file):
+                                              validate_file):
                     DEVICES_WITH_LIST.add(device)
                     print(f'Loaded {TEAM_LIST_LOCAL_PATH} to {device_name}')
                 else:

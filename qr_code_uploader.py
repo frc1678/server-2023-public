@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-"""Houses upload_qr_codes() which appends unique QR codes to local competition document
+"""Houses upload_qr_codes which appends unique QR codes to local competition document.
 
 Checks for duplicates within set of QR codes to add, and the database.
-Appends new QR codes to raw.qr
+Appends new QR codes to raw.qr.
 """
 # External imports
 import yaml
@@ -16,8 +16,7 @@ def upload_qr_codes(qr_codes):
     """Uploads QR codes into the current competition document.
 
     Prevents duplicate QR codes from being uploaded to the database.
-
-    qr_codes is a list of QR code strings to upload
+    qr_codes is a list of QR code strings to upload.
     """
     # Gets the starting character for each QR code type, used to identify QR code type
     schema = utils.read_schema('schema/match_collection_qr_schema.yml')

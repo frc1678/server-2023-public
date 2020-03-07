@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-"""Replicates local MongoDB database to cloud MongoDB Atlas database"""
+"""Replicates local MongoDB database to cloud MongoDB Atlas database."""
 # External imports
 import pymongo
 # Internal imports
@@ -58,7 +58,7 @@ def update_array(path, change_list):
 def push_changes_to_db(local_change_list, server_restart):
     """Pushes changes to cloud database given the local changes.
 
-    Returns 0 on success, None on failure
+    Returns 0 on success, None on failure.
     """
     # List of paths that should be directly added (do not point to a document to be updated)
     direct_push = ['raw.qr']

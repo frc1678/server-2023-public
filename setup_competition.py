@@ -21,8 +21,8 @@ CODE_MATCH = re.fullmatch(r'(?P<year>[0-9]{4})(?P<comp_code>.+)', COMPETITION_KE
 if CODE_MATCH is None:
     raise ValueError('Competition code is not in the correct format')
 
-# Creates the competition.txt file.
-# Also writes the competition code to it so it can be used in other scripts.
+# Creates the competition.txt file
+# Also writes the competition code to it so it can be used in other scripts
 utils.save_event_key(COMPETITION_KEY)
 # Checks that the competition inputted by the user is not already in the database
 if len(list(DB.competitions.find({'tba_event_key': COMPETITION_KEY}))) != 0:

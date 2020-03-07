@@ -4,9 +4,8 @@
 a specific QR code based on match number and tablet serial number.
 
 If rollback match is selected, all QR codes from matches with the user inputted match number are
-blacklisted.
-If blacklist a specific QR is selected, all QR codes from a specific tablet serial number, and match
-number are added to the blacklist.
+blacklisted. If blacklist a specific QR is selected, all QR codes from a specific
+tablet serial number, and match number are added to the blacklist.
 """
 # External imports
 import sys
@@ -38,10 +37,10 @@ SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')
 
 # Stores all of the elements of the regex to be joined to a string later
 PATTERN_ELEMENTS = [
-    '.*',   # Matches any character
+    '.*',  # Matches any character
     SCHEMA['generic_data']['match_number'][0] + INVALID_MATCH,  # Matches the match number
-    '\\' + SCHEMA['generic_data']['_separator'],   # Matches the generic separator
-    '.*',   # Matches any character
+    '\\' + SCHEMA['generic_data']['_separator'],  # Matches the generic separator
+    '.*',  # Matches any character
 ]
 
 # If the user requests to blacklist a specific QR code
@@ -84,7 +83,6 @@ for qr_code in local_database_communicator.read_dataset('raw.qr'):
 # Uses append_document to add the QR codes to the local competition document blacklist
 local_database_communicator.append_or_overwrite('processed.replay_outdated_qr', TO_BLACKLIST)
 
-# If to_blacklist is empty
 if not TO_BLACKLIST:
     print('No QR codes were blacklisted')
 else:

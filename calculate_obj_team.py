@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calculate objective team data from Team in Match (TIM) data"""
+"""Calculate objective team data from Team in Match (TIM) data."""
 # External imports
 import yaml
 # Internal imports
@@ -51,7 +51,6 @@ STR_TYPES = {
     'float': float,
     'int': int
 }
-
 
 with open(utils.create_file_path('schema/calc_obj_team_schema.yml')) as file:
     SCHEMA = yaml.load(file, yaml.Loader)

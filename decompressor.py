@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-"""Decompresses objective and subjective match collection QR codes"""
+"""Decompresses objective and subjective match collection QR codes."""
 # External imports
 import enum
 import os
@@ -11,13 +11,13 @@ import utils
 
 
 class QRType(enum.Enum):
-    """Enum that stores QR types"""
+    """Enum that stores QR types."""
     OBJECTIVE = 0
     SUBJECTIVE = 1
 
 
 def _get_data_fields(section):
-    """Get data fields of a section in the schema
+    """Get data fields of a section in the schema.
 
     Filters out all entries beginning with '_' as they contain information about the
     (de)compression process, not what data fields should be present.
@@ -31,7 +31,7 @@ def _get_data_fields(section):
 
 
 def convert_data_type(value, type_, name=None):
-    """Convert from QR string representation to database data type"""
+    """Convert from QR string representation to database data type."""
     # Enums are stored as int in the database
     if type_ == 'int':
         return int(value)
@@ -47,10 +47,10 @@ def convert_data_type(value, type_, name=None):
 
 
 def get_decompressed_name(compressed_name, section):
-    """Returns decompressed variable name from schema
+    """Returns decompressed variable name from schema.
 
     compressed_name: str - Compressed variable name within QR code
-    section: str - Section of schema that name comes from
+    section: str - Section of schema that name comes from.
     """
     for key, value in SCHEMA[section].items():
         if isinstance(value, list):
@@ -63,10 +63,10 @@ def get_decompressed_name(compressed_name, section):
 
 
 def get_decompressed_type(name, section):
-    """Returns server-side data type from schema
+    """Returns server-side data type from schema.
 
     name: str - Decompressed variable name within Schema
-    section: str - Section of schema that name comes from
+    section: str - Section of schema that name comes from.
     """
     # Type all items after the first item
     type_ = SCHEMA[section][name][1:]
@@ -77,7 +77,7 @@ def get_decompressed_type(name, section):
 
 
 def decompress_data(data, section):
-    """Decompress (split) data given the section of the QR it came from
+    """Decompress (split) data given the section of the QR it came from.
 
     This matches compressed data names to actual variable names. It treats embedded dictionaries as
     special cases, a parsing function needs to be written for each (e.g. timeline).
@@ -117,19 +117,20 @@ def decompress_data(data, section):
 
 
 def decompress_generic_qr(data):
-    """Decompress generic section of QR or raise error if schema is outdated"""
+    """Decompress generic section of QR or raise error if schema is outdated."""
     # Split data by separator specified in schema
     data = data.split(SCHEMA['generic_data']['_separator'])
     for entry in data:
         if entry[0] == 'A':
             schema_version = int(entry[1:])
             if schema_version != SCHEMA['schema_file']['version']:
-                raise LookupError(f'QR Schema (v{schema_version}) does not match Server version (v{SCHEMA["schema_file"]["version"]})')
+                raise LookupError(
+                    f'QR Schema (v{schema_version}) does not match Server version (v{SCHEMA["schema_file"]["version"]})')
     return decompress_data(data, 'generic_data')
 
 
 def get_timeline_info():
-    """Loads information about timeline fields"""
+    """Loads information about timeline fields."""
     timeline_fields = []
     for field, field_list in SCHEMA['timeline'].items():
         field_data = {
@@ -145,7 +146,7 @@ def get_timeline_info():
 
 
 def decompress_timeline(data):
-    """Decompress the timeline based on schema"""
+    """Decompress the timeline based on schema."""
     decompressed_timeline = []  # Timeline is a list of dictionaries
     # Return empty list if timeline is empty
     if data == '':
@@ -180,7 +181,7 @@ def get_qr_type(first_char):
 
 
 def decompress_single_qr(qr_data, qr_type):
-    """Decompress a full QR"""
+    """Decompress a full QR."""
     # Split into generic data and objective/subjective data
     qr_data = qr_data.split(SCHEMA['generic_data']['_section_separator'])
     # Generic QR is first section of QR
@@ -197,10 +198,10 @@ def decompress_single_qr(qr_data, qr_type):
         if set(decompressed_data.keys()) != OBJECTIVE_QR_FIELDS:
             raise ValueError('QR missing data fields')
         utils.log_info(
-                f'Match: {decompressed_data["match_number"]} '
-                f'Team: {decompressed_data["team_number"]} '
-                f'Scout_ID: {decompressed_data["scout_id"]}'
-                )
+            f'Match: {decompressed_data["match_number"]} '
+            f'Team: {decompressed_data["team_number"]} '
+            f'Scout_ID: {decompressed_data["scout_id"]}'
+        )
     return decompressed_data
 
 
@@ -233,7 +234,7 @@ def check_scout_ids():
 
     This operation is done by `scout_id` -- if a match is missing data, then the scout_id will not
     have sent data for the match.
-    returns None -- warnings are issued directly through `utils.log_warning`
+    returns None -- warnings are issued directly through `utils.log_warning`.
     """
     # Load matches or matches and ids to ignore from ignore file
     if os.path.exists(MISSING_TIM_IGNORE_FILE_PATH):

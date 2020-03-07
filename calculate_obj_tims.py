@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-"""Defines functions to consolidate and calculate Team In Match (TIM) data
+"""Defines functions to consolidate and calculate Team In Match (TIM) data.
 
-Usage: server.py calls update_calc_obj_tims to consolidate & calculate specified TIMs
+Usage: server.py calls update_calc_obj_tims to consolidate & calculate specified TIMs.
 """
-
 # External imports
 import statistics
 import copy
@@ -89,14 +88,14 @@ def total_time_between_actions(tim, start_action, end_action):
     """Returns total number of seconds spent between two types of actions for a given TIM
 
     start_action and end_action are the names (types) of those two actions,
-    such as start_incap and end_climb
+    such as start_incap and end_climb.
     """
     start_actions = filter_timeline_actions(tim, action_type=start_action)
     end_actions = filter_timeline_actions(tim, action_type=end_action)
     total_time = 0
     # Match scout app should automatically add an end action at the end of the match,
     # if there isn't already an end action after the last start action. That way there are the
-    # same number of start actions and end actions
+    # same number of start actions and end actions.
     for start, end in zip(start_actions, end_actions):
         total_time += start['time'] - end['time']
     return total_time
@@ -105,7 +104,8 @@ def total_time_between_actions(tim, start_action, end_action):
 def calculate_tim(unconsolidated_tims):
     """Given a consolidated TIM, returns a calculated TIM
 
-    tim (dict) contains TIM data"""
+    tim (dict) contains TIM data.
+    """
     # raises a ValueError if there are not TIMs in unconsolidated_tims
     if len(unconsolidated_tims) == 0:
         raise ValueError('Watch out! You are trying to consolidate a list of zero TIMs')
@@ -159,11 +159,12 @@ def calculate_tim(unconsolidated_tims):
 
 
 def update_calc_obj_tims(tims):
-    """tims (list): TIMs to be calculated
+    """tims (list): TIMs to be calculated.
 
-    Each TIM within the list tims is a dictionary with keys 'team_number' and 'match_number'
+    Each TIM within the list tims is a dictionary with keys 'team_number' and 'match_number'.
     Those dictionaries might be missing keys (for example, if match_number is given but team_number
-    isn't, we should calculate all TIMs for the match)"""
+    isn't, we should calculate all TIMs for the match).
+    """
     tims_without_missing_keys = []
     for tim in tims:
         unconsolidated_tims = (local_database_communicator.read_dataset(

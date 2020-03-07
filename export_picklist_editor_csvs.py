@@ -6,12 +6,12 @@ Timestamps files. Data exports also used for analysts in stands at competition.
 """
 # External imports
 import csv
-import base64
 import datetime
 import os
 import re
+import base64
+
 # Internal imports
-import adb_communicator
 import local_database_communicator
 import utils
 
@@ -25,9 +25,9 @@ def format_header(collection_data, first_keys):
     """Organizes the keys of the documents to be exported into a list of column titles.
 
     collection_data is the type of data. first_keys are the keys that need to be the first columns
-    in the spreadsheet
+    in the spreadsheet.
     """
-    # All the keys that will be used to write headers in the CSV file. set() prevents duplicates.
+    # All the keys that will be used to write headers in the CSV file. set() prevents duplicates
     column_headers = set()
     # Find all the keys of the documents and add them to the column_headers set
     for document in collection_data:
@@ -44,10 +44,10 @@ def format_header(collection_data, first_keys):
 
 
 def export_team_data():
-    """Takes data team data and writes to CSV.
-    Merges raw and processed team data into one dictionary
-    Puts team export files into their own directory
-    to separate them from team in match export files.
+    """Takes data team data and writes to CSV. Merges raw and processed team data into one
+
+    dictionary. Puts team export files into their own directory to separate them from team in
+    match export files.
     """
     # Get the lists of column headers and dictionaries to use in export
     column_headers = format_header(TEAM_DATA, ['team_number'])
@@ -81,9 +81,9 @@ def export_team_data():
 
 
 def export_tim_data():
-    """Takes team in match data and writes to CSV.
-    Puts team in match export files into their own directory to separate
-    them from team export files.
+    """Takes team in match data and writes to CSV. Puts team in match export files into their own
+
+    directory to separate them from team export files.
     """
     # Get the lists of column headers and dictionaries to use in export
     column_headers = format_header(TEAM_IN_MATCH_DATA, ['team_number', 'match_number'])
@@ -91,8 +91,7 @@ def export_tim_data():
     # Creates a new CSV file, names it after the type of data and timestamp
     timestamp = datetime.datetime.now()
     with open(utils.create_file_path(
-            f'data/exports/team_in_match_export_{timestamp}.csv'),
-              'w') as file:
+            f'data/exports/team_in_match_export/team_in_match_export_{timestamp}.csv'), 'w') as file:
         # Write headers using the column_headers list
         csv_writer = csv.DictWriter(file, fieldnames=column_headers)
         csv_writer.writeheader()
@@ -166,10 +165,10 @@ def encode_image_row(team_num, image_paths):
     return row
 
 
-def write_team_pictures(file):
+def write_team_pictures(image_file):
     """Writes team pictures to `file`."""
     csv_rows = get_image_paths()
-    with open(file, 'w') as file:
+    with open(image_file, 'w') as file:
         writer = csv.writer(file)
         for team_number, paths in csv_rows.items():
             writer.writerow(encode_image_row(team_number, paths))
@@ -181,7 +180,6 @@ IMAGE_ORDER = ['full_robot', 'drivetrain', 'mechanism']
 with open('data/team_list.csv') as team_list:
     # Load team list
     TEAMS_LIST = list(csv.reader(team_list))[0]
-
 
 # Export all data
 export_team_data()

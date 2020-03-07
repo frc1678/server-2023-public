@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-"""adb_compressed_qr_data_puller is a tablet communicator"""
+"""Holds functions that use ADB."""
 # External imports
 import json
 import os
@@ -24,7 +24,7 @@ def delete_tablet_downloads():
 
 
 def get_attached_devices():
-    """Uses ADB to get a list of devices attached."""
+    """Uses ADB to get a list serials of devices attached."""
     # Get output from `adb_devices` command. Example output:
     # "List of devices attached\nHA0XUZA9\tdevice\n9AMAY1E53P\tdevice"
     adb_output = utils.run_command('adb devices', return_output=True)
@@ -39,11 +39,11 @@ def push_file(serial_number, local_path, tablet_path, validate_function=None):
     """Pushes file at `local_path` to `tablet_path` using ADB.
 
     `validate_function` should return a boolean and take a serial number, local_file_path, and
-    `tablet_path` in that order
+    `tablet_path` in that order.
     """
     # Calls 'adb push' command, which runs over the Android Debug Bridge (ADB) to copy the file at
     # local_path to the tablet
-    # The -s flag specifies the device by its serial number.
+    # The -s flag specifies the device by its serial number
     push_command = f'adb -s {serial_number} push {local_path} {tablet_path}'
     utils.run_command(push_command)
     # Return bool indicating if file loaded correctly
@@ -52,13 +52,14 @@ def push_file(serial_number, local_path, tablet_path, validate_function=None):
     return None
 
 
-def pull_device_files(local_file_path, tablet_file_path):
-    """pull_device_files is a function for pulling data off tablets
+def adb_pull_tablet_data(local_file_path, tablet_file_path):
+    """adb_pull_tablet_data is a function for pulling data off tablets.
 
     pull_device_files is given a local path and a tablet path.
     It takes the file or directory that is specified as tablet path and
-    puts in the directory specified as local path. The directory that is put
-    in the local path is a subdirectory of a directory with the name of
+    puts in the directory specified as local path.
+    The directory that is put in the local path is
+    a subdirectory of a directory with the name of
     the serial number of the tablet that was pulled from.
 
     Usage:
@@ -89,8 +90,8 @@ def adb_remove_files(tablet_file_path):
     """This is a function used for removing files on the tablets over ADB
 
     adb_remove_files finds the list of devices attached then uses the line
-    utils.run_command(f'adb -s {device} shell rm -r {tablet_file_path}')
-    the adb -s {device} specifies which device to delete from and shell rm -r
+    utils.run_command(f'adb -s {device} shell rm -r {tablet_file_path}').
+    The adb -s {device} specifies which device to delete from and shell rm -r
     deletes the file from the specified directory that is {tablet_file_path}
     """
     devices = get_attached_devices()
@@ -98,8 +99,8 @@ def adb_remove_files(tablet_file_path):
     time.sleep(.1)
     for device in devices:
         # Calls 'adb push' command, which uses the Android Debug
-        # Bridge (ADB) to copy the match schedule file to the tablet.
-        # The -s flag specifies the device by its serial number.
+        # Bridge (ADB) to copy the match schedule file to the tablet
+        # The -s flag specifies the devices by their serial numbers
         utils.run_command(f'adb -s {device} shell rm -r {tablet_file_path}')
         utils.log_info(f'removed {tablet_file_path} on {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
 
@@ -119,7 +120,7 @@ def pull_device_data():
     device_file_paths = []
     device_file_path = utils.create_file_path('data/tablets')
     # Pull all files from the 'Download' folder on the tablet
-    pull_device_files(device_file_path, '/storage/emulated/0/Download')
+    adb_pull_tablet_data(device_file_path, '/storage/emulated/0/Download')
     # Iterates through the 'data' folder
     for device_dir in os.listdir(device_file_path):
         if device_dir in TABLET_SERIAL_NUMBERS.keys():
@@ -127,7 +128,7 @@ def pull_device_data():
         # If the folder name is a device serial, it must be a tablet folder
     for device in device_file_paths:
         # Iterate through the downloads folder in the device folder
-        download_directory = os.path.join(device_file_path, device)
+        download_directory = os.path.join(device_file_path, device, 'Download')
         for file in os.listdir(download_directory):
             for dataset, pattern in FILENAME_REGEXES.items():
                 if re.fullmatch(pattern, file):

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
-"""Sends web requests to The Blue Alliance (TBA) APIv3
+"""Sends web requests to The Blue Alliance (TBA) APIv3.
 
 Caches data to prevent duplicate data retrieval from the TBA API.
-API documentation: https://www.thebluealliance.com/apidocs/v3
+API documentation: https://www.thebluealliance.com/apidocs/v3.
 """
 # External imports
 import requests
@@ -13,10 +13,10 @@ import utils
 
 
 def tba_request(api_url):
-    """Sends a single web request to the TBA API v3
+    """Sends a single web request to the TBA API v3 api_url is the suffix of the API request URL
 
-    api_url is the suffix of the API request URL
-    (the part after '/api/v3')"""
+    (the part after '/api/v3').
+    """
     utils.log_info(f'tba request from {api_url} started')
     full_url = f'https://www.thebluealliance.com/api/v3/{api_url}'
     request_headers = {'X-TBA-Auth-Key': API_KEY}
@@ -39,7 +39,7 @@ def tba_request(api_url):
         return cached['data']
     if request.status_code == 200:
         formatted_data = {'timestamp': request.headers['Last-Modified'],
-                                    'data': request.json()}
+                          'data': request.json()}
         local_database_communicator.overwrite_tba_data(formatted_data, api_url)
         return request.json()
     raise Warning(f'Request failed with status code {request.status_code}')

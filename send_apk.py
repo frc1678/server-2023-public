@@ -2,9 +2,9 @@
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Send APK file to tablets over ADB.
 
-Uses subprocess to send an APK to the tablets
-ADB stands for Android Debug Bridge."""
-
+Uses subprocess to send an APK to the tablets.
+ADB stands for Android Debug Bridge.
+"""
 # External imports
 import json
 import sys
@@ -15,12 +15,14 @@ import utils
 
 
 def install_apk(device_serial):
-    """Installs chosen APK to either phone or tablet depending on user input."""
-    # Convert serial number to human-readable format
+    """Installs chosen APK to either phone or tablet depending on user input.
+
+    Convert serial number to human-readable format.
+    """
     device_name = adb_communicator.DEVICE_SERIAL_NUMBERS[device_serial]
     print(f'Loading {LOCAL_FILE_PATH} onto {device_name}')
     # Calls 'adb push' command, which uses the Android Debug Bridge (ADB) to send the APK file
-    # The -s flag specifies the device_serial by its serial number.
+    # The -s flag specifies the device_serial by its serial number
     # return_output=True returns the output of adb
     utils.log_info(f'APK install started on {device_serial}')
     validate = utils.run_command(
@@ -74,7 +76,7 @@ while True:
                 PHONE_SERIALS.append(serial)
 
     # Wait for USB connection to initialize
-    time.sleep(.1)  # .1 seconds
+    time.sleep(.1) #  .1 seconds
     if CHOSEN_DEVICE == 't':
         # APK has been installed onto all connected tablets
         if TABLET_SERIALS == []:
