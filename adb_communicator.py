@@ -52,17 +52,17 @@ def push_file(serial_number, local_path, tablet_path, validate_function=None):
     return None
 
 
-def adb_pull_tablet_data(local_file_path, tablet_file_path):
-    """adb_pull_tablet_data is a function for pulling data off tablets
+def pull_device_files(local_file_path, tablet_file_path):
+    """pull_device_files is a function for pulling data off tablets
 
-    adb_pull_tablet_data is given a local path and a tablet path.
+    pull_device_files is given a local path and a tablet path.
     It takes the file or directory that is specified as tablet path and
     puts in the directory specified as local path. The directory that is put
     in the local path is a subdirectory of a directory with the name of
     the serial number of the tablet that was pulled from.
 
     Usage:
-    adb_pull_tablet_data('/path/to/output/directory', '/path/to/tablet/data')
+    pull_device_files('/path/to/output/directory', '/path/to/tablet/data')
     """
     devices = get_attached_devices()
     # Wait for USB connection to initialize
@@ -119,7 +119,7 @@ def pull_device_data():
     device_file_paths = []
     device_file_path = utils.create_file_path('data/tablets')
     # Pull all files from the 'Download' folder on the tablet
-    adb_pull_tablet_data(device_file_path, '/storage/emulated/0/Download')
+    pull_device_files(device_file_path, '/storage/emulated/0/Download')
     # Iterates through the 'data' folder
     for device_dir in os.listdir(device_file_path):
         if device_dir in TABLET_SERIAL_NUMBERS.keys():
