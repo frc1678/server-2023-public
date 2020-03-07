@@ -147,6 +147,14 @@ while True:
                 NEW_TBA_MATCHES.append({'match_number': match['match_number']})
     MATCH_LIST.extend(NEW_TBA_MATCHES)
 
+    # TBA TIM Calcs
+    CALCULATED_TBA_TIMS = calculate_tba_tims.update_calc_tba_tims(NEW_TBA_MATCHES)
+    for tim in CALCULATED_TBA_TIMS:
+        local_database_communicator.append_or_overwrite('processed.calc_tba_tim', [tim])
+    MAIN_QUEUE['processed']['calc_tba_tim'] = [{'match_number': tim['match_number'],
+                                                'team_number': tim['team_number']}
+                                                for tim in CALCULATED_TBA_TIMS]
+
     # Where we get the rankings from TBA
     TBA_RANKINGS_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/rankings')
 
@@ -157,9 +165,6 @@ while True:
                                                 'match_number': tim['match_number']} for tim in
                                                CALCULATED_OBJ_TIMS]
     local_database_communicator.append_or_overwrite('processed.calc_obj_tim', CALCULATED_OBJ_TIMS)
-    for tim in CALCULATED_OBJ_TIMS:
-        MAIN_QUEUE['processed']['calc_obj_tim'].append(
-            {'match_number': tim['match_number'], 'team_number': tim['team_number']})
 
     for ref in MAIN_QUEUE['processed']['calc_obj_tim']:
         team = ref['team_number']
