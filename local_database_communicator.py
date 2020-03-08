@@ -10,6 +10,9 @@ from pymongo import MongoClient
 import utils
 
 
+DB = MongoClient('localhost', 27017).scouting_system
+
+
 def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     """Filters by filter_by if given, or reads entire dataset.
 
@@ -97,34 +100,55 @@ def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
                                {'$pull': {path: {'$and': all_the_filters}}})
 
 
-def append_or_overwrite(path, data, query=None, competition=utils.TBA_EVENT_KEY):
-    """Appends data to dataset if it document doesn't exist.
+def append_to_dataset(path, data, competition=utils.TBA_EVENT_KEY):
+    """Extends the dataset given by path with the data given by data
 
-    Overwrites if it does exist. Query is the key-value pairs that are used to remove old data
-    during overwrite. Path is a string in dot notation showing which fields the data is under
-    (eg. 'raw.obj_pit'). Data is the new data to add or overwrite. competition is the competition
-    key.
+    'path' is the path to the dataset, (e.g. 'raw.qr', 'processed.calc_obj_tim'), use dot notation.
+    'data' is the data to append to the dataset, must be a list.
+    'competition' is the TBA event key.
     """
-    # Removes all documents that match the query if it exists
-    # If there is no match, no documents are pulled
-    if query is not None:
-        # Find all data that matches the query
-        existing_data = read_dataset(path, **query)
-        # A list of documents with updated data
-        updated_documents = []
-        # For each document matching the query, update it with new data
-        for document in existing_data:
-            for pair in data:
-                document.update(pair)
-            # Add updated documents to list
-            updated_documents.append(document)
-        # The updated documents are now the data to add
-        data = updated_documents
-        # Removes all documents that match the query. If there is no match, none are removed.
+    DB.competitions.update_one({'tba_event_key': competition}, {'$push': {path: {'$each': data}}})
+
+
+def update_dataset(path, new_data, query, competition=utils.TBA_EVENT_KEY):
+    """Updates a single dictionary within a dataset, if the query matches a dictionary within a
+    dataset, replace the data given, if it does not exist create a new dictionary and add the query
+    and data given by function parameter
+
+    'path' is the path to the dataset, (e.g. 'raw.qr', 'processed.calc_obj_tim'), use dot notation.
+    'data' is the data to either add, or to replace if the query matches in the dataset, must be a
+    dictionary.
+    'query' is a query to search through the given datset for the first occurence within a
+    dictionary.
+    'competition' is the tba event key.
+    """
+    dataset = read_dataset(path, competition, **query)
+    new_document = {}
+
+    # If all queries matched the document
+    if dataset != []:
+        # New document gets the value of the first dictionary in dataset that matched queries
+        new_document = dataset[0]
+        for new_datum in new_data:
+            # Add each new datum to the new dictionary
+            new_document[new_datum] = new_data[new_datum]
+        # Delete the dictionary from the dataset
         DB.competitions.update_one({'tba_event_key': competition}, {'$pull': {path: query}})
-    # Add new data
-    DB.competitions.update_one({'tba_event_key': competition},
-                               {'$addToSet': {path: {'$each': data}}})
+    # If 'new_document' is still empty, the query did not match
+    else:
+        # Iterate through the keys in query
+        for key in query:
+            # Add them to the new document
+            new_document[key] = query[key]
+        # Iterate through new_data
+        for datum in new_data:
+            # Add the keys to the new document
+            if datum in new_document and new_document[datum] != new_data[datum]:
+                utils.log_warning('Query and new data are mismatched')
+                return None
+            new_document[datum] = new_data[datum]
+    # Update the dictionary in the dataset
+    DB.competitions.update_one({'tba_event_key': competition}, {'$push': {path: new_document}})
 
 
 def add_competition(db, competition=utils.TBA_EVENT_KEY):
@@ -157,5 +181,3 @@ def add_competition(db, competition=utils.TBA_EVENT_KEY):
         },
     })
 
-
-DB = MongoClient('localhost', 27017).scouting_system

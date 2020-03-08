@@ -111,10 +111,10 @@ while True:
     # Decompress all inputted QRs
     DECOMPRESSED_QRS = decompressor.decompress_qrs(MAIN_QUEUE['raw']['qr'])
     # Update database with decompressed objective QRs
-    local_database_communicator.append_or_overwrite(
+    local_database_communicator.append_to_dataset(
         'processed.unconsolidated_obj_tim', DECOMPRESSED_QRS['unconsolidated_obj_tim'])
     # Update database with decompressed subjective QRs
-    local_database_communicator.append_or_overwrite(
+    local_database_communicator.append_to_dataset(
         'processed.subj_aim', DECOMPRESSED_QRS['subj_aim'])
     # Add decompressed QRs to queues
     # Iterate through both objective and subjective QRs
@@ -150,7 +150,8 @@ while True:
     # TBA TIM Calcs
     CALCULATED_TBA_TIMS = calculate_tba_tims.update_calc_tba_tims(NEW_TBA_MATCHES)
     for tim in CALCULATED_TBA_TIMS:
-        local_database_communicator.append_or_overwrite('processed.calc_tba_tim', [tim])
+        query = {'match_number': tim['match_number'], 'team_number': tim['team_number']}
+        local_database_communicator.update_dataset('processed.calc_tba_tim', tim, query)
     MAIN_QUEUE['processed']['calc_tba_tim'] = [{'match_number': tim['match_number'],
                                                 'team_number': tim['team_number']}
                                                 for tim in CALCULATED_TBA_TIMS]
@@ -164,14 +165,19 @@ while True:
     MAIN_QUEUE['processed']['calc_obj_tim'] = [{'team_number': tim['team_number'],
                                                 'match_number': tim['match_number']} for tim in
                                                CALCULATED_OBJ_TIMS]
-    local_database_communicator.append_or_overwrite('processed.calc_obj_tim', CALCULATED_OBJ_TIMS)
+    for tim in CALCULATED_OBJ_TIMS:
+        query = {'match_number' : tim['match_number'], 'team_number' : tim['team_number']}
+        local_database_communicator.update_dataset(
+            'processed.calc_obj_tim', tim, query)
+        MAIN_QUEUE['processed']['calc_obj_tim'].append(
+            {'match_number': tim['match_number'], 'team_number': tim['team_number']})
 
     for ref in MAIN_QUEUE['processed']['calc_obj_tim']:
         team = ref['team_number']
         calculated_team = utils.catch_function_errors(calculate_obj_team.calculate_obj_team, team)
         if calculated_team is not None:
-            local_database_communicator.append_or_overwrite(
-                'processed.calc_obj_team', [calculated_team], query={'team_number': team})
+            local_database_communicator.update_dataset(
+                'processed.calc_obj_team', calculated_team, query={'team_number': team})
             CALC_TEAM_REF = {'team_number': team}
             if CALC_TEAM_REF not in MAIN_QUEUE['processed']['calc_obj_team']:
                 MAIN_QUEUE['processed']['calc_obj_team'].append(CALC_TEAM_REF)

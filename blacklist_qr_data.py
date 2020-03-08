@@ -81,7 +81,7 @@ for qr_code in local_database_communicator.read_dataset('raw.qr'):
         TO_BLACKLIST.append(qr_code)
 
 # Uses append_document to add the QR codes to the local competition document blacklist
-local_database_communicator.append_or_overwrite('processed.replay_outdated_qr', TO_BLACKLIST)
+local_database_communicator.append_to_dataset('processed.replay_outdated_qr', TO_BLACKLIST)
 
 if not TO_BLACKLIST:
     print('No QR codes were blacklisted')

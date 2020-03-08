@@ -41,6 +41,6 @@ def upload_qr_codes(qr_codes):
 
     # Adds the QR codes to the local database if the set isn't empty
     if qr != set():
-        local_database_communicator.append_or_overwrite('raw.qr', list(qr))
+        local_database_communicator.append_to_dataset('raw.qr', list(qr))
 
     return qr

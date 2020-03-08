@@ -149,8 +149,8 @@ def pull_device_data():
             if datapoint in current_data:
                 continue
             # Specify query to ensure that each team only has one entry
-            local_database_communicator.append_or_overwrite(
-                f'raw.{dataset}', [datapoint], {'team_number': datapoint['team_number']}
+            local_database_communicator.update_dataset(
+                f'raw.{dataset}', datapoint, {'team_number': datapoint['team_number']}
             )
             modified_data.append({'team_number': datapoint['team_number']})
         utils.log_info(f'{len(modified_data)} items uploaded to {dataset}')
