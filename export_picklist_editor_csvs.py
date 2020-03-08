@@ -15,10 +15,25 @@ import base64
 import local_database_communicator
 import utils
 
-TEAM_DATA = local_database_communicator.read_dataset('raw.obj_pit')
-TEAM_DATA += local_database_communicator.read_dataset('raw.subj_pit')
-TEAM_DATA += local_database_communicator.read_dataset('processed.calc_subj_team')
-TEAM_IN_MATCH_DATA = local_database_communicator.read_dataset('processed.calc_obj_tim')
+
+def load_data(db_paths):
+    """Loads team data from database and formats enums, db_paths is a list of database paths."""
+    all_data = []
+    for path in db_paths:
+        data = local_database_communicator.read_dataset(path)
+        schema = utils.read_schema(DB_PATH_TO_SCHEMA_FILE[path])
+        if 'enums' not in schema:
+            all_data.extend(data)
+            continue
+        for entry in data:
+            for name, value in entry.items():
+                if name in schema['enums']:
+                    for key, val in schema['enums'][name].items():
+                        if val == value:
+                            entry[name] = key
+                            continue
+        all_data.extend(data)
+    return all_data
 
 
 def format_header(collection_data, first_keys):
@@ -43,35 +58,27 @@ def format_header(collection_data, first_keys):
     return column_headers
 
 
-def export_team_data():
-    """Takes data team data and writes to CSV. Merges raw and processed team data into one
-
-    dictionary. Puts team export files into their own directory to separate them from team in
-    match export files.
+def export_team_data(path):
+    """Takes data team data and writes to CSV.
+    Merges raw and processed team data into one dictionary
+    Puts team export files into their own directory
+    to separate them from team in match export files.
     """
     # Get the lists of column headers and dictionaries to use in export
-    column_headers = format_header(TEAM_DATA, ['team_number'])
+    team_data = load_data(TEAM_DATA_DB_PATHS)
+    column_headers = format_header(team_data, ['team_number'])
     # The list of teams, used to merge raw and processed team data
-    team_set = set()
 
-    # Add team number to a set of teams
-    for document in TEAM_DATA:
-        team = document.get('team_number')
-        team_set.add(team)
-
-    timestamp = datetime.datetime.now()
-    # Creates a new CSV file, names it after the type of data and timestamp
-    with open(utils.create_file_path(f'data/exports/team_export_{timestamp}.csv'),
-              'w') as file:
+    with open(path, 'w') as file:
         # Write headers using the column_headers list
         csv_writer = csv.DictWriter(file, fieldnames=column_headers)
         csv_writer.writeheader()
 
-        for team in team_set:
+        for team in TEAMS_LIST:
             # The dictionary that will hold the combined team data, reset for each team
             merged_team = {}
             # Go through all dictionaries and check if their team number matches the team's
-            for document in TEAM_DATA:
+            for document in team_data:
                 if document.get('team_number') == team:
                     # Update data from the same team to the merged_team dict
                     merged_team.update(document)
@@ -80,25 +87,34 @@ def export_team_data():
     utils.log_info('Exported team data to CSV')
 
 
-def export_tim_data():
+def export_tim_data(path):
     """Takes team in match data and writes to CSV. Puts team in match export files into their own
 
     directory to separate them from team export files.
     """
     # Get the lists of column headers and dictionaries to use in export
-    column_headers = format_header(TEAM_IN_MATCH_DATA, ['team_number', 'match_number'])
+    all_tim_data = load_data(TIM_DATA_DB_PATHS)
+    column_headers = format_header(all_tim_data, ['match_number', 'team_number'])
 
-    # Creates a new CSV file, names it after the type of data and timestamp
-    timestamp = datetime.datetime.now()
-    with open(utils.create_file_path(
-            f'data/exports/team_in_match_export/team_in_match_export_{timestamp}.csv'), 'w') as file:
+    with open(path, 'w') as file:
         # Write headers using the column_headers list
         csv_writer = csv.DictWriter(file, fieldnames=column_headers)
         csv_writer.writeheader()
 
-        # Write rows using data in dictionary
-        for document in TEAM_IN_MATCH_DATA:
-            csv_writer.writerow(document)
+        for team in TEAMS_LIST:
+            # Write rows using data in dictionary
+            team_data = []
+            for document in all_tim_data:
+                if document['team_number'] == team:
+                    team_data.append(document)
+            tim_data = {}
+            for document in team_data:
+                if document['match_number'] in tim_data:
+                    tim_data[document['match_number']].update(document)
+                else:
+                    tim_data[document['match_number']] = document
+            for document in tim_data.values():
+                csv_writer.writerow(document)
     utils.log_info('Exported TIM to CSV')
 
 
@@ -113,7 +129,7 @@ def get_image_paths():
             'mechanism': [],
         }
     # Iterates through each device in the tablets folder
-    for device in os.listdir('data/tablets'):
+    for device in os.listdir(utils.create_file_path('data/tablets')):
         # If the device is a phone serial number
         if device not in ['9AQAY1EV7J', '9AMAY1E54G', '9AMAY1E53P']:
             continue
@@ -140,48 +156,91 @@ def get_image_paths():
     return csv_rows
 
 
-def encode_image_row(team_num, image_paths):
-    """Returns the CSV row for a team."""
-    row = [team_num]
-    ordered_paths = []
-    for image_type in IMAGE_ORDER:
-        # TODO handle missing pictures
-        if not image_paths[image_type]:
-            ordered_paths.append('MISSING')
-        # If only one picture exists, item will be represented as a string
-        elif isinstance(image_paths[image_type], str):
-            ordered_paths.append(image_paths[image_type])
-        # If multiple exist, item will be represented as an iterable
-        else:
-            ordered_paths.extend(image_paths[image_type])
-    for path in ordered_paths:
-        if path == 'MISSING':
-            row.append(path)
+def format_tba_data():
+    """Formats TBA score and foul data as CSV."""
+    api_url = f'event/{utils.TBA_EVENT_KEY}/matches'
+    cached = local_database_communicator.select_tba_cache(api_url)[api_url]['data']
+    match_scores = []
+    export_fields = ['foulPoints', 'totalPoints']
+    for match in cached:
+        if match['score_breakdown'] is None or match['comp_level'] != 'qm':
             continue
-        with open(path, 'rb') as file:
-            # Add the base64 encoded contents of the file to row
-            # The contents must be encoded (in ASCII) because b64encode returns a bytes object
-            row.append(base64.b64encode(file.read()).decode('ascii'))
-    return row
+        for alliance in ['red', 'blue']:
+            data = {'match_number': match['match_number'], 'alliance': alliance}
+            for field in export_fields:
+                data[field] = match['score_breakdown'][alliance][field]
+            for i, team in enumerate(match['alliances'][alliance]['team_keys'], start=1):
+                data[f'robot{i}'] = int(team[3:])
+            match_scores.append(data)
+    return sorted(match_scores, key=lambda x: x['match_number'])
 
 
-def write_team_pictures(image_file):
-    """Writes team pictures to `file`."""
-    csv_rows = get_image_paths()
-    with open(image_file, 'w') as file:
-        writer = csv.writer(file)
-        for team_number, paths in csv_rows.items():
-            writer.writerow(encode_image_row(team_number, paths))
+def write_tba_data(path):
+    """Writes TBA Data to csv export. Path is a str representing the output absolute file path."""
+    data = format_tba_data()
+    if not data:
+        utils.log_warning('No TBA Data to export')
+    field_names = data[0].keys()
+    with open(path, 'w') as file:
+        writer = csv.DictWriter(file, field_names)
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
+    utils.log_info('Exported TBA Data')
+
+
+def full_data_export():
+    """Writes the current export to a timestamped directory. Returns the directory path written"""
+    current_time = datetime.datetime.now()
+    timestamp_str = current_time.strftime('%Y-%m-%d_%H:%M:%S')
+    # Creates directory if it does not exist
+    directory_path = utils.create_file_path(f'data/exports/export_{timestamp_str}')
+    # Team data
+    team_file_path = os.path.join(directory_path, f'team_export_{timestamp_str}.csv')
+    export_team_data(team_file_path)
+    # Team in match data
+    timd_file_path = os.path.join(directory_path, f'timd_export_{timestamp_str}.csv')
+    export_tim_data(timd_file_path)
+    # TBA match data
+    tba_file_path = os.path.join(directory_path, f'tba_export_{timestamp_str}.csv')
+    write_tba_data(tba_file_path)
+    return directory_path
 
 
 # Compiles pattern object so it can be used to match the possible image paths
 PATH_PATTERN = re.compile(r'([0-9]+)_(full_robot|drivetrain|mechanism_[0-9]+)\.jpg')
 IMAGE_ORDER = ['full_robot', 'drivetrain', 'mechanism']
+
 with open('data/team_list.csv') as team_list:
     # Load team list
-    TEAMS_LIST = list(csv.reader(team_list))[0]
+    TEAMS_LIST = list(map(int, [*csv.reader(team_list)][0]))
 
-# Export all data
-export_team_data()
-export_tim_data()
-write_team_pictures('data/exports/robot_images.csv')
+TEAM_DATA_DB_PATHS = [
+    'raw.obj_pit',
+    'raw.subj_pit',
+    'processed.calc_obj_team',
+    'processed.calc_subj_team',
+    'processed.calc_tba_team'
+]
+TIM_DATA_DB_PATHS = [
+    'processed.calc_obj_tim',
+    'processed.calc_tba_tim'
+]
+DB_PATH_TO_SCHEMA_FILE = {
+    'raw.obj_pit': 'schema/obj_pit_collection_schema.yml',
+    'raw.subj_pit': 'schema/subj_pit_collection_schema.yml',
+    'processed.calc_obj_team': 'schema/calc_obj_team_schema.yml',
+    'processed.calc_subj_team': 'schema/calc_subj_team_schema.yml',
+    'processed.calc_tba_team': 'schema/calc_tba_team_schema.yml',
+    'processed.calc_obj_tim': 'schema/calc_obj_tim_schema.yml',
+    'processed.calc_tba_tim': 'schema/calc_tba_tim_schema.yml'
+}
+
+if __name__ == '__main__':
+    EXPORT_PATH = full_data_export()
+    LATEST_PATH = utils.create_file_path('data/exports/latest_export', False)
+    # Remove latest export directory if it exists
+    if os.path.exists(LATEST_PATH):
+        os.remove(LATEST_PATH)
+    # Symlink the latest_export directory to the export that was just made
+    os.symlink(EXPORT_PATH, LATEST_PATH)
