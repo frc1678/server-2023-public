@@ -5,14 +5,16 @@
 given the number of high goals every team scores in each AIM (Alliance In Match) and the total
 number of inner and outer goals scored by the AIM (which comes from TBA).
 """
-# External imports:
+# External imports
+import copy
 import numpy as np
+import random
 # Internal imports
 import local_database_communicator as ldc
 import utils
 
 
-def least_squares(A, b):
+def least_squares(A, b, cap_0_to_1=False):
     """Returns the column vector x such that the magnitude of the error vector is minimized,
 
     where the error vector is Ax-b. x is the best (least square error) solution to the matrix
@@ -23,6 +25,10 @@ def least_squares(A, b):
     This is sort of like a system of 200 equations with only 50 variables, so you have to find
     values for the variables such that none of the equations are completely off; they're only
     kind of off.
+
+    cap_0_to_1 says whether all the elements of x will be between 0 and 1. If cap_0_to_1 is True
+    use a Monte Carlo method to minimize total square error while keeping proportions between zero
+    and one
     """
     if np.linalg.det(A.transpose().dot(A)) == 0:
         raise ValueError(f'Matrix A results in A.t-pose()*A being singular.\nA={A}')
@@ -31,6 +37,23 @@ def least_squares(A, b):
         # NumPy often returns NaN instead of erroring when something goes wrong
         # We don't like that
         raise Exception(f'Least-squares method returned matrix containing NaN or infinity:\nx={x}')
+    if cap_0_to_1 is False:
+        return x
+    # If cap_0_to_1 is true, use a Monte Carlo algorithm instead of a regression
+    x = np.clip(x, 0, 1)
+    # Try 10000 times to make tiny random adjustments to x
+    for i in range(0, 10000):
+        # Make a random modification to x, and store the modified version of x as new_x
+        new_x = copy.deepcopy(x)
+        rand_index = random.randint(0, len(x) - 1)
+        new_x[rand_index, 0] += random.uniform(-.01, .01)
+        # Check to see if that change was an improvement
+        old_error_vector = A.dot(x) - b
+        old_error_magnitude = old_error_vector.transpose().dot(old_error_vector)[0, 0]
+        new_error_vector = A.dot(new_x) - b
+        new_error_magnitude = new_error_vector.transpose().dot(new_error_vector)[0, 0]
+        if new_error_magnitude < old_error_magnitude and (new_x == np.clip(new_x, 0, 1)).all():
+            x = new_x
     return x
 
 
@@ -102,7 +125,7 @@ def inner_goal_proportions(stage='tele'):
             inner_goals.append(
                 aim['inner_goals'] * total_scouted_high_goals / total_actual_high_goals)
     inner_goals = np.matrix([inner_goals]).transpose()
-    proportions = least_squares(aim_high_goals, inner_goals)
+    proportions = least_squares(aim_high_goals, inner_goals, cap_0_to_1=True)
     # catch NaN before returning
     if np.isnan(proportions).any() or np.isinf(proportions).any():
         raise Exception(f'NaN or infinity exists in the following vector:\n{proportions}')
@@ -111,5 +134,5 @@ def inner_goal_proportions(stage='tele'):
     # Return dictionary of team number to their inner-goal-to-high-goal ratio
     inner_goals_dict = {int(team): ratio for (team, ratio) in zip(teams_that_scored, proportions)}
     for team in teams_that_didnt_score:
-        inner_goals_dict[int(team)] = 0
+        inner_goals_dict[int(team)] = 0.
     return inner_goals_dict
