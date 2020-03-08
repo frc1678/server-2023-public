@@ -55,6 +55,9 @@ def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
             return []
         result = result[[*result.keys()][0]]
     # Return list of embedded documents
+    if result is None:
+        # read_dataset should always return an iterable, no matter what
+        return []
     return result
 
 
