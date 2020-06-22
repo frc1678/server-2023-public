@@ -62,9 +62,9 @@ CLOUD_DB_QUEUE = get_empty_modified_data()
 MAIN_QUEUE = get_empty_modified_data()
 MAIN_QUEUE['raw']['qr'].extend(local_database_communicator.read_dataset('raw.qr'))
 
-BLACKLISTED = local_database_communicator.read_dataset('processed.replay_outdated_qr')
-# Selecting only the non-blacklisted ones
-MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLACKLISTED]
+BLOCKLISTED = local_database_communicator.read_dataset('processed.replay_outdated_qr')
+# Selecting only the non-blocklisted ones
+MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLOCKLISTED]
 
 # Add existing pit data to main queue on server restart
 MAIN_QUEUE['raw']['obj_pit'] = [{'team_number': point['team_number']} for point in
