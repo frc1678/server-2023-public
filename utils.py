@@ -6,8 +6,14 @@ import logging
 import os
 import shlex
 import subprocess
+import sys
 import traceback
-import yaml
+
+try:
+    import yaml
+except ImportError:
+    print("PyYaml not found, load schema is unavailable", file=sys.stderr)
+
 # No internal imports
 
 # Set the basic config for logging functions
