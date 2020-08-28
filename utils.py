@@ -69,12 +69,6 @@ def catch_function_errors(fn, *args, **kwargs):
     return result
 
 
-def save_event_key(tba_event_key):
-    """Saves event key in data/tba_event_key.txt."""
-    with open(_TBA_KEY_FILE, 'w') as file:
-        file.write(tba_event_key)
-
-
 def log_warning(warning):
     """Logs warnings to server.log 'warning' is the warning message.
 
