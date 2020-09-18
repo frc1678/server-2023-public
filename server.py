@@ -12,6 +12,7 @@ import pymongo
 import adb_communicator
 import calculate_obj_team
 import calculate_obj_tims
+import calculate_tba_team
 import calculate_tba_tims
 import decompressor
 import local_database_communicator
@@ -181,6 +182,19 @@ while True:
             CALC_TEAM_REF = {'team_number': team}
             if CALC_TEAM_REF not in MAIN_QUEUE['processed']['calc_obj_team']:
                 MAIN_QUEUE['processed']['calc_obj_team'].append(CALC_TEAM_REF)
+
+    # Make TBA Team request to update team names
+    tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/teams/simple')
+
+    TBA_TEAM_CALCS = calculate_tba_team.update_team_calcs(
+        MAIN_QUEUE['processed']['calc_obj_tim'] + MAIN_QUEUE['processed']['calc_tba_tim']
+    )
+    for calc in TBA_TEAM_CALCS:
+        TBA_TEAM_REF = {'team_number': calc['team_number']}
+        local_database_communicator.update_dataset(
+            'processed.calc_tba_team', calc, TBA_TEAM_REF
+        )
+        MAIN_QUEUE['processed']['calc_tba_team'].append(TBA_TEAM_REF)
 
     # TODO: Match calcs
 
