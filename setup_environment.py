@@ -4,11 +4,11 @@
 
 To be run for every new clone of server-2020.
 """
-# External imports
+
 import os
 import subprocess
 import venv
-# Internal imports
+
 import utils
 
 # Creates data folder

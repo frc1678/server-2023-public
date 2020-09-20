@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Calculate objective team data from Team in Match (TIM) data."""
-# External imports
+
 import yaml
-# Internal imports
+
 import local_database_communicator
 import utils
 

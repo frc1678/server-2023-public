@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Holds variables + functions that are shared across server files."""
-# External imports
+
 import logging
 import os
 import shlex
@@ -13,8 +13,6 @@ try:
     import yaml
 except ImportError:
     print("PyYaml not found, load schema is unavailable", file=sys.stderr)
-
-# No internal imports
 
 # Set the basic config for logging functions
 logging.basicConfig(filename='server.log', level='NOTSET', filemode='a',

@@ -5,11 +5,11 @@
 Uses subprocess to send an APK to the tablets.
 ADB stands for Android Debug Bridge.
 """
-# External imports
+
 import json
 import sys
 import time
-# Internal imports
+
 import adb_communicator
 import utils
 

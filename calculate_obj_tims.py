@@ -4,10 +4,10 @@
 
 Usage: server.py calls update_calc_obj_tims to consolidate & calculate specified TIMs.
 """
-# External imports
-import statistics
+
 import copy
-# Internal imports
+import statistics
+
 import local_database_communicator
 import utils
 

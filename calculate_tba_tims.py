@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Run TIM calculations dependent on TBA data."""
-# External imports
+
 import copy
-# Internal imports
+
 import local_database_communicator
 import utils
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Holds functions that use ADB."""
-# External imports
+
 import json
 import os
 import re
-import time
 import shutil
-# Internal imports
+import time
+
 import local_database_communicator
 import qr_code_uploader
 import utils

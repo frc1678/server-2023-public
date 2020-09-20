@@ -4,14 +4,13 @@
 
 Timestamps files. Data exports also used for analysts in stands at competition.
 """
-# External imports
+
+import base64
 import csv
 import datetime
 import os
 import re
-import base64
 
-# Internal imports
 import local_database_communicator
 import utils
 

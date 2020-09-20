@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Elegantly displays attached and missing devices."""
-# No external imports
-# Internal imports
+
 import adb_communicator
 
 def missing_devices():

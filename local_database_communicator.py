@@ -4,9 +4,9 @@
 
 All communication with the MongoDB local database go through this file.
 """
-# External imports
+
 from pymongo import MongoClient
-# Internal imports
+
 import utils
 
 

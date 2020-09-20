@@ -7,12 +7,12 @@ If rollback match is selected, all QR codes from matches with the user inputted 
 blocklisted. If blocklist a specific QR is selected, all QR codes from a specific
 tablet serial number, and match number are added to the blocklist.
 """
-# External imports
-import sys
+
 import re
-# Internal imports
-import utils
+import sys
+
 import local_database_communicator
+import utils
 
 # Takes user input to find which operation to do
 ROLLBACK_OR_BLOCKLIST = input('Rollback a match (0) or blocklist specific qrs (1)? (0,1): ')

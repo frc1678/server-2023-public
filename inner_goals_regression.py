@@ -5,11 +5,12 @@
 given the number of high goals every team scores in each AIM (Alliance In Match) and the total
 number of inner and outer goals scored by the AIM (which comes from TBA).
 """
-# External imports
+
 import copy
-import numpy as np
 import random
-# Internal imports
+
+import numpy as np
+
 import local_database_communicator as ldc
 import utils
 

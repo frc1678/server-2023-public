@@ -6,12 +6,12 @@ Retrieve match schedule from TBA. Create team list from match schedule, send mat
 scout tablets over ADB, and verify that the file is successfully transferred. ADB stands for
 Android Debug Bridge.
 """
-# External imports
+
 import csv
 import hashlib
 import json
 import time
-# Internal imports
+
 import adb_communicator
 import tba_communicator
 import utils

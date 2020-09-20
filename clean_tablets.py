@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Changes font size of tablets for app consistency."""
-# External imports
+
 import time
-# Internal imports
+
 import adb_communicator
 import utils
 

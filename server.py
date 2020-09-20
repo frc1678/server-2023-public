@@ -5,10 +5,11 @@
 Runs on an Ubuntu 18.04 LTS computer in the stands at competition. This script runs all of the
 computations in the server.
 """
-# External imports
+
 import sys
+
 import pymongo
-# Internal imports
+
 import adb_communicator
 import calculate_obj_team
 import calculate_obj_tims

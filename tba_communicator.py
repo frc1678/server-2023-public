@@ -5,9 +5,9 @@
 Caches data to prevent duplicate data retrieval from the TBA API.
 API documentation: https://www.thebluealliance.com/apidocs/v3.
 """
-# External imports
+
 import requests
-# Internal imports
+
 import local_database_communicator
 import utils
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Updates local database with data pulled from cloud DB."""
-# External imports
+
 import re
 import sys
-# Internal imports
-import local_database_communicator
+
 import cloud_database_communicator
+import local_database_communicator
 import utils
 
 CONFIRMATION = input(f'Confirm Overwrite of data in {utils.TBA_EVENT_KEY}? (y/N): ')

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Replicates local MongoDB database to cloud MongoDB Atlas database."""
-# External imports
+
 import pymongo
-# Internal imports
+
 import local_database_communicator
 import utils
 

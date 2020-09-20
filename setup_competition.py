@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Sets up the MongoDB document for a competition, should be run before every competition."""
-# External imports
+
 import re
+
 from pymongo import MongoClient
-# Internal imports
+
 import cloud_database_communicator
 import local_database_communicator
 import utils

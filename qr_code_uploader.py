@@ -5,9 +5,9 @@
 Checks for duplicates within set of QR codes to add, and the database.
 Appends new QR codes to raw.qr.
 """
-# External imports
+
 import yaml
-# Internal imports
+
 import local_database_communicator
 import utils
 
