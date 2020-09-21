@@ -19,7 +19,7 @@ ROLLBACK_OR_BLOCKLIST = input('Rollback a match (0) or blocklist specific qrs (1
 
 # If user doesn't enter a valid option, exit
 if ROLLBACK_OR_BLOCKLIST not in ['0', '1']:
-    print('Please enter a valid number')
+    print('Please enter a valid number', file=sys.stderr)
     sys.exit()
 
 print('WARNING: data from matching QR codes will be blocklisted or deleted')

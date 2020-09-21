@@ -11,7 +11,7 @@ import utils
 
 CONFIRMATION = input(f'Confirm Overwrite of data in {utils.TBA_EVENT_KEY}? (y/N): ')
 if CONFIRMATION.lower() not in ['y', 'yes']:
-    print('Aborting...')
+    print('Aborting...', file=sys.stderr)
     sys.exit(1)
 
 EVENT = input(f'Enter event code to pull data from. Leave blank to use {utils.TBA_EVENT_KEY}: ')
@@ -24,7 +24,7 @@ elif not re.fullmatch('[0-9]{4}[a-z0-9]+', EVENT):
 CLOUD_DATA = cloud_database_communicator.CLOUD_DB.competitions.find_one(
     {'tba_event_key': EVENT}, {'_id': 0})
 if CLOUD_DATA is None:
-    print(f'Event {EVENT} missing from Cloud Database')
+    print(f'Event {EVENT} missing from Cloud Database', file=sys.stderr)
     sys.exit(1)
 local_database_communicator.DB.competitions.update_one(
     {'tba_event_key': EVENT}, {'$set': CLOUD_DATA}, upsert=True)

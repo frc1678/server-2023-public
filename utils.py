@@ -81,7 +81,7 @@ def log_warning(warning):
     # Logs warning, also contains a traceback
     logging.warning(f'{warning}\n{"".join(traceback.format_stack()[:-1])}')
     # Prints warning to console
-    print(f'WARNING: {warning}')
+    print(f'WARNING: {warning}', file=sys.stderr)
 
 
 def log_info(info):
