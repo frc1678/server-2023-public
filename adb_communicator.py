@@ -74,16 +74,17 @@ def pull_device_files(local_file_path, tablet_file_path):
         # Checks if device is finished
         if device not in devices_finished:
             # Creates directory for each tablet in data/
-            utils.create_file_path(f'{local_file_path}/{device}')
+            full_local_path = os.path.join(local_file_path, device)
+            utils.create_file_path(full_local_path)
             # Deletes and re-creates pull directory, using adb pull to a directory with pre-existing
             # files, adb pull creates another folder inside of directory and pulls to that directory
-            if os.path.exists(f'{local_file_path}/{device}'):
-                shutil.rmtree(f'{local_file_path}/{device}')
-                utils.create_file_path(f'{local_file_path}/{device}', True)
+            if os.path.exists(full_local_path):
+                shutil.rmtree(full_local_path)
+                utils.create_file_path(full_local_path, True)
             # Calls 'adb push' command, which uses the Android Debug
             # Bridge (ADB) to copy the match schedule file to the tablet.
             # The -s flag specifies the device by its serial number.
-            utils.run_command(f'adb -s {device} pull {tablet_file_path} {local_file_path}/{device}')
+            utils.run_command(f'adb -s {device} pull {tablet_file_path} {full_local_path}')
 
 
 def adb_remove_files(tablet_file_path):
