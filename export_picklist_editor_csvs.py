@@ -10,6 +10,7 @@ import csv
 import datetime
 import os
 import re
+import sys
 
 import local_database_communicator
 import utils
@@ -83,7 +84,7 @@ def export_team_data(path):
                     merged_team.update(document)
             # Use each team's merged data to write a row
             csv_writer.writerow(merged_team)
-    utils.log_info('Exported team data to CSV')
+    print('Exported team data to CSV')
 
 
 def export_tim_data(path):
@@ -114,7 +115,7 @@ def export_tim_data(path):
                     tim_data[document['match_number']] = document
             for document in tim_data.values():
                 csv_writer.writerow(document)
-    utils.log_info('Exported TIM to CSV')
+    print('Exported TIM data to CSV')
 
 
 def get_image_paths():
@@ -178,14 +179,14 @@ def write_tba_data(path):
     """Writes TBA Data to csv export. Path is a str representing the output absolute file path."""
     data = format_tba_data()
     if not data:
-        utils.log_warning('No TBA Data to export')
+        print('No TBA Data to export', file=sys.stderr)
     field_names = data[0].keys()
     with open(path, 'w') as file:
         writer = csv.DictWriter(file, field_names)
         writer.writeheader()
         for row in data:
             writer.writerow(row)
-    utils.log_info('Exported TBA Data')
+    print('Exported TBA Data')
 
 
 def full_data_export():

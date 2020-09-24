@@ -10,7 +10,7 @@ import cloud_database_communicator
 import local_database_communicator
 import utils
 
-utils.log_info('Competition setup started')
+print('Competition setup started')
 # Makes connection with local database through port 27017, the default listening port of MongoDB
 DB = MongoClient('localhost', 27017).scouting_system
 
@@ -32,4 +32,4 @@ if len(list(DB.competitions.find({'tba_event_key': COMPETITION_KEY}))) != 0:
 # Inserts document into collection
 local_database_communicator.add_competition(local_database_communicator.DB, COMPETITION_KEY)
 cloud_database_communicator.add_competition_cloud(COMPETITION_KEY)
-utils.log_info('Competition setup finished')
+print('Competition setup finished')

@@ -21,16 +21,15 @@ def install_apk(device_serial):
     """
     device_name = adb_communicator.DEVICE_SERIAL_NUMBERS[device_serial]
     print(f'Loading {LOCAL_FILE_PATH} onto {device_name}')
-    utils.log_info(f'APK install started on {device_serial}')
     # Send apk file and get output
     validate = adb_communicator.validate_apk(device_serial, LOCAL_FILE_PATH)
     # If .apk is loaded successfully, ADB will output a string containing 'Success'
     if 'Success' in validate:
         DEVICES_WITH_APK.append(device_serial)
         print(f'Loaded {LOCAL_FILE_PATH} onto {device_name}')
-        utils.log_info(f'APK successefully installed on {device_serial}')
+        print(f'APK successfully installed on {device_serial}')
     else:
-        utils.log_warning(f'Failed Loading {LOCAL_FILE_PATH} onto {device_name}.')
+        print(f'Failed Loading {LOCAL_FILE_PATH} onto {device_name}.', file=sys.stderr)
 
 
 if len(sys.argv) == 2:
