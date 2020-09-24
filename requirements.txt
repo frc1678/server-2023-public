@@ -4,3 +4,4 @@ requests==2.22.0
 pylint==2.4.4
 dnspython==1.16.0
 numpy==1.18.1
+termcolor==1.1.0
