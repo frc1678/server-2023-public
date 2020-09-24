@@ -91,11 +91,7 @@ def validate_file(device_id, local_file_path, tablet_file_path):
 
     Parameter 'device_id' is the serial number of the device
     """
-    # Find the hash of `tablet_file_path`
-    # The -s flag to adb specifies a device by its serial number
-    # The -b flag to sha256sum specifies 'brief,' meaning that only the hash is output
-    tablet_data = utils.run_command(f'adb -s {device_id} shell sha256sum -b {tablet_file_path}',
-                                    return_output=True)
+    tablet_data = adb_communicator.get_tablet_file_path_hash(device_id, tablet_file_path)
     if local_file_path == MATCH_SCHEDULE_LOCAL_PATH:
         return tablet_data == LOCAL_MATCH_SCHEDULE_HASH
     if local_file_path == TEAM_LIST_LOCAL_PATH:

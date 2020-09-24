@@ -21,12 +21,9 @@ def install_apk(device_serial):
     """
     device_name = adb_communicator.DEVICE_SERIAL_NUMBERS[device_serial]
     print(f'Loading {LOCAL_FILE_PATH} onto {device_name}')
-    # Calls 'adb push' command, which uses the Android Debug Bridge (ADB) to send the APK file
-    # The -s flag specifies the device_serial by its serial number
-    # return_output=True returns the output of adb
     utils.log_info(f'APK install started on {device_serial}')
-    validate = utils.run_command(
-        f'adb -s {device_serial} install -r {LOCAL_FILE_PATH}', return_output=True)
+    # Send apk file and get output
+    validate = adb_communicator.validate_apk(device_serial, LOCAL_FILE_PATH)
     # If .apk is loaded successfully, ADB will output a string containing 'Success'
     if 'Success' in validate:
         DEVICES_WITH_APK.append(device_serial)

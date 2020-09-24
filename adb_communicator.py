@@ -159,6 +159,44 @@ def pull_device_data():
     return data
 
 
+def validate_apk(device_serial, local_file_path):
+    """Loads a .apk file onto a device and checks whether it was done successfully.
+
+    Calls 'adb push' command, which uses the Android Debug Bridge (ADB) to send the APK file
+    The -s flag specifies the device_serial by its serial number.
+    return_output=True returns the output of adb.
+    device_serial is the serial number of the device that apk is being installed on.
+    local_file_path is the local APK file path.
+    """
+    check_success = utils.run_command(
+        f'adb -s {device_serial} install -r {local_file_path}', return_output=True)
+    return check_success
+
+
+def adb_font_size_enforcer():
+    """Enforce tablet font size to 1.30, the largest supported size"""
+    devices = get_attached_devices()
+    # Wait for USB connection to initialize
+    time.sleep(.1)
+    for device in devices:
+        # The -s flag specifies the device by its serial number.
+        utils.run_command(
+            f'adb -s {device} shell settings put system font_scale 1.30',
+            return_output=False
+        )
+
+
+def get_tablet_file_path_hash(device_id, tablet_file_path):
+    """Find the hash of `tablet_file_path`
+
+    The -s flag to adb specifies a device by its serial number.
+    The -b flag to sha256sum specifies 'brief,' meaning that only the hash is output.
+    """
+    tablet_hash = utils.run_command(f'adb -s {device_id} shell sha256sum -b {tablet_file_path}',
+                                    return_output=True)
+    return tablet_hash
+
+
 # Store regex patterns to match files containing either pit or match data
 FILENAME_REGEXES = {
     # Matches either objective or subjective QR filenames
