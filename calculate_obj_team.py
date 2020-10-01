@@ -3,7 +3,7 @@
 
 import yaml
 
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc
 import utils
 
 
@@ -11,7 +11,7 @@ def calculate_obj_team(team):
     """Calculate data for given team using objective calculated TIMs"""
     team_info = {}
     # list of TIMs that the team has been in:
-    tims = local_database_communicator.read_dataset('processed.calc_obj_tim', team_number=team)
+    tims = ldc.read_dataset('processed.calc_obj_tim', team_number=team)
     # Calculate averages
     for calculation, schema in SCHEMA['averages'].items():
         # Find tims that meet required data field:

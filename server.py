@@ -10,19 +10,17 @@ import sys
 
 import pymongo
 
-import adb_communicator
 import calculate_obj_team
 import calculate_obj_tims
 import calculate_tba_team
 import calculate_tba_tims
+from data_transfer import adb_communicator, local_database_communicator as ldc, tba_communicator
 import decompressor
-import local_database_communicator
 import qr_code_uploader
-import tba_communicator
 import utils
 
 try:
-    import cloud_database_communicator
+    from data_transfer import cloud_database_communicator
 except pymongo.errors.ConfigurationError:
     utils.log_warning(f'Cloud database import failed. No internet.')
 
@@ -62,17 +60,17 @@ CLOUD_DB_QUEUE = get_empty_modified_data()
 # Instantiate the queue that tracks what data has been changed
 # This queue is used to determine what calculations need to be run and what data to run them on.
 MAIN_QUEUE = get_empty_modified_data()
-MAIN_QUEUE['raw']['qr'].extend(local_database_communicator.read_dataset('raw.qr'))
+MAIN_QUEUE['raw']['qr'].extend(ldc.read_dataset('raw.qr'))
 
-BLOCKLISTED = local_database_communicator.read_dataset('processed.replay_outdated_qr')
+BLOCKLISTED = ldc.read_dataset('processed.replay_outdated_qr')
 # Selecting only the non-blocklisted ones
 MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLOCKLISTED]
 
 # Add existing pit data to main queue on server restart
 MAIN_QUEUE['raw']['obj_pit'] = [{'team_number': point['team_number']} for point in
-                                local_database_communicator.read_dataset('raw.obj_pit')]
+                                ldc.read_dataset('raw.obj_pit')]
 MAIN_QUEUE['raw']['subj_pit'] = [{'team_number': point['team_number']} for point in
-                                 local_database_communicator.read_dataset('raw.subj_pit')]
+                                 ldc.read_dataset('raw.subj_pit')]
 
 # Where we get the match data from TBA
 MATCH_LIST = []
@@ -106,17 +104,17 @@ while True:
     # or decompression code changes, and selection purely by team/match number would not work as
     # there are multiple QRs for a match.
     if SERVER_RESTART:
-        local_database_communicator.remove_data('processed.unconsolidated_obj_tim')
-        local_database_communicator.remove_data('processed.subj_aim')
-        local_database_communicator.remove_data('processed.calc_obj_tim')
+        ldc.remove_data('processed.unconsolidated_obj_tim')
+        ldc.remove_data('processed.subj_aim')
+        ldc.remove_data('processed.calc_obj_tim')
 
     # Decompress all inputted QRs
     DECOMPRESSED_QRS = decompressor.decompress_qrs(MAIN_QUEUE['raw']['qr'])
     # Update database with decompressed objective QRs
-    local_database_communicator.append_to_dataset(
+    ldc.append_to_dataset(
         'processed.unconsolidated_obj_tim', DECOMPRESSED_QRS['unconsolidated_obj_tim'])
     # Update database with decompressed subjective QRs
-    local_database_communicator.append_to_dataset(
+    ldc.append_to_dataset(
         'processed.subj_aim', DECOMPRESSED_QRS['subj_aim'])
     # Add decompressed QRs to queues
     # Iterate through both objective and subjective QRs
@@ -153,7 +151,7 @@ while True:
     CALCULATED_TBA_TIMS = calculate_tba_tims.update_calc_tba_tims(NEW_TBA_MATCHES)
     for tim in CALCULATED_TBA_TIMS:
         query = {'match_number': tim['match_number'], 'team_number': tim['team_number']}
-        local_database_communicator.update_dataset('processed.calc_tba_tim', tim, query)
+        ldc.update_dataset('processed.calc_tba_tim', tim, query)
     MAIN_QUEUE['processed']['calc_tba_tim'] = [{'match_number': tim['match_number'],
                                                 'team_number': tim['team_number']}
                                                 for tim in CALCULATED_TBA_TIMS]
@@ -169,7 +167,7 @@ while True:
                                                CALCULATED_OBJ_TIMS]
     for tim in CALCULATED_OBJ_TIMS:
         query = {'match_number' : tim['match_number'], 'team_number' : tim['team_number']}
-        local_database_communicator.update_dataset(
+        ldc.update_dataset(
             'processed.calc_obj_tim', tim, query)
         MAIN_QUEUE['processed']['calc_obj_tim'].append(
             {'match_number': tim['match_number'], 'team_number': tim['team_number']})
@@ -178,7 +176,7 @@ while True:
         team = ref['team_number']
         calculated_team = utils.catch_function_errors(calculate_obj_team.calculate_obj_team, team)
         if calculated_team is not None:
-            local_database_communicator.update_dataset(
+            ldc.update_dataset(
                 'processed.calc_obj_team', calculated_team, query={'team_number': team})
             CALC_TEAM_REF = {'team_number': team}
             if CALC_TEAM_REF not in MAIN_QUEUE['processed']['calc_obj_team']:
@@ -192,17 +190,15 @@ while True:
     )
     for calc in TBA_TEAM_CALCS:
         TBA_TEAM_REF = {'team_number': calc['team_number']}
-        local_database_communicator.update_dataset(
-            'processed.calc_tba_team', calc, TBA_TEAM_REF
-        )
+        ldc.update_dataset('processed.calc_tba_team', calc, TBA_TEAM_REF)
         MAIN_QUEUE['processed']['calc_tba_team'].append(TBA_TEAM_REF)
 
     # TODO: Match calcs
 
     # TODO: Team calcs (driver ability)
-    if 'cloud_database_communicator' not in sys.modules:
+    if 'data_transfer.cloud_database_communicator' not in sys.modules:
         try:
-            import cloud_database_communicator
+            from data_transfer import cloud_database_communicator
         except pymongo.errors.ConfigurationError:
             utils.log_warning(f'Cloud database import failed. No internet.')
 
@@ -214,7 +210,7 @@ while True:
     # Empty main queue
     MAIN_QUEUE = get_empty_modified_data()
     # Send data to cloud
-    if 'cloud_database_communicator' in sys.modules and CLOUD_WRITE_PERMISSION is True:
+    if 'data_transfer.cloud_database_communicator' in sys.modules and CLOUD_WRITE_PERMISSION is True:
         CLOUD_WRITE_RESULT = cloud_database_communicator.push_changes_to_db(
             CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE)
         if CLOUD_WRITE_RESULT is not None:

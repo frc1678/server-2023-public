@@ -6,8 +6,7 @@ import re
 
 from pymongo import MongoClient
 
-import cloud_database_communicator
-import local_database_communicator
+from data_transfer import cloud_database_communicator, local_database_communicator as ldc
 import utils
 
 print('Competition setup started')
@@ -30,6 +29,6 @@ with open(utils._TBA_KEY_FILE, 'w') as file:
 if len(list(DB.competitions.find({'tba_event_key': COMPETITION_KEY}))) != 0:
     raise Exception(f'The competition {COMPETITION_KEY} already exists in the database.')
 # Inserts document into collection
-local_database_communicator.add_competition(local_database_communicator.DB, COMPETITION_KEY)
+ldc.add_competition(ldc.DB, COMPETITION_KEY)
 cloud_database_communicator.add_competition_cloud(COMPETITION_KEY)
 print('Competition setup finished')

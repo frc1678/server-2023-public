@@ -8,7 +8,7 @@ Usage: server.py calls update_calc_obj_tims to consolidate & calculate specified
 import copy
 import statistics
 
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc
 import utils
 
 
@@ -167,8 +167,7 @@ def update_calc_obj_tims(tims):
     """
     tims_without_missing_keys = []
     for tim in tims:
-        unconsolidated_tims = (local_database_communicator.read_dataset(
-            'processed.unconsolidated_obj_tim', **tim))
+        unconsolidated_tims = (ldc.read_dataset('processed.unconsolidated_obj_tim', **tim))
         for unconsolidated_tim in unconsolidated_tims:
             new_tim = {'team_number': unconsolidated_tim['team_number'],
                        'match_number': unconsolidated_tim['match_number']}
@@ -179,7 +178,7 @@ def update_calc_obj_tims(tims):
     for tim in tims_without_missing_keys:
         # Because that code above, we can be sure that each tim will clearly refer to one team in
         # one match, since it won't be missing the key 'team_number' or the key 'match_number'
-        unconsolidated_tims = (local_database_communicator.read_dataset(
+        unconsolidated_tims = (ldc.read_dataset(
             'processed.unconsolidated_obj_tim', **tim))
         calculated_tim = utils.catch_function_errors(calculate_tim, unconsolidated_tims)
         calculated_tims.append(calculated_tim)

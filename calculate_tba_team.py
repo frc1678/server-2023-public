@@ -3,7 +3,7 @@
 """Runs team calculations dependent on TBA data"""
 
 import inner_goals_regression
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc
 import utils
 
 
@@ -66,7 +66,7 @@ def update_team_calcs(refs):
 
     teams_api_endpoint = f'event/{utils.TBA_EVENT_KEY}/teams/simple'
     team_request_output = (
-        local_database_communicator.select_tba_cache(teams_api_endpoint)
+        ldc.select_tba_cache(teams_api_endpoint)
         .get(teams_api_endpoint)
         .get('data', [])
     )
@@ -91,15 +91,9 @@ def update_team_calcs(refs):
 
     for team in teams:
         # Load team data from database
-        obj_tims = local_database_communicator.read_dataset(
-            'processed.calc_obj_tim', team_number=team
-        )
-        tba_tims = local_database_communicator.read_dataset(
-            'processed.calc_tba_tim', team_number=team
-        )
-        obj_team = local_database_communicator.read_dataset(
-            'processed.calc_obj_team', team_number=team
-        )
+        obj_tims = ldc.read_dataset('processed.calc_obj_tim', team_number=team)
+        tba_tims = ldc.read_dataset('processed.calc_tba_tim', team_number=team)
+        obj_team = ldc.read_dataset('processed.calc_obj_team', team_number=team)
         if obj_team:
             obj_team = obj_team[0]  # Because of database structure, returns as a list
         else:
@@ -122,9 +116,7 @@ def update_team_calcs(refs):
         else:
             # Set team name to "UNKNOWN NAME" if the team is not already in the database
             # If the team is, it is assumed that the name in the database will be more accurate
-            if not local_database_communicator.read_dataset(
-                'processed.calc_tba_team', team_number=team
-            ):
+            if not ldc.read_dataset('processed.calc_tba_team', team_number=team):
                 team_data['team_name'] = 'UNKNOWN NAME'
             # Warn that the team is not in the team list for event if there is team data
             if team_names:

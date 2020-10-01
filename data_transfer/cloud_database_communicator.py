@@ -4,7 +4,7 @@
 
 import pymongo
 
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc
 import utils
 
 
@@ -27,7 +27,7 @@ def update_array(path, change_list):
             equals.append({'$eq': [f'$$item.{key}', value]})
         filter_change_list.append({'$and': equals})
 
-    to_add = local_database_communicator.DB.competitions.aggregate([
+    to_add = ldc.DB.competitions.aggregate([
         {'$match': {'tba_event_key': utils.TBA_EVENT_KEY}},
         {'$project':
              {path:
@@ -94,7 +94,7 @@ def push_changes_to_db(local_change_list, server_restart):
 
 def add_competition_cloud(tba_event_key):
     """Adds competition document to cloud database."""
-    local_database_communicator.add_competition(CLOUD_DB, tba_event_key)
+    ldc.add_competition(CLOUD_DB, tba_event_key)
 
 
 # Connect to cloud database

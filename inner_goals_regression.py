@@ -11,7 +11,7 @@ import random
 
 import numpy as np
 
-import local_database_communicator as ldc
+from data_transfer import local_database_communicator as ldc
 import utils
 
 

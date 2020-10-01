@@ -10,7 +10,7 @@ import json
 import sys
 import time
 
-import adb_communicator
+from data_transfer import adb_communicator
 import utils
 
 

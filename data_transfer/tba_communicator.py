@@ -8,7 +8,7 @@ API documentation: https://www.thebluealliance.com/apidocs/v3.
 
 import requests
 
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc
 import utils
 
 
@@ -20,7 +20,7 @@ def tba_request(api_url):
     utils.log_info(f'tba request from {api_url} started')
     full_url = f'https://www.thebluealliance.com/api/v3/{api_url}'
     request_headers = {'X-TBA-Auth-Key': API_KEY}
-    cached = local_database_communicator.select_tba_cache(api_url)
+    cached = ldc.select_tba_cache(api_url)
     # Check if cache exists
     if cached != {}:
         cached = cached[api_url]
@@ -40,7 +40,7 @@ def tba_request(api_url):
     if request.status_code == 200:
         formatted_data = {'timestamp': request.headers['Last-Modified'],
                           'data': request.json()}
-        local_database_communicator.overwrite_tba_data(formatted_data, api_url)
+        ldc.overwrite_tba_data(formatted_data, api_url)
         return request.json()
     raise Warning(f'Request failed with status code {request.status_code}')
 

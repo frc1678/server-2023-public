@@ -5,8 +5,7 @@
 import re
 import sys
 
-import cloud_database_communicator
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc, cloud_database_communicator
 import utils
 
 CONFIRMATION = input(f'Confirm Overwrite of data in {utils.TBA_EVENT_KEY}? (y/N): ')
@@ -26,8 +25,7 @@ CLOUD_DATA = cloud_database_communicator.CLOUD_DB.competitions.find_one(
 if CLOUD_DATA is None:
     print(f'Event {EVENT} missing from Cloud Database', file=sys.stderr)
     sys.exit(1)
-local_database_communicator.DB.competitions.update_one(
-    {'tba_event_key': EVENT}, {'$set': CLOUD_DATA}, upsert=True)
+ldc.DB.competitions.update_one({'tba_event_key': EVENT}, {'$set': CLOUD_DATA}, upsert=True)
 
 utils.log_info(f'Pulled data from {EVENT} to {utils.TBA_EVENT_KEY}')
 print('Data fetch successful')

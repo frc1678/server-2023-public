@@ -12,7 +12,7 @@ import os
 import re
 import sys
 
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc
 import utils
 
 
@@ -20,7 +20,7 @@ def load_data(db_paths):
     """Loads team data from database and formats enums, db_paths is a list of database paths."""
     all_data = []
     for path in db_paths:
-        data = local_database_communicator.read_dataset(path)
+        data = ldc.read_dataset(path)
         schema = utils.read_schema(DB_PATH_TO_SCHEMA_FILE[path])
         if 'enums' not in schema:
             all_data.extend(data)
@@ -159,7 +159,7 @@ def get_image_paths():
 def format_tba_data():
     """Formats TBA score and foul data as CSV."""
     api_url = f'event/{utils.TBA_EVENT_KEY}/matches'
-    cached = local_database_communicator.select_tba_cache(api_url)[api_url]['data']
+    cached = ldc.select_tba_cache(api_url)[api_url]['data']
     match_scores = []
     export_fields = ['foulPoints', 'totalPoints']
     for match in cached:

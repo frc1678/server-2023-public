@@ -11,7 +11,7 @@ tablet serial number, and match number are added to the blocklist.
 import re
 import sys
 
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc
 import utils
 
 # Takes user input to find which operation to do
@@ -65,9 +65,9 @@ TO_BLOCKLIST = []
 EVENT_KEY = utils.TBA_EVENT_KEY
 
 # Stores the already blocklisted QR codes from the local database
-BLOCKLISTED_QRS = local_database_communicator.read_dataset('processed.replay_outdated_qr')
+BLOCKLISTED_QRS = ldc.read_dataset('processed.replay_outdated_qr')
 
-for qr_code in local_database_communicator.read_dataset('raw.qr'):
+for qr_code in ldc.read_dataset('raw.qr'):
     # If the QR code is already blocklisted, go to the next QR code
     if qr_code in BLOCKLISTED_QRS:
         continue
@@ -81,7 +81,7 @@ for qr_code in local_database_communicator.read_dataset('raw.qr'):
         TO_BLOCKLIST.append(qr_code)
 
 # Uses append_document to add the QR codes to the local competition document blocklist
-local_database_communicator.append_to_dataset('processed.replay_outdated_qr', TO_BLOCKLIST)
+ldc.append_to_dataset('processed.replay_outdated_qr', TO_BLOCKLIST)
 
 if not TO_BLOCKLIST:
     print('No QR codes were blocklisted')

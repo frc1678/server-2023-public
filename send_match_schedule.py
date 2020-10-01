@@ -12,8 +12,7 @@ import hashlib
 import json
 import time
 
-import adb_communicator
-import tba_communicator
+from data_transfer import adb_communicator, tba_communicator
 import utils
 
 

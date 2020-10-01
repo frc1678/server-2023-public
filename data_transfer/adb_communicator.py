@@ -8,7 +8,7 @@ import re
 import shutil
 import time
 
-import local_database_communicator
+from data_transfer import local_database_communicator as ldc
 import qr_code_uploader
 import utils
 
@@ -144,13 +144,13 @@ def pull_device_data():
     # Add QRs to database and make sure that only QRs that should be decompressed are added to queue
     data['qr'] = qr_code_uploader.upload_qr_codes(data['qr'])
     for dataset in ['obj_pit', 'subj_pit']:
-        current_data = local_database_communicator.read_dataset(dataset)
+        current_data = ldc.read_dataset(dataset)
         modified_data = []
         for datapoint in data[dataset]:
             if datapoint in current_data:
                 continue
             # Specify query to ensure that each team only has one entry
-            local_database_communicator.update_dataset(
+            ldc.update_dataset(
                 f'raw.{dataset}', datapoint, {'team_number': datapoint['team_number']}
             )
             modified_data.append({'team_number': datapoint['team_number']})
