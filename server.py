@@ -10,12 +10,8 @@ import sys
 
 import pymongo
 
-import calculate_obj_team
-import calculate_obj_tims
-import calculate_tba_team
-import calculate_tba_tims
+from calculations import decompressor, obj_team, obj_tims, tba_tims, tba_team
 from data_transfer import adb_communicator, local_database_communicator as ldc, tba_communicator
-import decompressor
 import qr_code_uploader
 import utils
 
@@ -28,11 +24,7 @@ except pymongo.errors.ConfigurationError:
 def get_empty_modified_data():
     """Returns empty modified data field."""
     modified_data = {
-        'raw': {
-            'qr': [],
-            'obj_pit': [],
-            'subj_pit': []
-        },
+        'raw': {'qr': [], 'obj_pit': [], 'subj_pit': []},
         'processed': {
             'unconsolidated_obj_tim': [],
             'calc_obj_tim': [],
@@ -45,7 +37,7 @@ def get_empty_modified_data():
             'calc_predicted_team': [],
             'calc_tba_team': [],
             'calc_pick_ability_team': [],
-        }
+        },
     }
     return modified_data
 
@@ -67,18 +59,22 @@ BLOCKLISTED = ldc.read_dataset('processed.replay_outdated_qr')
 MAIN_QUEUE['raw']['qr'] = [qr for qr in MAIN_QUEUE['raw']['qr'] if qr not in BLOCKLISTED]
 
 # Add existing pit data to main queue on server restart
-MAIN_QUEUE['raw']['obj_pit'] = [{'team_number': point['team_number']} for point in
-                                ldc.read_dataset('raw.obj_pit')]
-MAIN_QUEUE['raw']['subj_pit'] = [{'team_number': point['team_number']} for point in
-                                 ldc.read_dataset('raw.subj_pit')]
+MAIN_QUEUE['raw']['obj_pit'] = [
+    {'team_number': point['team_number']} for point in ldc.read_dataset('raw.obj_pit')
+]
+MAIN_QUEUE['raw']['subj_pit'] = [
+    {'team_number': point['team_number']} for point in ldc.read_dataset('raw.subj_pit')
+]
 
 # Where we get the match data from TBA
 MATCH_LIST = []
 
 while True:
-    USER_INPUT = input('Do you want to run server with write permission to cloud database?\n'
-                       '(If so, make sure you are on the server computer or that no one else is '
-                       'currently writing to the cloud database) [Y/n]').lower()
+    USER_INPUT = input(
+        'Do you want to run server with write permission to cloud database?\n'
+        '(If so, make sure you are on the server computer or that no one else is '
+        'currently writing to the cloud database) [Y/n]'
+    ).lower()
     if USER_INPUT == 'y':
         CLOUD_WRITE_PERMISSION = True
         break
@@ -112,10 +108,10 @@ while True:
     DECOMPRESSED_QRS = decompressor.decompress_qrs(MAIN_QUEUE['raw']['qr'])
     # Update database with decompressed objective QRs
     ldc.append_to_dataset(
-        'processed.unconsolidated_obj_tim', DECOMPRESSED_QRS['unconsolidated_obj_tim'])
+        'processed.unconsolidated_obj_tim', DECOMPRESSED_QRS['unconsolidated_obj_tim']
+    )
     # Update database with decompressed subjective QRs
-    ldc.append_to_dataset(
-        'processed.subj_aim', DECOMPRESSED_QRS['subj_aim'])
+    ldc.append_to_dataset('processed.subj_aim', DECOMPRESSED_QRS['subj_aim'])
     # Add decompressed QRs to queues
     # Iterate through both objective and subjective QRs
     for qr_type in DECOMPRESSED_QRS:
@@ -148,36 +144,40 @@ while True:
     MATCH_LIST.extend(NEW_TBA_MATCHES)
 
     # TBA TIM Calcs
-    CALCULATED_TBA_TIMS = calculate_tba_tims.update_calc_tba_tims(NEW_TBA_MATCHES)
+    CALCULATED_TBA_TIMS = tba_tims.update_calc_tba_tims(NEW_TBA_MATCHES)
     for tim in CALCULATED_TBA_TIMS:
         query = {'match_number': tim['match_number'], 'team_number': tim['team_number']}
         ldc.update_dataset('processed.calc_tba_tim', tim, query)
-    MAIN_QUEUE['processed']['calc_tba_tim'] = [{'match_number': tim['match_number'],
-                                                'team_number': tim['team_number']}
-                                                for tim in CALCULATED_TBA_TIMS]
+    MAIN_QUEUE['processed']['calc_tba_tim'] = [
+        {'match_number': tim['match_number'], 'team_number': tim['team_number']}
+        for tim in CALCULATED_TBA_TIMS
+    ]
 
     # Where we get the rankings from TBA
     TBA_RANKINGS_DATA = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/rankings')
 
     # Consolidate & calculate TIMs for each match in the main queue
-    CALCULATED_OBJ_TIMS = calculate_obj_tims.update_calc_obj_tims(
-        MAIN_QUEUE['processed']['unconsolidated_obj_tim'])
-    MAIN_QUEUE['processed']['calc_obj_tim'] = [{'team_number': tim['team_number'],
-                                                'match_number': tim['match_number']} for tim in
-                                               CALCULATED_OBJ_TIMS]
+    CALCULATED_OBJ_TIMS = obj_tims.update_calc_obj_tims(
+        MAIN_QUEUE['processed']['unconsolidated_obj_tim']
+    )
+    MAIN_QUEUE['processed']['calc_obj_tim'] = [
+        {'team_number': tim['team_number'], 'match_number': tim['match_number']}
+        for tim in CALCULATED_OBJ_TIMS
+    ]
     for tim in CALCULATED_OBJ_TIMS:
-        query = {'match_number' : tim['match_number'], 'team_number' : tim['team_number']}
-        ldc.update_dataset(
-            'processed.calc_obj_tim', tim, query)
+        query = {'match_number': tim['match_number'], 'team_number': tim['team_number']}
+        ldc.update_dataset('processed.calc_obj_tim', tim, query)
         MAIN_QUEUE['processed']['calc_obj_tim'].append(
-            {'match_number': tim['match_number'], 'team_number': tim['team_number']})
+            {'match_number': tim['match_number'], 'team_number': tim['team_number']}
+        )
 
     for ref in MAIN_QUEUE['processed']['calc_obj_tim']:
         team = ref['team_number']
-        calculated_team = utils.catch_function_errors(calculate_obj_team.calculate_obj_team, team)
+        calculated_team = utils.catch_function_errors(obj_team.calculate_obj_team, team)
         if calculated_team is not None:
             ldc.update_dataset(
-                'processed.calc_obj_team', calculated_team, query={'team_number': team})
+                'processed.calc_obj_team', calculated_team, query={'team_number': team}
+            )
             CALC_TEAM_REF = {'team_number': team}
             if CALC_TEAM_REF not in MAIN_QUEUE['processed']['calc_obj_team']:
                 MAIN_QUEUE['processed']['calc_obj_team'].append(CALC_TEAM_REF)
@@ -185,7 +185,7 @@ while True:
     # Make TBA Team request to update team names
     tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/teams/simple')
 
-    TBA_TEAM_CALCS = calculate_tba_team.update_team_calcs(
+    TBA_TEAM_CALCS = tba_team.update_team_calcs(
         MAIN_QUEUE['processed']['calc_obj_tim'] + MAIN_QUEUE['processed']['calc_tba_tim']
     )
     for calc in TBA_TEAM_CALCS:
@@ -210,9 +210,13 @@ while True:
     # Empty main queue
     MAIN_QUEUE = get_empty_modified_data()
     # Send data to cloud
-    if 'data_transfer.cloud_database_communicator' in sys.modules and CLOUD_WRITE_PERMISSION is True:
+    if (
+        'data_transfer.cloud_database_communicator' in sys.modules
+        and CLOUD_WRITE_PERMISSION is True
+    ):
         CLOUD_WRITE_RESULT = cloud_database_communicator.push_changes_to_db(
-            CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE)
+            CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE
+        )
         if CLOUD_WRITE_RESULT is not None:
             CLOUD_DB_QUEUE = get_empty_modified_data()
             if SERVER_RESTART_SINCE_CLOUD_UPDATE:

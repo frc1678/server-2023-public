@@ -2,7 +2,7 @@
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Runs team calculations dependent on TBA data"""
 
-import inner_goals_regression
+from calculations import inner_goals_regression
 from data_transfer import local_database_communicator as ldc
 import utils
 
