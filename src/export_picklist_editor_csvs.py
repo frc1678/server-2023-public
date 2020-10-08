@@ -211,7 +211,7 @@ def full_data_export():
 PATH_PATTERN = re.compile(r'([0-9]+)_(full_robot|drivetrain|mechanism_[0-9]+)\.jpg')
 IMAGE_ORDER = ['full_robot', 'drivetrain', 'mechanism']
 
-with open('data/team_list.csv') as team_list:
+with open(utils.create_file_path('data/team_list.csv')) as team_list:
     # Load team list
     TEAMS_LIST = list(map(int, [*csv.reader(team_list)][0]))
 
@@ -220,12 +220,9 @@ TEAM_DATA_DB_PATHS = [
     'raw.subj_pit',
     'processed.calc_obj_team',
     'processed.calc_subj_team',
-    'processed.calc_tba_team'
+    'processed.calc_tba_team',
 ]
-TIM_DATA_DB_PATHS = [
-    'processed.calc_obj_tim',
-    'processed.calc_tba_tim'
-]
+TIM_DATA_DB_PATHS = ['processed.calc_obj_tim', 'processed.calc_tba_tim']
 DB_PATH_TO_SCHEMA_FILE = {
     'raw.obj_pit': 'schema/obj_pit_collection_schema.yml',
     'raw.subj_pit': 'schema/subj_pit_collection_schema.yml',
@@ -233,7 +230,7 @@ DB_PATH_TO_SCHEMA_FILE = {
     'processed.calc_subj_team': 'schema/calc_subj_team_schema.yml',
     'processed.calc_tba_team': 'schema/calc_tba_team_schema.yml',
     'processed.calc_obj_tim': 'schema/calc_obj_tim_schema.yml',
-    'processed.calc_tba_tim': 'schema/calc_tba_tim_schema.yml'
+    'processed.calc_tba_tim': 'schema/calc_tba_tim_schema.yml',
 }
 
 if __name__ == '__main__':

@@ -7,5 +7,5 @@ import utils
 
 FILE_PATH = utils.create_file_path('data/tablets')
 utils.run_command(f'rm -R {FILE_PATH}', True)
-utils.run_command('mkdir data/tablets', True)
+utils.run_command(f'mkdir {FILE_PATH}', True)
 adb_communicator.adb_font_size_enforcer()

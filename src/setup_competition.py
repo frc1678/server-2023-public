@@ -23,7 +23,7 @@ if CODE_MATCH is None:
 
 # Creates the competition.txt file
 # Also writes the competition code to it so it can be used in other scripts
-with open(utils._TBA_KEY_FILE, 'w') as file:
+with open(utils.create_file_path(utils._TBA_KEY_FILE), 'w') as file:
     file.write(COMPETITION_KEY)
 # Checks that the competition inputted by the user is not already in the database
 if len(list(DB.competitions.find({'tba_event_key': COMPETITION_KEY}))) != 0:

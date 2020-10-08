@@ -17,7 +17,7 @@ def delete_tablet_downloads():
     """Deletes all data from the Download folder of tablets"""
     devices = get_attached_devices()
     # Wait for USB connection to initialize
-    time.sleep(.1)
+    time.sleep(0.1)
     for device in devices:
         utils.run_command(f'adb -s {device} shell rm -r /storage/sdcard0/Download/*')
         utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
@@ -67,7 +67,7 @@ def pull_device_files(local_file_path, tablet_file_path):
     """
     devices = get_attached_devices()
     # Wait for USB connection to initialize
-    time.sleep(.1)
+    time.sleep(0.1)
     # List of devices that have been pulled from (finished)
     devices_finished = []
     for device in devices:
@@ -97,7 +97,7 @@ def adb_remove_files(tablet_file_path):
     """
     devices = get_attached_devices()
     # Wait for USB connection to initialize
-    time.sleep(.1)
+    time.sleep(0.1)
     for device in devices:
         # Calls 'adb push' command, which uses the Android Debug
         # Bridge (ADB) to copy the match schedule file to the tablet
@@ -110,11 +110,7 @@ def pull_device_data():
     """Pulls tablet data from attached tablets."""
     # Parses 'adb devices' to find num of devices so that don't try to pull from nothing
     devices = get_attached_devices()
-    data = {
-        'qr': [],
-        'obj_pit': [],
-        'subj_pit': []
-    }
+    data = {'qr': [], 'obj_pit': [], 'subj_pit': []}
     if not devices:
         return data
 
@@ -169,7 +165,8 @@ def validate_apk(device_serial, local_file_path):
     local_file_path is the local APK file path.
     """
     check_success = utils.run_command(
-        f'adb -s {device_serial} install -r {local_file_path}', return_output=True)
+        f'adb -s {device_serial} install -r {local_file_path}', return_output=True
+    )
     return check_success
 
 
@@ -177,12 +174,11 @@ def adb_font_size_enforcer():
     """Enforce tablet font size to 1.30, the largest supported size"""
     devices = get_attached_devices()
     # Wait for USB connection to initialize
-    time.sleep(.1)
+    time.sleep(0.1)
     for device in devices:
         # The -s flag specifies the device by its serial number.
         utils.run_command(
-            f'adb -s {device} shell settings put system font_scale 1.30',
-            return_output=False
+            f'adb -s {device} shell settings put system font_scale 1.30', return_output=False
         )
 
 
@@ -192,8 +188,9 @@ def get_tablet_file_path_hash(device_id, tablet_file_path):
     The -s flag to adb specifies a device by its serial number.
     The -b flag to sha256sum specifies 'brief,' meaning that only the hash is output.
     """
-    tablet_hash = utils.run_command(f'adb -s {device_id} shell sha256sum -b {tablet_file_path}',
-                                    return_output=True)
+    tablet_hash = utils.run_command(
+        f'adb -s {device_id} shell sha256sum -b {tablet_file_path}', return_output=True
+    )
     return tablet_hash
 
 
@@ -208,13 +205,15 @@ FILENAME_REGEXES = {
     # Format of objective pit file pattern: <team_number>_pit.json
     'obj_pit': re.compile(r'[0-9]{1,4}_obj_pit\.json'),
     # Format of subjective pit file pattern: <team_number>_subjective.json
-    'subj_pit': re.compile(r'[0-9]{1,4}_subj_pit\.json')
+    'subj_pit': re.compile(r'[0-9]{1,4}_subj_pit\.json'),
 }
 
 # Open the tablet serials file to find all device serials
-with open('data/tablet_serials.json') as serial_numbers:
+with open(utils.create_file_path('data/tablet_serials.json')) as serial_numbers:
     DEVICE_SERIAL_NUMBERS = json.load(serial_numbers)
-TABLET_SERIAL_NUMBERS = {serial: key for serial, key in DEVICE_SERIAL_NUMBERS.items()
-                         if 'Tab' in key}
-PHONE_SERIAL_NUMBERS = {serial: key for serial, key in DEVICE_SERIAL_NUMBERS.items()
-                        if 'Pixel' in key}
+TABLET_SERIAL_NUMBERS = {
+    serial: key for serial, key in DEVICE_SERIAL_NUMBERS.items() if 'Tab' in key
+}
+PHONE_SERIAL_NUMBERS = {
+    serial: key for serial, key in DEVICE_SERIAL_NUMBERS.items() if 'Pixel' in key
+}
