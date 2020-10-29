@@ -1,4 +1,4 @@
-# 1678 Server 2019-2020
+# 1678 Server 2019-2021
 
 Run `setup_environment.py` when you clone the repository.
 
