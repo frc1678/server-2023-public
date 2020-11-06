@@ -8,9 +8,11 @@ number of inner and outer goals scored by the AIM (which comes from TBA).
 
 import copy
 import random
-
 import numpy as np
-
+import os, sys
+current_directory = os.path.dirname(os.path.realpath(__file__))
+parent_directory = os.path.dirname(current_directory)
+sys.path.append(parent_directory)
 from data_transfer import local_database_communicator as ldc
 import utils
 
