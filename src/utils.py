@@ -160,17 +160,23 @@ def read_schema(schema_file_path):
         return yaml.load(schema_file, yaml.Loader)
 
 
-_TBA_KEY_FILE = 'data/competition.txt'
-
 # The root directory of the project
 # Gets two directories up from the current file
 MAIN_DIRECTORY = Path(os.path.abspath(__file__)).parents[1]
 
-try:
-    # Specifies which event - string such as '2020cada'.
-    with open(create_file_path(_TBA_KEY_FILE)) as file:
-        # Remove trailing newline (if it exists) from file data.
-        # Many file editors will automatically add a newline at the end of files.
-        TBA_EVENT_KEY = file.read().rstrip('\n')
-except FileNotFoundError:
-    log_warning(f'ERROR Loading TBA Key: File {_TBA_KEY_FILE} NOT FOUND')
+
+def load_tba_event_key_file(file_path):
+    try:
+        # Specifies which event - string such as '2020cada'.
+        with open(create_file_path(file_path)) as file:
+            # Remove trailing newline (if it exists) from file data.
+            # Many file editors will automatically add a newline at the end of files.
+            return file.read().rstrip('\n')
+    except FileNotFoundError:
+        log_warning(f'ERROR Loading TBA Key: File {file_path} NOT FOUND')
+        return None
+
+
+_TBA_EVENT_KEY_FILE = 'data/competition.txt'
+TBA_EVENT_KEY = load_tba_event_key_file(_TBA_EVENT_KEY_FILE)
+
