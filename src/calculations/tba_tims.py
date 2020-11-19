@@ -42,7 +42,7 @@ def update_calc_tba_tims(tims):
     """
     # Pull TBA data
     tba_api_url = f'event/{utils.TBA_EVENT_KEY}/matches'
-    tba_data = ldc.select_tba_cache(tba_api_url)[tba_api_url]['data']
+    tba_data = ldc.select_tba_cache(tba_api_url)['data']
     # Filter out matches such that we only have quals matches
     # Create dictionary of match_number: match data to allow easier access
     quals_matches = {data['match_number']: data for data in tba_data if data['comp_level'] == 'qm'}
@@ -93,7 +93,7 @@ def update_calc_tba_tims(tims):
             if type_ != 'bool':
                 utils.log_warning(f'Type {type_} not recognized, skipping...')
                 break
-            for name, correct_value in filters.items():
+            for name, correct_value in values.items():
                 # Detect entries like initLineRobot, which need a robot number after them
                 if name.endswith('Robot'):
                     del filters[name]

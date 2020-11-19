@@ -214,11 +214,11 @@ def decompress_qrs(split_qrs):
     }
     utils.log_info(f"Started decompression on qr batch")
     for qr in split_qrs:
-        qr_type = utils.catch_function_errors(get_qr_type, qr[0])
+        qr_type = utils.catch_function_errors(get_qr_type, qr['data'][0])
         if qr_type is None:
             continue
         # Remove identification character
-        qr = qr[1:]
+        qr = qr['data'][1:]
         decompressed_qr = utils.catch_function_errors(decompress_single_qr, qr, qr_type)
         if decompressed_qr is None:
             continue

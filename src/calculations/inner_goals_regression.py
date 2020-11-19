@@ -70,7 +70,7 @@ def inner_goal_proportions(stage='tele'):
     # Begin by getting the teams list, TBA data for every AIM, & scout data for each AIM
     aims = []
     api_url = f'event/{utils.TBA_EVENT_KEY}/matches'
-    matches = ldc.select_tba_cache(api_url)[api_url]['data']
+    matches = ldc.select_tba_cache(api_url)['data']
     matches = [match for match in matches if match['comp_level'] == 'qm']
     for match in matches:
         for alliance in ['red', 'blue']:

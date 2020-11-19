@@ -22,7 +22,7 @@ def upload_qr_codes(qr_codes):
     schema = utils.read_schema('schema/match_collection_qr_schema.yml')
 
     # Acquires current qr data using local_database_communicator.py
-    qr_data = ldc.read_dataset('raw.qr')
+    qr_data = [qr_code['data'] for qr_code in ldc.read_dataset('raw.qr')]
 
     # Creates a set to store QR codes
     # This is a set in order to prevent addition of duplicate qr codes
@@ -41,6 +41,7 @@ def upload_qr_codes(qr_codes):
 
     # Adds the QR codes to the local database if the set isn't empty
     if qr != set():
-        ldc.append_to_dataset('raw.qr', list(qr))
+        qr = [{'data': qr_code, 'blocklisted': False} for qr_code in qr]
+        ldc.append_to_dataset('raw.qr', qr)
 
     return qr

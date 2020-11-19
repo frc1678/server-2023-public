@@ -94,14 +94,15 @@ def push_changes_to_db(local_change_list, server_restart):
 
 def add_competition_cloud(tba_event_key):
     """Adds competition document to cloud database."""
-    ldc.add_competition(CLOUD_DB, tba_event_key)
+    ldc.add_competition(CLOUD_CLIENT[tba_event_key], tba_event_key)
 
 
 # Connect to cloud database
 with open(utils.create_file_path('data/api_keys/cloud_password.txt')) as file:
     CLOUD_PASSWORD = file.read().rstrip('\n')
 DB_ADDRESS = f'mongodb+srv://server:{CLOUD_PASSWORD}@scouting-system-3das1.gcp.mongodb.net/test?retryWrites=true&w=majority'
-CLOUD_DB = pymongo.MongoClient(DB_ADDRESS).scouting_system_cloud
+CLOUD_CLIENT = pymongo.MongoClient(DB_ADDRESS)
+CLOUD_DB = CLOUD_CLIENT.scouting_system_cloud
 # Creates cloud database indexes (if they don't already exist)
 CLOUD_DB.competitions.create_indexes([
     pymongo.IndexModel('tba_event_key', unique=True),

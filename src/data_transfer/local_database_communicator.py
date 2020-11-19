@@ -5,13 +5,34 @@
 All communication with the MongoDB local database go through this file.
 """
 
+import re
+
 from pymongo import MongoClient
 
 import utils
 
+DB = MongoClient('localhost', 27017)[utils.TBA_EVENT_KEY]
 
-DB = MongoClient('localhost', 27017).scouting_system
+COLLECTION_SCHEMA = utils.read_schema('schema/collection_schema.yml')
 
+def get_collection_name(path):
+    """Gets the new corresponding collection name
+
+    path is the old path to the dataset
+    Returns what the collection is now called
+    """
+    # Matches raw collections (e.g. raw_qr, raw_obj_pit)
+    if raw_pattern := re.fullmatch('raw\.(.*)', path):
+        return 'raw_' + raw_pattern[1]
+    # Matches calc collections (e.g. obj_tim, tba_team)
+    if calc_processed_pattern := re.fullmatch('processed\.calc_(.+)', path):
+        return calc_processed_pattern[1]
+    # subj_aim and uncle tim doesn't match the above because old version did not begin with 'calc'
+    if processed_pattern := re.fullmatch('processed\.(.+)', path):
+        return processed_pattern[1]
+    print(f'Could not convert {path} to new collection name using {path} instead')
+    return path
+    
 
 def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     """Filters by filter_by if given, or reads entire dataset.
@@ -21,44 +42,7 @@ def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     competition is the competition code. **filter_by is of the form foo=bar
     and is the key value pair to filter data by.
     """
-    # If no filter_by is provided, finds all data within the specified path and returns a list
-    # of all documents under the field.
-    if filter_by == {}:
-        result = DB.competitions.find_one({'tba_event_key': competition}, {path: 1, '_id': 0})
-    else:
-        # Sets up the $eq expression for every filter_by provided
-        all_the_filters = []
-        for key, value in filter_by.items():
-            all_the_filters.append({'$eq': ['$$item.' + key, value]})
-        # Uses MongoDB's aggregate function to find documents that match the conditions provided
-        # through filter_by
-        result = DB.competitions.aggregate([
-            {'$match': {'tba_event_key': competition}},
-            {
-                '$project': {
-                    '_id': 0,
-                    path: {
-                        '$filter': {
-                            'input': f'${path}',
-                            'as': 'item',
-                            'cond': {'$and': all_the_filters}
-                        }
-                    }
-                }
-            }
-        ])
-        # Converts cursor to list
-        result = list(result)[0]
-    # Remove nesting
-    while isinstance(result, dict):
-        if not result:
-            return []
-        result = result[[*result.keys()][0]]
-    # Return list of embedded documents
-    if result is None:
-        # read_dataset should always return an iterable, no matter what
-        return []
-    return result
+    return list(DB[get_collection_name(path)].find(filter_by))
 
 
 def select_tba_cache(api_url, competition=utils.TBA_EVENT_KEY):
@@ -67,9 +51,7 @@ def select_tba_cache(api_url, competition=utils.TBA_EVENT_KEY):
     If cache exists, returns data. If not, returns None.
     api_url is the url that caches are stored under, competition is the competition code.
     """
-    cached = DB.competitions.find_one(
-        {'tba_event_key': competition}, {f'tba_cache.{api_url}': 1, '_id': 0})['tba_cache']
-    return cached
+    return DB.tba_cache.find_one({'api_url': api_url})
 
 
 def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
@@ -79,8 +61,7 @@ def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
     competition is the competition key.
     """
     # Takes data from tba_communicator and updates it under api_url
-    DB.competitions.update_one({'tba_event_key': competition},
-                               {'$set': {f'tba_cache.{api_url}': data}})
+    DB.tba_cache.update_one({'api_url': api_url}, {"$set": data}, upsert=True)
 
 
 def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
@@ -90,17 +71,7 @@ def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
      filter_by is a kwarg that show data points in the document.
      """
     # Creates dictionary to contain the queries to apply to the specified path
-    if filter_by == {}:
-        DB.competitions.update_one({'tba_event_key': competition}, {'$set': {path: []}})
-        return
-    all_the_filters = []
-    # Adds every filter_by to the two dictionaries
-    for key, value in filter_by.items():
-        all_the_filters.append({key: {'$eq': value}})
-    # Uses MongoDB update_one() and $pull to remove the document that corresponds to the specified
-    # path, competition, and filter_bys
-    DB.competitions.update_one({'tba_event_key': competition},
-                               {'$pull': {path: {'$and': all_the_filters}}})
+    DB[get_collection_name(path)].delete_many(filter_by)
 
 
 def append_to_dataset(path, data, competition=utils.TBA_EVENT_KEY):
@@ -110,7 +81,8 @@ def append_to_dataset(path, data, competition=utils.TBA_EVENT_KEY):
     'data' is the data to append to the dataset, must be a list.
     'competition' is the TBA event key.
     """
-    DB.competitions.update_one({'tba_event_key': competition}, {'$push': {path: {'$each': data}}})
+    if data:
+        DB[get_collection_name(path)].insert_many(data)
 
 
 def update_dataset(path, new_data, query, competition=utils.TBA_EVENT_KEY):
@@ -125,62 +97,15 @@ def update_dataset(path, new_data, query, competition=utils.TBA_EVENT_KEY):
     dictionary.
     'competition' is the tba event key.
     """
-    dataset = read_dataset(path, competition, **query)
-    new_document = {}
-
-    # If all queries matched the document
-    if dataset != []:
-        # New document gets the value of the first dictionary in dataset that matched queries
-        new_document = dataset[0]
-        for new_datum in new_data:
-            # Add each new datum to the new dictionary
-            new_document[new_datum] = new_data[new_datum]
-        # Delete the dictionary from the dataset
-        DB.competitions.update_one({'tba_event_key': competition}, {'$pull': {path: query}})
-    # If 'new_document' is still empty, the query did not match
-    else:
-        # Iterate through the keys in query
-        for key in query:
-            # Add them to the new document
-            new_document[key] = query[key]
-        # Iterate through new_data
-        for datum in new_data:
-            # Add the keys to the new document
-            if datum in new_document and new_document[datum] != new_data[datum]:
-                utils.log_warning('Query and new data are mismatched')
-                return None
-            new_document[datum] = new_data[datum]
-    # Update the dictionary in the dataset
-    DB.competitions.update_one({'tba_event_key': competition}, {'$push': {path: new_document}})
+    # Update one document within the specified collection
+    # Adds a document comprised of the query and the update data when no document is found
+    DB[get_collection_name(path)].update_one(query, {"$set": new_data}, upsert=True)
 
 
-def add_competition(db, competition=utils.TBA_EVENT_KEY):
-    """Adds a new document for the competition into the 'competitions' collection.
-
-    competition is the competition code.
-    """
-    year = int(competition[0:4])
-    db.competitions.insert_one({
-        'year': year,
-        'tba_event_key': competition,
-        'raw': {
-            'qr': [],
-            'obj_pit': [],
-            'subj_pit': []
-        },
-        'tba_cache': {},
-        'processed': {
-            'unconsolidated_obj_tim': [],
-            'calc_obj_tim': [],
-            'calc_tba_tim': [],
-            'subj_aim': [],
-            'calc_obj_team': [],
-            'calc_subj_team': [],
-            'calc_match': [],
-            'calc_predicted_aim': [],
-            'calc_predicted_team': [],
-            'calc_tba_team': [],
-            'calc_pick_ability_team': [],
-        },
-    })
-
+def add_competition(client, competition=utils.TBA_EVENT_KEY) -> None:
+    """Adds indexes into competition collections"""
+    for collection in COLLECTION_SCHEMA['collections']:
+        collection_dict = COLLECTION_SCHEMA['collections'][collection]
+        if collection_dict['indexes'] is not None:
+            for index in collection_dict['indexes']:
+                client[competition][collection].create_index(index)

@@ -22,8 +22,7 @@ def tba_request(api_url):
     request_headers = {'X-TBA-Auth-Key': API_KEY}
     cached = ldc.select_tba_cache(api_url)
     # Check if cache exists
-    if cached != {}:
-        cached = cached[api_url]
+    if cached:
         request_headers['If-Modified-Since'] = cached['timestamp']
     print(f'Retrieving data from {full_url}')
     utils.log_info(f'tba request from {api_url} finished')
