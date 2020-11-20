@@ -9,7 +9,7 @@ from generate_test_data_non_qr import DataGenerator, parse_args
 
 class TestDataGenerator:
     def setup_method(self):
-        input_filename = "../schema/calc_predicted_aim_schema.yml"
+        input_filename = "schema/calc_predicted_aim_schema.yml"
         output_filename = "tests/test.json"
         self.generate_data = DataGenerator(input_filename, output_filename, 0)
 
@@ -41,9 +41,11 @@ class TestDataGenerator:
 
 def test_parse_args():
     sys.argv = [
-            'generate_test_data_non_qr.py',
-            '-i', '../schema/calc_predicted_aim_schema.yml',
-            '-o', 'tests/test.json'
+        'generate_test_data_non_qr.py',
+        '-i',
+        'schema/calc_predicted_aim_schema.yml',
+        '-o',
+        'tests/test.json',
     ]
     parsed = parse_args()
     assert parsed.i == sys.argv[2]
