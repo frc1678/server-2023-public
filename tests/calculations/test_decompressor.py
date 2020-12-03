@@ -226,8 +226,8 @@ def test_decompress_qrs():
     }
     assert expected_output == decompressor.decompress_qrs(
         [
-            '+A18$Bs1234$C34$D1230$Ev1.3$FName%Z1678$X14$W060AG061AH',
-            '*A18$Bs1234$C34$D1230$Ev1.3$FName%A1678:1323:254$B1323:1678:254',
+            {'data': '+A18$Bs1234$C34$D1230$Ev1.3$FName%Z1678$X14$W060AG061AH'},
+            {'data': '*A18$Bs1234$C34$D1230$Ev1.3$FName%A1678:1323:254$B1323:1678:254'},
         ]
     )
 
