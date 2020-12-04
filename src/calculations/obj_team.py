@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
 """Calculate objective team data from Team in Match (TIM) data."""
 
+import os
+import sys
 import yaml
 
+
+current_directory = os.path.dirname(os.path.realpath(__file__))
+parent_directory = os.path.dirname(current_directory)
+sys.path.append(parent_directory)
 from data_transfer import local_database_communicator as ldc
+
 import utils
+from typing import List, Dict
 
-
-def calculate_obj_team(team):
-    """Calculate data for given team using objective calculated TIMs"""
+def calculate_averages(tims: List[Dict], schema_for_averages: Dict):
+    """ Creates a dictionary of calculated averages, called team_info,
+    where the keys are the names of the calculations, and the values are the results """
     team_info = {}
-    # list of TIMs that the team has been in:
-    tims = ldc.read_dataset('processed.calc_obj_tim', team_number=team)
-    # Calculate averages
-    for calculation, schema in SCHEMA['averages'].items():
+    for calculation, schema in schema_for_averages.items():
         # Find tims that meet required data field:
         tim_action_counts = []
         for tim in tims:
@@ -26,8 +31,13 @@ def calculate_obj_team(team):
         else:
             raise TypeError(f'{calculation} should be a number in calc obj team schema')
         team_info[calculation] = average
-    # Calculate counts
-    for calculation, schema in SCHEMA['counts'].items():
+    return team_info
+
+def calculate_counts(tims, schema_for_counts):
+    """ Creates a dictionary of calculated counts, called team_info,
+    where the keys are the names of the calculations, and the values are the results """
+    team_info = {}
+    for calculation, schema in schema_for_counts.items():
         tims_that_meet_filter = tims
         for key, value in schema['tim_fields'].items():
             if key == 'not':
@@ -42,6 +52,15 @@ def calculate_obj_team(team):
                 tims_that_meet_filter = list(filter(
                     lambda tim: tim[key] == value, tims_that_meet_filter))
         team_info[calculation] = STR_TYPES[schema['type']](len(tims_that_meet_filter))
+    return team_info
+
+
+def calculate_obj_team(team):
+    """Calculate data for given team using objective calculated TIMs"""
+    # list of TIMs that the team has been in:
+    tims = ldc.read_dataset('processed.calc_obj_tim', team_number=team)
+    team_info = calculate_averages(tims, SCHEMA['averages'])
+    team_info.update(calculate_counts(tims, SCHEMA['counts']))
     return team_info
 
 
