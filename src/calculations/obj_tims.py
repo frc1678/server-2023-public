@@ -13,7 +13,7 @@ import utils
 
 
 # Functions for consolidating TIMs:
-def modes(nums):
+def modes(nums: list) -> list:
     """Returns the most frequently occurring items in the given list, nums"""
     if len(nums) == 0:
         return []
@@ -26,7 +26,7 @@ def modes(nums):
     return [num for num, frequency in frequencies.items() if frequency == max_occurrences]
 
 
-def consolidate_nums(nums):
+def consolidate_nums(nums: list) -> int:
     """Given numbers reported by multiple scouts, estimates actual number
 
     nums is a list of numbers, representing action counts or times, reported by each scout
@@ -52,7 +52,7 @@ def consolidate_nums(nums):
     return round(float_nums)
 
 
-def consolidate_bools(bools):
+def consolidate_bools(bools: list) -> bool:
     """Given a list of booleans reported by multiple scouts, returns the actual value"""
     bools = modes(bools)
     if len(bools) == 1:
@@ -63,7 +63,7 @@ def consolidate_bools(bools):
 
 
 # Functions for calculating consolidated TIMs:
-def filter_timeline_actions(tim, **filters):
+def filter_timeline_actions(tim: dict, **filters) -> list:
     """tim (dict) contains info for one TIM"""
     actions = tim['timeline']
     for field, required_value in filters.items():
@@ -79,12 +79,12 @@ def filter_timeline_actions(tim, **filters):
     return actions
 
 
-def count_timeline_actions(tim, **filters):
+def count_timeline_actions(tim: dict, **filters) -> int:
     """Returns the number of actions in one TIM timeline that meets the required filters"""
     return len(filter_timeline_actions(tim, **filters))
 
 
-def total_time_between_actions(tim, start_action, end_action):
+def total_time_between_actions(tim: dict, start_action: str, end_action: str) -> int:
     """Returns total number of seconds spent between two types of actions for a given TIM
 
     start_action and end_action are the names (types) of those two actions,
@@ -101,7 +101,7 @@ def total_time_between_actions(tim, start_action, end_action):
     return total_time
 
 
-def calculate_tim(unconsolidated_tims):
+def calculate_tim(unconsolidated_tims: list) -> dict:
     """Given a consolidated TIM, returns a calculated TIM
 
     tim (dict) contains TIM data.
@@ -158,7 +158,7 @@ def calculate_tim(unconsolidated_tims):
     return calculated_tim
 
 
-def update_calc_obj_tims(tims):
+def update_calc_obj_tims(tims: list) -> list:
     """tims (list): TIMs to be calculated.
 
     Each TIM within the list tims is a dictionary with keys 'team_number' and 'match_number'.
