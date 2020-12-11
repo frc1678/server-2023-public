@@ -14,14 +14,12 @@ class DataGenerator:
 
     Take parameters of filenames and load in yaml schema file
     Traverse the loaded structure and fill it with random values
-    Write it as json file specified by output_filename
     """
-    def __init__(self, input_filename: str, output_filename: str, seed=None):
-        """Get input and output filenames and return the json"""
+    def __init__(self, input_filename: str, seed=None):
+        """Get input filename and return the json"""
         self.seed = seed
 
         self.input_filename = input_filename
-        self.output_filename = output_filename
         self.return_json()
 
     def import_yaml_struct(self):
@@ -65,9 +63,9 @@ class DataGenerator:
         output_struct = self.generate_json()
         return output_struct
 
-    def write_json(self):
+    def write_json(self, output_filename: str):
         """Dump the structure to a json file with output_filename"""
-        with open(self.output_filename, "w") as file:
+        with open(output_filename, "w") as file:
             json.dump(self.return_json(), file)
 
 
@@ -76,7 +74,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     # Add arguments for input and output
     parser.add_argument("-i", help="Input yaml file", required=True)
-    parser.add_argument("-o", help="Output json file", required=True)
+    parser.add_argument("-o", help="Output json file", required=False)
     parsed = parser.parse_args()
     return parsed
 
@@ -89,5 +87,5 @@ if __name__ == "__main__":
     output_filename = parsed.o
 
     # Make and instance and write json
-    generate_data = DataGenerator(input_filename, output_filename)
-    generate_data.write_json()
+    generate_data = DataGenerator(input_filename)
+    generate_data.write_json(output_filename)
