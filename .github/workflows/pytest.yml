@@ -1,0 +1,49 @@
+name: pytest 
+
+on:
+    pull_request:
+        branches:
+            - master
+    push:
+        branches:
+            - master
+
+jobs:
+    pytest:
+        runs-on: ubuntu-20.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Clone Submodule
+              uses: actions/checkout@v2
+              with:
+                repository: frc1678/schema
+                path: schema
+                token: ${{ secrets.ACCESS_TOKEN }}
+                persist-credentials: true
+
+            - name: Checkout Submodule
+              run: |
+                git submodule init
+                git submodule update
+
+            - name: Setup Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.8
+
+            - name: Install Python Dependencies
+              run: python3.8 -m pip install -r requirements.txt
+
+            - name: Install MongoDB
+              run: |
+                  wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+                  sudo apt-get update
+                  sudo apt-get install -y mongodb-org
+                  
+            - name: Add Competition Code
+              run: mkdir data && echo 2020caln > data/competition.txt
+
+            - name: Run `pytest`
+              run: pytest

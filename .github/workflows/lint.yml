@@ -1,0 +1,31 @@
+name: lint 
+
+on:
+    pull_request:
+        branches:
+            - master
+    push:
+        branches:
+            - master
+
+jobs:
+    lint:
+        runs-on: ubuntu-20.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.8
+
+            - name: Install `black`
+              run: pip install black
+
+            - name: Run `black`
+              # Include all python files
+              # --check does not reformat files
+              # -l 100 sets the maximum line length to 100
+              # -S ignores single quoted strings
+              run: black --include **/*\.py . --check -l 100 -S

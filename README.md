@@ -1,5 +1,8 @@
 # 1678 Server 2019-2021
 
+![pytest](https://github.com/frc1678/server/workflows/pytest/badge.svg)
+![lint](https://github.com/frc1678/server/workflows/lint/badge.svg)
+
 Run `setup_environment.py` when you clone the repository.
 
 This will install a [virtual python environment](https://docs.python.org/3/glossary.html#term-virtual-environment)
