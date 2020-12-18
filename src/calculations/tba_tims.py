@@ -65,9 +65,7 @@ def update_calc_tba_tims(tims):
         elif 'match_number' in tim:
             if tim['match_number'] in quals_matches:
                 for team in get_team_list_from_match(quals_matches[tim['match_number']]):
-                    full_tim_refs.append(
-                        {'team_number': team, 'match_number': tim['match_number']}
-                    )
+                    full_tim_refs.append({'team_number': team, 'match_number': tim['match_number']})
             else:
                 utils.log_warning(f'Cannot find TBA data from q{tim["match_number"]} in cache')
         else:
@@ -81,7 +79,8 @@ def update_calc_tba_tims(tims):
             continue
         # Get robot number (e.g. the `i` in  initLineRobot1) and alliance color for TIM
         number_result = utils.catch_function_errors(
-            get_robot_number_and_alliance, out['team_number'], quals_matches[out['match_number']])
+            get_robot_number_and_alliance, out['team_number'], quals_matches[out['match_number']]
+        )
         # `utils.catch_function_errors` returns `None` for errors, which must be handled before
         # assigning variables to function results.
         if number_result is None:
@@ -99,7 +98,8 @@ def update_calc_tba_tims(tims):
                     del filters[name]
                     filters[f'{name}{robot_number}'] = correct_value
             result = utils.catch_function_errors(
-                calc_tba_bool, quals_matches[out['match_number']], alliance, filters)
+                calc_tba_bool, quals_matches[out['match_number']], alliance, filters
+            )
             if result is not None:
                 out[key] = result
             else:

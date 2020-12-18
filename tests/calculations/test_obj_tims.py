@@ -152,6 +152,7 @@ def test_calculate_tim():
     assert cal_tim["tele_balls_high"] == 7
     assert cal_tim["tele_balls_low"] == 1
 
+
 def test_update_calc_obj_tims():
     # TODO: We need to add tests to this after ldc is updated with new structure
     pass

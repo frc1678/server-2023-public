@@ -15,6 +15,7 @@ DB = MongoClient('localhost', 27017)[utils.TBA_EVENT_KEY]
 
 COLLECTION_SCHEMA = utils.read_schema('schema/collection_schema.yml')
 
+
 def get_collection_name(path):
     """Gets the new corresponding collection name
 
@@ -22,17 +23,17 @@ def get_collection_name(path):
     Returns what the collection is now called
     """
     # Matches raw collections (e.g. raw_qr, raw_obj_pit)
-    if raw_pattern := re.fullmatch('raw\.(.*)', path):
+    if raw_pattern := re.fullmatch(r'raw\.(.*)', path):
         return 'raw_' + raw_pattern[1]
     # Matches calc collections (e.g. obj_tim, tba_team)
-    if calc_processed_pattern := re.fullmatch('processed\.calc_(.+)', path):
+    if calc_processed_pattern := re.fullmatch(r'processed\.calc_(.+)', path):
         return calc_processed_pattern[1]
     # subj_aim and uncle tim doesn't match the above because old version did not begin with 'calc'
-    if processed_pattern := re.fullmatch('processed\.(.+)', path):
+    if processed_pattern := re.fullmatch(r'processed\.(.+)', path):
         return processed_pattern[1]
     print(f'Could not convert {path} to new collection name using {path} instead')
     return path
-    
+
 
 def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     """Filters by filter_by if given, or reads entire dataset.
@@ -67,9 +68,9 @@ def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
 def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     """Removes the document containing the specified filter_bys.
 
-     path is a string showing where data is located,
-     filter_by is a kwarg that show data points in the document.
-     """
+    path is a string showing where data is located,
+    filter_by is a kwarg that show data points in the document.
+    """
     # Creates dictionary to contain the queries to apply to the specified path
     DB[get_collection_name(path)].delete_many(filter_by)
 

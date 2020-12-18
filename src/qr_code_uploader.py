@@ -33,8 +33,10 @@ def upload_qr_codes(qr_codes):
             pass
         # Checks to make sure the qr is valid by checking its starting character. If the starting
         # character doesn't match either of the options, the QR is printed out.
-        elif not (qr_code.startswith(schema['subjective_aim']['_start_character']) or
-                  qr_code.startswith(schema['objective_tim']['_start_character'])):
+        elif not (
+            qr_code.startswith(schema['subjective_aim']['_start_character'])
+            or qr_code.startswith(schema['objective_tim']['_start_character'])
+        ):
             utils.log_warning(f'Invalid QR code not uploaded: "{qr_code}"')
         else:
             qr.add(qr_code)

@@ -29,11 +29,13 @@ with open(utils.create_file_path(utils._TBA_EVENT_KEY_FILE), 'w') as file:
     file.write(COMPETITION_KEY)
 
 from data_transfer import local_database_communicator as ldc
+
 # Creates indexes for the database
 ldc.add_competition(CLIENT[COMPETITION_KEY])
 CLOUD_DB_PERMISSION = input('Would you like to add this database to the cloud? (y or n): ')
 if CLOUD_DB_PERMISSION.lower().strip() in ['y', 'yes']:
     from data_transfer import cloud_database_communicator
+
     if COMPETITION_KEY in cloud_database_communicator.CLOUD_CLIENT.list_database_names():
         print('WARNING: Database already exists in the cloud, adding anyway')
     cloud_database_communicator.add_competition_cloud(COMPETITION_KEY)

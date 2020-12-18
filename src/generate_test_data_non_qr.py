@@ -15,6 +15,7 @@ class DataGenerator:
     Take parameters of filenames and load in yaml schema file
     Traverse the loaded structure and fill it with random values
     """
+
     def __init__(self, input_filename: str, seed=None):
         """Get input filename and return the json"""
         self.seed = seed

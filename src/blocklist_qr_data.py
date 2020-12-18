@@ -48,9 +48,9 @@ if ROLLBACK_OR_BLOCKLIST == '1':
     # Takes user input for tablet serial number
     TABLET_SERIAL_NUMBER = input('Enter the tablet serial number of the QR code to delete: ')
     # Modifies the regex pattern elements to include the tablet serial number
-    PATTERN_ELEMENTS.insert(1,
-                            (SCHEMA['generic_data']['serial_number'][0]
-                             + TABLET_SERIAL_NUMBER + '.*'))
+    PATTERN_ELEMENTS.insert(
+        1, (SCHEMA['generic_data']['serial_number'][0] + TABLET_SERIAL_NUMBER + '.*')
+    )
 
 # Stores all regex pattern objects
 PATTERNS = []

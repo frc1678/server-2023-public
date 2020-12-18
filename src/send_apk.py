@@ -37,7 +37,9 @@ if len(sys.argv) == 2:
     # LOCAL_FILE_PATH is a string
     LOCAL_FILE_PATH = sys.argv[1]
 else:
-    print('Error: Local APK file path is not being passed as an argument. Exiting...', file=sys.stderr)
+    print(
+        'Error: Local APK file path is not being passed as an argument. Exiting...', file=sys.stderr
+    )
     sys.exit(1)
 
 # List of devices to which the apk has already been sent
@@ -72,7 +74,7 @@ while True:
                 PHONE_SERIALS.append(serial)
 
     # Wait for USB connection to initialize
-    time.sleep(.1) #  .1 seconds
+    time.sleep(0.1)  #  .1 seconds
     if CHOSEN_DEVICE == 't':
         # APK has been installed onto all connected tablets
         if TABLET_SERIALS == []:

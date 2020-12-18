@@ -65,10 +65,7 @@ def update_team_calcs(refs):
         return []
 
     teams_api_endpoint = f'event/{utils.TBA_EVENT_KEY}/teams/simple'
-    team_request_output = (
-        ldc.select_tba_cache(teams_api_endpoint)
-        .get('data', [])
-    )
+    team_request_output = ldc.select_tba_cache(teams_api_endpoint).get('data', [])
     team_names = {team['team_number']: team['nickname'] for team in team_request_output}
 
     # Get unique team list

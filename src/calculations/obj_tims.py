@@ -144,7 +144,8 @@ def calculate_tim(unconsolidated_tims: list) -> dict:
             # action_types is a list of dictionaries, where each dictionary is
             # "action_type" to the name of either the start or end action
             new_cycle_time = total_time_between_actions(
-                tim, action_types['start_action'], action_types['end_action'])
+                tim, action_types['start_action'], action_types['end_action']
+            )
             if not isinstance(new_cycle_time, TYPE_CHECK_DICT[expected_type]):
                 raise TypeError(f'Expected {new_cycle_time} calculation to be a {expected_type}')
             unconsolidated_cycle_times.append(new_cycle_time)
@@ -167,10 +168,12 @@ def update_calc_obj_tims(tims: list) -> list:
     """
     tims_without_missing_keys = []
     for tim in tims:
-        unconsolidated_tims = (ldc.read_dataset('processed.unconsolidated_obj_tim', **tim))
+        unconsolidated_tims = ldc.read_dataset('processed.unconsolidated_obj_tim', **tim)
         for unconsolidated_tim in unconsolidated_tims:
-            new_tim = {'team_number': unconsolidated_tim['team_number'],
-                       'match_number': unconsolidated_tim['match_number']}
+            new_tim = {
+                'team_number': unconsolidated_tim['team_number'],
+                'match_number': unconsolidated_tim['match_number'],
+            }
             if new_tim not in tims_without_missing_keys:
                 tims_without_missing_keys.append(new_tim)
     # Now actually calculate TIMs
@@ -178,25 +181,14 @@ def update_calc_obj_tims(tims: list) -> list:
     for tim in tims_without_missing_keys:
         # Because that code above, we can be sure that each tim will clearly refer to one team in
         # one match, since it won't be missing the key 'team_number' or the key 'match_number'
-        unconsolidated_tims = (ldc.read_dataset(
-            'processed.unconsolidated_obj_tim', **tim))
+        unconsolidated_tims = ldc.read_dataset('processed.unconsolidated_obj_tim', **tim)
         calculated_tim = utils.catch_function_errors(calculate_tim, unconsolidated_tims)
         calculated_tims.append(calculated_tim)
     return calculated_tims
 
 
-TYPES_CONVERSION_DICT = {
-    'float': float,
-    'int': int,
-    'str': str,
-    'bool': utils.get_bool
-}
+TYPES_CONVERSION_DICT = {'float': float, 'int': int, 'str': str, 'bool': utils.get_bool}
 
-TYPE_CHECK_DICT = {
-    'float': float,
-    'int': int,
-    'str': str,
-    'bool': bool
-}
+TYPE_CHECK_DICT = {'float': float, 'int': int, 'str': str, 'bool': bool}
 
 SCHEMA = utils.read_schema('schema/calc_obj_tim_schema.yml')

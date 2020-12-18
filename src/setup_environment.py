@@ -41,6 +41,7 @@ if __name__ == '__main__':
     # Pipes pip output to /dev/null to avoid cluttering the terminal
     # All pip warnings/errors still print to terminal because stderr is not redirected
     subprocess.run([PIP_PATH, 'install', 'wheel'], check=True, stdout=subprocess.DEVNULL)
-    subprocess.run([PIP_PATH, 'install', '-r', REQUIREMENTS_PATH], check=True,
-                   stdout=subprocess.DEVNULL)
+    subprocess.run(
+        [PIP_PATH, 'install', '-r', REQUIREMENTS_PATH], check=True, stdout=subprocess.DEVNULL
+    )
     print('Environment Setup Complete')

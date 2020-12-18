@@ -165,4 +165,3 @@ def load_tba_event_key_file(file_path):
 
 _TBA_EVENT_KEY_FILE = 'data/competition.txt'
 TBA_EVENT_KEY = load_tba_event_key_file(_TBA_EVENT_KEY_FILE)
-

@@ -21,7 +21,8 @@ elif not re.fullmatch('[0-9]{4}[a-z0-9]+', EVENT):
     raise ValueError(f'Invalid event code {EVENT}')
 
 CLOUD_DATA = cloud_database_communicator.CLOUD_DB.competitions.find_one(
-    {'tba_event_key': EVENT}, {'_id': 0})
+    {'tba_event_key': EVENT}, {'_id': 0}
+)
 if CLOUD_DATA is None:
     print(f'Event {EVENT} missing from Cloud Database', file=sys.stderr)
     sys.exit(1)

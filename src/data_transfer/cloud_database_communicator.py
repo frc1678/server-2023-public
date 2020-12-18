@@ -15,10 +15,11 @@ def update_array(path, change_list):
     if not change_list:
         return write_operations
     # Remove documents to be updated
-    write_operations.append(pymongo.UpdateOne(
-        {'tba_event_key': utils.TBA_EVENT_KEY},
-        {'$pull': {path: {'$or': change_list}}}
-    ))
+    write_operations.append(
+        pymongo.UpdateOne(
+            {'tba_event_key': utils.TBA_EVENT_KEY}, {'$pull': {path: {'$or': change_list}}}
+        )
+    )
     # Select documents to add
     filter_change_list = []
     for change in change_list:
@@ -27,16 +28,22 @@ def update_array(path, change_list):
             equals.append({'$eq': [f'$$item.{key}', value]})
         filter_change_list.append({'$and': equals})
 
-    to_add = ldc.DB.competitions.aggregate([
-        {'$match': {'tba_event_key': utils.TBA_EVENT_KEY}},
-        {'$project':
-             {path:
-                  {'$filter':
-                       {'input': f'${path}', 'as': 'item', 'cond': {'$or': filter_change_list}}
-                   }
-              }
-         }
-    ])
+    to_add = ldc.DB.competitions.aggregate(
+        [
+            {'$match': {'tba_event_key': utils.TBA_EVENT_KEY}},
+            {
+                '$project': {
+                    path: {
+                        '$filter': {
+                            'input': f'${path}',
+                            'as': 'item',
+                            'cond': {'$or': filter_change_list},
+                        }
+                    }
+                }
+            },
+        ]
+    )
     # Aggregate returns a cursor object, so it must be converted to a list. `tba_event_key` is
     # guaranteed to be unique, so there will always one and only one result.
     to_add = list(to_add)[0]
@@ -49,9 +56,11 @@ def update_array(path, change_list):
     if to_add is None:
         utils.log_warning(f'No the dataset at {path} does not exist.')
         return []
-    write_operations.append(pymongo.UpdateOne(
-        {'tba_event_key': utils.TBA_EVENT_KEY}, {'$push': {path: {'$each': to_add}}}
-    ))
+    write_operations.append(
+        pymongo.UpdateOne(
+            {'tba_event_key': utils.TBA_EVENT_KEY}, {'$push': {path: {'$each': to_add}}}
+        )
+    )
     return write_operations
 
 
@@ -70,13 +79,16 @@ def push_changes_to_db(local_change_list, server_restart):
             # Cloud data should be replaced on server restart, so all existing data should be
             # removed so no outdated data remains
             if server_restart:
-                write_operations.append(pymongo.UpdateOne({'tba_event_key': utils.TBA_EVENT_KEY},
-                                                          {'$set': {path: []}}))
+                write_operations.append(
+                    pymongo.UpdateOne({'tba_event_key': utils.TBA_EVENT_KEY}, {'$set': {path: []}})
+                )
             if path in direct_push and changed_documents != []:
-                write_operations.append(pymongo.UpdateOne(
-                    {'tba_event_key': utils.TBA_EVENT_KEY},
-                    {'$push': {path: {'$each': changed_documents}}}
-                ))
+                write_operations.append(
+                    pymongo.UpdateOne(
+                        {'tba_event_key': utils.TBA_EVENT_KEY},
+                        {'$push': {path: {'$each': changed_documents}}},
+                    )
+                )
                 continue
             # Join list returned by update_array with existing write operations
             write_operations.extend(update_array(path, changed_documents))
@@ -104,7 +116,6 @@ DB_ADDRESS = f'mongodb+srv://server:{CLOUD_PASSWORD}@scouting-system-3das1.gcp.m
 CLOUD_CLIENT = pymongo.MongoClient(DB_ADDRESS)
 CLOUD_DB = CLOUD_CLIENT.scouting_system_cloud
 # Creates cloud database indexes (if they don't already exist)
-CLOUD_DB.competitions.create_indexes([
-    pymongo.IndexModel('tba_event_key', unique=True),
-    pymongo.IndexModel('year', unique=False)
-])
+CLOUD_DB.competitions.create_indexes(
+    [pymongo.IndexModel('tba_event_key', unique=True), pymongo.IndexModel('year', unique=False)]
+)

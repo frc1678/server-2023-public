@@ -14,17 +14,18 @@ from data_transfer import local_database_communicator as ldc
 import utils
 from typing import List, Dict
 
+
 def calculate_averages(tims: List[Dict], schema_for_averages: Dict):
-    """ Creates a dictionary of calculated averages, called team_info,
-    where the keys are the names of the calculations, and the values are the results """
+    """Creates a dictionary of calculated averages, called team_info,
+    where the keys are the names of the calculations, and the values are the results
+    """
     team_info = {}
     for calculation, schema in schema_for_averages.items():
         # Find tims that meet required data field:
         tim_action_counts = []
         for tim in tims:
             # Gets the total number of actions for a single tim
-            tim_action_counts.append(sum(
-                [tim[tim_field] for tim_field in schema['tim_fields']]))
+            tim_action_counts.append(sum([tim[tim_field] for tim_field in schema['tim_fields']]))
         if schema['type'] in ['int', 'float']:
             average = utils.avg(tim_action_counts)
             average = STR_TYPES[schema['type']](average)
@@ -33,9 +34,11 @@ def calculate_averages(tims: List[Dict], schema_for_averages: Dict):
         team_info[calculation] = average
     return team_info
 
+
 def calculate_counts(tims, schema_for_counts):
-    """ Creates a dictionary of calculated counts, called team_info,
-    where the keys are the names of the calculations, and the values are the results """
+    """Creates a dictionary of calculated counts, called team_info,
+    where the keys are the names of the calculations, and the values are the results
+    """
     team_info = {}
     for calculation, schema in schema_for_counts.items():
         tims_that_meet_filter = tims
@@ -45,12 +48,17 @@ def calculate_counts(tims, schema_for_counts):
                 # not_value is the filter that not_field shouldn't have
                 for not_field, not_value in value.items():
                     # Checks that the TIMs in the 'not' field are anything other than the filter
-                    tims_that_meet_filter = list(filter(lambda tim: tim.get(
-                        not_field, not_value) != not_value, tims_that_meet_filter))
+                    tims_that_meet_filter = list(
+                        filter(
+                            lambda tim: tim.get(not_field, not_value) != not_value,
+                            tims_that_meet_filter,
+                        )
+                    )
             else:
                 # Checks that the TIMs in their given field meet the filter
-                tims_that_meet_filter = list(filter(
-                    lambda tim: tim[key] == value, tims_that_meet_filter))
+                tims_that_meet_filter = list(
+                    filter(lambda tim: tim[key] == value, tims_that_meet_filter)
+                )
         team_info[calculation] = STR_TYPES[schema['type']](len(tims_that_meet_filter))
     return team_info
 
@@ -65,11 +73,7 @@ def calculate_obj_team(team):
 
 
 # Used for converting to a type that is given as a string
-STR_TYPES = {
-    'str': str,
-    'float': float,
-    'int': int
-}
+STR_TYPES = {'str': str, 'float': float, 'int': int}
 
 with open(utils.create_file_path('schema/calc_obj_team_schema.yml')) as file:
     SCHEMA = yaml.load(file, yaml.Loader)

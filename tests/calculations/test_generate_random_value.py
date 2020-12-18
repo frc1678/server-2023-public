@@ -10,4 +10,3 @@ def test_generate_random_value():
     assert generate_random_value.generate_random_value("int", seed=254) == 47
     assert generate_random_value.generate_random_value("float", seed=10) == 57.1403
     assert generate_random_value.generate_random_value("bool", seed=10) == False
-

@@ -1,6 +1,7 @@
 import random
 import string
 
+
 def generate_random_value(value_type: str, seed=None):
     """Given a name of a type, return random data in that type
 

@@ -37,8 +37,7 @@ def tba_request(api_url):
     if request.status_code == 304:
         return cached['data']
     if request.status_code == 200:
-        formatted_data = {'timestamp': request.headers['Last-Modified'],
-                          'data': request.json()}
+        formatted_data = {'timestamp': request.headers['Last-Modified'], 'data': request.json()}
         ldc.overwrite_tba_data(formatted_data, api_url)
         return request.json()
     raise Warning(f'Request failed with status code {request.status_code}')

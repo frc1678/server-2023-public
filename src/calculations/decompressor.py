@@ -13,6 +13,7 @@ import utils
 
 class QRType(enum.Enum):
     """Enum that stores QR types."""
+
     OBJECTIVE = 0
     SUBJECTIVE = 1
 
@@ -101,7 +102,8 @@ def decompress_data(data, section):
                 # Value is not one of the currently known dictionaries
                 else:
                     raise NotImplementedError(
-                        f'Decompression of {uncompressed_name} as a dict not supported.')
+                        f'Decompression of {uncompressed_name} as a dict not supported.'
+                    )
 
             else:  # Normal list, split by internal separator
                 value = value.split(SCHEMA[section]['_separator_internal'])
@@ -126,7 +128,8 @@ def decompress_generic_qr(data):
             schema_version = int(entry[1:])
             if schema_version != SCHEMA['schema_file']['version']:
                 raise LookupError(
-                    f'QR Schema (v{schema_version}) does not match Server version (v{SCHEMA["schema_file"]["version"]})')
+                    f'QR Schema (v{schema_version}) does not match Server version (v{SCHEMA["schema_file"]["version"]})'
+                )
     return decompress_data(data, 'generic_data')
 
 
@@ -156,7 +159,7 @@ def decompress_timeline(data):
     if len(data) % timeline_length != 0:
         raise ValueError(f'Invalid timeline -- Timeline length invalid: {data}')
     # Split into list of actions. Each action is a string of length timeline_length
-    timeline_actions = [data[i:i + timeline_length] for i in range(0, len(data), timeline_length)]
+    timeline_actions = [data[i : i + timeline_length] for i in range(0, len(data), timeline_length)]
     for action in timeline_actions:
         decompressed_action = dict()
         current_position = 0
@@ -166,7 +169,8 @@ def decompress_timeline(data):
             untyped_value = action[current_position:next_position]
             # Set action value to the converted data type
             decompressed_action[entry['name']] = convert_data_type(
-                untyped_value, entry['type'], entry['name'])
+                untyped_value, entry['type'], entry['name']
+            )
             current_position = next_position
         decompressed_timeline.append(decompressed_action)
     return decompressed_timeline
@@ -208,10 +212,7 @@ def decompress_single_qr(qr_data, qr_type):
 
 def decompress_qrs(split_qrs):
     """Decompresses a list of QRs. Returns dict of decompressed QRs split by type."""
-    output = {
-        'unconsolidated_obj_tim': [],
-        'subj_aim': []
-    }
+    output = {'unconsolidated_obj_tim': [], 'subj_aim': []}
     utils.log_info(f"Started decompression on qr batch")
     for qr in split_qrs:
         qr_type = utils.catch_function_errors(get_qr_type, qr['data'][0])

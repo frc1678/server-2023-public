@@ -1,7 +1,4 @@
-
-class BaseCalculations():
-
-
+class BaseCalculations:
     @staticmethod
     def avg(nums, weights=None, default=0):
         """Calculates the average of a list of numeric types.

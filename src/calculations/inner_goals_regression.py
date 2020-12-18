@@ -10,6 +10,7 @@ import copy
 import random
 import numpy as np
 import os, sys
+
 current_directory = os.path.dirname(os.path.realpath(__file__))
 parent_directory = os.path.dirname(current_directory)
 sys.path.append(parent_directory)
@@ -49,7 +50,7 @@ def least_squares(A, b, cap_0_to_1=False):
         # Make a random modification to x, and store the modified version of x as new_x
         new_x = copy.deepcopy(x)
         rand_index = random.randint(0, len(x) - 1)
-        new_x[rand_index, 0] += random.uniform(-.01, .01)
+        new_x[rand_index, 0] += random.uniform(-0.01, 0.01)
         # Check to see if that change was an improvement
         old_error_vector = A.dot(x) - b
         old_error_magnitude = old_error_vector.transpose().dot(old_error_vector)[0, 0]
@@ -84,7 +85,8 @@ def inner_goal_proportions(stage='tele'):
                 match_number = match['match_number']
                 # There should only be one TIM for this team in this match
                 tims = ldc.read_dataset(
-                    'processed.calc_obj_tim', team_number=int(team), match_number=match_number)
+                    'processed.calc_obj_tim', team_number=int(team), match_number=match_number
+                )
                 if len(tims) == 1:
                     aim_info['team_high_goals'][team] = tims[0][f'{stage}_balls_high']
                 else:
@@ -126,7 +128,8 @@ def inner_goal_proportions(stage='tele'):
             inner_goals.append(0)
         else:
             inner_goals.append(
-                aim['inner_goals'] * total_scouted_high_goals / total_actual_high_goals)
+                aim['inner_goals'] * total_scouted_high_goals / total_actual_high_goals
+            )
     inner_goals = np.matrix([inner_goals]).transpose()
     proportions = least_squares(aim_high_goals, inner_goals, cap_0_to_1=True)
     # catch NaN before returning
@@ -137,5 +140,5 @@ def inner_goal_proportions(stage='tele'):
     # Return dictionary of team number to their inner-goal-to-high-goal ratio
     inner_goals_dict = {int(team): ratio for (team, ratio) in zip(teams_that_scored, proportions)}
     for team in teams_that_didnt_score:
-        inner_goals_dict[int(team)] = 0.
+        inner_goals_dict[int(team)] = 0.0
     return inner_goals_dict

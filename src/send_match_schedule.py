@@ -110,8 +110,12 @@ while True:
         break
 
 # Match schedule must be created before local copy is loaded
-if create_match_schedule_csv(MATCH_SCHEDULE_LOCAL_PATH,
-                             f'event/{utils.TBA_EVENT_KEY}/matches/simple') == 1:
+if (
+    create_match_schedule_csv(
+        MATCH_SCHEDULE_LOCAL_PATH, f'event/{utils.TBA_EVENT_KEY}/matches/simple'
+    )
+    == 1
+):
     SEND_MATCH_SCHEDULE = False
 else:
     SEND_MATCH_SCHEDULE = True
@@ -147,8 +151,9 @@ if __name__ == '__main__':
             device_name = adb_communicator.DEVICE_SERIAL_NUMBERS[device]
             if device not in DEVICES_WITH_SCHEDULE and SEND_MATCH_SCHEDULE:
                 print(f'\nAttempting to load {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
-                if adb_communicator.push_file(device, MATCH_SCHEDULE_LOCAL_PATH,
-                                              MATCH_SCHEDULE_TABLET_PATH, validate_file):
+                if adb_communicator.push_file(
+                    device, MATCH_SCHEDULE_LOCAL_PATH, MATCH_SCHEDULE_TABLET_PATH, validate_file
+                ):
                     DEVICES_WITH_SCHEDULE.add(device)
                     print(f'Loaded {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}')
                 else:
@@ -158,8 +163,9 @@ if __name__ == '__main__':
                     )
             if device not in DEVICES_WITH_LIST:
                 print(f'\nAttempting to load {TEAM_LIST_LOCAL_PATH} onto {device_name}')
-                if adb_communicator.push_file(device, TEAM_LIST_LOCAL_PATH, TEAM_LIST_TABLET_PATH,
-                                              validate_file):
+                if adb_communicator.push_file(
+                    device, TEAM_LIST_LOCAL_PATH, TEAM_LIST_TABLET_PATH, validate_file
+                ):
                     DEVICES_WITH_LIST.add(device)
                     print(f'Loaded {TEAM_LIST_LOCAL_PATH} to {device_name}')
                 else:

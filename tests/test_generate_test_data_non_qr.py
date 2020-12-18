@@ -46,7 +46,6 @@ class TestDataGenerator:
         os.remove(output_filename)
 
 
-
 def test_parse_args():
     sys.argv = [
         'generate_test_data_non_qr.py',
