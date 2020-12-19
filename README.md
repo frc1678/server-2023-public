@@ -16,3 +16,5 @@ The `competition.txt` file is created by `src/setup_competition.py` and the two 
 When testing from the command line, remember to `activate` the virtual environment (`source .venv/bin/activate` on
 bash/zsh). Instructions for other shells, along with more in-depth information about Python virtual environments, can be
 found [here](https://docs.python.org/3/library/venv.html).
+
+To run the server in production mode on linux or MacOS make sure to run `export SCOUTING_SERVER_ENV=production`, to take the server out of production mode run, `unset SCOUTING_SERVER_ENV`
