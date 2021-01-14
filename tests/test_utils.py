@@ -33,3 +33,9 @@ def test_load_tba_event_key_file():
 
     # Test that the function returns None when the file path is not found
     assert utils.load_tba_event_key_file('documents/downloads/desktop.txt') is None
+
+
+def test_get_schema_filenames():
+    schema_names = utils.get_schema_filenames()
+    assert isinstance(schema_names, set)
+    assert "obj_pit_collection_schema.yml" in schema_names

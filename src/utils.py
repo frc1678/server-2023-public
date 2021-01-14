@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 
-def create_file_path(path_after_main, create_directories=True):
+def create_file_path(path_after_main, create_directories=True) -> str:
     """Joins the path of the directory this script is in with the path that is passed
 
     to this function. path_after_main is the path from inside the main directory.
@@ -53,7 +53,7 @@ def create_file_path(path_after_main, create_directories=True):
     return os.path.join(MAIN_DIRECTORY, *path_after_main)
 
 
-def get_bool(value):
+def get_bool(value: str) -> bool:
     """Get boolean from string."""
     if value.upper() in ["1", "T", "TRUE"]:
         return True
@@ -77,7 +77,7 @@ def catch_function_errors(fn, *args, **kwargs):
     return result
 
 
-def log_warning(warning):
+def log_warning(warning: str):
     """Logs warnings to server.log 'warning' is the warning message.
 
     Logs to server.log in this directory.
@@ -88,7 +88,7 @@ def log_warning(warning):
     print(f'WARNING: {warning}', file=sys.stderr)
 
 
-def log_info(info):
+def log_info(info: str):
     """Logs info to server.log.
 
     'info' is the information being logged to server.log in this directory.
@@ -97,7 +97,7 @@ def log_info(info):
     logging.info(f'{info}\n{"".join(traceback.format_stack()[:-1])}')
 
 
-def log_debug(debug):
+def log_debug(debug: str):
     """Logs debug to server.log.
 
     'debug' is the message being logged to server.log in this directory.
@@ -129,7 +129,7 @@ def run_command(command, return_output=False):
 avg = BaseCalculations.avg
 
 
-def read_schema(schema_file_path):
+def read_schema(schema_file_path: str) -> dict:
     """Reads schema files and returns them as a dictionary.
 
     schema_filepath is the relative file path compared to where the script is executed
@@ -144,6 +144,17 @@ def read_schema(schema_file_path):
     with open(create_file_path(schema_file_path, False), 'r') as schema_file:
         # Specify loader to avoid warnings about default loader
         return yaml.load(schema_file, yaml.Loader)
+
+
+def get_schema_filenames() -> set:
+    """Get all the file names of schema files from the collection_schema"""
+    schema = read_schema("schema/collection_schema.yml")
+    schema_filenames = []
+    for schema in schema["collections"].values():
+        schema_filename = schema["schema"]
+        if schema_filename is not None:
+            schema_filenames.append(schema_filename)
+    return set(schema_filenames)
 
 
 # The root directory of the project
