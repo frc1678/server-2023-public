@@ -24,6 +24,49 @@ def test_create_file_path():
     assert not os.path.exists(path_not_created)
 
 
+# Test logging functions
+
+# capsys.readouterr() captures print statements
+# caplog.records captures log level
+
+
+def test_catch_function_errors(capsys, caplog):
+    # Test function
+    def test_fun():
+        raise ValueError('smth')
+
+    utils.catch_function_errors(test_fun)
+    captured = capsys.readouterr()
+    assert captured.out == "Function test_fun: <class 'ValueError'> - smth\n"
+    for record in caplog.records:
+        assert record.levelname == 'ERROR'
+    assert utils.catch_function_errors(utils.avg, [1, 1]) == 1
+    assert utils.catch_function_errors(utils.avg, [1, 2, 3], [1.0, 1.0]) is None
+
+
+def test_log_warning(capsys, caplog):
+    utils.log_warning('warning')
+    captured = capsys.readouterr()
+    assert captured.err == 'WARNING: warning\n'
+    for record in caplog.records:
+        assert record.levelname == 'WARNING'
+
+
+def test_log_info(caplog):
+    utils.log_info('info')
+    for record in caplog.records:
+        assert record.levelname == 'INFO'
+
+
+def test_log_debug(caplog):
+    utils.log_debug('debug')
+    for record in caplog.records:
+        assert record.levelname == 'DEBUG'
+
+
+# End test of logging
+
+
 def test_load_tba_event_key_file():
     with open(utils.create_file_path('data/competition.txt')) as file:
         event_key = file.read().rstrip('\n')

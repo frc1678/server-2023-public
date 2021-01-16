@@ -82,8 +82,8 @@ def log_warning(warning: str):
 
     Logs to server.log in this directory.
     """
-    # Logs warning, also contains a traceback
-    logging.warning(f'{warning}\n{"".join(traceback.format_stack()[:-1])}')
+    # Logs warning
+    logging.warning(f'{warning}\n')
     # Prints warning to console
     print(f'WARNING: {warning}', file=sys.stderr)
 
@@ -93,8 +93,8 @@ def log_info(info: str):
 
     'info' is the information being logged to server.log in this directory.
     """
-    # Logs info, also contains a traceback
-    logging.info(f'{info}\n{"".join(traceback.format_stack()[:-1])}')
+    # Logs info
+    logging.info(f'{info}\n')
 
 
 def log_debug(debug: str):
