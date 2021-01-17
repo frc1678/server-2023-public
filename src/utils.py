@@ -114,16 +114,24 @@ def run_command(command, return_output=False):
     """
     # Use shlex.split to preserve spaces within quotes and preserve the quotes
     command = shlex.split(command, posix=False)
-    if return_output is True:
-        output = subprocess.run(command, check=True, stdout=subprocess.PIPE).stdout
-        # output is a byte-like string and needs to be decoded
-        # Remove trailing newlines
-        output = output.decode('utf-8').rstrip('\n')
-        # Replace '\r\n' with '\n' to match the UNIX format for newlines
-        output = output.replace('\r\n', '\n')
-        return output
-    subprocess.run(command, check=True)
-    return None
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode != 0:
+            delim = f"\n{'-'*20}\n"
+            raise Exception(
+                delim.join(
+                    [
+                        f'utils.run_command: error in command \"{" ".join(command)}\"',
+                        'Captured stdout:',
+                        result.stdout.decode('utf-8'),
+                        'Captured stderr:',
+                        result.stderr.decode('utf-8'),
+                    ]
+                )
+            )
+        return result.stdout.decode('utf-8').replace('\r\n', '\n') if return_output else None
+    except FileNotFoundError:
+        raise Exception(f'utils.run_command: unknown command {command[0]}')
 
 
 avg = BaseCalculations.avg

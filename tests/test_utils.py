@@ -1,5 +1,8 @@
-import re
 import os
+import re
+import subprocess
+
+import pytest
 
 import utils
 
@@ -76,6 +79,15 @@ def test_load_tba_event_key_file():
 
     # Test that the function returns None when the file path is not found
     assert utils.load_tba_event_key_file('documents/downloads/desktop.txt') is None
+
+
+def test_run_command():
+    with pytest.raises(Exception) as expected_error:
+        utils.run_command('foo')  # Should error
+    # If 'foo' is in the message it's a useful diagnostic because we know what errored.
+    assert 'foo' in str(expected_error)
+
+    assert utils.run_command('echo foo', return_output=True) == 'foo\n'
 
 
 def test_get_schema_filenames():
