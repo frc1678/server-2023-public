@@ -13,20 +13,15 @@ import yaml
 import utils
 
 
-with open('schema/collection_schema.yml', 'r') as collection_file:
-    COLLECTION_SCHEMA = yaml.load(collection_file, Loader=yaml.Loader)
+COLLECTION_SCHEMA = utils.read_schema('schema/collection_schema.yml')
 
-COLLECTION_NAMES = [
-    collection for collection in COLLECTION_SCHEMA['collections'].keys()
-]
+COLLECTION_NAMES = [collection for collection in COLLECTION_SCHEMA['collections'].keys()]
 
 
 def check_collection_name(collection_name: str) -> None:
     """Checks if a collection name exists, prints a warning if it doesn't"""
     if collection_name not in COLLECTION_NAMES:
-        utils.log_warning(
-            f'database.py: Unexpected collection name: "{collection_name}"'
-        )
+        utils.log_warning(f'database.py: Unexpected collection name: "{collection_name}"')
 
 
 class Database:
