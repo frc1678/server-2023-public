@@ -94,3 +94,9 @@ def test_get_schema_filenames():
     schema_names = utils.get_schema_filenames()
     assert isinstance(schema_names, set)
     assert "obj_pit_collection_schema.yml" in schema_names
+
+
+def test_unprefix_schema_dict():
+    assert utils.unprefix_schema_dict({'a.b': {'c.d': 'e', 'f.g': {'h.i': 'j'}}}) == {
+        'b': {'d': 'e', 'g': {'i': 'j'}}
+    }

@@ -131,4 +131,5 @@ def update_team_calcs(refs):
     return list(tba_team_updates.values())
 
 
-SCHEMA = utils.read_schema('schema/calc_tba_team_schema.yml')
+# Get the last section of each entry (so foo.bar.baz becomes baz)
+SCHEMA = utils.unprefix_schema_dict(utils.read_schema('schema/calc_tba_team_schema.yml'))

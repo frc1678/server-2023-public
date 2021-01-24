@@ -44,26 +44,22 @@ def test_calculate_avg_climb_successful_time_filled():
 
 
 def test_tim_counts():
-
-    """Test for the tim_counts function with some bogus data"""
-
-    pytest.xfail('Fails under current schema; will be fixed by future PR')
-    # Here, there is a climb success, so the total should be 1.
+    print(tba_team.SCHEMA)
     assert (
         tba_team.tim_counts(
             [
                 {
-                    'match_number': 11,
-                    'team_number': 254,
-                    'auto_balls_low': 5,
-                    'auto_balls_high': 5,
-                    'tele_balls_low': 21,
-                    'tele_balls_high': 22,
-                    'control_panel_rotation': True,
+                    'auto_balls_high': 67,
+                    'auto_balls_low': 31,
+                    'climb_time': 8,
+                    'confidence_rating': 86,
                     'control_panel_position': False,
-                    'incap': 5,
-                    'climb_time': 4,
-                    'confidence_ranking': 3,
+                    'control_panel_rotation': True,
+                    'incap': 8,
+                    'match_number': 8,
+                    'team_number': 254,
+                    'tele_balls_high': 97,
+                    'tele_balls_low': 11,
                 }
             ],
             [
@@ -72,7 +68,7 @@ def test_tim_counts():
                     'climb': True,
                     'park': False,
                     'level_climb': True,
-                    'match_number': 11,
+                    'match_number': 8,
                     'team_number': 254,
                 }
             ],
@@ -96,6 +92,7 @@ def test_tim_counts():
                     'incap': 5,
                     'climb_time': 4,
                     'confidence_ranking': 3,
+                    'match_number': 11,
                 }
             ],
             [

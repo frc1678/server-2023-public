@@ -182,5 +182,20 @@ def load_tba_event_key_file(file_path):
         return None
 
 
+def unprefix_schema_dict(schema_in):
+    """Turn a.b.c into just c for every key in a nested schema dictionary - iterate through all
+    keys and turn each one from foo.bar to just bar, and apply recursively if any of the values are
+    dictionaries themselves."""
+    schema_out = {}
+    keys = list(schema_in.keys())
+    for key in keys:
+        stripped_key = key.split('.')[-1]  # Turn a.b.c.d.e into e
+        schema_out[stripped_key] = schema_in[key]
+        if type(schema_in[key]) == dict:
+            # Apply recursively.
+            schema_out[stripped_key] = unprefix_schema_dict(schema_in[key])
+    return schema_out
+
+
 _TBA_EVENT_KEY_FILE = 'data/competition.txt'
 TBA_EVENT_KEY = load_tba_event_key_file(_TBA_EVENT_KEY_FILE)
