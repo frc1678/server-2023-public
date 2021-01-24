@@ -52,7 +52,9 @@ class TestDatabase:
                 for index in collection_dict['indexes']:
                     for db_index in TEST_DB_HELPER[collection].list_indexes():
                         if db_index == 'name':
-                            assert dict(db_index)['name'] == [index + '_1']
+                            db_index_fields = dict(db_index)['name'][0].split('_')
+                            for field in index:
+                                assert field in db_index_fields
 
 
     def test_find(self):

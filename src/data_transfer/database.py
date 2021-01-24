@@ -7,7 +7,7 @@ All communication with the MongoDB local database go through this file.
 import os
 from typing import Optional, Union
 
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
 import yaml
 
 import utils
@@ -44,7 +44,7 @@ class Database:
             collection_dict = COLLECTION_SCHEMA['collections'][collection]
             if collection_dict['indexes'] is not None:
                 for index in collection_dict['indexes']:
-                    self.db[collection].create_index(index)
+                    self.db[collection].create_index([(field, ASCENDING) for field in index['fields']], unique=index['unique'])
 
     def find(self, collection: str, **filters: dict) -> list:
         """Finds documents in 'collection', filtering by 'filters'"""
