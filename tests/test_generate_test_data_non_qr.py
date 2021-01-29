@@ -32,7 +32,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         'team_number': 49,
         'match_number': 49,
     },
-    {'first_pick_ability': 84.4422, 'second_pick_ability': 84.4422, 'team_number': 49},
+    {'first_pickability': 84.4422, 'second_pickability': 84.4422, 'team_number': 49},
     {
         'predicted_score': 84.4422,
         'predicted_rp1': 84.4422,

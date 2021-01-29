@@ -36,7 +36,7 @@ def get_empty_modified_data():
             'calc_predicted_aim': [],
             'calc_predicted_team': [],
             'calc_tba_team': [],
-            'calc_pick_ability_team': [],
+            'calc_pickability_team': [],
         },
     }
     return modified_data
