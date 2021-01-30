@@ -105,19 +105,19 @@ class TestDataGenerator:
 
     def test_get_datapoint_collections_generation(self):
         for schema_file in self.schema_files:
-            generate_data = DataGenerator(f"schema/{schema_file}", 0)
+            generate_data = DataGenerator(f"schema/{schema_file}", seed=0)
             datapoint_collections = generate_data.get_datapoint_collections_generation()
             assert "schema_file" not in datapoint_collections
 
     def test_generate_for_each_datapoint_collection(self):
         for num, schema_file in enumerate(self.schema_files):
-            generate_data = DataGenerator(f"schema/{schema_file}", 0)
+            generate_data = DataGenerator(f"schema/{schema_file}", seed=0)
             generated_structure = generate_data.generate_for_each_datapoint_collection()
             assert generated_structure == CORRECT_SCHEMA_DATAPOINT_COLLECTIONS[num]
 
     def test_format_raw_data(self):
         for schema_file in self.schema_files:
-            generate_data = DataGenerator(f"schema/{schema_file}", 0)
+            generate_data = DataGenerator(f"schema/{schema_file}", seed=0)
             formated_raw_data = generate_data.format_raw_data()
             assert isinstance(formated_raw_data, dict)
             assert "schema_file" not in formated_raw_data
@@ -125,7 +125,7 @@ class TestDataGenerator:
 
     def test_request_single_data_struct(self):
         for schema_file in self.schema_files:
-            generate_data = DataGenerator(f"schema/{schema_file}", 0)
+            generate_data = DataGenerator(f"schema/{schema_file}", seed=0)
             single_raw_data = generate_data.request_single_data_struct()
             assert isinstance(single_raw_data, dict)
             assert "schema_file" not in single_raw_data
@@ -133,7 +133,7 @@ class TestDataGenerator:
 
     def test_get_data(self):
         for schema_file in self.schema_files:
-            generate_data = DataGenerator(f"schema/{schema_file}", 0)
+            generate_data = DataGenerator(f"schema/{schema_file}", seed=0)
             for num in range(5):
                 list_of_raw_data_structures = generate_data.get_data(num)
                 assert isinstance(list_of_raw_data_structures, list)

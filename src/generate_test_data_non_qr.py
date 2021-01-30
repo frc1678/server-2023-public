@@ -4,7 +4,65 @@
 
 import argparse
 from calculations.generate_random_value import generate_random_value
+import csv
 import utils
+from dataclasses import dataclass
+from typing import Union, List
+
+
+@dataclass
+class TIMInstance:
+    match_number: int
+    team_number: int
+
+    def __retr__(self):
+        return f"TIMInstance(match_number={self.match_number}, \
+            team_number={self.team_number})"
+
+
+class TIMInstanceGenerator:
+    """Object that represents teams list and its pointer"""
+
+    def __init__(self, match_schedule_file_path):
+        """team_nums: list of teams, index: its pointer"""
+        self.match_schedule_file_path = match_schedule_file_path
+        self.matches: List(TIMInstance) = []
+        self.index = 0
+        self.parser()
+
+    def parser(self):
+        """Generate match instances for each team in each match"""
+        # Get all the matches from the schedule
+        match_schedule = self.read_match_schedule(self.match_schedule_file_path)
+        # Go through each match
+        for match in match_schedule:
+            # Get the match number
+            match_number: int = int(match[0])
+            # Get all the team numbers for the match and remove the color
+            # prefix, and the dash
+            team_numbers: List[int] = [int(item.split("-")[1]) for item in match[1:]]
+            # Make a match instance for each team number, using the match number
+            for team_number in team_numbers:
+                new_match: TIMInstance = TIMInstance(match_number, team_number)
+                self.matches.append(new_match)
+
+    def read_match_schedule(self, file_path):
+        """Reads csv as list of the match schedule"""
+        with open(file_path, 'r') as csv_file:
+            csv_data = list(csv.reader(csv_file))
+        return csv_data
+
+    def __next__(self) -> TIMInstance:
+        """Return a match instance based on the index"""
+        if self.index == len(self.matches):
+            self.index = 0
+        match = self.matches[self.index]
+        self.index += 1
+        return match
+
+    def reset(self):
+        """Reset the count"""
+        self.index = 0
 
 
 class DataGenerator:
@@ -30,9 +88,12 @@ class DataGenerator:
     with auto generated data
     """
 
-    def __init__(self, schema_filename: str, seed=None):
+    def __init__(self, schema_filename: str, match_schedule_file_path: str = None, seed=None):
         """Get schema filename and seed for generation"""
         self.seed = seed
+        self.match_schedule_file_path = match_schedule_file_path
+        if self.match_schedule_file_path is not None:
+            self.tim_instance_generator = TIMInstanceGenerator(self.match_schedule_file_path)
         self.schema_filename = schema_filename
 
     def open_schema_file(self, schema_filename: str) -> dict:
@@ -166,7 +227,14 @@ class DataGenerator:
     def format_raw_data(self) -> dict:
         """Get the data and format it correctly"""
         data = self.generate_for_each_datapoint_collection()
-        # TODO: make sure the format is correct, fix needed
+        if self.match_schedule_file_path is not None:
+            match_instance = self.tim_instance_generator.__next__()
+            if data.get("team_number"):
+                data["team_number"] = match_instance.team_number
+
+            if data.get("match_number"):
+                data["match_number"] = match_instance.match_number
+
         return data
 
     def request_single_data_struct(self) -> dict:
@@ -178,9 +246,11 @@ class DataGenerator:
         """Send requests for a single thing of data, return as many as
         requested as a list"""
         list_of_data = []
+
         for num in range(times):
             data = self.request_single_data_struct()
             list_of_data.append(data)
+
         return list_of_data
 
 
@@ -205,6 +275,11 @@ def parse_args():
         help="Number of data structures; e.g. 2",
         required=True,
     )
+    parser.add_argument(
+        "-t",
+        help="Teams list file path",
+        required=False,
+    )
     parsed = parser.parse_args()
     return parsed
 
@@ -226,7 +301,8 @@ if __name__ == "__main__":
     # Set filenames
     input_filename = parsed.i
     number_of_data = int(parsed.n)
+    teams_list_file_path = parsed.t
 
-    generate_data = DataGenerator(input_filename)
+    generate_data = DataGenerator(input_filename, teams_list_file_path)
     data = generate_data.get_data(number_of_data)
     print(data)
