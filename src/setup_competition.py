@@ -28,10 +28,12 @@ if COMPETITION_KEY in CLIENT.list_database_names():
 with open(utils.create_file_path(utils._TBA_EVENT_KEY_FILE), 'w') as file:
     file.write(COMPETITION_KEY)
 
-from data_transfer import local_database_communicator as ldc
+from data_transfer import database
+
+DB = database.Database()
 
 # Creates indexes for the database
-ldc.add_competition(CLIENT[COMPETITION_KEY])
+DB.set_indexes()
 CLOUD_DB_PERMISSION = input('Would you like to add this database to the cloud? (y or n): ')
 if CLOUD_DB_PERMISSION.lower().strip() in ['y', 'yes']:
     from data_transfer import cloud_database_communicator
