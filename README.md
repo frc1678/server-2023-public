@@ -9,6 +9,7 @@ This will install a [virtual python environment](https://docs.python.org/3/gloss
 in the main project directory. It will then install the external dependencies into this environment from PyPI using 
 `pip`. (This will NOT install any non-python dependencies such as MongoDB, and Android Debug Bridge as the process for that depends on your 
 distribution. You will have to do that manually).
+  - Note: Debian-based systems do not install `venv` or `pip` with python by default - use `sudo apt install` to install `python3.8`, `python3-venv` and `python3-pip`.
 
 There is also a directory called `data/` that needs specific files like `competition.txt` and a directory called `api_keys/` which contains `tba_key.txt` and `cloud_password.txt`.
 The `competition.txt` file is created by `src/setup_competition.py` and the two keys need to be added manually.
