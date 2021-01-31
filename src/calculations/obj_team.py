@@ -2,13 +2,11 @@
 """Calculate objective team data from Team in Match (TIM) data."""
 
 import os
-import sys
 import yaml
 
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
 parent_directory = os.path.dirname(current_directory)
-sys.path.append(parent_directory)
 from data_transfer import local_database_communicator as ldc
 
 import utils
