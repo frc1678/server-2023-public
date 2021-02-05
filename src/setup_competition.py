@@ -34,11 +34,14 @@ DB = database.Database()
 
 # Creates indexes for the database
 DB.set_indexes()
-CLOUD_DB_PERMISSION = input('Would you like to add this database to the cloud? (y or n): ')
-if CLOUD_DB_PERMISSION.lower().strip() in ['y', 'yes']:
-    from data_transfer import cloud_database_communicator
 
-    if COMPETITION_KEY in cloud_database_communicator.CLOUD_CLIENT.list_database_names():
-        print('WARNING: Database already exists in the cloud, adding anyway')
-    cloud_database_communicator.add_competition_cloud(COMPETITION_KEY)
+# CLOUD_DB_PERMISSION = input('Would you like to add this database to the cloud? (y or n): ')
+print('WARNING: This currently does not set up the cloud database.')
+# TODO Fix for new cloud db
+# if CLOUD_DB_PERMISSION.lower().strip() in ['y', 'yes']:
+#     from data_transfer import cloud_db_updater
+
+#     if COMPETITION_KEY in cloud_db_updater.CLOUD_CLIENT.list_database_names():
+#         print('WARNING: Database already exists in the cloud, adding anyway')
+#     cloud_db_updater.add_competition_cloud(COMPETITION_KEY)
 print('Competition setup finished')

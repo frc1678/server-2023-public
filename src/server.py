@@ -16,7 +16,7 @@ import qr_code_uploader
 import utils
 
 try:
-    from data_transfer import cloud_database_communicator
+    from data_transfer import cloud_db_updater
 except pymongo.errors.ConfigurationError:
     utils.log_warning(f'Cloud database import failed. No internet.')
 
@@ -198,7 +198,7 @@ while True:
     # TODO: Team calcs (driver ability)
     if 'data_transfer.cloud_database_communicator' not in sys.modules:
         try:
-            from data_transfer import cloud_database_communicator
+            from data_transfer import cloud_db_updater
         except pymongo.errors.ConfigurationError:
             utils.log_warning(f'Cloud database import failed. No internet.')
 
@@ -209,17 +209,18 @@ while True:
             CLOUD_DB_QUEUE[key][dataset].extend(data)
     # Empty main queue
     MAIN_QUEUE = get_empty_modified_data()
+    # TODO UPDATE THIS for new cloud
     # Send data to cloud
-    if (
-        'data_transfer.cloud_database_communicator' in sys.modules
-        and CLOUD_WRITE_PERMISSION is True
-    ):
-        CLOUD_WRITE_RESULT = cloud_database_communicator.push_changes_to_db(
-            CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE
-        )
-        if CLOUD_WRITE_RESULT is not None:
-            CLOUD_DB_QUEUE = get_empty_modified_data()
-            if SERVER_RESTART_SINCE_CLOUD_UPDATE:
-                SERVER_RESTART_SINCE_CLOUD_UPDATE = False
+    # if (
+    #     'data_transfer.cloud_db_updater' in sys.modules
+    #     and CLOUD_WRITE_PERMISSION is True
+    # ):
+    #     CLOUD_WRITE_RESULT = cloud_db_updater.push_changes_to_db(
+    #         CLOUD_DB_QUEUE, SERVER_RESTART_SINCE_CLOUD_UPDATE
+    #     )
+    #     if CLOUD_WRITE_RESULT is not None:
+    #         CLOUD_DB_QUEUE = get_empty_modified_data()
+    #         if SERVER_RESTART_SINCE_CLOUD_UPDATE:
+    #             SERVER_RESTART_SINCE_CLOUD_UPDATE = False
 
     SERVER_RESTART = False

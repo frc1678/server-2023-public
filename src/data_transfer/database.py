@@ -7,15 +7,19 @@ All communication with the MongoDB local database go through this file.
 import os
 from typing import Optional, Union
 
-from pymongo import MongoClient, ASCENDING
+import pymongo
 import yaml
 
+import start_mongod
 import utils
 
 
+# Load collection names
 COLLECTION_SCHEMA = utils.read_schema('schema/collection_schema.yml')
-
 COLLECTION_NAMES = [collection for collection in COLLECTION_SCHEMA['collections'].keys()]
+
+# Start mongod and initialize replica set
+start_mongod.start_mongod()
 
 
 def check_collection_name(collection_name: str) -> None:
@@ -27,16 +31,17 @@ def check_collection_name(collection_name: str) -> None:
 class Database:
     """Utility class for the database, performs CRUD functions on local and cloud databases"""
 
-    def __init__(self, connection: str = 'localhost', port: int = 27017) -> None:
+    def __init__(self, connection: str = 'localhost', port: int = start_mongod.PORT) -> None:
         self.connection = connection
         self.port = port
-        if (
+        self.client = pymongo.MongoClient(connection, port)
+        self.name = utils.TBA_EVENT_KEY
+        if not (
             'SCOUTING_SERVER_ENV' in os.environ
             and os.environ['SCOUTING_SERVER_ENV'] == 'production'
         ):
-            self.db = MongoClient(connection, port)[utils.TBA_EVENT_KEY]
-        else:
-            self.db = MongoClient(connection, port)['test' + utils.TBA_EVENT_KEY]
+            self.name = f'test{utils.TBA_EVENT_KEY}'
+        self.db = self.client[self.name]
 
     def set_indexes(self) -> None:
         """Adds indexes into competition collections"""
@@ -44,7 +49,10 @@ class Database:
             collection_dict = COLLECTION_SCHEMA['collections'][collection]
             if collection_dict['indexes'] is not None:
                 for index in collection_dict['indexes']:
-                    self.db[collection].create_index([(field, ASCENDING) for field in index['fields']], unique=index['unique'])
+                    self.db[collection].create_index(
+                        [(field, pymongo.ASCENDING) for field in index['fields']],
+                        unique=index['unique'],
+                    )
 
     def find(self, collection: str, **filters: dict) -> list:
         """Finds documents in 'collection', filtering by 'filters'"""
@@ -85,3 +93,8 @@ class Database:
         """Updates one document that matches 'query' with 'new_data', uses upsert"""
         check_collection_name(collection)
         self.db[collection].update_one(query, {'$set': new_data}, upsert=True)
+
+    def bulk_write(self, collection: str, actions: list) -> pymongo.results.BulkWriteResult:
+        """Bulk write `actions` into `collection` in order of `actions`"""
+        check_collection_name(collection)
+        return self.db[collection].bulk_write(actions)
