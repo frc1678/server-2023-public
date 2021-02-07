@@ -6,8 +6,9 @@ import argparse
 from calculations.generate_random_value import generate_random_value
 import csv
 import utils
+import random
 from dataclasses import dataclass
-from typing import Union, List
+from typing import List, Optional
 
 
 @dataclass
@@ -23,28 +24,41 @@ class TIMInstance:
 class TIMInstanceGenerator:
     """Object that represents teams list and its pointer"""
 
-    def __init__(self, match_schedule_file_path):
-        """team_nums: list of teams, index: its pointer"""
+    def __init__(self, match_schedule_file_path=None):
         self.match_schedule_file_path = match_schedule_file_path
-        self.matches: List(TIMInstance) = []
+        self.tims: List(TIMInstance) = []
         self.index = 0
         self.parser()
 
     def parser(self):
-        """Generate match instances for each team in each match"""
-        # Get all the matches from the schedule
-        match_schedule = self.read_match_schedule(self.match_schedule_file_path)
-        # Go through each match
-        for match in match_schedule:
-            # Get the match number
-            match_number: int = int(match[0])
-            # Get all the team numbers for the match and remove the color
-            # prefix, and the dash
-            team_numbers: List[int] = [int(item.split("-")[1]) for item in match[1:]]
-            # Make a match instance for each team number, using the match number
-            for team_number in team_numbers:
-                new_match: TIMInstance = TIMInstance(match_number, team_number)
-                self.matches.append(new_match)
+        """Generate match instances for each team in each match
+        If a match schedule csv file is not specified, autogenerate match data"""
+        if self.match_schedule_file_path is None:
+            # Hardcoded constants for how many teams and matches we want
+            num_teams = 42
+            num_matches = 118
+            # Create a fake list of teams
+            teams = {1678}
+            while len(teams) < num_teams:
+                teams.add(random.randint(1, 9999))
+            teams = list(teams)
+            for match in range(1, num_matches + 1):
+                for team in random.sample(teams, 6):
+                    self.tims.append(TIMInstance(match_number, team_number))
+        else:
+            # Get all the matches from the schedule
+            match_schedule = self.read_match_schedule(self.match_schedule_file_path)
+            # Go through each match
+            for match in match_schedule:
+                # Get the match number
+                match_number: int = int(match[0])
+                # Get all the team numbers for the match and remove the color
+                # prefix, and the dash
+                team_numbers: List[int] = [int(item.split("-")[1]) for item in match[1:]]
+                # Make a match instance for each team number, using the match number
+                for team_number in team_numbers:
+                    new_match: TIMInstance = TIMInstance(match_number, team_number)
+                    self.tims.append(new_match)
 
     def read_match_schedule(self, file_path):
         """Reads csv as list of the match schedule"""
@@ -53,12 +67,12 @@ class TIMInstanceGenerator:
         return csv_data
 
     def __next__(self) -> TIMInstance:
-        """Return a match instance based on the index"""
-        if self.index == len(self.matches):
+        """Return a TIM instance based on the index"""
+        if self.index == len(self.tims):
             self.index = 0
-        match = self.matches[self.index]
+        tim = self.tims[self.index]
         self.index += 1
-        return match
+        return tim
 
     def reset(self):
         """Reset the count"""
@@ -88,7 +102,9 @@ class DataGenerator:
     with auto generated data
     """
 
-    def __init__(self, schema_filename: str, match_schedule_file_path: str = None, seed=None):
+    def __init__(
+        self, schema_filename: str, match_schedule_file_path: Optional[str] = None, seed=None
+    ):
         """Get schema filename and seed for generation"""
         self.seed = seed
         self.match_schedule_file_path = match_schedule_file_path

@@ -69,7 +69,7 @@ class MatchListGenerator:
                     team_prefix = 'R-'
                 teams = [team_prefix + team.split('frc')[1] for team in teams]
                 new_row += teams
-                local_match_schedule_file_data.append(new_row)
+            local_match_schedule_file_data.append(new_row)
         return local_match_schedule_file_data
 
     def check(self):
