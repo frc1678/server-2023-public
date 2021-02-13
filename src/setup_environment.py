@@ -25,6 +25,7 @@ class Logger:
         """Checks if the discard method has been called
 
         i.e. if it ran successfully and if we should discard the log"""
+        self.log_file.close()
         if self.should_destroy_log:
             os.remove(self.path)
         else:
