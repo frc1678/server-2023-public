@@ -42,7 +42,7 @@ def start_mongod():
         utils.log_error('Error starting mongod. Check data/mongod.log for more details')
 
     init_repl_set_result = subprocess.run(
-        ['mongo', '--eval', '"rs.initiate()"', '--port', str(PORT)],
+        ['mongo', '--eval', 'rs.initiate()', '--port', str(PORT)],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )

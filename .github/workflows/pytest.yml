@@ -48,9 +48,6 @@ jobs:
             - name: Start mongod
               run: |
                 python3 src/start_mongod.py
-                # This really shouldn't be necessary as start_mongod.py runs the
-                # same command, but that isn't working for some reason
-                mongo --eval "rs.initiate()" --port 1678
 
             - name: Run `pytest`
               run: pytest
