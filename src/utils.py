@@ -206,5 +206,13 @@ def unprefix_schema_dict(schema_in):
     return schema_out
 
 
+def warn_if_not_in_venv() -> bool:
+    in_venv: bool = sys.prefix == sys.base_prefix
+    if not in_venv:
+        print("Hey friend! Don't forget to activate the virtual environment")
+    return in_venv
+
+
 _TBA_EVENT_KEY_FILE = 'data/competition.txt'
 TBA_EVENT_KEY = load_tba_event_key_file(_TBA_EVENT_KEY_FILE)
+warn_if_not_in_venv()
