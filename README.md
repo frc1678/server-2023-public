@@ -3,10 +3,9 @@
 ![pytest](https://github.com/frc1678/server/workflows/pytest/badge.svg)
 ![lint](https://github.com/frc1678/server/workflows/lint/badge.svg)
 
-Run `src/setup_environment.py` when you clone the repository.
+To correctly set up the `schema` submodule, run `git submodule init`, and then `git submodule update`.
 
-This will install a [virtual python environment](https://docs.python.org/3/glossary.html#term-virtual-environment)
-in the main project directory. It will then install the external dependencies into this environment from PyPI using 
+Run `src/setup_environment.py` when you clone the repository. This will install a [virtual python environment](https://docs.python.org/3/glossary.html#term-virtual-environment) in the main project directory. It will then install the external dependencies into this environment from PyPI using 
 `pip`. (This will NOT install any non-python dependencies such as MongoDB, and Android Debug Bridge as the process for that depends on your 
 distribution. You will have to do that manually).
   - Note: Debian-based systems do not install `venv` or `pip` with python by default - use `sudo apt install` to install `python3.8`, `python3-venv` and `python3-pip`.
