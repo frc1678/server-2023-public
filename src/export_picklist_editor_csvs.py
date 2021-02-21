@@ -5,239 +5,399 @@
 Timestamps files. Data exports also used for analysts in stands at competition.
 """
 
-import base64
+import argparse
 import csv
-import datetime
+from datetime import datetime
+from data_transfer import database
+from data_transfer import tba_communicator
 import os
 import re
-import sys
+from typing import List, Dict, Tuple, Optional, Any
+import shutil
 
-from data_transfer import local_database_communicator as ldc
 import utils
 
 
-def load_data(db_paths):
-    """Loads team data from database and formats enums, db_paths is a list of database paths."""
-    all_data = []
-    for path in db_paths:
-        data = ldc.read_dataset(path)
-        schema = utils.read_schema(DB_PATH_TO_SCHEMA_FILE[path])
-        if 'enums' not in schema:
-            all_data.extend(data)
-            continue
-        for entry in data:
-            for name, value in entry.items():
-                if name in schema['enums']:
-                    for key, val in schema['enums'][name].items():
-                        if val == value:
-                            entry[name] = key
-                            continue
-        all_data.extend(data)
-    return all_data
+DATABASE = database.Database()
+SCHEMA = utils.read_schema("schema/collection_schema.yml")
 
 
-def format_header(collection_data, first_keys):
-    """Organizes the keys of the documents to be exported into a list of column titles.
+class BaseExport:
+    def __init__(self):
+        """Generates attributes what will be needed for all four subclasses
 
-    collection_data is the type of data. first_keys are the keys that need to be the first columns
-    in the spreadsheet.
+        The collections schenma, timestamp and teams_list will be used heavily
+        in subclasses and to avoid repetition
+        """
+        self.collections = list(SCHEMA["collections"].keys())
+        self.timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.teams_list = self.get_teams_list()
+        self.name = None
+
+    @staticmethod
+    def load_single_collection(collection_name: str) -> List[Dict]:
+        """Return a list of all the documents in a given collection"""
+        return DATABASE.find(collection_name)
+
+    def get_data(self, collection_names: Optional[List[str]] = None) -> Dict[str, List[Dict]]:
+        """Return a dictionary of lists of documents of a given list of collections
+
+        Give this a list of collection names and it will make a key value pair
+        of the collection_name: List[Dict] with each collection having it's
+        own key and the data inside as a collection
+        """
+        if collection_names is None:
+            collection_names = self.collections
+        return {a: self.load_single_collection(a) for a in collection_names}
+
+    def create_name(self, name: str) -> str:
+        """Generate a file name based on timestamp"""
+        return f"{name}_{self.timestamp_str}.csv"
+
+    @staticmethod
+    def get_teams_list() -> List[int]:
+        """Access all the team numbers via the team_list.csv"""
+        with open(utils.create_file_path("data/team_list.csv")) as team_list:
+            return list(map(int, [*csv.reader(team_list)][0]))
+
+    @staticmethod
+    def order_headers(column_headers: List[str], ordered: List[str]) -> List[str]:
+        """These next lines sort the headers and the data to have team_number
+        first for easy viewing in the spreadsheet
+        """
+        # Use the properties of the set to remove the duplicates
+        column_headers = list(set(column_headers))
+        # A list of things needing to be ordered that have been taken out of the column_headers to
+        # be put back in at a later time
+        ordered_items = []
+        # Go through the ordered parameter and remove that item from column_headers and place it
+        # temporarily in ordered_items
+        for to_order in ordered:
+            if to_order in column_headers:
+                index = column_headers.index(to_order)
+                ordered_items.append(column_headers.pop(index))
+        # Reverse sort the list, this is the best way to push items to the front
+        column_headers.sort(reverse=True)
+        # Get the items put into ordered_items, and put them back into the last
+        column_headers.extend(ordered_items)
+        # Reverse is back to what it was
+        column_headers.reverse()
+        return column_headers
+
+    def build_data(self):
+        raise NotImplementedError
+
+    def write_data(self, directory_path: str):
+        column_headers, final_built_data = self.build_data()
+
+        file_path = os.path.join(directory_path, self.name)
+        with open(file_path, "w") as file:
+            # Write headers using the column_headers list
+            csv_writer = csv.DictWriter(file, fieldnames=column_headers)
+            # Write the header as the first thing
+            csv_writer.writeheader()
+            # For each item, write the data as a dictionary
+            for single_data in final_built_data.values():
+                csv_writer.writerow(single_data)
+        utils.log_info(f"Finished export of {self.name}")
+
+    def __repr__(self):
+        """Give representation of the attributes this abstract class has"""
+        collections = f"collections=[{self.collections[0]} ... {self.collections[-1]}]"
+        team_list = f"teams_list=[{self.teams_list[0]} ... {self.teams_list[-1]}]"
+        return f'BaseExport({collections}, timestamp_str="{self.timestamp_str}", {team_list})'
+
+
+class ExportTBA(BaseExport):
+    def __init__(self, cached_data=None):
+        """Build and write tba data to csv
+
+        Get tba data from tba_communicator and format it into a dictionary
+        structure to write to a csv
+        """
+        super().__init__()
+        self.name = self.create_name("tba_export")
+        self.cached_data = self.get_tba_data(cached_data)
+
+    @staticmethod
+    def get_tba_data(cached_data=None) -> List:
+        """Get data from tba if it is not given"""
+        # If the cached data is not given, then get the data from the tba communicator
+        if cached_data is None:
+            api_url = f"event/{utils.TBA_EVENT_KEY}/matches"
+            cached_data = tba_communicator.tba_request(api_url)
+        return cached_data
+
+    def build_data(self) -> List:
+        """Builds TBA score and foul data as CSV."""
+        match_scores = []
+        export_fields = ["foulPoints", "totalPoints"]
+        for match in self.cached_data:
+            if match["score_breakdown"] is None or match["comp_level"] != "qm":
+                continue
+            for alliance in ["red", "blue"]:
+                # Organize data by match number and alliance
+                data = {"match_number": match["match_number"], "alliance": alliance}
+                # Add the fields in export_fields fields to alliance
+                # match_score breakdown
+                for field in export_fields:
+                    data[field] = match["score_breakdown"][alliance][field]
+                # Get the robot number and the team number without the frc prefix in the name
+                for i, team in enumerate(match["alliances"][alliance]["team_keys"], start=1):
+                    data[f"robot{i}"] = int(team[3:])
+                match_scores.append(data)
+                # For each item in match_scores, get the key "match_score"
+        return sorted(match_scores, key=lambda x: x["match_number"])
+
+    def write_data(self, directory_path: str):
+        """Writes the data from return_tba_data to a csv file"""
+        utils.log_info("Starting export of tba_data")
+        # Get the path for tba export
+        tba_file_path = os.path.join(directory_path, self.name)
+        # Get the tba data from this instance
+        data = self.build_data()
+        # If it can't find data, let the user know because that might be because a mongodb issue or
+        # more likely an Internet issue
+        if not data:
+            utils.log_error("No TBA Data to export")
+        # Get all the field_names from the data
+        field_names = data[0].keys()
+        with open(tba_file_path, "w") as file:
+            # Write the headers as a dict
+            writer = csv.DictWriter(file, field_names)
+            writer.writeheader()
+            # Write each row of tba data
+            for row in data:
+                writer.writerow(row)
+        utils.log_info("Finished export of tba_data")
+
+
+class ExportTIM(BaseExport):
+    db_data_paths = ["obj_tim", "tba_tim"]
+
+    def __init__(self):
+        """Build the TIM data from the database and format it as a directory
+        then write it as a csv
+        """
+        super().__init__()
+        self.name = self.create_name("tim_export")
+
+        self.column_headers, self.final_built_data = self.build_data()
+
+    def build_data(self) -> Tuple[List[str], Dict[Tuple[int, int], List[Dict[str, Any]]]]:
+        """Build the raw TIM data into a dictionary format with the key as team
+
+        Gets the TIM data from the database and writes a dictionary where the
+        key is the team number and the value is all the data corresponding to
+        that specific team in a specific match
+        """
+        utils.log_info("Starting export of tim_data")
+        # Get the lists of column headers and dictionaries to use in export
+        tim_data = self.get_data(ExportTIM.db_data_paths)
+
+        column_headers: List[str] = []
+        data_by_team_and_match: Dict[Tuple[int, int], List[Dict[str, Any]]] = {}
+
+        # Goes through all the collections that it got from team data
+        for list_of_documents in tim_data.values():
+            # Goes through each document in the collection it on
+            for document in list_of_documents:
+                # Gets the team num from the document
+                team_num = document["team_number"]
+                match_num = document["match_number"]
+                # Uses a tuple of the team number and the match number as
+                # to not write over other data
+                team_key = (team_num, match_num)
+                # Check if data exists for team and match combo
+                if not data_by_team_and_match.get(team_key):
+                    data_by_team_and_match[team_key] = {}
+
+                # Goes through each field in the current document
+                for key, value in document.items():
+                    # Filter out the "_id" field which is not needed for exports
+                    if key != "_id":
+                        # If the key is a new one, add it to column_headers
+                        if key not in column_headers:
+                            column_headers.append(key)
+                        # Add the key: value to the all the data under the key
+                        # (team_num, match_num) like this
+                        # {
+                        #   (1678, 1): {"team_number": 1678, ...},
+                        #   (9678, 2): {"team_number": 9678, ...},
+                        # }
+                        data_by_team_and_match[team_key][key] = value
+
+        column_headers = self.order_headers(column_headers, ["match_number", "team_number"])
+        return column_headers, data_by_team_and_match
+
+
+class ExportTeam(BaseExport):
+    db_data_paths = [
+        "raw_obj_pit",
+        "raw_subj_pit",
+        "obj_team",
+        "subj_team",
+        "tba_team",
+    ]
+
+    def __init__(self):
+        """Get the team data, format it and write it as a csv
+
+        Get the column_headers from the data as well as the final_built_data
+        then write this data to the csv as a dictionary
+        """
+        super().__init__()
+        self.name = self.create_name("team_export")
+
+        self.column_headers, self.final_built_data = self.build_data()
+
+    def build_data(self) -> Tuple[List[str], Dict[Tuple[int, int], List[Dict[str, Any]]]]:
+        """Takes data team data and writes to CSV
+
+        Merges raw and processed team data into one dictionary
+        Puts team export files into their own directory
+        to separate them from team in match export files.
+        """
+        utils.log_info("Starting export of team_data")
+        # Get the lists of column headers and dictionaries to use in export
+        team_data = self.get_data(ExportTeam.db_data_paths)
+
+        column_headers: List[str] = []
+        data_by_team_num: Dict[int, List[Dict[str, Any]]] = {}
+
+        # Goes through all the collections that it got from team data
+        for list_of_documents in team_data.values():
+            # Goes through each document in the collection it on
+            for document in list_of_documents:
+                # Gets the team num from the document
+                team_num = document["team_number"]
+
+                # Check if data exists for team_num
+                if not data_by_team_num.get(team_num):
+                    data_by_team_num[team_num] = {}
+
+                # Goes through each field in the current document
+                for key, value in document.items():
+                    # Don't add the ObjectId that stores the mongodb id but
+                    # is not useful in the data we want exported
+                    if key != "_id":
+                        # If the key is a new one, add it to column_headers
+                        if key not in column_headers:
+                            column_headers.append(key)
+                        # Add the key: value to the all the data under the key
+                        # just team_num like this
+                        # {
+                        #   1678: {"team_number": 1678, ...},
+                        #   9678: {"team_number": 9678, ...},
+                        # }
+                        data_by_team_num[team_num][key] = value
+
+        column_headers = self.order_headers(column_headers, ["team_number"])
+        return column_headers, data_by_team_num
+
+
+class ExportImagePaths(BaseExport):
+    PATH_PATTERN = re.compile(r"([0-9]+)_(full_robot|drivetrain|mechanism_[0-9]+)\.jpg")
+
+    def __init__(self):
+        """Get access to all the attributes and methods from the BaseExport"""
+        super().__init__()
+        self.csv_rows = self.get_dict_for_teams()
+
+    def get_dict_for_teams(self) -> Dict[str, Any]:
+        """Get the teams list and make the base structure of the teams list"""
+        csv_rows = {}
+        for team in self.teams_list:
+            # Makes the team key a list with the team number in it.
+            csv_rows[team] = {
+                "full_robot": "",
+                "drivetrain": "",
+                "mechanism": [],
+            }
+            return csv_rows
+
+    def get_image_paths(self) -> Dict[str, Any]:
+        """Gets dictionary of image paths"""
+        # Iterates through each device in the tablets folder
+        for device in os.listdir(utils.create_file_path("data/tablets")):
+            # If the device is a phone serial number
+            if device not in ["9AQAY1EV7J", "9AMAY1E54G", "9AMAY1E53P"]:
+                continue
+            device_dir = utils.create_file_path(f"data/tablets/{device}/")
+            # Iterates through all of files in the phone's folder
+            for file in os.listdir(device_dir):
+                # Tries to match the file name with the regular expression
+                result = re.fullmatch(ExportImagePaths.PATH_PATTERN, file)
+                # If the regular expression matched
+                if result:
+                    # Team number is the result of the first capture type
+                    team_num = int(result.group(1))
+                    if team_num not in self.teams_list:
+                        continue
+                    # Photo type is the result of the second capture group
+                    photo_type = result.group(2)
+
+                    # There can be multiple mechanism photos, so we need to handle differently
+                    if photo_type.startswith("mechanism"):
+                        self.csv_rows[team_num]["mechanism"].append(os.path.join(device_dir, file))
+                    # Otherwise just add the photo path to its specified place in csv_rows
+                    else:
+                        self.csv_rows[team_num][photo_type] = os.path.join(device_dir, file)
+        return self.csv_rows
+
+
+def make_zip(directory_path: str):
+    """Create a zip based on the directory_path
+
+    Get the newly made export and generation a zip archive of this and move
+    it to the correct export directory
     """
-    # All the keys that will be used to write headers in the CSV file. set() prevents duplicates
-    column_headers = set()
-    # Find all the keys of the documents and add them to the column_headers set
-    for document in collection_data:
-        for key in document.keys():
-            column_headers.add(key)
+    print("Making zip archive...")
+    dir_name = directory_path.split("/")[-1]
+    archive_name = dir_name + ".zip"
 
-    # Picklist editor needs team number and sometimes match number to be the first columns
-    # Moves those datapoints to the front of column_headers
-    for key in first_keys:
-        column_headers.discard(key)
-    column_headers = first_keys + list(column_headers)
+    to_archive_path = os.path.join(utils.create_file_path("data/exports"), directory_path)
+    move_location = os.path.join(utils.create_file_path("data/exports"), archive_name)
 
-    return column_headers
+    shutil.make_archive(dir_name, "zip", to_archive_path)
+    shutil.move(archive_name, move_location)
+    print("Zip archive complete!")
 
 
-def export_team_data(path):
-    """Takes data team data and writes to CSV.
-    Merges raw and processed team data into one dictionary
-    Puts team export files into their own directory
-    to separate them from team in match export files.
+def full_data_export(should_zip) -> None:
+    """Generate each of the types of data
+
+    Instantiate each exporter class and write the csv to a directory shared by
+    each of the three exports
     """
-    # Get the lists of column headers and dictionaries to use in export
-    team_data = load_data(TEAM_DATA_DB_PATHS)
-    column_headers = format_header(team_data, ['team_number'])
-    # The list of teams, used to merge raw and processed team data
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    directory_path = utils.create_file_path(f"data/exports/export_{timestamp}")
 
-    with open(path, 'w') as file:
-        # Write headers using the column_headers list
-        csv_writer = csv.DictWriter(file, fieldnames=column_headers)
-        csv_writer.writeheader()
+    # Generate and export Tim data
+    tim_exporter = ExportTIM()
+    tim_exporter.write_data(directory_path)
 
-        for team in TEAMS_LIST:
-            # The dictionary that will hold the combined team data, reset for each team
-            merged_team = {}
-            # Go through all dictionaries and check if their team number matches the team's
-            for document in team_data:
-                if document.get('team_number') == team:
-                    # Update data from the same team to the merged_team dict
-                    merged_team.update(document)
-            # Use each team's merged data to write a row
-            csv_writer.writerow(merged_team)
-    print('Exported team data to CSV')
+    # Generate and export Team data
+    team_exporter = ExportTeam()
+    team_exporter.write_data(directory_path)
+
+    # Generate and export TBA data
+    tba_exporter = ExportTBA()
+    tba_exporter.write_data(directory_path)
+
+    # This is default to yes but is not necessary
+    if should_zip:
+        make_zip(directory_path)
 
 
-def export_tim_data(path):
-    """Takes team in match data and writes to CSV. Puts team in match export files into their own
-
-    directory to separate them from team export files.
-    """
-    # Get the lists of column headers and dictionaries to use in export
-    all_tim_data = load_data(TIM_DATA_DB_PATHS)
-    column_headers = format_header(all_tim_data, ['match_number', 'team_number'])
-
-    with open(path, 'w') as file:
-        # Write headers using the column_headers list
-        csv_writer = csv.DictWriter(file, fieldnames=column_headers)
-        csv_writer.writeheader()
-
-        for team in TEAMS_LIST:
-            # Write rows using data in dictionary
-            team_data = []
-            for document in all_tim_data:
-                if document['team_number'] == team:
-                    team_data.append(document)
-            tim_data = {}
-            for document in team_data:
-                if document['match_number'] in tim_data:
-                    tim_data[document['match_number']].update(document)
-                else:
-                    tim_data[document['match_number']] = document
-            for document in tim_data.values():
-                csv_writer.writerow(document)
-    print('Exported TIM data to CSV')
+def parser():
+    parse = argparse.ArgumentParser()
+    parse.add_argument(
+        "--dont_zip", help="Should create a zip archive", default=True, action="store_false"
+    )
+    return parse.parse_args()
 
 
-def get_image_paths():
-    """Gets dictionary of image paths"""
-    csv_rows = dict()
-    for team in TEAMS_LIST:
-        # Makes the team key a list with the team number in it.
-        csv_rows[team] = {
-            'full_robot': '',
-            'drivetrain': '',
-            'mechanism': [],
-        }
-    # Iterates through each device in the tablets folder
-    for device in os.listdir(utils.create_file_path('data/tablets')):
-        # If the device is a phone serial number
-        if device not in ['9AQAY1EV7J', '9AMAY1E54G', '9AMAY1E53P']:
-            continue
-        device_dir = utils.create_file_path(f'data/tablets/{device}/')
-        # Iterates through all of files in the phone's folder
-        for file in os.listdir(device_dir):
-            # Tries to match the file name with the regular expression
-            result = re.fullmatch(PATH_PATTERN, file)
-            # If the regular expression matched
-            if result:
-                # Team number is the result of the first capture type
-                team_num = result.group(1)
-                if team_num not in TEAMS_LIST:
-                    continue
-                # Photo type is the result of the second capture group
-                photo_type = result.group(2)
-
-                # There can be multiple mechanism photos, so we need to handle differently
-                if photo_type.startswith('mechanism'):
-                    csv_rows[team_num]['mechanism'].append(os.path.join(device_dir, file))
-                # Otherwise just add the photo path to its specified place in csv_rows
-                else:
-                    csv_rows[team_num][photo_type] = os.path.join(device_dir, file)
-    return csv_rows
-
-
-def format_tba_data():
-    """Formats TBA score and foul data as CSV."""
-    api_url = f'event/{utils.TBA_EVENT_KEY}/matches'
-    cached = ldc.select_tba_cache(api_url)[api_url]['data']
-    match_scores = []
-    export_fields = ['foulPoints', 'totalPoints']
-    for match in cached:
-        if match['score_breakdown'] is None or match['comp_level'] != 'qm':
-            continue
-        for alliance in ['red', 'blue']:
-            data = {'match_number': match['match_number'], 'alliance': alliance}
-            for field in export_fields:
-                data[field] = match['score_breakdown'][alliance][field]
-            for i, team in enumerate(match['alliances'][alliance]['team_keys'], start=1):
-                data[f'robot{i}'] = int(team[3:])
-            match_scores.append(data)
-    return sorted(match_scores, key=lambda x: x['match_number'])
-
-
-def write_tba_data(path):
-    """Writes TBA Data to csv export. Path is a str representing the output absolute file path."""
-    data = format_tba_data()
-    if not data:
-        print('No TBA Data to export', file=sys.stderr)
-    field_names = data[0].keys()
-    with open(path, 'w') as file:
-        writer = csv.DictWriter(file, field_names)
-        writer.writeheader()
-        for row in data:
-            writer.writerow(row)
-    print('Exported TBA Data')
-
-
-def full_data_export():
-    """Writes the current export to a timestamped directory. Returns the directory path written"""
-    current_time = datetime.datetime.now()
-    timestamp_str = current_time.strftime('%Y-%m-%d_%H:%M:%S')
-    # Creates directory if it does not exist
-    directory_path = utils.create_file_path(f'data/exports/export_{timestamp_str}')
-    # Team data
-    team_file_path = os.path.join(directory_path, f'team_export_{timestamp_str}.csv')
-    export_team_data(team_file_path)
-    # Team in match data
-    timd_file_path = os.path.join(directory_path, f'timd_export_{timestamp_str}.csv')
-    export_tim_data(timd_file_path)
-    # TBA match data
-    tba_file_path = os.path.join(directory_path, f'tba_export_{timestamp_str}.csv')
-    write_tba_data(tba_file_path)
-    return directory_path
-
-
-# Compiles pattern object so it can be used to match the possible image paths
-PATH_PATTERN = re.compile(r'([0-9]+)_(full_robot|drivetrain|mechanism_[0-9]+)\.jpg')
-IMAGE_ORDER = ['full_robot', 'drivetrain', 'mechanism']
-
-with open(utils.create_file_path('data/team_list.csv')) as team_list:
-    # Load team list
-    TEAMS_LIST = list(map(int, [*csv.reader(team_list)][0]))
-
-TEAM_DATA_DB_PATHS = [
-    'raw.obj_pit',
-    'raw.subj_pit',
-    'processed.calc_obj_team',
-    'processed.calc_subj_team',
-    'processed.calc_tba_team',
-]
-TIM_DATA_DB_PATHS = ['processed.calc_obj_tim', 'processed.calc_tba_tim']
-DB_PATH_TO_SCHEMA_FILE = {
-    'raw.obj_pit': 'schema/obj_pit_collection_schema.yml',
-    'raw.subj_pit': 'schema/subj_pit_collection_schema.yml',
-    'processed.calc_obj_team': 'schema/calc_obj_team_schema.yml',
-    'processed.calc_subj_team': 'schema/calc_subj_team_schema.yml',
-    'processed.calc_tba_team': 'schema/calc_tba_team_schema.yml',
-    'processed.calc_obj_tim': 'schema/calc_obj_tim_schema.yml',
-    'processed.calc_tba_tim': 'schema/calc_tba_tim_schema.yml',
-}
-
-if __name__ == '__main__':
-    EXPORT_PATH = full_data_export()
-    LATEST_PATH = utils.create_file_path('data/exports/latest_export', False)
-    # Remove latest export directory if it exists
-    if os.path.exists(LATEST_PATH):
-        os.remove(LATEST_PATH)
-    # Symlink the latest_export directory to the export that was just made
-    os.symlink(EXPORT_PATH, LATEST_PATH)
+if __name__ == "__main__":
+    args = parser()
+    full_data_export(args.dont_zip)

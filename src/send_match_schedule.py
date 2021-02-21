@@ -183,10 +183,7 @@ class Sender:
         self.devices = set(adb_communicator.get_attached_devices())
 
     def confirm_prep_and_generation(self):
-        print(f'You are working with the competition {utils.TBA_EVENT_KEY}. Is that right?')
-        while True:
-            if input('Hit enter to continue, or Ctrl-C to exit:') == '':
-                break
+        print(f'You are working with the competition {utils.TBA_EVENT_KEY}.')
 
         # Match schedule must be created before local copy is loaded
         match_list_generator = MatchListGenerator(f'event/{utils.TBA_EVENT_KEY}/matches/simple')

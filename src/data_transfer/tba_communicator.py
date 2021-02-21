@@ -19,7 +19,7 @@ def tba_request(api_url):
     """
     utils.log_info(f'tba request from {api_url} started')
     full_url = f'https://www.thebluealliance.com/api/v3/{api_url}'
-    request_headers = {'X-TBA-Auth-Key': API_KEY}
+    request_headers = {'X-TBA-Auth-Key': get_api_key()}
     cached = ldc.select_tba_cache(api_url)
     # Check if cache exists
     if cached:
@@ -43,5 +43,7 @@ def tba_request(api_url):
     raise Warning(f'Request failed with status code {request.status_code}')
 
 
-with open(utils.create_file_path('data/api_keys/tba_key.txt')) as file:
-    API_KEY = file.read().rstrip('\n')
+def get_api_key() -> str:
+    with open(utils.create_file_path('data/api_keys/tba_key.txt')) as file:
+        api_key = file.read().rstrip('\n')
+    return api_key
