@@ -49,5 +49,11 @@ jobs:
               run: |
                 python3 src/start_mongod.py
 
+            # Run pytest with and without always resetting the cloud db to ensure
+            # that resetting the Cloud DB only on marked tests does not
+            # harm test independence
             - name: Run `pytest`
               run: pytest
+
+            - name: Run `pytest` and always reset cloud 
+              run: pytest --always-reset-cloud

@@ -14,39 +14,11 @@ import utils
 PORT = 9678
 
 
-@pytest.fixture(scope='module', autouse=True)
-def start_cloud_test_mongod():
-    """Runs a mongod instance to replace the functionality of the cloud database
-
-    This removes the need for the tests to connect to the remote database
-    """
-    db_path = utils.create_file_path('data/cloud_db')
-    # Ensure cloud db directory is empty to remove errors
-    if os.path.exists(db_path):
-        shutil.rmtree(db_path)
-    os.mkdir(db_path)
-    # Start mongod
-    process = subprocess.Popen(['mongod', '--port', str(PORT), '--dbpath', db_path])
-    yield
-    # Clean up
-    process.terminate()
-    shutil.rmtree(db_path)
-
-
+@pytest.mark.clouddb
 class TestCloudDBUpdater:
-    @staticmethod
-    def clean_cloud_db(fake_cloud_db: database.Database):
-        for collection in fake_cloud_db.db.list_collection_names():
-            fake_cloud_db.delete_data(collection, filters={})
-
     def setup_method(self, method):
         self.start_timestamp = bson.Timestamp(int(time.time()) - 1, 1)
-        fake_cloud_db = database.Database(port=PORT)
-        self.clean_cloud_db(fake_cloud_db)
-        with mock.patch.object(
-            cloud_db_updater.CloudDBUpdater, 'get_cloud_db', return_value=fake_cloud_db
-        ):
-            self.CloudDBUpdater = cloud_db_updater.CloudDBUpdater()
+        self.CloudDBUpdater = cloud_db_updater.CloudDBUpdater()
 
     def test_init(self):
         assert isinstance(self.CloudDBUpdater.cloud_db, database.Database)
@@ -139,9 +111,7 @@ class TestCloudDBUpdater:
             pymongo.UpdateOne({'_id': '1234'}, {'$set': {'v': 1, 'c': 2}}),
         ]
         changes['test2'] = [pymongo.InsertOne({'_id': '43210', 'b': 1})]
-        with mock.patch.object(
-            self.CloudDBUpdater, 'create_db_changes', return_value=changes
-        ) as fake:
+        with mock.patch.object(self.CloudDBUpdater, 'create_db_changes', return_value=changes) as _:
             result = self.CloudDBUpdater.write_db_changes()
         assert result['test'].inserted_count == 2
         assert result['test'].modified_count == 1
