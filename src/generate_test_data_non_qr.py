@@ -6,7 +6,6 @@ import argparse
 from calculations.generate_random_value import generate_random_value
 import csv
 import utils
-import random
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -24,27 +23,45 @@ class TIMInstance:
 class TIMInstanceGenerator:
     """Object that represents teams list and its pointer"""
 
-    def __init__(self, match_schedule_file_path=None):
+    def __init__(self, match_schedule_file_path):
         self.match_schedule_file_path = match_schedule_file_path
         self.tims: List(TIMInstance) = []
         self.index = 0
-        self.parser()
+        self.match_instance_generator()
 
-    def parser(self):
+    def match_instance_generator(self):
         """Generate match instances for each team in each match
-        If a match schedule csv file is not specified, autogenerate match data"""
+
+        If a match schedule csv file is not specified, autogenerate match data
+        """
+        # If the match_schedule_file_path is not provided, we need to generate data with accurate
+        # and data that have constant team and match values across data generated for different
+        # collections
         if self.match_schedule_file_path is None:
             # Hardcoded constants for how many teams and matches we want
             num_teams = 42
             num_matches = 118
             # Create a fake list of teams
-            teams = {1678}
-            while len(teams) < num_teams:
-                teams.add(random.randint(1, 9999))
-            teams = list(teams)
-            for match in range(1, num_matches + 1):
-                for team in random.sample(teams, 6):
+            teams: List[int] = [1678] + [int(str(x ** x)[0:4]) for x in range(1, num_teams)]
+
+            # Generate a TIM instance for each match
+            for match_number in range(1, num_matches + 1):
+                # Pick 6 teams from the teams list with a start and an end; ex. 3:9, 9:15, or 15:21
+                # the first number being start and the second being end_team_index
+                start_team_index = match_number * 6 % len(teams)
+                end_team_index = (start_team_index + 6) % num_teams
+                # This is needed if the num_teams is not divisible by 6
+                if end_team_index < start_team_index:
+                    teams_in_match = [teams[x] for x in range(start_team_index, num_teams)]
+                    teams_in_match.extend([teams[x] for x in range(0, end_team_index)])
+                # This is for the other cases
+                else:
+                    teams_in_match = [teams[x] for x in range(start_team_index, end_team_index)]
+
+                for team_number in teams_in_match:
                     self.tims.append(TIMInstance(match_number, team_number))
+
+        # The match_schedule was provided
         else:
             # Get all the matches from the schedule
             match_schedule = self.read_match_schedule(self.match_schedule_file_path)
@@ -108,8 +125,7 @@ class DataGenerator:
         """Get schema filename and seed for generation"""
         self.seed = seed
         self.match_schedule_file_path = match_schedule_file_path
-        if self.match_schedule_file_path is not None:
-            self.tim_instance_generator = TIMInstanceGenerator(self.match_schedule_file_path)
+        self.tim_instance_generator = TIMInstanceGenerator(self.match_schedule_file_path)
         self.schema_filename = schema_filename
 
     def open_schema_file(self, schema_filename: str) -> dict:
@@ -223,7 +239,6 @@ class DataGenerator:
             datapoint_collection_names,
             datapoint_collection_values,
         ) in datapoint_collections.items():
-
             # Go through each datapoint in the datapoint collections
             for (
                 datapoints_values_key,
@@ -236,6 +251,7 @@ class DataGenerator:
                         datapoint = generate_random_value(value_type, self.seed)
                         generated_structure[datapoints_values_key] = datapoint
                     else:
+                        # For enum compatability
                         generated_structure[datapoints_values_key] = 1
 
         return generated_structure
@@ -243,13 +259,16 @@ class DataGenerator:
     def format_raw_data(self) -> dict:
         """Get the data and format it correctly"""
         data = self.generate_for_each_datapoint_collection()
-        if self.match_schedule_file_path is not None:
-            match_instance = self.tim_instance_generator.__next__()
-            if data.get("team_number"):
-                data["team_number"] = match_instance.team_number
 
-            if data.get("match_number"):
-                data["match_number"] = match_instance.match_number
+        match_instance = self.tim_instance_generator.__next__()
+
+        # We use isinstance here because if the get() returns a numeric zero,
+        # it will be False and it will not replace the zeros in the data
+        if isinstance(data.get("team_number"), int):
+            data["team_number"] = match_instance.team_number
+
+        if isinstance(data.get("match_number"), int):
+            data["match_number"] = match_instance.match_number
 
         return data
 
