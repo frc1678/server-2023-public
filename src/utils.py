@@ -146,7 +146,7 @@ def run_command(command, return_output=False):
 avg = BaseCalculations.avg
 
 
-def read_schema(schema_file_path: str) -> dict:
+def _inner_read_schema(schema_file_path: str) -> dict:
     """Reads schema files and returns them as a dictionary.
 
     schema_filepath is the relative file path compared to where the script is executed
@@ -161,6 +161,15 @@ def read_schema(schema_file_path: str) -> dict:
     with open(create_file_path(schema_file_path, False), 'r') as schema_file:
         # Specify loader to avoid warnings about default loader
         return yaml.load(schema_file, yaml.Loader)
+
+
+_internal_schemas = {}
+
+
+def read_schema(schema_file_path: str) -> dict:
+    if schema_file_path not in _internal_schemas.keys():
+        _internal_schemas[schema_file_path] = _inner_read_schema(schema_file_path)
+    return _internal_schemas[schema_file_path]
 
 
 def get_schema_filenames() -> set:
