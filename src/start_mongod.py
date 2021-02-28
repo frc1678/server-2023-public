@@ -2,7 +2,6 @@
 # Copyright (c) 2020 FRC Team 1678: Citrus Circuits
 """Starts the mongod instance used by database.py, including handling the replica set"""
 import subprocess
-
 import utils
 
 # Replica Set constants

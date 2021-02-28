@@ -10,12 +10,11 @@ import utils
 
 
 def setup_connection(specifier, COMPETITION_KEY):
-    # Makes connection with local database through port 27017, the default listening port of MongoDB
     CLIENT = MongoClient(specifier)
     # Checks that the competition inputted by the user is not already in the database
     if COMPETITION_KEY in CLIENT.list_database_names():
         print(f'WARNING: The competition {COMPETITION_KEY} already exists.')
-        if input("Continue anyway? (y or n): ").lower().strip() not in ['y', 'yes']:
+        if not utils.get_boolean_input('Continue anyway?'):
             raise Exception('Database already exists')
     # Creates the competition.txt file
     # Also writes the competition code to it so it can be used in other scripts
@@ -39,19 +38,17 @@ setup_connection("mongodb://localhost:1678", COMPETITION_KEY)
 from data_transfer import database
 
 DB = database.Database()
-
-# Creates indexes for the database
 DB.set_indexes()
 
-CLOUD_DB_PERMISSION = input('Would you like to add this database to the cloud? (y or n): ')
-
-if CLOUD_DB_PERMISSION.lower().strip() in ['y', 'yes']:
+CLOUD_DB_PERMISSION = utils.get_boolean_input('Would you like to add this database to the cloud?')
+if CLOUD_DB_PERMISSION:
     from data_transfer import cloud_db_updater
 
     connection_string = cloud_db_updater.CloudDBUpdater.get_connection_string()
     # Checks if competition key exists in the cloud
     setup_connection(connection_string, COMPETITION_KEY)
-    CDB = database.Database(connection_string)
+    CLOUD_DB = database.Database(connection_string)
     # Created indexes for the database
-    CDB.set_indexes()
+    CLOUD_DB.set_indexes()
+
 print('Competition setup finished')

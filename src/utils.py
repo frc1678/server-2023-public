@@ -206,13 +206,20 @@ def unprefix_schema_dict(schema_in):
     return schema_out
 
 
-def warn_if_not_in_venv() -> bool:
-    in_venv: bool = sys.prefix == sys.base_prefix
-    if not in_venv:
-        print("Hey friend! Don't forget to activate the virtual environment")
-    return in_venv
+def get_boolean_input(question: str) -> bool:
+    """Asks the given question and returns True if the user enters Y or False if they enter N"""
+    while True:
+        user_input = input(f'{question} [Y/n]:').lower()
+        if user_input in ['y', 'yes']:
+            return True
+        elif user_input in ['n', 'no']:
+            return False
+        else:
+            print("Please be sure to enter either 'yes' or 'no'")
 
 
 _TBA_EVENT_KEY_FILE = 'data/competition.txt'
 TBA_EVENT_KEY = load_tba_event_key_file(_TBA_EVENT_KEY_FILE)
-warn_if_not_in_venv()
+
+if sys.prefix == sys.base_prefix:
+    print("Hey friend! Don't forget to activate the virtual environment")

@@ -117,10 +117,11 @@ class CloudDBUpdater:
             )
         return cls.BASE_CONNECTION_STRING.format(password)
 
+
 def cloud_db_connector():
     """Connects to the cloud database and returns a database object."""
     for attempt in range(3):
-    # Tries to connect 3 times before raising an error
+        # Tries to connect 3 times before raising an error
         cloud_db = CloudDBUpdater.get_cloud_db()
         if cloud_db is not None:
             return cloud_db

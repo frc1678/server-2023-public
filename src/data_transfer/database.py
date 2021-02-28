@@ -35,12 +35,8 @@ class Database:
         self.connection = connection
         self.port = port
         self.client = pymongo.MongoClient(connection, port)
-        self.name = utils.TBA_EVENT_KEY
-        if not (
-            'SCOUTING_SERVER_ENV' in os.environ
-            and os.environ['SCOUTING_SERVER_ENV'] == 'production'
-        ):
-            self.name = f'test{utils.TBA_EVENT_KEY}'
+        production_mode: bool = os.environ.get('SCOUTING_SERVER_ENV') == 'production'
+        self.name = utils.TBA_EVENT_KEY if production_mode else f'test{utils.TBA_EVENT_KEY}'
         self.db = self.client[self.name]
 
     def set_indexes(self) -> None:
@@ -70,6 +66,9 @@ class Database:
     def delete_data(self, collection: str, **filters: dict) -> None:
         """Deletes data in 'collection' according to 'filters'"""
         check_collection_name(collection)
+        if 'raw' in collection:
+            utils.log_warning(f'Attempted to delete raw data from collection {collection}')
+            return
         self.db[collection].delete_many(filters)
 
     def insert_documents(self, collection: str, data: Union[list, dict]) -> None:
@@ -92,9 +91,15 @@ class Database:
     ) -> None:
         """Updates one document that matches 'query' with 'new_data', uses upsert"""
         check_collection_name(collection)
+        if 'raw' in collection:
+            utils.log_warning(f'Attempted to modify raw data in collection {collection}')
+            return
         self.db[collection].update_one(query, {'$set': new_data}, upsert=True)
 
     def bulk_write(self, collection: str, actions: list) -> pymongo.results.BulkWriteResult:
         """Bulk write `actions` into `collection` in order of `actions`"""
         check_collection_name(collection)
+        if 'raw' in collection:
+            utils.log_warning(f'Blocked bulk write operation to raw collection {collection}')
+            return
         return self.db[collection].bulk_write(actions)
