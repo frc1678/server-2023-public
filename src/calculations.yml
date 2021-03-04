@@ -3,7 +3,10 @@
 # Example format:
 #
 # - import_path: calculations.tba_team
-#   class_name: CalcTBATeam
+#   class_name: TBATeamCalc
 #
 # It is very important that the order that appears in this file is the order 
 # that is intended for the calculations to be ran in.
+
+- import_path: calculations.tba_team
+  class_name: TBATeamCalc

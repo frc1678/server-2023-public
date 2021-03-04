@@ -1,4 +1,30 @@
+import pymongo
+
 class BaseCalculations:
+    def __init__(self, server):
+        self.server = server
+        self.oplog = self.server.oplog
+        self.update_timestamp()
+        self.watched_collections = NotImplemented   # Calculations should override this attribute
+
+    def update_timestamp(self):
+        """Updates the timestamp to the most recent oplog entry timestamp"""
+        last_op = self.oplog.find({}).sort('ts', pymongo.DESCENDING).limit(1)
+        self.timestamp = last_op.next()['ts']
+
+    def entries_since_last(self):
+        return self.oplog.find(
+            {
+                'ts': {'$gt': self.timestamp},
+                'op': {'$in': ['i', 'd', 'u']},
+                'ns': {
+                    '$in': [
+                        f'{self.server.db.name}.{c}' for c in self.watched_collections
+                    ]
+                },
+            }
+        )
+
     @staticmethod
     def avg(nums, weights=None, default=0):
         """Calculates the average of a list of numeric types.
