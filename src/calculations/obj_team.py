@@ -9,7 +9,7 @@ from src.calculations import base_calculations
 class OBJTeamCalc(base_calculations.BaseCalculations):
     """Runs OBJ Team calculations"""
     # Get the last section of each entry (so foo.bar.baz becomes baz)
-    OBJ_TEAM_SCHEMA = utils.unprefix_schema_dict(
+    SCHEMA = utils.unprefix_schema_dict(
         utils.read_schema('schema/calc_obj_team_schema.yml')
     )
     STR_TYPES = {'str': str, 'float': float, 'int': int}
@@ -25,7 +25,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         where the keys are the names of the calculations, and the values are the results
         """
         team_info = {}
-        for calculation, schema in self.OBJ_TEAM_SCHEMA['averages'].items():
+        for calculation, schema in self.SCHEMA['averages'].items():
             # Find tims that meet required data field:
             tim_action_counts = []
             for tim in tims:
@@ -60,7 +60,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         where the keys are the names of the calculations, and the values are the results
         """
         team_info = {}
-        for calculation, schema in self.OBJ_TEAM_SCHEMA['counts'].items():
+        for calculation, schema in self.SCHEMA['counts'].items():
             tims_that_meet_filter = self.filter_tims_for_counts(tims, schema)
             team_info[calculation] = self.STR_TYPES[schema['type']](len(tims_that_meet_filter))
         return team_info

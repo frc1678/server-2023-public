@@ -3,17 +3,15 @@
 """Runs team calculations dependent on TBA data"""
 
 from calculations import base_calculations, inner_goals_regression
-from data_transfer import database
 import utils
-
-# Get the last section of each entry (so foo.bar.baz becomes baz)
-SCHEMA = utils.unprefix_schema_dict(
-    utils.read_schema('schema/calc_tba_team_schema.yml')
-)
 
 
 class TBATeamCalc(base_calculations.BaseCalculations):
     """Runs TBA Team calculations"""
+    # Get the last section of each entry (so foo.bar.baz becomes baz)
+    SCHEMA = utils.unprefix_schema_dict(
+        utils.read_schema('schema/calc_tba_team_schema.yml')
+    )
 
     def __init__(self, server):
         """Overrides watched collections, passes server object"""
@@ -40,7 +38,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
             else:
                 matches[tim['match_number']] = tim
         out = {}
-        for name, keys in SCHEMA['counts'].items():
+        for name, keys in self.SCHEMA['counts'].items():
             count = 0
             schema_entry = keys['tim_fields']
             for match in matches.values():
