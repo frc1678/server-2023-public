@@ -71,14 +71,18 @@ class TestDatabase:
 
     def test_update_tba_cache(self):
         """Tests updating the tba cache"""
-        TEST_DB_ACTUAL.update_tba_cache({'data': 'a'}, 'test')
+        TEST_DB_ACTUAL.update_tba_cache([{'data': 'a'}], 'test')
         test_cache = TEST_DB_HELPER.tba_cache.find_one({})
         assert test_cache['api_url'] == 'test'
-        assert test_cache['data'] == 'a'
+        assert test_cache['data'] == [{'data': 'a'}]
         TEST_DB_ACTUAL.update_tba_cache({'data': 'b'}, 'test')
         test_cache = TEST_DB_HELPER.tba_cache.find_one({})
         assert test_cache['api_url'] == 'test'
-        assert test_cache['data'] == 'b'
+        assert test_cache['data'] == {'data': 'b'}
+        TEST_DB_ACTUAL.update_tba_cache({'a': 'b'}, 'test2', 'TIMESTAMP')
+        test_cache = TEST_DB_HELPER.tba_cache.find_one({'api_url': 'test2'})
+        del test_cache['_id']
+        assert test_cache == {'data': {'a': 'b'}, 'timestamp': 'TIMESTAMP', 'api_url': 'test2'}
 
     def test_delete_data(self):
         """Tests deletion of data"""

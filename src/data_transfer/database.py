@@ -5,7 +5,7 @@
 All communication with the MongoDB local database go through this file.
 """
 import os
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import pymongo
 import yaml
@@ -59,9 +59,12 @@ class Database:
         """Gets the TBA Cache of 'api_url'"""
         return self.db.tba_cache.find_one({'api_url': api_url})
 
-    def update_tba_cache(self, data: dict, api_url: str) -> None:
+    def update_tba_cache(self, data: Any, api_url: str, timestamp: Optional[str] = None) -> None:
         """Updates one TBA Cache at 'api_url'"""
-        self.db.tba_cache.update_one({'api_url': api_url}, {'$set': data}, upsert=True)
+        write_object = {'data': data}
+        if timestamp is not None:
+            write_object['timestamp'] = timestamp
+        self.db.tba_cache.update_one({'api_url': api_url}, {'$set': write_object}, upsert=True)
 
     def delete_data(self, collection: str, **filters: dict) -> None:
         """Deletes data in 'collection' according to 'filters'"""
