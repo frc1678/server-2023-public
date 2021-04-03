@@ -49,6 +49,6 @@ if CLOUD_DB_PERMISSION:
     setup_connection(connection_string, COMPETITION_KEY)
     CLOUD_DB = database.Database(connection_string)
     # Created indexes for the database
-    CLOUD_DB.set_indexes()
+    CLOUD_DB.setup_db()
 
 print('Competition setup finished')

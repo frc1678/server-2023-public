@@ -5,6 +5,7 @@
 All communication with the MongoDB local database go through this file.
 """
 import os
+from collections import OrderedDict
 from typing import Any, Optional, Union
 
 import pymongo
@@ -38,6 +39,13 @@ class Database:
         production_mode: bool = os.environ.get('SCOUTING_SERVER_ENV') == 'production'
         self.name = utils.TBA_EVENT_KEY if production_mode else f'test{utils.TBA_EVENT_KEY}'
         self.db = self.client[self.name]
+
+    def setup_db(self):
+        self.set_indexes()
+        # All document names and their files
+        coll_to_path = self._get_all_schema_names()
+        for entry in coll_to_path.keys():
+            self._enable_validation(entry, coll_to_path[entry])
 
     def set_indexes(self) -> None:
         """Adds indexes into competition collections"""
@@ -99,6 +107,22 @@ class Database:
             return
         self.db[collection].update_one(query, {'$set': new_data}, upsert=True)
 
+    def _enable_validation(self, collection: str, file: str):
+        sch = utils.read_schema('schema/' + file)
+        sch = mongo_convert(sch)
+        cmd = OrderedDict([('collMod', collection),
+            ('validator', {"$jsonSchema" : sch}),
+            ('validationLevel', 'moderate')])
+        self.db.command(cmd)
+
+    def _get_all_schema_names(self) -> dict:
+        out = {}
+        for entry in COLLECTION_SCHEMA['collections'].keys():
+            out[entry] = COLLECTION_SCHEMA['collections'][entry]['schema']
+            if out[entry] == None:
+                out.pop(entry)
+        return out
+
     def bulk_write(self, collection: str, actions: list) -> pymongo.results.BulkWriteResult:
         """Bulk write `actions` into `collection` in order of `actions`"""
         check_collection_name(collection)
@@ -106,3 +130,16 @@ class Database:
             utils.log_warning(f'Blocked bulk write operation to raw collection {collection}')
             return
         return self.db[collection].bulk_write(actions)
+
+def mongo_convert(sch):
+    """Converts a schema dictionary into a mongo-usable form."""
+    out = {}
+    for k in sch.keys():
+        if k == 'type':
+            out["bsonType"] = sch[k]
+        elif isinstance(sch[k], list):
+            out["minimum"] = sch[k][0]
+            out["maximum"] = sch[k][1]
+        elif isinstance(sch[k], dict):
+            out[k] = mongo_convert(sch[k])
+    return out
