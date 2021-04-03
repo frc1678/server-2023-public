@@ -1,11 +1,12 @@
 import pymongo
 
+
 class BaseCalculations:
     def __init__(self, server):
         self.server = server
         self.oplog = self.server.oplog
         self.update_timestamp()
-        self.watched_collections = NotImplemented   # Calculations should override this attribute
+        self.watched_collections = NotImplemented  # Calculations should override this attribute
 
     def update_timestamp(self):
         """Updates the timestamp to the most recent oplog entry timestamp"""
@@ -13,15 +14,12 @@ class BaseCalculations:
         self.timestamp = last_op.next()['ts']
 
     def entries_since_last(self):
+        """Returns a list of changes in the database"""
         return self.oplog.find(
             {
                 'ts': {'$gt': self.timestamp},
                 'op': {'$in': ['i', 'd', 'u']},
-                'ns': {
-                    '$in': [
-                        f'{self.server.db.name}.{c}' for c in self.watched_collections
-                    ]
-                },
+                'ns': {'$in': [f'{self.server.db.name}.{c}' for c in self.watched_collections]},
             }
         )
 
@@ -38,8 +36,20 @@ class BaseCalculations:
         if weights is None:
             # Normal (not weighted) average
             return sum(nums) / len(nums)
-        # Expect one weight for each number
         if len(nums) != len(weights):
             raise ValueError(f'Weighted average expects one weight for each number.')
         weighted_sum = sum([num * weight for num, weight in zip(nums, weights)])
         return weighted_sum / sum(weights)
+
+    @staticmethod
+    def modes(data: list) -> list:
+        """Returns the most frequently occurring items in the given list"""
+        if len(data) == 0:
+            return []
+        # Create a dictionary of things to how many times they occur in the list
+        frequencies = {}
+        for item in data:
+            frequencies[item] = 1 + frequencies.get(item, 0)
+        # How many times each mode occurs in nums:
+        max_occurrences = max(frequencies.values())
+        return [item for item, frequency in frequencies.items() if frequency == max_occurrences]

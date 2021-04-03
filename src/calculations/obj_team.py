@@ -8,10 +8,9 @@ from src.calculations import base_calculations
 
 class OBJTeamCalc(base_calculations.BaseCalculations):
     """Runs OBJ Team calculations"""
+
     # Get the last section of each entry (so foo.bar.baz becomes baz)
-    SCHEMA = utils.unprefix_schema_dict(
-        utils.read_schema('schema/calc_obj_team_schema.yml')
-    )
+    SCHEMA = utils.unprefix_schema_dict(utils.read_schema('schema/calc_obj_team_schema.yml'))
     STR_TYPES = {'str': str, 'float': float, 'int': int}
 
     def __init__(self, server):
@@ -30,13 +29,13 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             tim_action_counts = []
             for tim in tims:
                 # Gets the total number of actions for a single tim
-                tim_action_counts.append(sum([tim[tim_field.split(".")[1]] for tim_field in schema['tim_fields']]))
-            if schema['type'] in ['int', 'float']:
-                average = self.avg(tim_action_counts)
-                average = self.STR_TYPES[schema['type']](average)
-            else:
+                tim_action_counts.append(
+                    sum([tim[tim_field.split(".")[1]] for tim_field in schema['tim_fields']])
+                )
+            if schema['type'] not in ['int', 'float']:
                 raise TypeError(f'{calculation} should be a number in calc obj team schema')
-            team_info[calculation] = average
+            average = self.avg(tim_action_counts)
+            team_info[calculation] = self.STR_TYPES[schema['type']](average)
         return team_info
 
     def filter_tims_for_counts(self, tims: List[Dict], schema):
@@ -45,14 +44,20 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         for key, value in schema['tim_fields'].items():
             if key != 'not':
                 # Checks that the TIMs in their given field meet the filter
-                tims_that_meet_filter = list(filter(lambda tim: tim[key] == value, tims_that_meet_filter))
+                tims_that_meet_filter = list(
+                    filter(lambda tim: tim[key] == value, tims_that_meet_filter)
+                )
             else:
                 # not_field expects the output to be anything but the given filter
                 # not_value is the filter that not_field shouldn't have
                 for not_field, not_value in value.items():
                     # Checks that the TIMs in the 'not' field are anything other than the filter
-                    tims_that_meet_filter = list(filter(lambda tim: tim.get(not_field, not_value) != not_value,
-                                                        tims_that_meet_filter))
+                    tims_that_meet_filter = list(
+                        filter(
+                            lambda tim: tim.get(not_field, not_value) != not_value,
+                            tims_that_meet_filter,
+                        )
+                    )
         return tims_that_meet_filter
 
     def calculate_counts(self, tims: List[Dict]):
@@ -71,7 +76,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         obj_team_updates = {}
         for team in teams:
             # Load team data from database
-            obj_tims = self.server.db.find('obj_tim', **{'team_number': team})
+            obj_tims = self.server.db.find('obj_tim', team_number=team)
             team_data = self.calculate_averages(obj_tims)
             team_data['team_number'] = team
             team_data.update(self.calculate_counts(obj_tims))

@@ -6,8 +6,6 @@ from calculations.base_calculations import BaseCalculations
 from server import Server
 
 
-
-
 @pytest.mark.clouddb
 class TestBaseCalculations:
     def setup_method(self, method):
@@ -18,13 +16,13 @@ class TestBaseCalculations:
         assert self.base_calc.server == self.test_server
         assert self.base_calc.oplog == self.test_server.db.client.local.oplog.rs
         assert self.base_calc.watched_collections == NotImplemented
-    
+
     def test_update_timestamp(self):
         self.test_server.db.insert_documents('test', {'a': 1})
         self.base_calc.update_timestamp()
         op = self.base_calc.oplog.find_one({'op': 'i', 'o.a': 1})
         assert self.base_calc.timestamp >= op['ts']
-    
+
     def test_entries_since_last(self):
         self.base_calc.watched_collections = ['test.testing']
         self.base_calc.update_timestamp()

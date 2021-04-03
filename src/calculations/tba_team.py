@@ -8,10 +8,9 @@ import utils
 
 class TBATeamCalc(base_calculations.BaseCalculations):
     """Runs TBA Team calculations"""
+
     # Get the last section of each entry (so foo.bar.baz becomes baz)
-    SCHEMA = utils.unprefix_schema_dict(
-        utils.read_schema('schema/calc_tba_team_schema.yml')
-    )
+    SCHEMA = utils.unprefix_schema_dict(utils.read_schema('schema/calc_tba_team_schema.yml'))
 
     def __init__(self, server):
         """Overrides watched collections, passes server object"""
@@ -77,9 +76,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
                 'TBA Cache query failed, TBA Cache does not exist or is inaccessible'
             )
         team_request_output = team_request_output.get('data', [])
-        team_names = {
-            team['team_number']: team['nickname'] for team in team_request_output
-        }
+        team_names = {team['team_number']: team['nickname'] for team in team_request_output}
 
         tba_team_updates = {}
         # Run inner goal regression, set to empty dictionary if calculation errors out
@@ -96,9 +93,9 @@ class TBATeamCalc(base_calculations.BaseCalculations):
 
         for team in teams:
             # Load team data from database
-            obj_tims = self.server.db.find('obj_tim', **{'team_number': team})
-            tba_tims = self.server.db.find('tba_tim', **{'team_number': team})
-            obj_team = self.server.db.find('obj_team', **{'team_number': team})
+            obj_tims = self.server.db.find('obj_tim', team_number=team)
+            tba_tims = self.server.db.find('tba_tim', team_number=team)
+            obj_team = self.server.db.find('obj_team', team_number=team)
             # Because of database structure, returns as a list
             if obj_team:
                 obj_team = obj_team[0]
@@ -107,9 +104,9 @@ class TBATeamCalc(base_calculations.BaseCalculations):
                 continue
             team_data = self.tim_counts(obj_tims, tba_tims)
             team_data['team_number'] = team
-            team_data[
-                'climb_all_success_avg_time'
-            ] = self.calculate_avg_climb_successful_time(obj_tims, tba_tims)
+            team_data['climb_all_success_avg_time'] = self.calculate_avg_climb_successful_time(
+                obj_tims, tba_tims
+            )
             if obj_team['climb_all_attempts'] > 0:
                 team_data['climb_percent_success'] = (
                     team_data['climb_all_successes'] / obj_team['climb_all_attempts']
@@ -129,12 +126,8 @@ class TBATeamCalc(base_calculations.BaseCalculations):
                     utils.log_warning(f'Team {team} not found in team list from TBA')
 
             # If regression fails or team is not found, percent inner will default to 0
-            team_data['auto_high_balls_percent_inner'] = auto_regression_results.pop(
-                team, 0
-            )
-            team_data['tele_high_balls_percent_inner'] = tele_regression_results.pop(
-                team, 0
-            )
+            team_data['auto_high_balls_percent_inner'] = auto_regression_results.pop(team, 0)
+            team_data['tele_high_balls_percent_inner'] = tele_regression_results.pop(team, 0)
             tba_team_updates[team] = team_data
         # Add remaining regression results as regression can change for every team, so data must be
         # updated for every team

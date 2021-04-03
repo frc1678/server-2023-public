@@ -8,6 +8,9 @@
 # It is very important that the order that appears in this file is the order 
 # that is intended for the calculations to be ran in.
 
+- import_path: calculations.obj_tims
+  class_name: ObjTIMCalcs
+
 - import_path: calculations.obj_team
   class_name: OBJTeamCalc
 

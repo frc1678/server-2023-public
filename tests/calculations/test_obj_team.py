@@ -24,7 +24,7 @@ class TestOBJTeamCalc:
                 'auto_balls_high': 2,
                 'tele_balls_low': 3,
                 'tele_balls_high': 4,
-                'incap': 0.0
+                'incap': 0.0,
             },
             {
                 'auto_balls_low': 5,
@@ -34,16 +34,17 @@ class TestOBJTeamCalc:
                 'incap': 15.0,
                 'the coolest': 'Eugene Chen',
             },
-
         ]
 
-        expected_output = {'auto_avg_balls_total': 7.0,
-                           'tele_avg_balls_total': 11.0,
-                           'auto_avg_balls_low': 3.0,
-                           'auto_avg_balls_high': 4.0,
-                           'tele_avg_balls_low': 5.0,
-                           'tele_avg_balls_high': 6.0,
-                           'avg_incap_time': 7.5}
+        expected_output = {
+            'auto_avg_balls_total': 7.0,
+            'tele_avg_balls_total': 11.0,
+            'auto_avg_balls_low': 3.0,
+            'auto_avg_balls_high': 4.0,
+            'tele_avg_balls_low': 5.0,
+            'tele_avg_balls_high': 6.0,
+            'avg_incap_time': 7.5,
+        }
         assert self.test_calc.calculate_averages(tims) == expected_output
 
     def test_counts(self):
@@ -155,7 +156,7 @@ class TestOBJTeamCalc:
                 'avg_incap_time': 18.0,
                 'tele_cp_rotation_successes': 2,
                 'tele_cp_position_successes': 1,
-                'climb_all_attempts': 2
+                'climb_all_attempts': 2,
             },
             {
                 "team_number": 1678,
@@ -168,7 +169,7 @@ class TestOBJTeamCalc:
                 'avg_incap_time': 42.0,
                 'tele_cp_rotation_successes': 3,
                 'tele_cp_position_successes': 3,
-                'climb_all_attempts': 3
+                'climb_all_attempts': 3,
             },
         ]
         self.test_server.db.insert_documents('obj_tim', obj_tims)
