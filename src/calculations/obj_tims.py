@@ -19,7 +19,6 @@ class ObjTIMCalcs(BaseCalculations):
 
     def consolidate_nums(self, nums: List[Union[int, float]]) -> int:
         """Given numbers reported by multiple scouts, estimates actual number
-
         nums is a list of numbers, representing action counts or times, reported by each scout
         Currently tries to consolidate using only the reports from scouts on one robot,
         but future improvements might change the algorithm to account for other alliance members,
@@ -57,7 +56,9 @@ class ObjTIMCalcs(BaseCalculations):
         for field, required_value in filters.items():
             if field == 'time':
                 # Times are given as closed intervals: either [0,134] or [135,150]
-                actions = filter(lambda action: required_value[0] <= action['time'] <= required_value[1], actions)
+                actions = filter(
+                    lambda action: required_value[0] <= action['time'] <= required_value[1], actions
+                )
             else:
                 # Removes actions for which action[field] != required_value
                 actions = filter(lambda action: action[field] == required_value, actions)

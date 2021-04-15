@@ -130,7 +130,7 @@ def inner_goal_proportions(stage='tele'):
             inner_goals.append(
                 aim['inner_goals'] * total_scouted_high_goals / total_actual_high_goals
             )
-    inner_goals = np.matrix([inner_goals]).transpose()
+    inner_goals = np.ndarray([inner_goals]).transpose()
     proportions = least_squares(aim_high_goals, inner_goals, cap_0_to_1=True)
     # catch NaN before returning
     if np.isnan(proportions).any() or np.isinf(proportions).any():

@@ -110,9 +110,13 @@ class Database:
     def _enable_validation(self, collection: str, file: str):
         sch = utils.read_schema('schema/' + file)
         sch = mongo_convert(sch)
-        cmd = OrderedDict([('collMod', collection),
-            ('validator', {"$jsonSchema" : sch}),
-            ('validationLevel', 'moderate')])
+        cmd = OrderedDict(
+            [
+                ('collMod', collection),
+                ('validator', {"$jsonSchema": sch}),
+                ('validationLevel', 'moderate'),
+            ]
+        )
         self.db.command(cmd)
 
     def _get_all_schema_names(self) -> dict:
@@ -130,6 +134,7 @@ class Database:
             utils.log_warning(f'Blocked bulk write operation to raw collection {collection}')
             return
         return self.db[collection].bulk_write(actions)
+
 
 def mongo_convert(sch):
     """Converts a schema dictionary into a mongo-usable form."""
