@@ -26,4 +26,5 @@ def missing_devices():
             print(colored(adb_communicator.DEVICE_SERIAL_NUMBERS[device], 'green'))
 
 
-missing_devices()
+if __name__ == '__main__':
+    missing_devices()
