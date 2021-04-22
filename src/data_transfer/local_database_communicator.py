@@ -9,11 +9,11 @@ import re
 
 from pymongo import MongoClient
 
+from data_transfer.database import Database
 import utils
 
-DB = MongoClient('localhost', 27017)[utils.TBA_EVENT_KEY]
+DB = Database()
 
-COLLECTION_SCHEMA = utils.read_schema('schema/collection_schema.yml')
 
 
 def get_collection_name(path):
@@ -43,7 +43,7 @@ def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     competition is the competition code. **filter_by is of the form foo=bar
     and is the key value pair to filter data by.
     """
-    return list(DB[get_collection_name(path)].find(filter_by))
+    return DB.find(get_collection_name(path), filter_by)
 
 
 def select_tba_cache(api_url, competition=utils.TBA_EVENT_KEY):
@@ -52,7 +52,7 @@ def select_tba_cache(api_url, competition=utils.TBA_EVENT_KEY):
     If cache exists, returns data. If not, returns None.
     api_url is the url that caches are stored under, competition is the competition code.
     """
-    return DB.tba_cache.find_one({'api_url': api_url})
+    return DB.get_tba_cache(api_url)
 
 
 def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
@@ -62,7 +62,7 @@ def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
     competition is the competition key.
     """
     # Takes data from tba_communicator and updates it under api_url
-    DB.tba_cache.update_one({'api_url': api_url}, {"$set": data}, upsert=True)
+    DB.update_tba_cache(data, api_url)
 
 
 def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
@@ -72,7 +72,7 @@ def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     filter_by is a kwarg that show data points in the document.
     """
     # Creates dictionary to contain the queries to apply to the specified path
-    DB[get_collection_name(path)].delete_many(filter_by)
+    DB.delete_data(get_collection_name(path), filter_by)
 
 
 def append_to_dataset(path, data, competition=utils.TBA_EVENT_KEY):
@@ -82,8 +82,7 @@ def append_to_dataset(path, data, competition=utils.TBA_EVENT_KEY):
     'data' is the data to append to the dataset, must be a list.
     'competition' is the TBA event key.
     """
-    if data:
-        DB[get_collection_name(path)].insert_many(data)
+    DB.insert_documents(get_collection_name(path), data)
 
 
 def update_dataset(path, new_data, query, competition=utils.TBA_EVENT_KEY):
@@ -100,13 +99,9 @@ def update_dataset(path, new_data, query, competition=utils.TBA_EVENT_KEY):
     """
     # Update one document within the specified collection
     # Adds a document comprised of the query and the update data when no document is found
-    DB[get_collection_name(path)].update_one(query, {"$set": new_data}, upsert=True)
+    DB.update_document(get_collection_name(path), new_data, query)
 
 
 def add_competition(client, competition=utils.TBA_EVENT_KEY) -> None:
     """Adds indexes into competition collections"""
-    for collection in COLLECTION_SCHEMA['collections']:
-        collection_dict = COLLECTION_SCHEMA['collections'][collection]
-        if collection_dict['indexes'] is not None:
-            for index in collection_dict['indexes']:
-                client[competition][collection].create_index(index)
+    DB.set_indexes()

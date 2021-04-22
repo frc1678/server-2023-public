@@ -7,7 +7,7 @@ import os
 
 import yaml
 
-from data_transfer import local_database_communicator as ldc
+from data_transfer import local_database_communicator as ldc    # TODO: remove this
 import utils
 
 
@@ -245,6 +245,7 @@ def check_scout_ids():
     else:
         items_to_ignore = []
     matches_to_ignore = [item['match_number'] for item in items_to_ignore if len(item) == 1]
+    # TODO: remove this
     tims = ldc.read_dataset('processed.unconsolidated_obj_tim')
     matches = {}
     for tim in tims:

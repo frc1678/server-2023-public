@@ -14,7 +14,7 @@ import os, sys
 current_directory = os.path.dirname(os.path.realpath(__file__))
 parent_directory = os.path.dirname(current_directory)
 sys.path.append(parent_directory)
-from data_transfer import local_database_communicator as ldc
+from data_transfer import database
 import utils
 
 
@@ -71,7 +71,8 @@ def inner_goal_proportions(stage='tele'):
     # Begin by getting the teams list, TBA data for every AIM, & scout data for each AIM
     aims = []
     api_url = f'event/{utils.TBA_EVENT_KEY}/matches'
-    matches = ldc.select_tba_cache(api_url)['data']
+    ldc = database.Database()
+    matches = ldc.get_tba_cache(api_url)['data']
     matches = [match for match in matches if match['comp_level'] == 'qm']
     for match in matches:
         for alliance in ['red', 'blue']:
@@ -84,8 +85,8 @@ def inner_goal_proportions(stage='tele'):
                 team = team.split('frc')[1]
                 match_number = match['match_number']
                 # There should only be one TIM for this team in this match
-                tims = ldc.read_dataset(
-                    'processed.calc_obj_tim', team_number=int(team), match_number=match_number
+                tims = ldc.find(
+                    'obj_tim', team_number=int(team), match_number=match_number
                 )
                 if len(tims) == 1:
                     aim_info['team_high_goals'][team] = tims[0][f'{stage}_balls_high']

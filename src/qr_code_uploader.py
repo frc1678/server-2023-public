@@ -23,7 +23,7 @@ def upload_qr_codes(qr_codes):
     # Gets the starting character for each QR code type, used to identify QR code type
     schema = utils.read_schema('schema/match_collection_qr_schema.yml')
 
-    # Acquires current qr data using local_database_communicator.py
+    # Acquires current qr data using database.py
     qr_data = [qr_code['data'] for qr_code in local_database.find('raw_qr')]
 
     # Creates a set to store QR codes
