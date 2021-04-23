@@ -16,6 +16,7 @@ parent_directory = os.path.dirname(current_directory)
 sys.path.append(parent_directory)
 from data_transfer import database
 import utils
+from src.server import Server
 
 
 def least_squares(A, b, cap_0_to_1=False):
@@ -70,7 +71,7 @@ def inner_goal_proportions(stage='tele'):
     tba_stage = 'teleop' if stage == 'tele' else 'auto'
     # Begin by getting the teams list, TBA data for every AIM, & scout data for each AIM
     aims = []
-    api_url = f'event/{utils.TBA_EVENT_KEY}/matches'
+    api_url = f'event/{Server.TBA_EVENT_KEY}/matches'
     ldc = database.Database()
     matches = ldc.get_tba_cache(api_url)['data']
     matches = [match for match in matches if match['comp_level'] == 'qm']

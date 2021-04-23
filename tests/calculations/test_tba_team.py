@@ -123,7 +123,7 @@ class TestTBATeamCalc:
 
     def test_run(self):
         teams = {
-            "api_url": f'event/{utils.TBA_EVENT_KEY}/teams/simple',
+            "api_url": f'event/{Server.TBA_EVENT_KEY}/teams/simple',
             "data": [
                 {
                     'city': 'Atascadero',

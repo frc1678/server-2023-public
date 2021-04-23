@@ -20,11 +20,15 @@ class Server:
     """
 
     CALCULATIONS_FILE = utils.create_file_path('src/calculations.yml')
+    TBA_EVENT_KEY = utils.load_tba_event_key_file(utils._TBA_EVENT_KEY_FILE)
 
-    def __init__(self):
+    def __init__(self, write_cloud=False):
         self.db = database.Database()
         self.oplog = self.db.client.local.oplog.rs
-        self.cloud_db_updater = cloud_db_updater.CloudDBUpdater()
+        if write_cloud:
+            self.cloud_db_updater = cloud_db_updater.CloudDBUpdater()
+        else:
+            self.cloud_db_updater = None
 
         self.calculations: List[BaseCalculations] = self.load_calculations()
 
@@ -54,11 +58,6 @@ class Server:
 
     def run(self):
         """Starts server cycles, runs in infinite loop"""
-        write_cloud_question = input('Write changes to cloud db? y/N').lower()
-        if write_cloud_question in ['y', 'yes']:
-            write_cloud = True
-        else:
-            write_cloud = False
         while True:
             self.run_calculations()
             if write_cloud:
@@ -66,5 +65,10 @@ class Server:
 
 
 if __name__ == '__main__':
-    server = Server()
+    write_cloud_question = input('Write changes to cloud db? y/N').lower()
+    if write_cloud_question in ['y', 'yes']:
+        write_cloud = True
+    else:
+        write_cloud = False
+    server = Server(write_cloud)
     server.run()

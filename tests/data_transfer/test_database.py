@@ -3,10 +3,10 @@ import pymongo
 import yaml
 
 from src.data_transfer import database
-from src import utils
+from src.server import Server
 
 CLIENT = pymongo.MongoClient('localhost', 1678)
-TEST_DATABASE_NAME = 'test' + utils.TBA_EVENT_KEY
+TEST_DATABASE_NAME = 'test' + Server.TBA_EVENT_KEY
 # Helps execute tests
 TEST_DB_HELPER = CLIENT[TEST_DATABASE_NAME]
 # The actual class to be tested

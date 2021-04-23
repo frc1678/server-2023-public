@@ -12,6 +12,7 @@ import random
 import string
 import os
 from typing import List, Dict, Tuple
+from src.server import Server
 
 
 def print_bold_red(text: str) -> None:
@@ -29,6 +30,7 @@ if not os.path.exists(PATH_TO_MATCH_SCHEDULE):
         'fake match scheudule to work with instead'
     )
     PATH_TO_MATCH_SCHEDULE = None
+
 
 # Begin by creating a fake list of teams and a fake dictionary of scouts
 # That way the fake data will be realistic enough to actually be useful :)
@@ -121,11 +123,11 @@ if __name__ == '__main__':
 
     TEAMS = [
         team['team_number']
-        for team in tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/teams/simple')
+        for team in tba_communicator.tba_request(f'event/{Server.TBA_EVENT_KEY}/teams/simple')
     ]
     MATCHES = [
         match
-        for match in tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/matches/simple')
+        for match in tba_communicator.tba_request(f'event/{Server.TBA_EVENT_KEY}/matches/simple')
         if match['comp_level'] == 'qm'
     ]
 else:
@@ -146,7 +148,6 @@ else:
         blue = [f'frc{team}' for team in teams_in_current_match[3:6]]
         current_match['alliances'] = {'red': {'team_keys': red}, 'blue': {'team_keys': blue}}
         MATCHES.append(current_match)
-
 
 insert_fake_qr_data()
 insert_fake_non_qr_data()

@@ -13,7 +13,6 @@ import pymongo
 from data_transfer import database
 import utils
 
-
 class CloudDBUpdater:
 
     BASE_CONNECTION_STRING = 'mongodb+srv://server:{}@scouting-system-3das1.gcp.mongodb.net/test?retryWrites=true&w=majority'

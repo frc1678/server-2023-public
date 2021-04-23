@@ -4,6 +4,7 @@
 
 from calculations import base_calculations, inner_goals_regression
 import utils
+from src.server import Server
 
 
 class TBATeamCalc(base_calculations.BaseCalculations):
@@ -69,7 +70,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
     def update_team_calcs(self, teams: list) -> list:
         """Returns updates to team calculations based on refs"""
 
-        teams_api_endpoint = f'event/{utils.TBA_EVENT_KEY}/teams/simple'
+        teams_api_endpoint = f'event/{Server.TBA_EVENT_KEY}/teams/simple'
         team_request_output = self.server.db.get_tba_cache(teams_api_endpoint)
         if team_request_output is None:
             raise AttributeError(

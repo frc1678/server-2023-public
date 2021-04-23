@@ -6,6 +6,7 @@ import copy
 
 from data_transfer import database
 import utils
+from src.server import Server
 
 
 def calc_tba_bool(match_data, alliance, filters):
@@ -41,7 +42,7 @@ def update_calc_tba_tims(tims):
     Reads from the `calc_tba_tim` schema file to get data points that are pulled from TBA.
     """
     # Pull TBA data
-    tba_api_url = f'event/{utils.TBA_EVENT_KEY}/matches'
+    tba_api_url = f'event/{Server.TBA_EVENT_KEY}/matches'
     ldc = database.Database()
     tba_data = ldc.get_tba_cache(tba_api_url)['data']
     # Filter out matches such that we only have quals matches

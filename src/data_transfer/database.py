@@ -14,7 +14,6 @@ import yaml
 import start_mongod
 import utils
 
-
 # Load collection names
 COLLECTION_SCHEMA = utils.read_schema('schema/collection_schema.yml')
 COLLECTION_NAMES = [collection for collection in COLLECTION_SCHEMA['collections'].keys()]
@@ -32,12 +31,15 @@ def check_collection_name(collection_name: str) -> None:
 class Database:
     """Utility class for the database, performs CRUD functions on local and cloud databases"""
 
-    def __init__(self, connection: str = 'localhost', port: int = start_mongod.PORT) -> None:
+    def __init__(
+        self, tba_event_key: str = utils.load_tba_event_key_file(utils._TBA_EVENT_KEY_FILE),
+        connection: str = 'localhost', port: int = start_mongod.PORT
+    ) -> None:
         self.connection = connection
         self.port = port
         self.client = pymongo.MongoClient(connection, port)
         production_mode: bool = os.environ.get('SCOUTING_SERVER_ENV') == 'production'
-        self.name = utils.TBA_EVENT_KEY if production_mode else f'test{utils.TBA_EVENT_KEY}'
+        self.name = tba_event_key if production_mode else f'test{tba_event_key}'
         self.db = self.client[self.name]
 
     def setup_db(self):

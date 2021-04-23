@@ -16,7 +16,7 @@ from typing import List, Dict, Tuple, Optional, Any
 import shutil
 
 import utils
-
+from src.server import Server
 
 DATABASE = database.Database()
 SCHEMA = utils.read_schema("schema/collection_schema.yml")
@@ -124,7 +124,7 @@ class ExportTBA(BaseExport):
         """Get data from tba if it is not given"""
         # If the cached data is not given, then get the data from the tba communicator
         if cached_data is None:
-            api_url = f"event/{utils.TBA_EVENT_KEY}/matches"
+            api_url = f"event/{Server.TBA_EVENT_KEY}/matches"
             cached_data = tba_communicator.tba_request(api_url)
         return cached_data
 

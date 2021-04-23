@@ -19,6 +19,7 @@ raise NotImplementedError()
 
 # from data_transfer import local_database_communicator as ldc
 # import utils
+# from src.server import Server
 
 # # Takes user input to find which operation to do
 # ROLLBACK_OR_BLOCKLIST = input('Rollback a match (0) or blocklist specific qrs (1)? (0,1): ')
@@ -68,7 +69,7 @@ raise NotImplementedError()
 # TO_BLOCKLIST = []
 
 # # Takes TBA event key from utils.py
-# EVENT_KEY = utils.TBA_EVENT_KEY
+# EVENT_KEY = Server.TBA_EVENT_KEY
 
 # # Stores the already blocklisted QR codes from the local database
 # BLOCKLISTED_QRS = ldc.read_dataset('processed.replay_outdated_qr')

@@ -10,7 +10,7 @@ from data_transfer import database, cloud_db_updater
 class TestServer:
     @mock.patch('server.Server.load_calculations')
     def test_init(self, mock_load):
-        s = server.Server()
+        s = server.Server(write_cloud=True)
         # Load calculations is mocked out, so calculations list should  be empty
         assert s.calculations == mock_load.return_value
         assert isinstance(s.db, database.Database)

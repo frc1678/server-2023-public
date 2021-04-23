@@ -16,6 +16,7 @@ from dataclasses import dataclass
 
 from data_transfer import adb_communicator, tba_communicator
 import utils
+from src.server import Server
 
 
 @dataclass
@@ -107,7 +108,7 @@ class TeamListGenerator:
         """Returns team list from match schedule file."""
         teams = set()
         if not self.send_match_schedule:
-            teams = tba_communicator.tba_request(f'event/{utils.TBA_EVENT_KEY}/teams/simple')
+            teams = tba_communicator.tba_request(f'event/{Server.TBA_EVENT_KEY}/teams/simple')
             # TBA returns a dictionary of information about teams at the event, so extract team numbers
             team_numbers = [team['team_number'] for team in teams]
             return sorted(team_numbers)
@@ -183,10 +184,10 @@ class Sender:
         self.devices = set(adb_communicator.get_attached_devices())
 
     def confirm_prep_and_generation(self):
-        print(f'You are working with the competition {utils.TBA_EVENT_KEY}.')
+        print(f'You are working with the competition {Server.TBA_EVENT_KEY}.')
 
         # Match schedule must be created before local copy is loaded
-        match_list_generator = MatchListGenerator(f'event/{utils.TBA_EVENT_KEY}/matches/simple')
+        match_list_generator = MatchListGenerator(f'event/{Server.TBA_EVENT_KEY}/matches/simple')
         if match_list_generator.success:
             self.send_match_schedule = False
         else:
@@ -217,7 +218,7 @@ class Sender:
         if self.send_match_schedule:
             print(f'{self.match_schedule_local_path}"\n')
         else:
-            print(f'Match Schedule for "{utils.TBA_EVENT_KEY}" not available')
+            print(f'Match Schedule for "{Server.TBA_EVENT_KEY}" not available')
 
         while True:
             # Wait for USB connection to initialize

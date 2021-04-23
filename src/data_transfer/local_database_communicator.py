@@ -35,7 +35,7 @@ def get_collection_name(path):
     return path
 
 
-def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
+def read_dataset(path, **filter_by):
     """Filters by filter_by if given, or reads entire dataset.
 
     path is a string in dot notation showing which fields the data is under
@@ -46,7 +46,7 @@ def read_dataset(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     return DB.find(get_collection_name(path), filter_by)
 
 
-def select_tba_cache(api_url, competition=utils.TBA_EVENT_KEY):
+def select_tba_cache(api_url):
     """Finds cached tba data from MongoDB.
 
     If cache exists, returns data. If not, returns None.
@@ -55,7 +55,7 @@ def select_tba_cache(api_url, competition=utils.TBA_EVENT_KEY):
     return DB.get_tba_cache(api_url)
 
 
-def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
+def overwrite_tba_data(data, api_url):
     """Overwrites data in a tba cache under an api url.
 
     data is the new data to add. api_url is the url to add it under.
@@ -65,7 +65,7 @@ def overwrite_tba_data(data, api_url, competition=utils.TBA_EVENT_KEY):
     DB.update_tba_cache(data, api_url)
 
 
-def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
+def remove_data(path, **filter_by):
     """Removes the document containing the specified filter_bys.
 
     path is a string showing where data is located,
@@ -75,7 +75,7 @@ def remove_data(path, competition=utils.TBA_EVENT_KEY, **filter_by):
     DB.delete_data(get_collection_name(path), filter_by)
 
 
-def append_to_dataset(path, data, competition=utils.TBA_EVENT_KEY):
+def append_to_dataset(path, data):
     """Extends the dataset given by path with the data given by data
 
     'path' is the path to the dataset, (e.g. 'raw.qr', 'processed.calc_obj_tim'), use dot notation.
@@ -85,7 +85,7 @@ def append_to_dataset(path, data, competition=utils.TBA_EVENT_KEY):
     DB.insert_documents(get_collection_name(path), data)
 
 
-def update_dataset(path, new_data, query, competition=utils.TBA_EVENT_KEY):
+def update_dataset(path, new_data, query):
     """Updates a single dictionary within a dataset, if the query matches a dictionary within a
     dataset, replace the data given, if it does not exist create a new dictionary and add the query
     and data given by function parameter
@@ -102,6 +102,6 @@ def update_dataset(path, new_data, query, competition=utils.TBA_EVENT_KEY):
     DB.update_document(get_collection_name(path), new_data, query)
 
 
-def add_competition(client, competition=utils.TBA_EVENT_KEY) -> None:
+def add_competition(client) -> None:
     """Adds indexes into competition collections"""
     DB.set_indexes()
