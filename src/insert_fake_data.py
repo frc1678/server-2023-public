@@ -35,7 +35,7 @@ if not os.path.exists(PATH_TO_MATCH_SCHEDULE):
 # Begin by creating a fake list of teams and a fake dictionary of scouts
 # That way the fake data will be realistic enough to actually be useful :)
 def fake_name() -> str:
-    """ Returns a human sounding name """
+    """Returns a human sounding name"""
     num_letters = random.randint(4, 10)
     name = random.choice(string.ascii_uppercase)
     name += ''.join([random.choice(string.ascii_lowercase) for letter in range(num_letters - 1)])
