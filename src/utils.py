@@ -10,8 +10,6 @@ import subprocess
 import sys
 import traceback
 
-from calculations.base_calculations import BaseCalculations
-
 try:
     import yaml
 except ImportError:
@@ -141,9 +139,6 @@ def run_command(command, return_output=False):
         return result.stdout.decode('utf-8').replace('\r\n', '\n') if return_output else None
     except FileNotFoundError:
         raise Exception(f'utils.run_command: unknown command {command[0]}')
-
-
-avg = BaseCalculations.avg
 
 
 def _inner_read_schema(schema_file_path: str) -> dict:

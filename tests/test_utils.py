@@ -43,8 +43,8 @@ def test_catch_function_errors(capsys, caplog):
     assert captured.out == "Function test_fun: <class 'ValueError'> - smth\n"
     for record in caplog.records:
         assert record.levelname == 'ERROR'
-    assert utils.catch_function_errors(utils.avg, [1, 1]) == 1
-    assert utils.catch_function_errors(utils.avg, [1, 2, 3], [1.0, 1.0]) is None
+    assert utils.catch_function_errors(int, '1') == 1
+    assert utils.catch_function_errors(int, 'a') is None
 
 
 def test_log_warning(capsys, caplog):
