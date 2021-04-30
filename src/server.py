@@ -41,14 +41,23 @@ class Server:
         # key. We need to import the module and then get the class from the imported module.
         for calc in calculation_load_list:
             # Import the module
-            module = importlib.import_module(calc["import_path"])
+            try:
+                module = importlib.import_module(calc["import_path"])
+            except Exception as e:
+                utils.log_error(f'{e.__class__.__name__} importing {calc["import_path"]}: {e}')
+                continue
             # Get calculation class from module
-            cls = getattr(module, calc["class_name"])
-            # Append an instance of calculation class to the calculations list
-            # We pass `self` as the only argument to the `__init__` method of the calculation class
-            # so the calculations can get access to server instance variables such as the oplog
-            # or the database
-            loaded_calcs.append(cls(self))
+            try:
+                cls = getattr(module, calc["class_name"])
+                # Append an instance of calculation class to the calculations list
+                # We pass `self` as the only argument to the `__init__` method of the calculation
+                # class so the calculations can get access to server instance variables such as the
+                # oplog or the database
+                loaded_calcs.append(cls(self))
+            except Exception as e:
+                utils.log_error(
+                    f'{e.__class__.__name__} instantiating {calc["import_path"]}.{calc["class_name"]}: {e}'
+                )
         return loaded_calcs
 
     def run_calculations(self):
