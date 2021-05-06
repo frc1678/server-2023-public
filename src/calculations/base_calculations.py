@@ -23,6 +23,19 @@ class BaseCalculations:
             }
         )
 
+    def find_team_list(self) -> list:
+        """Returns a list of team numbers that appear in watched_collections"""
+        teams = set()
+        for entry in self.entries_since_last():
+            # Prevents error from not having a team num
+            if "team_number" in entry["o"].keys():
+                teams.add(entry["o"]["team_number"])
+            # If the doc was updated, need to manually find the document
+            elif entry['op'] == 'u':
+                if (query := self.server.db.find(entry['ns'].split('.')[-1])) != [] and 'team_number' in query[0].keys():
+                    teams.add(query[0]['team_number'])
+        return list(teams)
+
     @staticmethod
     def avg(nums, weights=None, default=0):
         """Calculates the average of a list of numeric types.

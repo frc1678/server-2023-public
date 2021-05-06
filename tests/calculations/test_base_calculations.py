@@ -26,12 +26,30 @@ class TestBaseCalculations:
     def test_entries_since_last(self):
         self.base_calc.watched_collections = ['test.testing']
         self.base_calc.update_timestamp()
-        self.test_server.db.insert_documents('test.testing', ({'a': 1}, {'a': 2}, {'a': 3}))
+        self.test_server.db.insert_documents(
+            'test.testing', ({'a': 1}, {'a': 2}, {'a': 3})
+        )
         self.test_server.db.delete_data('test.testing', a=1)
         self.test_server.db.update_document('test.testing', {'b': 2}, {'a': 2})
         for entry in self.base_calc.entries_since_last():
             assert entry['ts'] > self.base_calc.timestamp
             assert entry['op'] in ['d', 'i', 'u']
+
+    def test_find_team_list(self):
+        self.base_calc.update_timestamp()
+        self.base_calc.watched_collections = ['test']
+        self.test_server.db.insert_documents(
+            'test',
+            [
+                {'team_number': 0},
+                {'useless': 0},
+                {'team_number': 1, 'useless': 0},
+            ],
+        )
+        assert self.base_calc.find_team_list() == [0, 1]
+        self.base_calc.update_timestamp()
+        self.test_server.db.update_document('test', {'team_number': 1}, {'useless': 1})
+        assert self.base_calc.find_team_list() == [1]
 
     def test_avg(self):
         # Test if there is no input

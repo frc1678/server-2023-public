@@ -145,14 +145,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
         """Executes the TBA Team calculations"""
         # Get oplog entries
         entries = self.entries_since_last()
-        teams = set()
-        # Check if changes need to be made to teams
-        if self.entries_since_last() is not None:
-            for entry in entries:
-                # Prevents error from not having a team num
-                if 'team_number' in entry['o'].keys():
-                    teams.add(entry['o']['team_number'])
-        for update in self.update_team_calcs(list(teams)):
+        for update in self.update_team_calcs(self.find_team_list()):
             self.server.db.update_document(
                 'tba_team', update, {'team_number': update['team_number']}
             )
