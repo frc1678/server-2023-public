@@ -139,7 +139,8 @@ class ObjTIMCalcs(BaseCalculations):
     def calculate_tim(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns a calculated TIM"""
         if len(unconsolidated_tims) == 0:
-            raise ValueError('Cannot consolidate a list of zero TIMs')
+            utils.log_warning('calculate_tim: zero TIMs given')
+            return {}
         calculated_tim = {}
         calculated_tim.update(self.calculate_tim_counts(unconsolidated_tims))
         calculated_tim.update(self.calculate_tim_bools(unconsolidated_tims))
@@ -168,9 +169,12 @@ class ObjTIMCalcs(BaseCalculations):
         # Check if changes need to be made to teams
         if (entries := self.entries_since_last()) is not None:
             for entry in entries:
+                team_num = entry['o']['team_number']
+                if team_num not in self.teams_list:
+                    utils.log_warning(f'obj_tims: team number {team_num} is not in teams list')
                 tims.append(
                     {
-                        'team_number': entry['o']['team_number'],
+                        'team_number': team_num,
                         'match_number': entry['o']['match_number'],
                     }
                 )
@@ -180,8 +184,9 @@ class ObjTIMCalcs(BaseCalculations):
                 unique_tims.append(tim)
 
         for update in self.update_obj_tim_calcs(unique_tims):
-            self.server.db.update_document(
-                'obj_tim',
-                update,
-                {'team_number': update['team_number'], 'match_number': update['match_number']},
-            )
+            if update != {}:
+                self.server.db.update_document(
+                    'obj_tim',
+                    update,
+                    {'team_number': update['team_number'], 'match_number': update['match_number']},
+                )

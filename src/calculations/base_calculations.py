@@ -1,5 +1,6 @@
 import pymongo
 
+import utils
 
 class BaseCalculations:
     def __init__(self, server):
@@ -7,6 +8,7 @@ class BaseCalculations:
         self.oplog = self.server.oplog
         self.update_timestamp()
         self.watched_collections = NotImplemented  # Calculations should override this attribute
+        self.teams_list = self._get_teams_list()
 
     def update_timestamp(self):
         """Updates the timestamp to the most recent oplog entry timestamp"""
@@ -66,3 +68,13 @@ class BaseCalculations:
         # How many times each mode occurs in nums:
         max_occurrences = max(frequencies.values())
         return [item for item, frequency in frequencies.items() if frequency == max_occurrences]
+
+
+    def _get_teams_list(self):
+        try:
+            with open('data/team_list.csv', newline='') as f:
+                reader = csv.reader(f)
+                return list(reader)
+        except:
+            utils.log_warning('base_calculations: data/team_list.csv not found')
+            return []

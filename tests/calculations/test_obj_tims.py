@@ -1,5 +1,8 @@
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 
+from unittest import mock
+
+from calculations import base_calculations
 from calculations import obj_tims
 from server import Server
 import pytest
@@ -79,7 +82,8 @@ class TestObjTIMCalcs:
         },
     ]
 
-    def setup_method(self, method):
+    @mock.patch.object(base_calculations.BaseCalculations, '_get_teams_list', return_value=[3])
+    def setup_method(self, method, get_teams_list_dummy):
         self.test_server = Server()
         self.test_calculator = obj_tims.ObjTIMCalcs(self.test_server)
 
@@ -145,3 +149,16 @@ class TestObjTIMCalcs:
         assert calculated_tim["team_number"] == 254
         assert calculated_tim["tele_balls_high"] == 5
         assert calculated_tim["tele_balls_low"] == 1
+
+    @mock.patch.object(obj_tims.ObjTIMCalcs, 'entries_since_last', return_value=[ { 'o': { 'team_number': 1, 'match_number': 2 } } ])
+    def test_in_list_check1(self, entries_since_last_dummy):
+        with mock.patch('utils.log_warning') as warning_check:
+            self.test_calculator.run()
+            warning_check.assert_called()
+
+    @mock.patch.object(obj_tims.ObjTIMCalcs, 'entries_since_last', return_value=[ { 'o': { 'team_number': 3, 'match_number': 2 } } ])
+    @mock.patch.object(obj_tims.ObjTIMCalcs, 'update_obj_tim_calcs', return_value=[{}])
+    def test_in_list_check2(self, entries_since_last_dummy, update_obj_tim_calcs_dummy):
+        with mock.patch('utils.log_warning') as warning_check:
+            self.test_calculator.run()
+            warning_check.assert_not_called()
