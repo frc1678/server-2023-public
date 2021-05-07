@@ -45,7 +45,43 @@ class TestOBJTeamCalc:
             'tele_avg_balls_high': 6.0,
             'avg_incap_time': 7.5,
         }
-        assert self.test_calc.calculate_averages(tims) == expected_output
+        action_counts = self.test_calc.get_action_counts(tims)
+        assert self.test_calc.calculate_averages(action_counts) == expected_output
+
+    def test_standard_deviations(self):
+        """Tests calculate_standard_deviations function from src/calculations/obj_team.py"""
+        tims = [
+            {
+                'auto_balls_low': 1,
+                'auto_balls_high': 2,
+                'tele_balls_low': 3,
+                'tele_balls_high': 4,
+                'incap': 0,
+            },
+            {
+                'auto_balls_low': 5,
+                'auto_balls_high': 6,
+                'tele_balls_low': 7,
+                'tele_balls_high': 8,
+                'incap': 0,
+            },
+            {
+                'auto_balls_low': 9,
+                'auto_balls_high': 10,
+                'tele_balls_low': 11,
+                'tele_balls_high': 12,
+                'incap': 0,
+            },
+        ]
+
+        expected_output = {
+            'auto_sd_balls_low': 3.265986323710904,
+            'auto_sd_balls_high': 3.265986323710904,
+            'tele_sd_balls_low': 3.265986323710904,
+            'tele_sd_balls_high': 3.265986323710904,
+        }
+        action_counts = self.test_calc.get_action_counts(tims)
+        assert self.test_calc.calculate_standard_deviations(action_counts) == expected_output
 
     def test_counts(self):
         """Tests calculate_counts function from src/calculations/obj_team.py"""
@@ -153,6 +189,10 @@ class TestOBJTeamCalc:
                 'auto_avg_balls_high': 71.0,
                 'tele_avg_balls_low': 38.0,
                 'tele_avg_balls_high': 38.0,
+                'auto_sd_balls_low': 22.44994432064365,
+                'auto_sd_balls_high': 14.854853303438128,
+                'tele_sd_balls_low': 15.57776192739723,
+                'tele_sd_balls_high': 27.796882319185844,
                 'avg_incap_time': 18.0,
                 'tele_cp_rotation_successes': 2,
                 'tele_cp_position_successes': 1,
@@ -166,6 +206,10 @@ class TestOBJTeamCalc:
                 'auto_avg_balls_high': 60.0,
                 'tele_avg_balls_low': 68.0,
                 'tele_avg_balls_high': 71.0,
+                'auto_sd_balls_low': 12.355835328567093,
+                'auto_sd_balls_high': 11.430952132988164,
+                'tele_sd_balls_low': 24.26245384677046,
+                'tele_sd_balls_high': 9.092121131323903,
                 'avg_incap_time': 42.0,
                 'tele_cp_rotation_successes': 3,
                 'tele_cp_position_successes': 3,

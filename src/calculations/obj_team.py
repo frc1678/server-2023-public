@@ -4,6 +4,7 @@
 import utils
 from typing import List, Dict
 from calculations import base_calculations
+from statistics import pstdev
 
 
 class OBJTeamCalc(base_calculations.BaseCalculations):
@@ -11,7 +12,6 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
 
     # Get the last section of each entry (so foo.bar.baz becomes baz)
     SCHEMA = utils.unprefix_schema_dict(utils.read_schema('schema/calc_obj_team_schema.yml'))
-    STR_TYPES = {'str': str, 'float': float, 'int': int}
 
     def __init__(self, server):
         """Overrides watched collections, passes server object"""
@@ -19,23 +19,43 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         self.watched_collections = ['obj_tim']
         # Used for converting to a type that is given as a string
 
-    def calculate_averages(self, tims: List[Dict]):
+    def get_action_counts(self, tims: List[Dict]):
+        """Gets a list of times each team completed a certain action by tim for averages
+        and standard deviations.
+        """
+        tim_action_counts = {}
+        # Gathers all necessary schema fields
+        tim_fields = set()
+        for schema in {**self.SCHEMA['averages'], **self.SCHEMA['standard_deviations']}.values():
+            tim_fields.add(schema['tim_fields'][0])
+        for tim_field in tim_fields:
+            # Gets the total number of actions across all tims
+            tim_action_counts[tim_field] = [tim[tim_field.split('.')[1]] for tim in tims]
+        return tim_action_counts
+
+    def calculate_averages(self, tim_action_counts):
         """Creates a dictionary of calculated averages, called team_info,
         where the keys are the names of the calculations, and the values are the results
         """
         team_info = {}
         for calculation, schema in self.SCHEMA['averages'].items():
-            # Find tims that meet required data field:
-            tim_action_counts = []
-            for tim in tims:
-                # Gets the total number of actions for a single tim
-                tim_action_counts.append(
-                    sum([tim[tim_field.split(".")[1]] for tim_field in schema['tim_fields']])
-                )
-            if schema['type'] not in ['int', 'float']:
-                raise TypeError(f'{calculation} should be a number in calc obj team schema')
-            average = self.avg(tim_action_counts)
-            team_info[calculation] = self.STR_TYPES[schema['type']](average)
+            # Average the values for the tim_fields
+            average = 0
+            for tim_field in schema['tim_fields']:
+                average += self.avg(tim_action_counts[tim_field])
+            team_info[calculation] = average
+        return team_info
+
+    def calculate_standard_deviations(self, tim_action_counts):
+        """Creates a dictionary of calculated standard deviations, called team_info,
+        where the keys are the names of the calculation, and the values are the results
+        """ 
+        team_info = {}
+        for calculation, schema in self.SCHEMA['standard_deviations'].items():
+            # Take the standard deviation for the tim_field
+            tim_field = schema['tim_fields'][0]
+            standard_deviation = pstdev(tim_action_counts[tim_field])
+            team_info[calculation] = standard_deviation
         return team_info
 
     def filter_tims_for_counts(self, tims: List[Dict], schema):
@@ -67,7 +87,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         team_info = {}
         for calculation, schema in self.SCHEMA['counts'].items():
             tims_that_meet_filter = self.filter_tims_for_counts(tims, schema)
-            team_info[calculation] = self.STR_TYPES[schema['type']](len(tims_that_meet_filter))
+            team_info[calculation] = len(tims_that_meet_filter)
         return team_info
 
     def update_team_calcs(self, teams: list) -> list:
@@ -77,9 +97,11 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         for team in teams:
             # Load team data from database
             obj_tims = self.server.db.find('obj_tim', team_number=team)
-            team_data = self.calculate_averages(obj_tims)
+            tim_action_counts = self.get_action_counts(obj_tims)
+            team_data = self.calculate_averages(tim_action_counts)
             team_data['team_number'] = team
             team_data.update(self.calculate_counts(obj_tims))
+            team_data.update(self.calculate_standard_deviations(tim_action_counts))
             obj_team_updates[team] = team_data
         return list(obj_team_updates.values())
 
