@@ -1,6 +1,9 @@
+import csv
+
 import pymongo
 
 import utils
+
 
 class BaseCalculations:
     def __init__(self, server):
@@ -34,7 +37,9 @@ class BaseCalculations:
                 teams.add(entry["o"]["team_number"])
             # If the doc was updated, need to manually find the document
             elif entry['op'] == 'u':
-                if (query := self.server.db.find(entry['ns'].split('.')[-1])) != [] and 'team_number' in query[0].keys():
+                if (
+                    query := self.server.db.find(entry['ns'].split('.')[-1])
+                ) != [] and 'team_number' in query[0].keys():
                     teams.add(query[0]['team_number'])
         return list(teams)
 
@@ -69,12 +74,12 @@ class BaseCalculations:
         max_occurrences = max(frequencies.values())
         return [item for item, frequency in frequencies.items() if frequency == max_occurrences]
 
-
-    def _get_teams_list(self):
+    @staticmethod
+    def _get_teams_list():
         try:
-            with open('data/team_list.csv', newline='') as f:
+            with open('data/team_list.csv') as f:
                 reader = csv.reader(f)
-                return list(reader)
-        except:
-            utils.log_warning('base_calculations: data/team_list.csv not found')
+                return [int(n) for n in next(reader)]
+        except FileNotFoundError:
+            utils.log_error('base_calculations: data/team_list.csv not found')
             return []

@@ -1,6 +1,6 @@
 import pytest
 
-from unittest.mock import patch
+from unittest.mock import Mock, mock_open, patch
 
 from calculations.base_calculations import BaseCalculations
 from server import Server
@@ -26,9 +26,7 @@ class TestBaseCalculations:
     def test_entries_since_last(self):
         self.base_calc.watched_collections = ['test.testing']
         self.base_calc.update_timestamp()
-        self.test_server.db.insert_documents(
-            'test.testing', ({'a': 1}, {'a': 2}, {'a': 3})
-        )
+        self.test_server.db.insert_documents('test.testing', ({'a': 1}, {'a': 2}, {'a': 3}))
         self.test_server.db.delete_data('test.testing', a=1)
         self.test_server.db.update_document('test.testing', {'b': 2}, {'a': 2})
         for entry in self.base_calc.entries_since_last():
@@ -62,3 +60,15 @@ class TestBaseCalculations:
         assert 'Weighted average expects one weight for each number.' in str(num_error)
         # Test average with weights
         assert 1 == BaseCalculations.avg([1, 3], [2.0, 0.0])
+
+    @patch('utils.log_error')
+    def test_get_teams_list(self, log_error_mock):
+        with patch('calculations.base_calculations.open', mock_open(read_data='1,2,3')) as _:
+            assert BaseCalculations._get_teams_list() == [1, 2, 3]
+
+        def f(*args):
+            raise FileNotFoundError
+
+        with patch('calculations.base_calculations.open', Mock(side_effect=f)):
+            assert BaseCalculations._get_teams_list() == []
+            log_error_mock.assert_called_with('base_calculations: data/team_list.csv not found')
