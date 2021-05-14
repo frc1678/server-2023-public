@@ -11,6 +11,8 @@ import yaml
 from data_transfer import database
 import utils
 
+import datetime
+
 local_database = database.Database(port=1678)
 
 
@@ -45,7 +47,16 @@ def upload_qr_codes(qr_codes):
 
     # Adds the QR codes to the local database if the set isn't empty
     if qr != set():
-        qr = [{'data': qr_code, 'blocklisted': False} for qr_code in qr]
+        curr_time = datetime.datetime.now()
+        qr = [
+            {
+                'data': qr_code,
+                'blocklisted': False,
+                'epoch_time': curr_time.timestamp(),
+                'readable_time': curr_time.strftime('%D - %H:%M:%S'),
+            }
+            for qr_code in qr
+        ]
         local_database.insert_documents('raw_qr', qr)
 
     return qr
