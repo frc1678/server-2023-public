@@ -98,7 +98,7 @@ class CloudDBUpdater:
         This function mainly exists to facilitate testing by mocking the function return
         """
         try:
-            return database.Database(cls.get_connection_string())
+            return database.Database(connection=cls.get_connection_string())
         except pymongo.errors.ConfigurationError:
             # Raised when DNS operation times out, effectively means no internet
             utils.log_warning('Cannot connect to Cloud DB')

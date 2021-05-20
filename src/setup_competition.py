@@ -47,7 +47,7 @@ if CLOUD_DB_PERMISSION:
     connection_string = cloud_db_updater.CloudDBUpdater.get_connection_string()
     # Checks if competition key exists in the cloud
     setup_connection(connection_string, COMPETITION_KEY)
-    CLOUD_DB = database.Database(connection_string)
+    CLOUD_DB = database.Database(connection=connection_string)
     # Created indexes for the database
     CLOUD_DB.setup_db()
 
