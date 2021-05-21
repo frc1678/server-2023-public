@@ -19,7 +19,12 @@ class BaseCalculations:
         self.timestamp = last_op.next()['ts']
 
     def entries_since_last(self):
-        """Returns a list of changes in the database"""
+        """Find changes in watched collections since the last update_timestamp()
+
+        This checks the oplog for insert ('i'), delete ('d'), or update ('u') operations that have
+        been performed on the watched collections and returns a PyMongo cursor object
+        with the query results.
+        """
         return self.oplog.find(
             {
                 'ts': {'$gt': self.timestamp},
