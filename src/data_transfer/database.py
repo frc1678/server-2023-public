@@ -32,8 +32,10 @@ class Database:
     """Utility class for the database, performs CRUD functions on local and cloud databases"""
 
     def __init__(
-        self, tba_event_key: str = utils.load_tba_event_key_file(utils._TBA_EVENT_KEY_FILE),
-        connection: str = 'localhost', port: int = start_mongod.PORT
+        self,
+        tba_event_key: str = utils.load_tba_event_key_file(utils._TBA_EVENT_KEY_FILE),
+        connection: str = 'localhost',
+        port: int = start_mongod.PORT,
     ) -> None:
         self.connection = connection
         self.port = port

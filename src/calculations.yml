@@ -16,6 +16,9 @@
 - import_path: calculations.obj_team
   class_name: OBJTeamCalc
 
+- import_path: calculations.subj_team
+  class_name: SubjTeamCalcs
+
 - import_path: calculations.tba_tims
   class_name: TBATIMCalc
 

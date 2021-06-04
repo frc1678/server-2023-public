@@ -15,7 +15,6 @@ import utils
 DB = Database()
 
 
-
 def get_collection_name(path):
     """Gets the new corresponding collection name
 

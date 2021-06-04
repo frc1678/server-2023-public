@@ -36,9 +36,7 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                 sub_calcs.append((sub_calc.split(".")[0], sub_calc.split('.')[1]))
             self.calcs[calc_name] = sub_calcs
 
-    def calculate_pickability(
-        self, team_number: int, calc_name: str, team_data: dict
-    ) -> float:
+    def calculate_pickability(self, team_number: int, calc_name: str, team_data: dict) -> float:
         """Calculates first and second pickability
 
         calc_name is which pickability to calculate (e.g. first or second)

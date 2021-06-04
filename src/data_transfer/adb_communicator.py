@@ -147,9 +147,7 @@ def pull_device_data():
             if datapoint in current_data:
                 continue
             # Specify query to ensure that each team only has one entry
-            ldc.update_document(
-                dataset, datapoint, {'team_number': datapoint['team_number']}
-            )
+            ldc.update_document(dataset, datapoint, {'team_number': datapoint['team_number']})
             modified_data.append({'team_number': datapoint['team_number']})
         utils.log_info(f'{len(modified_data)} items uploaded to {dataset}')
         data[dataset] = modified_data

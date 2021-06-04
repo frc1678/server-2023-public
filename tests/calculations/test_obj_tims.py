@@ -150,13 +150,21 @@ class TestObjTIMCalcs:
         assert calculated_tim["tele_balls_high"] == 5
         assert calculated_tim["tele_balls_low"] == 1
 
-    @mock.patch.object(obj_tims.ObjTIMCalcs, 'entries_since_last', return_value=[ { 'o': { 'team_number': 1, 'match_number': 2 } } ])
+    @mock.patch.object(
+        obj_tims.ObjTIMCalcs,
+        'entries_since_last',
+        return_value=[{'o': {'team_number': 1, 'match_number': 2}}],
+    )
     def test_in_list_check1(self, entries_since_last_dummy):
         with mock.patch('utils.log_warning') as warning_check:
             self.test_calculator.run()
             warning_check.assert_called()
 
-    @mock.patch.object(obj_tims.ObjTIMCalcs, 'entries_since_last', return_value=[ { 'o': { 'team_number': 3, 'match_number': 2 } } ])
+    @mock.patch.object(
+        obj_tims.ObjTIMCalcs,
+        'entries_since_last',
+        return_value=[{'o': {'team_number': 3, 'match_number': 2}}],
+    )
     @mock.patch.object(obj_tims.ObjTIMCalcs, 'update_obj_tim_calcs', return_value=[{}])
     def test_in_list_check2(self, entries_since_last_dummy, update_obj_tim_calcs_dummy):
         with mock.patch('utils.log_warning') as warning_check:

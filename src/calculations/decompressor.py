@@ -7,7 +7,7 @@ import os
 
 import yaml
 
-from data_transfer import local_database_communicator as ldc    # TODO: remove this
+from data_transfer import local_database_communicator as ldc  # TODO: remove this
 import utils
 
 

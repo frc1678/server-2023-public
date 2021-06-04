@@ -17,7 +17,6 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         """Overrides watched collections, passes server object"""
         super().__init__(server)
         self.watched_collections = ['obj_tim']
-        # Used for converting to a type that is given as a string
 
     def get_action_counts(self, tims: List[Dict]):
         """Gets a list of times each team completed a certain action by tim for averages
@@ -49,7 +48,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
     def calculate_standard_deviations(self, tim_action_counts):
         """Creates a dictionary of calculated standard deviations, called team_info,
         where the keys are the names of the calculation, and the values are the results
-        """ 
+        """
         team_info = {}
         for calculation, schema in self.SCHEMA['standard_deviations'].items():
             # Take the standard deviation for the tim_field

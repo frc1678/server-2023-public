@@ -1,11 +1,15 @@
 import csv
 
 import pymongo
+import statistics
 
 import utils
 
 
 class BaseCalculations:
+    # Used for converting to a type that is given as a string
+    STR_TYPES = {'str': str, 'float': float, 'int': int}
+
     def __init__(self, server):
         self.server = server
         self.oplog = self.server.oplog
@@ -78,6 +82,15 @@ class BaseCalculations:
         # How many times each mode occurs in nums:
         max_occurrences = max(frequencies.values())
         return [item for item, frequency in frequencies.items() if frequency == max_occurrences]
+
+    @staticmethod
+    def get_z_scores(nums: list) -> list:
+        """Given a list of numbers, returns their Z-scores"""
+        standard_deviation = statistics.pstdev(nums)
+        mean = BaseCalculations.avg(nums)
+        if standard_deviation == 0:
+            return [num - mean for num in nums]
+        return [(num - mean) / standard_deviation for num in nums]
 
     @staticmethod
     def _get_teams_list():

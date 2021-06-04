@@ -86,9 +86,7 @@ def inner_goal_proportions(stage='tele'):
                 team = team.split('frc')[1]
                 match_number = match['match_number']
                 # There should only be one TIM for this team in this match
-                tims = ldc.find(
-                    'obj_tim', team_number=int(team), match_number=match_number
-                )
+                tims = ldc.find('obj_tim', team_number=int(team), match_number=match_number)
                 if len(tims) == 1:
                     aim_info['team_high_goals'][team] = tims[0][f'{stage}_balls_high']
                 else:
