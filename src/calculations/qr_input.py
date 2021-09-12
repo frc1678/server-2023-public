@@ -25,10 +25,9 @@ class QRInput(calculations.base_calculations.BaseCalculations):
                 termcolor.cprint(f'WARNING: duplicate QR code not uploaded\t{qr_code}', color='red')
                 continue
             # Checks to make sure the qr is valid by checking its starting character
-            elif (
-                qr_code.startswith(self.schema['subjective_aim']['_start_character'])
-                or qr_code.startswith(self.schema['objective_tim']['_start_character'])
-            ):
+            elif qr_code.startswith(
+                self.schema['subjective_aim']['_start_character']
+            ) or qr_code.startswith(self.schema['objective_tim']['_start_character']):
                 qr.add(qr_code)
             else:
                 utils.log_warning(f'Invalid QR code not uploaded: "{qr_code}"')

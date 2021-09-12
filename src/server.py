@@ -19,7 +19,7 @@ class Server:
     database.
     """
 
-    CALCULATIONS_FILE = utils.create_file_path('src/calculations.yml')
+    CALCULATIONS_FILE = utils.create_file_path("src/calculations.yml")
     TBA_EVENT_KEY = utils.load_tba_event_key_file(utils._TBA_EVENT_KEY_FILE)
 
     def __init__(self, write_cloud=False):
@@ -73,9 +73,9 @@ class Server:
                 self.cloud_db_updater.write_db_changes()
 
 
-if __name__ == '__main__':
-    write_cloud_question = input('Write changes to cloud db? y/N').lower()
-    if write_cloud_question in ['y', 'yes']:
+if __name__ == "__main__":
+    write_cloud_question = input("Write changes to cloud db? y/N").lower()
+    if write_cloud_question in ["y", "yes"]:
         write_cloud = True
     else:
         write_cloud = False

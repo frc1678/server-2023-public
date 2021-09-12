@@ -5,7 +5,7 @@ Remember to run server.py after running this file so that the raw data is calcul
 
 from data_transfer import database
 import generate_test_qrs
-import generate_test_data_non_qr
+import generate_test_data
 import qr_code_uploader
 import utils
 import random
@@ -16,18 +16,18 @@ from src.server import Server
 
 
 def print_bold_red(text: str) -> None:
-    print(f'\u001b[31m\u001b[1m{text}\u001b[0m')
+    print(f"\u001b[31m\u001b[1m{text}\u001b[0m")
 
 
 local_database = database.Database(port=1678)
 NUM_OBJ_SCOUTS = 18
 NUM_SUBJ_SCOUTS = 3
-PATH_TO_MATCH_SCHEDULE = utils.create_file_path('data/match_schedule.csv')
+PATH_TO_MATCH_SCHEDULE = utils.create_file_path("data/match_schedule.csv")
 if not os.path.exists(PATH_TO_MATCH_SCHEDULE):
     # For testing purposes, let this work even when there is no match schedule
     print_bold_red(
-        f'Watch out! {PATH_TO_MATCH_SCHEDULE} doesn\'t exist, so we\'ll just make a '
-        'fake match scheudule to work with instead'
+        f"Watch out! {PATH_TO_MATCH_SCHEDULE} doesn't exist, so we'll just make a "
+        "fake match scheudule to work with instead"
     )
     PATH_TO_MATCH_SCHEDULE = None
 
@@ -38,10 +38,10 @@ def fake_name() -> str:
     """Returns a human sounding name"""
     num_letters = random.randint(4, 10)
     name = random.choice(string.ascii_uppercase)
-    name += ''.join([random.choice(string.ascii_lowercase) for letter in range(num_letters - 1)])
+    name += "".join([random.choice(string.ascii_lowercase) for letter in range(num_letters - 1)])
     # 25% chance of adding a last initial
     if random.randint(1, 4) == 1:
-        initial = ' ' + random.choice(string.ascii_uppercase) + '.'
+        initial = " " + random.choice(string.ascii_uppercase) + "."
         name += initial
     return name
 
@@ -64,9 +64,9 @@ def insert_fake_qr_data() -> List[str]:
     """Uses functions from generate_test_qrs to create fake qr codes."""
     qr_codes = []
     for match in MATCHES:
-        match_num = match['match_number']
-        red = [int(team.split('frc')[1]) for team in match['alliances']['red']['team_keys']]
-        blue = [int(team.split('frc')[1]) for team in match['alliances']['blue']['team_keys']]
+        match_num = match["match_number"]
+        red = [int(team.split("frc")[1]) for team in match["alliances"]["red"]["team_keys"]]
+        blue = [int(team.split("frc")[1]) for team in match["alliances"]["blue"]["team_keys"]]
         obj_scouts_in_match = list(obj_scouts.items())
         subj_scouts_in_match = random.sample(list(subj_scouts), 2)
         for alliance in [red, blue]:
@@ -88,47 +88,47 @@ def insert_fake_qr_data() -> List[str]:
 
 
 def insert_fake_non_qr_data() -> Tuple[List, List]:
-    """Use generate_test_data_non_qr to generate fake data and insert into dictionary.
+    """Use generate_test_data to generate fake data and insert into dictionary.
     Also returns the fake objective and subjective data, respectively"""
-    fake_obj_pit_data_generator = generate_test_data_non_qr.DataGenerator(
-        'schema/obj_pit_collection_schema.yml', PATH_TO_MATCH_SCHEDULE
+    fake_obj_pit_data_generator = generate_test_data.DataGenerator(
+        "schema/obj_pit_collection_schema.yml", PATH_TO_MATCH_SCHEDULE
     )
-    fake_subj_pit_data_generator = generate_test_data_non_qr.DataGenerator(
-        'schema/subj_pit_collection_schema.yml', PATH_TO_MATCH_SCHEDULE
+    fake_subj_pit_data_generator = generate_test_data.DataGenerator(
+        "schema/subj_pit_collection_schema.yml", PATH_TO_MATCH_SCHEDULE
     )
 
     # Change team numbers to match actual team numbers
     obj = fake_obj_pit_data_generator.get_data(len(TEAMS))
     for team_num, data_set in zip(TEAMS, obj):
-        data_set.update({'team_number': team_num})
+        data_set.update({"team_number": team_num})
 
     subj = fake_subj_pit_data_generator.get_data(len(TEAMS))
     for team_num, data_set in zip(TEAMS, subj):
-        data_set.update({'team_number': team_num})
+        data_set.update({"team_number": team_num})
 
     try:
-        local_database.insert_documents('raw_obj_pit', obj)
-        local_database.insert_documents('raw_subj_pit', subj)
+        local_database.insert_documents("raw_obj_pit", obj)
+        local_database.insert_documents("raw_subj_pit", subj)
     except:
-        error_msg = 'Cannot insert fake raw data without overwriting existing data'
-        print_bold_red(f'Error: {error_msg}')
+        error_msg = "Cannot insert fake raw data without overwriting existing data"
+        print_bold_red(f"Error: {error_msg}")
     return obj, subj
 
 
 # If this script is being run directly, use actual team and match lists from TBA
 # If it's being imported by a test file, we don't want to rely on having a TBA key,
 # so autogenerate fake team and match lists to use instead
-if __name__ == '__main__':
+if __name__ == "__main__":
     from data_transfer import tba_communicator
 
     TEAMS = [
-        team['team_number']
-        for team in tba_communicator.tba_request(f'event/{Server.TBA_EVENT_KEY}/teams/simple')
+        team["team_number"]
+        for team in tba_communicator.tba_request(f"event/{Server.TBA_EVENT_KEY}/teams/simple")
     ]
     MATCHES = [
         match
-        for match in tba_communicator.tba_request(f'event/{Server.TBA_EVENT_KEY}/matches/simple')
-        if match['comp_level'] == 'qm'
+        for match in tba_communicator.tba_request(f"event/{Server.TBA_EVENT_KEY}/matches/simple")
+        if match["comp_level"] == "qm"
     ]
 else:
     # Define constants for how many teams and matches we want
@@ -142,13 +142,16 @@ else:
     MATCHES = []
     # This match schedule doesn't need to be realistic, only good enough for pytest to pass
     for match_number in range(1, NUM_MATCHES + 1):
-        current_match = {'match_number': match_number}
+        current_match = {"match_number": match_number}
         teams_in_current_match = random.sample(TEAMS, 6)
-        red = [f'frc{team}' for team in teams_in_current_match[0:3]]
-        blue = [f'frc{team}' for team in teams_in_current_match[3:6]]
-        current_match['alliances'] = {'red': {'team_keys': red}, 'blue': {'team_keys': blue}}
+        red = [f"frc{team}" for team in teams_in_current_match[0:3]]
+        blue = [f"frc{team}" for team in teams_in_current_match[3:6]]
+        current_match["alliances"] = {
+            "red": {"team_keys": red},
+            "blue": {"team_keys": blue},
+        }
         MATCHES.append(current_match)
 
 insert_fake_qr_data()
 insert_fake_non_qr_data()
-print('Done inserting data. Please run server to calculate and upload to cloud')
+print("Done inserting data. Please run server to calculate and upload to cloud")

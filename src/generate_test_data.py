@@ -6,8 +6,13 @@ import argparse
 from calculations.generate_random_value import generate_random_value
 import csv
 import utils
+import inquirer
+import json
 from dataclasses import dataclass
 from typing import List, Optional
+from os.path import exists
+from os import listdir
+from pprint import pprint
 
 
 @dataclass
@@ -25,7 +30,7 @@ class TIMInstanceGenerator:
 
     def __init__(self, match_schedule_file_path):
         self.match_schedule_file_path = match_schedule_file_path
-        self.tims: List(TIMInstance) = []
+        self.tims: List[TIMInstance] = []
         self.index = 0
         self.match_instance_generator()
 
@@ -79,7 +84,7 @@ class TIMInstanceGenerator:
 
     def read_match_schedule(self, file_path):
         """Reads csv as list of the match schedule"""
-        with open(file_path, 'r') as csv_file:
+        with open(file_path, "r") as csv_file:
             csv_data = list(csv.reader(csv_file))
         return csv_data
 
@@ -108,19 +113,22 @@ class DataGenerator:
     4. Get a number or raw data structures in need or generation and return a
     list of them with get_data()
 
-    generate_data = DataGenerator("<schema_file_path>")
+    generate_test_data = DataGenerator("<schema_file_path>")
 
     schema file path must follow sytax of the utils.read_schema()
     format is "schema/<schema_filename>.yml"
 
-    data = generate_data.get_data(<number_of_data>)
+    data = generate_test_data.get_data(<number_of_data>)
 
     data will be a list of dictionary's that are datapoint field filled in
     with auto generated data
     """
 
     def __init__(
-        self, schema_filename: str, match_schedule_file_path: Optional[str] = None, seed=None
+        self,
+        schema_filename: str,
+        match_schedule_file_path: Optional[str] = None,
+        seed=None,
     ):
         """Get schema filename and seed for generation"""
         self.seed = seed
@@ -235,10 +243,7 @@ class DataGenerator:
         generated_structure = {}
 
         # Go through each datapoint collection
-        for (
-            datapoint_collection_names,
-            datapoint_collection_values,
-        ) in datapoint_collections.items():
+        for datapoint_collection_values in datapoint_collections.values():
             # Go through each datapoint in the datapoint collections
             for (
                 datapoints_values_key,
@@ -291,8 +296,8 @@ class DataGenerator:
 
 def name_sample_data(filename: str, number_of_data: int):
     """Return the data with a name for easy demonstration of data"""
-    generate_data = DataGenerator(filename)
-    data = generate_data.get_data(number_of_data)
+    generate_test_data = DataGenerator(filename)
+    data = generate_test_data.get_data(number_of_data)
     return {filename: data[0]}
 
 
@@ -302,16 +307,32 @@ def parse_args():
     # Add arguments for input and output
     parser.add_argument(
         "-i",
+        "--infile",
         help="Input schema file; e.g. schema/calc_subj_team_schema.yml",
-        required=True,
+        required=False,
+    )
+    parser.add_argument(
+        "-o",
+        "--outfile",
+        help="Output file for json; e.g. output.json",
+        required=False,
     )
     parser.add_argument(
         "-n",
+        "--number",
         help="Number of data structures; e.g. 2",
-        required=True,
+        required=False,
+    )
+    parser.add_argument(
+        "-p",
+        "--pretty",
+        help="Pretty output",
+        required=False,
+        action="store_true",
     )
     parser.add_argument(
         "-t",
+        "--teamfile",
         help="Teams list file path",
         required=False,
     )
@@ -319,12 +340,63 @@ def parse_args():
     return parsed
 
 
+def ask_input_filename():
+    # Find where the schema folder is
+    if exists("../schema"):
+        schema_location = "../schema"
+    elif exists("./schema"):
+        schema_location = "./schema"
+    else:
+        schema_location = None
+
+    # Get all the schema files from the found schema directory
+    if schema_location:
+        schema_files = [
+            x
+            for x in listdir(schema_location)
+            if x[-4:] == ".yml"
+            and x != "collection_schema.yml"
+            and x != "match_collection_qr_schema.yml"
+        ]
+
+        if len(schema_files) == 0:
+            utils.log_warning(
+                "There are no files in the schema directory that end with .yml\
+                make sure the directory is up to date with https://github.com/frc1678/schema"
+            )
+
+        questions = [
+            inquirer.List(
+                "input_filename",
+                message="What schema data structure do you want? ",
+                choices=schema_files,
+            ),
+        ]
+
+        return "schema/" + inquirer.prompt(questions)["input_filename"]
+    else:
+
+        utils.log_error(
+            "Make sure the schema dir exists.\n\
+You may need to clone it inside the 'server/' dir.\n\
+Repo: https://github.com/frc1678/schema\n\n"
+        )
+
+        utils.log_error("Schema folder not found")
+        exit(1)
+
+
+def ask_number() -> int:
+    number = input("What number of schema data structure do you want? ")
+    return int(number)
+
+
 if __name__ == "__main__":
     """This script is both something that can be imported and used in the
     command line (import instructions at top of class)
 
     CLI instructions; use -h option for detail
-    python3 generate_test_data_non_qr.py -i <input_schema_file> -n <number_of_data>
+    python3 generate_test_data.py -i <input_schema_file> -n <number_of_data>
 
     The input_schema_file uses the same syntax as utils.read_schema
     "schema/<schema_file_name>.yml"
@@ -333,11 +405,23 @@ if __name__ == "__main__":
     """
     parsed = parse_args()
 
-    # Set filenames
-    input_filename = parsed.i
-    number_of_data = int(parsed.n)
-    teams_list_file_path = parsed.t
+    # Set schema filenames
+    input_filename = parsed.infile if parsed.infile else ask_input_filename()
+    number_of_data = int(parsed.number) if parsed.number else ask_number()
 
-    generate_data = DataGenerator(input_filename, teams_list_file_path)
-    data = generate_data.get_data(number_of_data)
-    print(data)
+    teams_list_file_path = parsed.teamfile
+
+    generate_test_data = DataGenerator(input_filename, teams_list_file_path)
+    data = generate_test_data.get_data(number_of_data)
+
+    # Write the data as a json file if an outfile is provided
+    if parsed.outfile:
+        with open(parsed.outfile, "w") as file:
+            json.dump(data, file)
+
+        print(f"Wrote to {parsed.outfile}")
+    else:
+        if parsed.pretty:
+            pprint(data)
+        else:
+            print(data)
