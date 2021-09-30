@@ -20,8 +20,8 @@ def tba_request(api_url):
     utils.log_info(f'tba request from {api_url} started')
     full_url = f'https://www.thebluealliance.com/api/v3/{api_url}'
     request_headers = {'X-TBA-Auth-Key': get_api_key()}
-    ldc = database.Database()
-    cached = ldc.get_tba_cache(api_url)
+    db = database.Database()
+    cached = db.get_tba_cache(api_url)
     # Check if cache exists
     if cached:
         request_headers['If-Modified-Since'] = cached['timestamp']
@@ -38,8 +38,7 @@ def tba_request(api_url):
     if request.status_code == 304:
         return cached['data']
     if request.status_code == 200:
-        formatted_data = {'timestamp': request.headers['Last-Modified'], 'data': request.json()}
-        ldc.update_tba_cache(formatted_data, api_url)
+        db.update_tba_cache(request.json(), api_url, request.headers['Last-Modified'])
         return request.json()
     raise Warning(f'Request failed with status code {request.status_code}')
 
