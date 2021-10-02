@@ -83,6 +83,7 @@ class BaseCalculations:
         max_occurrences = max(frequencies.values())
         return [item for item, frequency in frequencies.items() if frequency == max_occurrences]
 
+
     @staticmethod
     def get_z_scores(nums: list) -> list:
         """Given a list of numbers, returns their Z-scores"""
@@ -101,3 +102,26 @@ class BaseCalculations:
         except FileNotFoundError:
             utils.log_error('base_calculations: data/team_list.csv not found')
             return []
+
+    
+    @staticmethod
+    def _get_aim_list():
+        """Each line in match_schedule.csv is a list with the first item being the match number,
+    
+        followed by the team numbers prefixed with alliance color.
+        Ex. 1,B-3859,B-5496,B-5199,R-3647,R-5107,R-4276
+        Returns a list of dictionaries of aims with match_number, alliance_color, and team_list data.
+        """
+        try:
+            with open('data/match_schedule.csv') as f:
+                reader = list(csv.reader(f))
+        except FileNotFoundError:
+            utils.log_error('base_calculations: data/match_schedule.csv not found')
+            return []
+        aim_list = []
+        for match in reader:
+            for alliance in ['R', 'B']:
+                aim = {'match_number': int(match[0]), 'alliance_color': alliance}
+                aim['team_list'] = [int(team[2:]) for team in match if alliance in team]
+                aim_list.append(aim)
+        return aim_list

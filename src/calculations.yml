@@ -27,3 +27,9 @@
 
 - import_path: calculations.pickability
   class_name: PickabilityCalc
+
+- import_path: calculations.predicted_aim
+  class_name: PredictedAimCalc
+
+- import_path: calculations.predicted_team
+  class_name: PredictedTeamCalc

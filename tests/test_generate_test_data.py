@@ -20,6 +20,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "tele_cp_rotation_successes": 49,
         "tele_cp_position_successes": 49,
         "climb_all_attempts": 49,
+        "matches_played": 49,
         "team_number": 49,
     },
     {

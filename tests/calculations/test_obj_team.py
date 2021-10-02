@@ -86,15 +86,16 @@ class TestOBJTeamCalc:
     def test_counts(self):
         """Tests calculate_counts function from src/calculations/obj_team.py"""
         tims = [
-            {'control_panel_rotation': True, 'control_panel_position': True, 'climb_time': 0},
-            {'control_panel_rotation': True, 'control_panel_position': False, 'climb_time': 20},
-            {'control_panel_rotation': False, 'control_panel_position': False, 'climb_time': 5},
+            {'control_panel_rotation': True, 'control_panel_position': True, 'climb_time': 0, 'match_number': 1},
+            {'control_panel_rotation': True, 'control_panel_position': False, 'climb_time': 20, 'match_number': 2},
+            {'control_panel_rotation': False, 'control_panel_position': False, 'climb_time': 5, 'match_number': 3},
         ]
 
         expected_output = {
             'tele_cp_rotation_successes': 2,
             'tele_cp_position_successes': 1,
             'climb_all_attempts': 2,
+            'matches_played': 3
         }
         assert self.test_calc.calculate_counts(tims) == expected_output
 
@@ -197,6 +198,7 @@ class TestOBJTeamCalc:
                 'tele_cp_rotation_successes': 2,
                 'tele_cp_position_successes': 1,
                 'climb_all_attempts': 2,
+                'matches_played': 3
             },
             {
                 "team_number": 1678,
@@ -214,6 +216,7 @@ class TestOBJTeamCalc:
                 'tele_cp_rotation_successes': 3,
                 'tele_cp_position_successes': 3,
                 'climb_all_attempts': 3,
+                'matches_played': 3
             },
         ]
         self.test_server.db.insert_documents('obj_tim', obj_tims)
