@@ -10,6 +10,9 @@
 - import_path: calculations.qr_input
   class_name: QRInput
 
+- import_path: calculations.decompressor
+  class_name: Decompressor
+
 - import_path: calculations.obj_tims
   class_name: ObjTIMCalcs
 

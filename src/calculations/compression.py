@@ -5,7 +5,7 @@
 This is used to allow QR codes to be modified and fake data to be generated for system tests.
 """
 
-from calculations import decompressor
+from calculations.decompressor import Decompressor
 import utils
 
 
@@ -17,7 +17,7 @@ def compress_timeline(timeline_data):
     compressed_actions = []
     for entry in timeline_data:
         action_components = []
-        for field in decompressor._TIMELINE_FIELDS:
+        for field in Decompressor.TIMELINE_FIELDS:
             if field['name'] == 'action_type':
                 # Add compressed action representation to action components
                 action_components.append(SCHEMA['action_type'][entry['action_type']])

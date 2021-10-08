@@ -1,5 +1,8 @@
 import insert_fake_data
-from calculations import decompressor
+import server
+from src.calculations import decompressor
+
+DECOMPRESSOR = decompressor.Decompressor(server.Server())
 
 
 def test_fake_name():
@@ -12,7 +15,7 @@ def test_insert_fake_qr_data():
     for qr in insert_fake_data.insert_fake_qr_data():
         formatted_fake_qrs.append({'data': qr})
 
-    decompressor.decompress_qrs(formatted_fake_qrs)
+    DECOMPRESSOR.decompress_qrs(formatted_fake_qrs)
 
 
 def test_insert_fake_non_qr_data():
