@@ -16,7 +16,7 @@ import utils
 
 class CloudDBUpdater:
 
-    BASE_CONNECTION_STRING = 'mongodb+srv://server:{}@scouting-system-3das1.gcp.mongodb.net/test?retryWrites=true&w=majority'
+    BASE_CONNECTION_STRING = 'mongodb+srv://server:{}@scouting-system-3das1.gcp.mongodb.net/test?authSource=admin&replicaSet=scouting-system-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true'
     OPERATION_MAP = {'i': pymongo.InsertOne, 'u': pymongo.UpdateOne, 'd': pymongo.DeleteOne}
 
     def __init__(self):
