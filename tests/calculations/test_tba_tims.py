@@ -5,7 +5,7 @@ from unittest import mock
 from unittest.mock import PropertyMock
 
 from server import Server
-from src.calculations import tba_tims
+from calculations import tba_tims
 
 
 TEST_DATA = [

@@ -8,7 +8,7 @@ from typing import List, Dict, Tuple, Any
 from calculations import base_calculations
 from data_transfer import database, tba_communicator
 import utils
-from src.server import Server
+from server import Server
 
 
 class TBATIMCalc(base_calculations.BaseCalculations):

@@ -2,7 +2,7 @@
 """Calculate subjective team data"""
 
 import utils
-from src.calculations import base_calculations
+from calculations import base_calculations
 from typing import Dict, List
 
 

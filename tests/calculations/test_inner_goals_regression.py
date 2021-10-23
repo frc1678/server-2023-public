@@ -8,7 +8,7 @@ current_directory = os.path.dirname(os.path.realpath(__file__))
 parent_directory = os.path.dirname(current_directory)
 grandparent_directory = os.path.dirname(parent_directory)
 sys.path.append(grandparent_directory)
-from src.calculations import inner_goals_regression
+from calculations import inner_goals_regression
 
 
 def test_dimension_mismatch_error():

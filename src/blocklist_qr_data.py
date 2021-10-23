@@ -19,7 +19,7 @@ raise NotImplementedError()
 
 # from data_transfer import local_database_communicator as ldc
 # import utils
-# from src.server import Server
+# from server import Server
 
 # # Takes user input to find which operation to do
 # ROLLBACK_OR_BLOCKLIST = input('Rollback a match (0) or blocklist specific qrs (1)? (0,1): ')

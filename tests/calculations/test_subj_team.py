@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 import pytest
-from src.calculations import subj_team
-from src.server import Server
+from calculations import subj_team
+from server import Server
 
 
 @pytest.mark.clouddb

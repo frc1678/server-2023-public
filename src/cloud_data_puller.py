@@ -8,7 +8,7 @@ import sys
 import termcolor
 
 from data_transfer import cloud_db_updater
-from src.server import Server
+from server import Server
 import utils
 
 termcolor.cprint(

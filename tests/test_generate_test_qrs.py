@@ -3,10 +3,10 @@
 import pytest
 
 import server
-from src.calculations import compression
-from src.calculations import decompressor
-from src import generate_test_qrs
-from src import utils
+from calculations import compression
+from calculations import decompressor
+import generate_test_qrs
+import utils
 
 SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')
 DECOMPRESSOR = decompressor.Decompressor(server.Server())

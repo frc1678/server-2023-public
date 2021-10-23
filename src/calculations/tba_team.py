@@ -4,7 +4,7 @@
 
 from calculations import base_calculations, inner_goals_regression
 import utils
-from src.server import Server
+from server import Server
 
 
 class TBATeamCalc(base_calculations.BaseCalculations):

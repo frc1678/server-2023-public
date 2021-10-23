@@ -1,6 +1,6 @@
 import insert_fake_data
 import server
-from src.calculations import decompressor
+from calculations import decompressor
 
 DECOMPRESSOR = decompressor.Decompressor(server.Server())
 

@@ -1,6 +1,6 @@
 from data_transfer import database
 import utils
-from src import export_picklist_editor_csvs
+import export_picklist_editor_csvs
 import json
 
 from unittest import mock

@@ -12,7 +12,7 @@ import random
 import string
 import os
 from typing import List, Dict, Tuple
-from src.server import Server
+from server import Server
 
 
 def print_bold_red(text: str) -> None:

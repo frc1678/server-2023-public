@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 from data_transfer import adb_communicator, tba_communicator
 import utils
-from src.server import Server
+from server import Server
 
 
 @dataclass

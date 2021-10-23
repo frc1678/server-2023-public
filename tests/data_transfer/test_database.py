@@ -2,8 +2,8 @@
 import pymongo
 import yaml
 
-from src.data_transfer import database
-from src.server import Server
+from data_transfer import database
+from server import Server
 
 CLIENT = pymongo.MongoClient('localhost', 1678)
 TEST_DATABASE_NAME = 'test' + Server.TBA_EVENT_KEY

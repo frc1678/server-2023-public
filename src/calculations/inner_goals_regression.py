@@ -16,7 +16,7 @@ parent_directory = os.path.dirname(current_directory)
 sys.path.append(parent_directory)
 from data_transfer import database
 import utils
-from src.server import Server
+from server import Server
 
 
 def least_squares(A, b, cap_0_to_1=False):

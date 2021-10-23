@@ -16,7 +16,7 @@ from typing import List, Dict, Tuple, Optional, Any
 import shutil
 
 import utils
-from src.server import Server
+from server import Server
 
 DATABASE = database.Database()
 SCHEMA = utils.read_schema("schema/collection_schema.yml")
