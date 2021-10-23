@@ -304,6 +304,8 @@ class TestTBATeamCalc:
         expected_results = [
             {
                 "team_number": 973,
+                "auto_avg_balls_inner": 0,
+                "auto_avg_balls_outer": 93.446,
                 "auto_high_balls_percent_inner": 0,
                 "auto_line_successes": 1,
                 "climb_all_success_avg_time": 29.333333333333332,
@@ -312,11 +314,15 @@ class TestTBATeamCalc:
                 "climb_percent_success": 0.057692307692307696,
                 "park_successes": 1,
                 "team_name": "Greybots",
+                "tele_avg_balls_inner": 0,
+                "tele_avg_balls_outer": 32.3048,
                 "tele_high_balls_percent_inner": 0,
             },
             {
                 "team_number": 1678,
                 "auto_high_balls_percent_inner": 0,
+                "auto_avg_balls_inner": 0,
+                "auto_avg_balls_outer": 0.1922,
                 "auto_line_successes": 2,
                 "climb_all_success_avg_time": 35,
                 "climb_all_successes": 1,
@@ -325,6 +331,8 @@ class TestTBATeamCalc:
                 "park_successes": 2,
                 "team_name": "Citrus Circuits",
                 "tele_high_balls_percent_inner": 0,
+                "tele_avg_balls_inner": 0,
+                "tele_avg_balls_outer": 73.0669
             },
         ]
         self.test_server.db.insert_documents('tba_cache', teams)

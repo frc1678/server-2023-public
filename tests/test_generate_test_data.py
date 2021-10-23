@@ -60,6 +60,10 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     },
     {
         "auto_high_balls_percent_inner": 84.4422,
+        "auto_avg_balls_inner": 84.4422,
+        "auto_avg_balls_outer": 84.4422,
+        "tele_avg_balls_inner": 84.4422,
+        "tele_avg_balls_outer": 84.4422,
         "tele_high_balls_percent_inner": 84.4422,
         "climb_all_success_avg_time": 84.4422,
         "team_name": "yyyyyyyyyyyyyyyyyyyyyy",

@@ -129,6 +129,13 @@ class TBATeamCalc(base_calculations.BaseCalculations):
             # If regression fails or team is not found, percent inner will default to 0
             team_data['auto_high_balls_percent_inner'] = auto_regression_results.pop(team, 0)
             team_data['tele_high_balls_percent_inner'] = tele_regression_results.pop(team, 0)
+
+            team_data['auto_avg_balls_outer'] = obj_team['auto_avg_balls_high'] * (1 - team_data['auto_high_balls_percent_inner'])
+            team_data['tele_avg_balls_outer'] = obj_team['tele_avg_balls_high'] * (1 - team_data['tele_high_balls_percent_inner'])
+            team_data['auto_avg_balls_inner'] = obj_team['auto_avg_balls_high'] * team_data['auto_high_balls_percent_inner']
+            team_data['tele_avg_balls_inner'] = obj_team['tele_avg_balls_high'] * team_data['tele_high_balls_percent_inner']
+
+
             tba_team_updates[team] = team_data
         # Add remaining regression results as regression can change for every team, so data must be
         # updated for every team
