@@ -16,20 +16,6 @@ class TestDecompressor:
         assert self.test_decompressor.server == self.test_server
         assert self.test_decompressor.watched_collections == ['raw_qr']
 
-    def test_get_data_fields(self):
-        # Set of what the data fields should be
-        expected_data_fields = {
-            'schema_version',
-            'serial_number',
-            'match_number',
-            'timestamp',
-            'match_collection_version_number',
-            'scout_name',
-        }
-        # Test that it returns the correct data type
-        assert isinstance(decompressor._get_data_fields('generic_data'), set)
-        # Test that the returned fields match what is expected
-        assert expected_data_fields == decompressor._get_data_fields('generic_data')
 
     def test_convert_data_type(self):
         # List of compressed names and decompressed names of enums
@@ -127,13 +113,6 @@ class TestDecompressor:
             'A18$Bs1234$C34$D1230$Ev1.3$FName'
         )
 
-    def test_get_timeline_info(self):
-        # What get_timeline_info() should return
-        expected_timeline_info = [
-            {'name': 'time', 'length': 3, 'type': 'int', 'position': 0},
-            {'name': 'action_type', 'length': 2, 'type': 'Enum', 'position': 1},
-        ]
-        assert expected_timeline_info == decompressor.get_timeline_info()
 
     def test_decompress_timeline(self):
         # Function should raise an error if the data isn't the right length

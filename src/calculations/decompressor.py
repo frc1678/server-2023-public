@@ -9,8 +9,8 @@ import yaml
 
 import utils
 from calculations import base_calculations
-
-SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')
+from calculations import qr_state
+from calculations.qr_state import QRState
 
 
 class QRType(enum.Enum):
@@ -20,44 +20,14 @@ class QRType(enum.Enum):
     SUBJECTIVE = 1
 
 
-def _get_data_fields(section):
-    """Get data fields of a section in the schema.
-
-    Filters out all entries beginning with '_' as they contain information about the
-    (de)compression process, not what data fields should be present.
-    """
-    data_fields = set()
-    for field in SCHEMA[section]:
-        # Filter out '_' at start of entry
-        if not field.startswith('_'):
-            data_fields.add(field)
-    return data_fields
-
-
-def get_timeline_info():
-    """Loads information about timeline fields."""
-    timeline_fields = []
-    for field, field_list in SCHEMA['timeline'].items():
-        field_data = {
-            'name': field,
-            'length': field_list[0],
-            'type': field_list[1],
-            'position': field_list[2],
-        }
-        timeline_fields.append(field_data)
-    # Sort timeline_fields by the position they appear in
-    timeline_fields.sort(key=lambda x: x['position'])
-    return timeline_fields
-
-
 class Decompressor(base_calculations.BaseCalculations):
 
     # Load latest match collection compression QR code schema
-    SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')
-    _GENERIC_DATA_FIELDS = _get_data_fields('generic_data')
-    OBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('objective_tim'))
-    SUBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(_get_data_fields('subjective_aim'))
-    TIMELINE_FIELDS = get_timeline_info()
+    SCHEMA = qr_state.SCHEMA
+    _GENERIC_DATA_FIELDS = QRState._get_data_fields('generic_data')
+    OBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(QRState._get_data_fields('objective_tim'))
+    SUBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(QRState._get_data_fields('subjective_aim'))
+    TIMELINE_FIELDS = QRState.get_timeline_info()
 
     MISSING_TIM_IGNORE_FILE_PATH = utils.create_file_path('data/missing_tim_ignore.yml')
 
