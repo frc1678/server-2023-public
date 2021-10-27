@@ -22,8 +22,8 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         and including repeats"""
         partners = []
         for aim in self.server.db.find('subj_aim'):
-            if team in aim['agility_rankings']:
-                partners += aim['agility_rankings']
+            if team in aim['field_awareness_rankings']:
+                partners += aim['field_awareness_rankings']
         return partners
 
     def unadjusted_ability_calcs(self, team: int) -> Dict[str, float]:
@@ -43,7 +43,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
                 # If this calculation depends on data from another collection, skip it for now, and
                 # another function will handle it
                 continue
-            # For calculations such as driver_agility and driver_rendezvous_agility,
+            # For calculations such as driver_field_awareness and driver_quickness,
             # we just pull the rankings from the database and normalize them
             collection_name, _, ranking_name = calc_info['requires'][0].partition('.')
             subj_aim_data = [aim[ranking_name] for aim in self.server.db.find(collection_name)]
@@ -76,8 +76,8 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             composite_scores = {}
             for team in self.teams_that_have_competed:
                 # scores is a list of the normalized subjective ability scores for the team
-                # For example, if they have good driver_agility and average
-                # driver_rendezvous_agility, scores might look like [.8, -.3]
+                # For example, if they have good driver_field_awareness and average
+                # driver_quickness, scores might look like [.8, -.3]
                 scores = []
                 for requirement in calc_info['requires']:
                     collection_name, _, score_name = requirement.partition('.')
@@ -107,13 +107,13 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         info, then puts those calculations in the database"""
         self.teams_that_have_competed = set()
         for aim in self.server.db.find('subj_aim'):
-            self.teams_that_have_competed.update(aim['agility_rankings'])
+            self.teams_that_have_competed.update(aim['field_awareness_rankings'])
         # See which teams are affected by new subj AIM data
         entries = self.entries_since_last()
         teams = set()
         if self.entries_since_last() is not None:
             for entry in entries:
-                teams.update(entry['o']['agility_rankings'])
+                teams.update(entry['o']['field_awareness_rankings'])
         for team in teams:
             new_calc = self.unadjusted_ability_calcs(team)
             self.server.db.update_document(

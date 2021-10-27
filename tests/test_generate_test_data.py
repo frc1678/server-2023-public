@@ -53,8 +53,8 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "current_avg_rps": 84.4422,
     },
     {
-        "driver_agility": 84.4422,
-        "driver_rendezvous_agility": 84.4422,
+        "driver_field_awareness": 84.4422,
+        "driver_quickness": 84.4422,
         "driver_ability": 84.4422,
         "team_number": 49,
     },

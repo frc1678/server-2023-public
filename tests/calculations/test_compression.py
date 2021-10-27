@@ -18,10 +18,10 @@ def test_compress_list():
 
 def test_compress_section_generic_data():
     # Make sure it adds schema version
-    assert compression.compress_section({}, 'generic_data') == 'A18'
+    assert compression.compress_section({}, 'generic_data') == 'A19'
     # Check generic data compression
-    schema_data = {'schema_version': 18}
-    compressed_schema = 'A18'
+    schema_data = {'schema_version': 19}
+    compressed_schema = 'A19'
     assert compression.compress_section(schema_data, 'generic_data') == compressed_schema
     # Check multiple points
     schema_data['serial_number'] = 'test'
@@ -42,13 +42,13 @@ def test_compress_section_obj():
 
 
 def test_compress_section_subj():
-    data = {'rendezvous_agility_rankings': [1, 2, 3], 'agility_rankings': [2, 3, 1]}
+    data = {'quickness_rankings': [1, 2, 3], 'field_awareness_rankings': [2, 3, 1]}
     assert compression.compress_section(data, 'subjective_aim') == 'A1:2:3$B2:3:1'
 
 
 def test_compress_obj_tim():
     data = {
-        'schema_version': 18,
+        'schema_version': 19,
         'serial_number': 'HASAMPLENUM',
         'match_number': 1,
         'timestamp': 1582994470,
@@ -61,21 +61,21 @@ def test_compress_obj_tim():
             {'time': 7, 'action_type': 'end_incap'},
         ],
     }
-    compressed_data = '+A18$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEVIN R%Z9999$X2$W045AC007AD'
+    compressed_data = '+A19$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEVIN R%Z9999$X2$W045AC007AD'
     assert compression.compress_obj_tim(data) == compressed_data
 
 
 def test_compress_subj_aim():
     data = {
-        'schema_version': 18,
+        'schema_version': 19,
         'serial_number': 'HASAMPLENUM',
         'match_number': 1,
         'timestamp': 1582994470,
         'match_collection_version_number': '1.0.2',
         'team_number': 9999,
         'scout_name': 'KEVIN R',
-        'rendezvous_agility_rankings': [1, 2, 3],
-        'agility_rankings': [2, 3, 1],
+        'quickness_rankings': [1, 2, 3],
+        'field_awareness_rankings': [2, 3, 1],
     }
-    compressed_data = '*A18$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEVIN R%A1:2:3$B2:3:1'
+    compressed_data = '*A19$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEVIN R%A1:2:3$B2:3:1'
     assert compression.compress_subj_aim(data) == compressed_data
