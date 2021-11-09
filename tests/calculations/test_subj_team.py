@@ -42,12 +42,12 @@ class TestSubjTeamCalcs:
 
         assert self.near(robonauts['driver_field_awareness'], -0.71)
         assert self.near(robonauts['driver_quickness'], -0.71)
-        assert self.near(robonauts['driver_ability'], -0.29)
+        assert self.near(robonauts['driver_ability'], -0.47)
 
         assert self.near(citrus['driver_field_awareness'], -0.71)
         assert self.near(citrus['driver_quickness'], 1.41)
-        assert self.near(citrus['driver_ability'], -0.12)
+        assert self.near(citrus['driver_ability'], 0.236)
 
         assert self.near(chezy['driver_field_awareness'], 1.41)
         assert self.near(chezy['driver_quickness'], -0.71)
-        assert self.near(chezy['driver_ability'], 0.41)
+        assert self.near(chezy['driver_ability'], 0.236)
