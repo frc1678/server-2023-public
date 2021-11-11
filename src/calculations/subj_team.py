@@ -51,7 +51,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             rankings = {}
             for team_list in subj_aim_data:
                 # team_list is an ordered list of the team numbers in the AIM
-                # Their position in that list indicates their ranking (index 0 is best)
+                # Their position in that list indicates their ranking (index 0 is worst)
                 for rank, team_num in enumerate(team_list):
                     rankings[team_num] = rankings.get(team_num, []) + [rank]
             # Python3.8 should preserve the order of keys & values when doing weird stuff like this
@@ -88,10 +88,10 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             # Now scale the scores so they range from 0 to 1, and use those scaled scores to
             # compensate for alliance partners
             # That way, teams that are always paired with good/bad teams won't have unfair rankings
-            best = min(composite_scores.values())
-            worst = max(composite_scores.values())
+            worst = min(composite_scores.values())
+            best = max(composite_scores.values())
             scaled_scores = {
-                team: (score - best) / (worst - best) for team, score in composite_scores.items()
+                team: (score - worst) / (best - worst) for team, score in composite_scores.items()
             }
             adjusted_scores = {}
             for team, score in composite_scores.items():

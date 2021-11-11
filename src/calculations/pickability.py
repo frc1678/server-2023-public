@@ -40,8 +40,8 @@ class PickabilityCalc(base_calculations.BaseCalculations):
         """Calculates first and second pickability
 
         calc_name is which pickability to calculate (e.g. first or second)
-        team_data is the data required to perform the weighted average
-        returns the weighted average
+        team_data is the data required to perform the weighted sum
+        returns the weighted sum
         """
         datapoints = []  # Datapoints to avg
         for calc in self.calcs[calc_name]:  # Datapoints of first or second pickability
@@ -50,7 +50,8 @@ class PickabilityCalc(base_calculations.BaseCalculations):
             else:
                 return None
         weights = self.pickability_schema[calc_name]['weights']
-        return self.avg(datapoints, weights)
+        weighted_sum = sum([datapoint * weight for datapoint, weight in zip(datapoints, weights)])
+        return weighted_sum
 
     def run(self) -> None:
         """Detects when and for which teams to calculate pickabilty"""

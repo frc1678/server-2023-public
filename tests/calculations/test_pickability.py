@@ -63,8 +63,8 @@ class TestPickability:
             },
             'test2': {'team_number': 0, 'datapoint1': 3, 'useless': None},
         }
-        assert test_calc.calculate_pickability(0, 'first_pickability', calc_data) == 2
-        assert test_calc.calculate_pickability(0, 'second_pickability', calc_data) == 2.25
+        assert test_calc.calculate_pickability(0, 'first_pickability', calc_data) == 6
+        assert test_calc.calculate_pickability(0, 'second_pickability', calc_data) == 9
         assert test_calc.calculate_pickability(0, 'first_pickability', {}) is None
         # Check that if the datapoint is missing that it correctly returns None
         calc_data = {
