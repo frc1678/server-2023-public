@@ -238,6 +238,7 @@ class ExportTeam(BaseExport):
         "obj_team",
         "subj_team",
         "tba_team",
+        "pickability",
     ]
 
     def __init__(self):
