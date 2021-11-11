@@ -22,6 +22,11 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "climb_all_attempts": 49,
         "matches_played": 49,
         "team_number": 49,
+        "auto_max_balls_low": 49,
+        "auto_max_balls_high": 49,
+        "tele_max_balls_low": 49,
+        "tele_max_balls_high": 49,
+        "max_incap": 49,
     },
     {
         "auto_balls_low": 49,

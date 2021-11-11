@@ -99,6 +99,33 @@ class TestOBJTeamCalc:
         }
         assert self.test_calc.calculate_counts(tims) == expected_output
 
+    def test_extrema(self):
+        tims = [
+            {
+                'auto_balls_low': 6,
+                'auto_balls_high': 2,
+                'tele_balls_low': 8,
+                'tele_balls_high': 8,
+                'incap': 0,
+            },
+            {
+                'auto_balls_low': 5,
+                'auto_balls_high': 6,
+                'tele_balls_low': 7,
+                'tele_balls_high': 8,
+                'incap': 23,
+            },
+        ]
+        action_counts = self.test_calc.get_action_counts(tims)
+        expected_output = {
+            'auto_max_balls_low': 6,
+            'auto_max_balls_high': 6,
+            'tele_max_balls_low': 8,
+            'tele_max_balls_high': 8,
+            'max_incap': 23
+        }
+        assert self.test_calc.calculate_extrema(action_counts) == expected_output
+
     def test_run(self):
         """Tests run function from src/calculations/obj_team.py"""
         obj_tims = [
@@ -198,7 +225,12 @@ class TestOBJTeamCalc:
                 'tele_cp_rotation_successes': 2,
                 'tele_cp_position_successes': 1,
                 'climb_all_attempts': 2,
-                'matches_played': 3
+                'matches_played': 3,
+                'auto_max_balls_low': 84,
+                'auto_max_balls_high': 92,
+                'tele_max_balls_low': 56,
+                'tele_max_balls_high': 68,
+                'max_incap': 22,
             },
             {
                 "team_number": 1678,
@@ -216,7 +248,12 @@ class TestOBJTeamCalc:
                 'tele_cp_rotation_successes': 3,
                 'tele_cp_position_successes': 3,
                 'climb_all_attempts': 3,
-                'matches_played': 3
+                'matches_played': 3,
+                'auto_max_balls_low': 54,
+                'auto_max_balls_high': 76,
+                'tele_max_balls_low': 89,
+                'tele_max_balls_high': 81,
+                'max_incap': 93,
             },
         ]
         self.test_server.db.insert_documents('obj_tim', obj_tims)

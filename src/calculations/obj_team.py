@@ -89,9 +89,21 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_info[calculation] = len(tims_that_meet_filter)
         return team_info
 
+    def calculate_extrema(self, tim_action_counts):
+        """Creates a dictionary of extreme values, called team_info,
+        where the keys are the names of the calculations, and the values are the results
+        """
+        team_info = {}
+        for calculation, schema in self.SCHEMA['extrema'].items():
+            tim_field = schema['tim_fields'][0]
+            if schema['extrema_type'] == 'max':
+                team_info[calculation] = max(tim_action_counts[tim_field])
+            if schema['extrema_type'] == 'min':
+                team_info[calculation] = min(tim_action_counts[tim_field])
+        return team_info
+
     def update_team_calcs(self, teams: list) -> list:
         """Calculate data for given team using objective calculated TIMs"""
-
         obj_team_updates = {}
         for team in teams:
             # Load team data from database
@@ -101,6 +113,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_data['team_number'] = team
             team_data.update(self.calculate_counts(obj_tims))
             team_data.update(self.calculate_standard_deviations(tim_action_counts))
+            team_data.update(self.calculate_extrema(tim_action_counts))
             obj_team_updates[team] = team_data
         return list(obj_team_updates.values())
 
