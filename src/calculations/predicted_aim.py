@@ -5,7 +5,9 @@ import utils
 import server
 import dataclasses
 import math
+
 from calculations.base_calculations import BaseCalculations
+from data_transfer import tba_communicator
 
 
 @dataclasses.dataclass
@@ -206,6 +208,36 @@ class PredictedAimCalc(BaseCalculations):
             return 1.0
         return 0.0
 
+    def get_actual_values(self, aim):
+        """Pulls actual AIM data from TBA if it exists.
+
+        Otherwise, returns dictionary with all values of 0 and has_actual_data of False.
+        aim is the alliance in match to pull actual data for."""
+        actual_match_dict = {'actual_score': 0, 'actual_rp1': 0.0, 'actual_rp2': 0.0, 'has_actual_data': False}
+
+        match_data = tba_communicator.tba_request(f'event/{self.server.TBA_EVENT_KEY}/matches')
+        match_number = aim['match_number']
+
+        for match in match_data:
+            # Checks the value of winning_alliance to determine if the match has data.
+            # If there is no data for the match, winning_alliance is an empty string.
+            if match['match_number'] == match_number and match['winning_alliance'] != '':
+                actual_aim = match['score_breakdown']
+                if aim['alliance_color'] == 'R':
+                    alliance_color = 'red'
+                else:
+                    alliance_color = 'blue'
+                actual_match_dict['actual_score'] = actual_aim[alliance_color]['totalPoints']
+                # TBA stores RPs as booleans. If the RP is true, they get 1 RP, otherwise they get 0.
+                if actual_aim[alliance_color]['shieldEnergizedRankingPoint']:
+                    actual_match_dict['actual_rp1'] = 1.0
+                if actual_aim[alliance_color]['shieldOperationalRankingPoint']:
+                    actual_match_dict['actual_rp2'] = 1.0
+                # Sets actual_match_data to true once the actual data has been pulled
+                actual_match_dict['has_actual_data'] = True
+        
+        return actual_match_dict
+
     def filter_aims_list(self, obj_team, tba_team, aims_list):
         """Filters the aims list to only contain aims where all teams have existing data.
 
@@ -251,6 +283,7 @@ class PredictedAimCalc(BaseCalculations):
             )
             update['predicted_rp1'] = self.calculate_predicted_climb_rp(predicted_values)
             update['predicted_rp2'] = self.calculate_predicted_stage_rp(predicted_values)
+            update.update(self.get_actual_values(aim))
             updates.append(update)
         return updates
 

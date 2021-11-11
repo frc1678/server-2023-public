@@ -1,5 +1,5 @@
 from calculations import predicted_aim
-from unittest import mock
+from unittest.mock import patch
 import server
 
 
@@ -12,15 +12,23 @@ class TestPredictedAimCalc:
             {'match_number': 1, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]},
             {'match_number': 2, 'alliance_color': 'R', 'team_list': [1678, 1533, 1690]},
             {'match_number': 2, 'alliance_color': 'B', 'team_list': [254, 1323, 973]},
+            {'match_number': 3, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]},
+            {'match_number': 3, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]},
         ]
         self.filtered_aims_list = [
             {'match_number': 1, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]},
             {'match_number': 1, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]},
+            {'match_number': 3, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]},
+            {'match_number': 3, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]},
         ]
         self.expected_results = [
             {
                 'match_number': 1,
                 'alliance_color_is_red': True,
+                'has_actual_data': True,
+                'actual_score': 320,
+                'actual_rp1': 0.0,
+                'actual_rp2': 1.0,
                 'predicted_score': 422.58142857142855,
                 'predicted_rp1': 1.0,
                 'predicted_rp2': 1.0,
@@ -28,6 +36,32 @@ class TestPredictedAimCalc:
             {
                 'match_number': 1,
                 'alliance_color_is_red': False,
+                'has_actual_data': True,
+                'actual_score': 278,
+                'actual_rp1': 1.0,
+                'actual_rp2': 1.0,
+                'predicted_score': 422.58142857142855,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+            },
+            {
+                'match_number': 3,
+                'alliance_color_is_red': True,
+                'has_actual_data': False,
+                'actual_score': 0,
+                'actual_rp1': 0.0,
+                'actual_rp2': 0.0,
+                'predicted_score': 422.58142857142855,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+            },
+            {
+                'match_number': 3,
+                'alliance_color_is_red': False,
+                'has_actual_data': False,
+                'actual_score': 0,
+                'actual_rp1': 0.0,
+                'actual_rp2': 0.0,
                 'predicted_score': 422.58142857142855,
                 'predicted_rp1': 1.0,
                 'predicted_rp2': 1.0,
@@ -123,6 +157,40 @@ class TestPredictedAimCalc:
                 'auto_line_successes': 5,
             },
         ]
+        self.tba_match_data = [
+            {
+                'match_number': 1,
+                'score_breakdown': {
+                    'blue': {
+                        'shieldEnergizedRankingPoint': True,
+                        'shieldOperationalRankingPoint': True,
+                        'totalPoints': 278,
+                    },
+                    'red': {
+                        'shieldEnergizedRankingPoint': False,
+                        'shieldOperationalRankingPoint': True,
+                        'totalPoints': 320,
+                    },
+                },
+                'winning_alliance': 'red',
+            },
+            {
+                'match_number': 3,
+                'score_breakdown': {
+                    'blue': {
+                        'shieldEnergizedRankingPoint': None,
+                        'shieldOperationalRankingPoint': None,
+                        'totalPoints': None,
+                    },
+                    'red': {
+                        'shieldEnergizedRankingPoint': None,
+                        'shieldOperationalRankingPoint': None,
+                        'totalPoints': None,
+                    },
+                },
+                'winning_alliance': '',
+            },
+        ]
         self.test_server.db.insert_documents('obj_team', self.obj_team)
         self.test_server.db.insert_documents('tba_team', self.tba_team)
 
@@ -186,6 +254,41 @@ class TestPredictedAimCalc:
         assert self.test_calc.calculate_predicted_stage_rp(self.blank_predicted_values) == 0
         assert self.test_calc.calculate_predicted_stage_rp(self.full_predicted_values) == 1
 
+    def test_get_actual_values(self):
+        with patch('data_transfer.tba_communicator.tba_request', return_value=self.tba_match_data):
+            assert self.test_calc.get_actual_values(
+                {'match_number': 1, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]}
+            ) == {
+                'has_actual_data': True,
+                'actual_score': 320,
+                'actual_rp1': 0.0,
+                'actual_rp2': 1.0,
+            }
+            assert self.test_calc.get_actual_values(
+                {'match_number': 1, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]}
+            ) == {
+                'has_actual_data': True,
+                'actual_score': 278,
+                'actual_rp1': 1.0,
+                'actual_rp2': 1.0,
+            }
+            assert self.test_calc.get_actual_values(
+                {'match_number': 3, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]}
+            ) == {
+                'has_actual_data': False,
+                'actual_score': 0,
+                'actual_rp1': 0.0,
+                'actual_rp2': 0.0,
+            }
+            assert self.test_calc.get_actual_values(
+                {'match_number': 3, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]}
+            ) == {
+                'has_actual_data': False,
+                'actual_score': 0,
+                'actual_rp1': 0.0,
+                'actual_rp2': 0.0,
+            }
+
     def test_filter_aims_list(self):
         assert (
             self.test_calc.filter_aims_list(self.obj_team, self.tba_team, self.aims_list)
@@ -193,19 +296,20 @@ class TestPredictedAimCalc:
         )
 
     def test_update_predicted_aim(self):
-        assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_results
+        with patch('data_transfer.tba_communicator.tba_request', return_value=self.tba_match_data):
+            assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_results
 
     def test_run(self):
         self.test_server.db.delete_data('obj_team')
         self.test_server.db.delete_data('tba_team')
         self.test_server.db.insert_documents('obj_team', self.obj_team)
         self.test_server.db.insert_documents('tba_team', self.tba_team)
-        with mock.patch(
+        with patch(
             'calculations.predicted_aim.PredictedAimCalc._get_aim_list', return_value=self.aims_list
-        ):
+        ), patch('data_transfer.tba_communicator.tba_request', return_value=self.tba_match_data):
             self.test_calc.run()
         result = self.test_server.db.find('predicted_aim')
-        assert len(result) == 2
+        assert len(result) == 4
         for document in result:
             del document['_id']
             assert document in self.expected_results

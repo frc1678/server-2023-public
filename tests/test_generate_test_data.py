@@ -43,6 +43,10 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "predicted_rp2": 84.4422,
         "match_number": 49,
         "alliance_color_is_red": True,
+        "has_actual_data": True,
+        "actual_score": 49,
+        "actual_rp1": 84.4422,
+        "actual_rp2": 84.4422,
     },
     {
         "predicted_rps": 84.4422,
