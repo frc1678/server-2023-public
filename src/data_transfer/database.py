@@ -111,6 +111,11 @@ class Database:
             return
         self.db[collection].update_one(query, {'$set': new_data}, upsert=True)
 
+    def update_qr_blocklist_status(self, query) -> None:
+        """Changes the status of a raw qr matching 'query' from blocklisted: true to blocklisted: false
+        Lowers risk of data loss from using normal update."""
+        self.db['raw_qr'].update_one(query, {'$set': {'blocklisted': True}})
+
     def _enable_validation(self, collection: str, file: str):
         sch = utils.read_schema('schema/' + file)
         sch = mongo_convert(sch)
