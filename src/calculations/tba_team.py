@@ -2,7 +2,7 @@
 # Copyright (c) 2019 FRC Team 1678: Citrus Circuits
 """Runs team calculations dependent on TBA data"""
 
-from calculations import base_calculations, inner_goals_regression
+from calculations import base_calculations
 import utils
 from server import Server
 
@@ -16,17 +16,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
     def __init__(self, server):
         """Overrides watched collections, passes server object"""
         super().__init__(server)
-        self.watched_collections = ['obj_tim', 'obj_team', 'tba_tim']
-
-    def calculate_avg_climb_successful_time(self, obj_tims, tba_tims):
-        """Finds the average time for successful climbs in the given tims. Returns 0 for no climbs"""
-        successful_climbs = [tim['match_number'] for tim in tba_tims if tim['climb']]
-        climb_times = [
-            tim['climb_time']
-            for tim in obj_tims
-            if tim['match_number'] in successful_climbs and 'climb_time' in tim
-        ]
-        return self.avg(climb_times)
+        self.watched_collections = ['obj_tim', 'tba_tim']
 
     def tim_counts(self, obj_tims, tba_tims):
         """Gets the counts for each schema entry for the given tims"""
@@ -80,72 +70,29 @@ class TBATeamCalc(base_calculations.BaseCalculations):
         team_names = {team['team_number']: team['nickname'] for team in team_request_output}
 
         tba_team_updates = {}
-        # Run inner goal regression, set to empty dictionary if calculation errors out
-        auto_regression_results = utils.catch_function_errors(
-            inner_goals_regression.inner_goal_proportions, stage='auto'
-        )
-        if auto_regression_results is None:
-            auto_regression_results = {}
-        tele_regression_results = utils.catch_function_errors(
-            inner_goals_regression.inner_goal_proportions, stage='tele'
-        )
-        if tele_regression_results is None:
-            tele_regression_results = {}
 
         for team in teams:
             # Load team data from database
             obj_tims = self.server.db.find('obj_tim', team_number=team)
             tba_tims = self.server.db.find('tba_tim', team_number=team)
-            obj_team = self.server.db.find('obj_team', team_number=team)
             # Because of database structure, returns as a list
-            if obj_team:
-                obj_team = obj_team[0]
-            # If objective team calcs are missing, running calcs risks inaccurate outputs
-            else:
-                continue
             team_data = self.tim_counts(obj_tims, tba_tims)
             team_data['team_number'] = team
-            team_data['climb_all_success_avg_time'] = self.calculate_avg_climb_successful_time(
-                obj_tims, tba_tims
-            )
-            if obj_team['climb_all_attempts'] > 0:
-                team_data['climb_percent_success'] = (
-                    team_data['climb_all_successes'] / obj_team['climb_all_attempts']
-                )
-            else:
-                team_data['climb_percent_success'] = 0
             # Load team names
             if team in team_names:
                 team_data['team_name'] = team_names[team]
             else:
                 # Set team name to "UNKNOWN NAME" if the team is not already in the database
                 # If the team is, it is assumed that the name in the database will be more accurate
-                if not server.db.find('tba_team', {'team_number': team}):
+                if not self.server.db.find('tba_team', {'team_number': team}):
                     team_data['team_name'] = 'UNKNOWN NAME'
                 # Warn that the team is not in the team list for event if there is team data
                 if team_names:
                     utils.log_warning(f'Team {team} not found in team list from TBA')
 
-            # If regression fails or team is not found, percent inner will default to 0
-            team_data['auto_high_balls_percent_inner'] = auto_regression_results.pop(team, 0)
-            team_data['tele_high_balls_percent_inner'] = tele_regression_results.pop(team, 0)
-
-            team_data['auto_avg_balls_outer'] = obj_team['auto_avg_balls_high'] * (1 - team_data['auto_high_balls_percent_inner'])
-            team_data['tele_avg_balls_outer'] = obj_team['tele_avg_balls_high'] * (1 - team_data['tele_high_balls_percent_inner'])
-            team_data['auto_avg_balls_inner'] = obj_team['auto_avg_balls_high'] * team_data['auto_high_balls_percent_inner']
-            team_data['tele_avg_balls_inner'] = obj_team['tele_avg_balls_high'] * team_data['tele_high_balls_percent_inner']
-
-
             tba_team_updates[team] = team_data
         # Add remaining regression results as regression can change for every team, so data must be
         # updated for every team
-        for team, percent in auto_regression_results.items():
-            tba_team_updates[team] = {
-                'auto_high_balls_percent_inner': percent,
-                'team_number': team,
-            }
-        for team, percent in tele_regression_results.items():
-            tba_team_updates[team]['tele_high_balls_percent_inner'] = percent
         return list(tba_team_updates.values())
 
     def run(self):
