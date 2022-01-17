@@ -87,7 +87,7 @@ def insert_fake_qr_data() -> List[str]:
     return qr_codes
 
 
-def insert_fake_non_qr_data() -> Tuple[List, List]:
+def insert_fake_non_qr_data() -> List:
     """Use generate_test_data to generate fake data and insert into dictionary.
     Also returns the fake objective and subjective data, respectively"""
     fake_obj_pit_data_generator = generate_test_data.DataGenerator(
@@ -102,17 +102,12 @@ def insert_fake_non_qr_data() -> Tuple[List, List]:
     for team_num, data_set in zip(TEAMS, obj):
         data_set.update({"team_number": team_num})
 
-    subj = fake_subj_pit_data_generator.get_data(len(TEAMS))
-    for team_num, data_set in zip(TEAMS, subj):
-        data_set.update({"team_number": team_num})
-
     try:
         local_database.insert_documents("raw_obj_pit", obj)
-        local_database.insert_documents("raw_subj_pit", subj)
     except:
         error_msg = "Cannot insert fake raw data without overwriting existing data"
         print_bold_red(f"Error: {error_msg}")
-    return obj, subj
+    return obj
 
 
 # If this script is being run directly, use actual team and match lists from TBA

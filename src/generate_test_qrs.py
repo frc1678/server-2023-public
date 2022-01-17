@@ -44,17 +44,18 @@ def generate_timeline():
         # If there are no actions left, just return the timeline
         if len(times) == 0:
             return final_timeline
-    # 5% chance for a team to rotate or position the control panel
+    # 5% chance for a team to error
     if random.randint(0, 19) == 19:
-        panel_time = random.randint(0, len(times) - 1)
-        panel_choice = random.choice(['control_panel_rotation', 'control_panel_position'])
-        final_timeline.append({'action_type': panel_choice, 'time': times.pop(panel_time)})
+        error_time = random.randint(0, len(times) - 1)
+        error_choice = random.choice(['score_opponent_ball', 'catch_exit_ball'])
+        final_timeline.append({'action_type': error_choice, 'time': times.pop(error_time)})
         # If there are no actions left, just return the timeline
         if len(times) == 0:
             return final_timeline
     # For all other times, fill in with normal scores
     for time in times:
-        score_choice = random.choice(['score_ball_low', 'score_ball_high'])
+        scores = [action for action in SCHEMA['action_type'].keys() if 'score_ball' in action]
+        score_choice = random.choice(scores)
         final_timeline.append({'action_type': score_choice, 'time': time})
 
     return final_timeline

@@ -5,104 +5,129 @@ import generate_test_data
 from generate_test_data import DataGenerator, parse_args
 
 CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
+    # Obj Team
     {
-        "auto_avg_balls_low": 84.4422,
-        "auto_avg_balls_high": 84.4422,
-        "auto_avg_balls_total": 84.4422,
-        "tele_avg_balls_low": 84.4422,
-        "tele_avg_balls_high": 84.4422,
-        "tele_avg_balls_total": 84.4422,
-        "auto_sd_balls_low": 84.4422,
-        "auto_sd_balls_high": 84.4422,
-        "tele_sd_balls_low": 84.4422,
-        "tele_sd_balls_high": 84.4422,
-        "avg_incap_time": 84.4422,
-        "tele_cp_rotation_successes": 49,
-        "tele_cp_position_successes": 49,
-        "climb_all_attempts": 49,
-        "matches_played": 49,
-        "team_number": 49,
-        "auto_max_balls_low": 49,
-        "auto_max_balls_high": 49,
-        "tele_max_balls_low": 49,
-        "tele_max_balls_high": 49,
-        "max_incap": 49,
+        'auto_avg_balls_low': 84.4422,
+        'auto_avg_balls_high': 84.4422,
+        'auto_avg_balls_total': 84.4422,
+        'tele_avg_balls_low': 84.4422,
+        'tele_avg_balls_high': 84.4422,
+        'tele_avg_balls_total': 84.4422,
+        'auto_sd_balls_low': 84.4422,
+        'auto_sd_balls_high': 84.4422,
+        'tele_sd_balls_low': 84.4422,
+        'tele_sd_balls_high': 84.4422,
+        'avg_incap_time': 84.4422,
+        'tele_cp_rotation_successes': 49,
+        'tele_cp_position_successes': 49,
+        'climb_all_attempts': 49,
+        'matches_played': 49,
+        'team_number': 49,
+        'auto_max_balls_low': 49,
+        'auto_max_balls_high': 49,
+        'tele_max_balls_low': 49,
+        'tele_max_balls_high': 49,
+        'max_incap': 49,
     },
+    # Obj TIM
     {
-        "auto_balls_low": 49,
-        "auto_balls_high": 49,
-        "tele_balls_low": 49,
-        "tele_balls_high": 49,
-        "control_panel_rotation": True,
-        "control_panel_position": True,
-        "incap": 49,
-        "climb_time": 49,
-        "confidence_rating": 49,
-        "team_number": 49,
-        "match_number": 49,
+        'confidence_rating': 49,
+        'match_number': 49,
+        'team_number': 49,
+        'auto_near_hub_highs': 49,
+        'auto_far_hub_highs': 49,
+        'auto_launchpad_highs': 49,
+        'auto_near_other_highs': 49,
+        'auto_far_other_highs': 49,
+        'auto_near_hub_lows': 49,
+        'auto_far_hub_lows': 49,
+        'tele_near_hub_highs': 49,
+        'tele_far_hub_highs': 49,
+        'tele_launchpad_highs': 49,
+        'tele_near_other_highs': 49,
+        'tele_far_other_highs': 49,
+        'tele_near_hub_lows': 49,
+        'tele_far_hub_lows': 49,
+        'auto_balls_high': 49,
+        'auto_balls_low': 49,
+        'tele_balls_high': 49,
+        'tele_balls_low': 49,
+        'incap': 49,
+        'intakes': 49,
+        'exit_ball_catches': 49,
+        'opp_balls_scored': 49,
+        'climb_time': 49,
+        'climb_level': 'yyyyyyyyyyyyyyyyyyyyyy',
+        'start_position': 'yyyyyyyyyyyyyyyyyyyyyy',
     },
-    {"first_pickability": 84.4422, "second_pickability": 84.4422, "team_number": 49},
+    # Pickability
+    {'first_pickability': 84.4422, 'second_pickability': 84.4422, 'team_number': 49},
+    # Predicted AIM
     {
-        "predicted_score": 84.4422,
-        "predicted_rp1": 84.4422,
-        "predicted_rp2": 84.4422,
-        "match_number": 49,
-        "alliance_color_is_red": True,
-        "has_actual_data": True,
-        "actual_score": 49,
-        "actual_rp1": 84.4422,
-        "actual_rp2": 84.4422,
+        'predicted_score': 84.4422,
+        'predicted_rp1': 84.4422,
+        'predicted_rp2': 84.4422,
+        'match_number': 49,
+        'alliance_color_is_red': True,
+        'has_actual_data': True,
+        'actual_score': 49,
+        'actual_rp1': 84.4422,
+        'actual_rp2': 84.4422,
     },
+    # Predicted Team
     {
-        "predicted_rps": 84.4422,
-        "predicted_rank": 49,
-        "team_number": 49,
-        "current_rank": 49,
-        "current_rps": 49,
-        "current_avg_rps": 84.4422,
+        'predicted_rps': 84.4422,
+        'predicted_rank': 49,
+        'team_number': 49,
+        'current_rank': 49,
+        'current_rps': 49,
+        'current_avg_rps': 84.4422,
     },
+    # Subj Team
     {
-        "driver_field_awareness": 84.4422,
-        "driver_quickness": 84.4422,
-        "driver_ability": 84.4422,
-        "team_number": 49,
+        'driver_near_field_awareness': 84.4422,
+        'driver_far_field_awareness': 84.4422,
+        'driver_quickness': 84.4422,
+        'driver_ability': 84.4422,
+        'team_number': 49,
     },
+    # TBA Team
     {
-        "team_name": "yyyyyyyyyyyyyyyyyyyyyy",
-        "auto_line_successes": 49,
-        "team_number": 49,
+        'team_name': 'yyyyyyyyyyyyyyyyyyyyyy',
+        'auto_line_successes': 49,
+        'team_number': 49,
     },
+    # TBA TIM
     {
-        "auto_line": True,
-        "climb": True,
-        "park": True,
-        "level_climb": True,
-        "team_number": 49,
-        "match_number": 49,
+        'auto_line': True,
+        'match_number': 49,
+        'team_number': 49,
     },
+    # Obj Pit
     {
-        "team_number": 49,
-        "can_cross_trench": True,
-        "drivetrain": 1,
-        "drivetrain_motors": 49,
-        "drivetrain_motor_type": 1,
-        "has_ground_intake": True,
-    },
-    {
-        "team_number": 49,
-        "climber_strap_installation_difficulty": 49,
-        "climber_strap_installation_notes": "yyyyyyyyyyyyyyyyyyyyyy",
+        'team_number': 49,
+        'drivetrain': 1,
+        'drivetrain_motor_type': 1,
+        'drivetrain_motors': 49,
+        'has_ground_intake': True,
+        'can_eject_terminal': True,
+        'has_vision': True,
+        'can_cheesecake': True,
+        'can_intake_terminal': True,
+        'can_under_low_rung': True,
+        'can_climb': True,
     },
 ]
 
 
 class TestDataGenerator:
     def setup_method(self):
-        self.input_filename = "schema/calc_obj_tim_schema.yml"
+        self.input_filename = 'schema/calc_obj_tim_schema.yml'
         self.generate_test_data = DataGenerator(self.input_filename)
 
         self.schema_files = utils.get_schema_filenames()
-        self.schema_files.remove("match_collection_qr_schema.yml")
+        self.schema_files.remove('match_collection_qr_schema.yml')
+        self.schema_files.remove('subj_pit_collection_schema.yml')
         self.schema_files = list(self.schema_files)
         self.schema_files.sort()
 
@@ -112,35 +137,35 @@ class TestDataGenerator:
 
     def test_get_datapoint_collections_generation(self):
         for schema_file in self.schema_files:
-            generate_test_data = DataGenerator(f"schema/{schema_file}", seed=0)
+            generate_test_data = DataGenerator(f'schema/{schema_file}', seed=0)
             datapoint_collections = generate_test_data.get_datapoint_collections_generation()
-            assert "schema_file" not in datapoint_collections
+            assert 'schema_file' not in datapoint_collections
 
     def test_generate_for_each_datapoint_collection(self):
         for num, schema_file in enumerate(self.schema_files):
-            generate_test_data = DataGenerator(f"schema/{schema_file}", seed=0)
+            generate_test_data = DataGenerator(f'schema/{schema_file}', seed=0)
             generated_structure = generate_test_data.generate_for_each_datapoint_collection()
             assert generated_structure == CORRECT_SCHEMA_DATAPOINT_COLLECTIONS[num]
 
     def test_format_raw_data(self):
         for schema_file in self.schema_files:
-            generate_test_data = DataGenerator(f"schema/{schema_file}", seed=0)
+            generate_test_data = DataGenerator(f'schema/{schema_file}', seed=0)
             formated_raw_data = generate_test_data.format_raw_data()
             assert isinstance(formated_raw_data, dict)
-            assert "schema_file" not in formated_raw_data
-            assert "data" not in formated_raw_data
+            assert 'schema_file' not in formated_raw_data
+            assert 'data' not in formated_raw_data
 
     def test_request_single_data_struct(self):
         for schema_file in self.schema_files:
-            generate_test_data = DataGenerator(f"schema/{schema_file}", seed=0)
+            generate_test_data = DataGenerator(f'schema/{schema_file}', seed=0)
             single_raw_data = generate_test_data.request_single_data_struct()
             assert isinstance(single_raw_data, dict)
-            assert "schema_file" not in single_raw_data
-            assert "data" not in single_raw_data
+            assert 'schema_file' not in single_raw_data
+            assert 'data' not in single_raw_data
 
     def test_get_data(self):
         for schema_file in self.schema_files:
-            generate_test_data = DataGenerator(f"schema/{schema_file}", seed=0)
+            generate_test_data = DataGenerator(f'schema/{schema_file}', seed=0)
             for num in range(5):
                 list_of_raw_data_structures = generate_test_data.get_data(num)
                 assert isinstance(list_of_raw_data_structures, list)
@@ -149,23 +174,24 @@ class TestDataGenerator:
 
 def test_name_sample_data():
     schema_files = utils.get_schema_filenames()
-    schema_files.remove("match_collection_qr_schema.yml")
+    schema_files.remove('match_collection_qr_schema.yml')
+    schema_files.remove('subj_pit_collection_schema.yml')
     schema_files = list(schema_files)
     schema_files.sort()
 
     for schema in schema_files:
-        data = generate_test_data.name_sample_data(f"schema/{schema}", 1)
+        data = generate_test_data.name_sample_data(f'schema/{schema}', 1)
         assert isinstance(data, dict)
-        assert isinstance(data[f"schema/{schema}"], dict)
+        assert isinstance(data[f'schema/{schema}'], dict)
 
 
 def test_parse_args():
     sys.argv = [
-        "generate_test_data.py",
-        "-i",
-        "schema/calc_predicted_aim_schema.yml",
-        "-n",
-        "2",
+        'generate_test_data.py',
+        '-i',
+        'schema/calc_predicted_aim_schema.yml',
+        '-n',
+        '2',
     ]
     parsed = parse_args()
     assert parsed.infile == sys.argv[2]

@@ -357,6 +357,7 @@ def ask_input_filename():
             if x[-4:] == ".yml"
             and x != "collection_schema.yml"
             and x != "match_collection_qr_schema.yml"
+            and x != 'subj_pit_collection_schema.yml'
         ]
 
         if len(schema_files) == 0:
