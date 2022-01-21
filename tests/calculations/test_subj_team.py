@@ -22,17 +22,18 @@ class TestSubjTeamCalcs:
 
     def test_teams_played_with(self):
         aims = [
-            {'field_awareness_rankings': [1, 1678, 2]},
-            {'field_awareness_rankings': [2, 1678, 3]},
-            {'field_awareness_rankings': [1, 3, 4]},
+            {'near_field_awareness_rankings': [1, 1678, 2]},
+            {'near_field_awareness_rankings': [2, 1678, 3]},
+            {'near_field_awareness_rankings': [1, 3, 4]},
         ]
         self.test_server.db.insert_documents('subj_aim', aims)
         assert self.test_calcs.teams_played_with(1678) == [1, 1678, 2, 2, 1678, 3]
 
     def test_all_calcs(self):
         aims = [
-            {'field_awareness_rankings': [118, 1678, 254], 'quickness_rankings': [254, 118, 1678]},
-            {'field_awareness_rankings': [1678, 118, 254], 'quickness_rankings': [118, 254, 1678]},
+            {'near_field_awareness_rankings': [118, 1678, 254], 'quickness_rankings': [254, 118, 1678], 'far_field_awareness_rankings': [118, 1678, 254]},
+            {'near_field_awareness_rankings': [1678, 118, 254], 'quickness_rankings': [118, 254, 1678], 'far_field_awareness_rankings': [118, 1678, 254]},
+
         ]
         self.test_server.db.insert_documents('subj_aim', aims)
         self.test_calcs.run()
@@ -40,14 +41,17 @@ class TestSubjTeamCalcs:
         citrus = self.test_server.db.find('subj_team', team_number=1678)[0]
         chezy = self.test_server.db.find('subj_team', team_number=254)[0]
 
-        assert self.near(robonauts['driver_field_awareness'], -0.71)
+        assert self.near(robonauts['driver_near_field_awareness'], -0.71)
+        assert self.near(robonauts['driver_far_field_awareness'], -1.22)
         assert self.near(robonauts['driver_quickness'], -0.71)
-        assert self.near(robonauts['driver_ability'], -0.47)
+        assert self.near(robonauts['driver_ability'], -0.51)
 
-        assert self.near(citrus['driver_field_awareness'], -0.71)
+        assert self.near(citrus['driver_near_field_awareness'], -0.71)
+        assert self.near(citrus['driver_far_field_awareness'], 0.0)
         assert self.near(citrus['driver_quickness'], 1.41)
-        assert self.near(citrus['driver_ability'], 0.236)
+        assert self.near(citrus['driver_ability'], 0.14)
 
-        assert self.near(chezy['driver_field_awareness'], 1.41)
+        assert self.near(chezy['driver_near_field_awareness'], 1.41)
+        assert self.near(chezy['driver_far_field_awareness'], 1.22)
         assert self.near(chezy['driver_quickness'], -0.71)
-        assert self.near(chezy['driver_ability'], 0.236)
+        assert self.near(chezy['driver_ability'], 0.37)

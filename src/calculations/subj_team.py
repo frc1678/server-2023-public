@@ -22,8 +22,8 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         and including repeats"""
         partners = []
         for aim in self.server.db.find('subj_aim'):
-            if team in aim['field_awareness_rankings']:
-                partners += aim['field_awareness_rankings']
+            if team in aim['near_field_awareness_rankings']:
+                partners += aim['near_field_awareness_rankings']
         return partners
 
     def unadjusted_ability_calcs(self, team: int) -> Dict[str, float]:
@@ -107,13 +107,13 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         info, then puts those calculations in the database"""
         self.teams_that_have_competed = set()
         for aim in self.server.db.find('subj_aim'):
-            self.teams_that_have_competed.update(aim['field_awareness_rankings'])
+            self.teams_that_have_competed.update(aim['near_field_awareness_rankings'])
         # See which teams are affected by new subj AIM data
         entries = self.entries_since_last()
         teams = set()
         if self.entries_since_last() is not None:
             for entry in entries:
-                teams.update(entry['o']['field_awareness_rankings'])
+                teams.update(entry['o']['near_field_awareness_rankings'])
         for team in teams:
             new_calc = self.unadjusted_ability_calcs(team)
             self.server.db.update_document(
