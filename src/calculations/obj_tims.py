@@ -50,6 +50,42 @@ class ObjTIMCalcs(BaseCalculations):
         # Scouts are evenly split, so just go with False
         return False
 
+    def calculate_aggregates(self, unconsolidated_tims: List[Dict]):
+        """Given a list of consolidated tims by calculate_tim_counts, return consolidated aggregates"""
+        calculated_tim = self.calculate_tim_counts(unconsolidated_tims)
+        final_aggregates = {}
+        # Get each aggregate and it's associated counts
+        for aggregate, filters in self.schema["aggregates"].items():
+            total_count = 0
+            aggregate_counts = filters["counts"]
+            # Add up all the counts for each aggregate and add them to the final dictionary
+            for count in aggregate_counts:
+                total_count += calculated_tim[count]
+                final_aggregates[aggregate] = total_count
+        return final_aggregates
+
+    def consolidate_categorical_actions(self, unconsolidated_tims: List[Dict]):
+        """Given string type obj_tims, return actual string"""
+        # Dictionary for final calculated tims
+        final_categorical_actions ={}
+        # Dictionary for associated category actions
+        categories = {"climb_level": ["ZERO", "LOW", "MID", "HIGH", "TRAVERSAL"], 
+                    "start_position": ["ONE", "TWO", "THREE", "FOUR"]
+                    }
+        for category in self.schema["categorical_actions"]:
+            categorical_actions = [scout[category] for scout in unconsolidated_tims]
+            # If at least 2 scouts agree, take their answer
+            if len(self.modes(categorical_actions)) == 1:
+                final_categorical_actions[category] = self.modes(categorical_actions)[0]
+                continue
+            
+            # Add up the indexes of the scout responses
+            category_avg = sum([categories[category].index(value) for value in categorical_actions])/3
+            # Round the average and append the correct action to the final dict
+            final_categorical_actions[category] = categories[category][round(category_avg)]
+        return final_categorical_actions
+
+
     def filter_timeline_actions(self, tim: dict, **filters) -> list:
         """Removes timeline actions that don't meet the filters and returns all the actions that do"""
         actions = tim['timeline']
@@ -78,7 +114,6 @@ class ObjTIMCalcs(BaseCalculations):
         """
         start_actions = self.filter_timeline_actions(tim, action_type=start_action)
         end_actions = self.filter_timeline_actions(tim, action_type=end_action)
-        total_time = 0
         # Match scout app should automatically add an end action at the end of the match,
         # if there isn't already an end action after the last start action. That way there are the
         # same number of start actions and end actions.
@@ -98,20 +133,7 @@ class ObjTIMCalcs(BaseCalculations):
                     raise TypeError(f'Expected {new_count} calculation to be a {expected_type}')
                 unconsolidated_counts.append(new_count)
             calculated_tim[calculation] = self.consolidate_nums(unconsolidated_counts)
-        return calculated_tim
-
-    def calculate_tim_bools(self, unconsolidated_tims: List[Dict]) -> dict:
-        """Given a list of unconsolidated TIMs, returns the calculated bool data fields"""
-        calculated_tim = {}
-        for calculation, filters in self.schema['timeline_bools'].items():
-            unconsolidated_bools = []
-            # Variable type of a calculation is in the schema, but it's not a filter
-            filters_ = copy.deepcopy(filters)
-            expected_type = filters_.pop('type')
-            for tim in unconsolidated_tims:
-                new_bool = bool(self.count_timeline_actions(tim, **filters_))
-                unconsolidated_bools.append(new_bool)
-            calculated_tim[calculation] = self.consolidate_bools(unconsolidated_bools)
+            
         return calculated_tim
 
     def calculate_tim_times(self, unconsolidated_tims: List[Dict]) -> dict:
@@ -143,8 +165,9 @@ class ObjTIMCalcs(BaseCalculations):
             return {}
         calculated_tim = {}
         calculated_tim.update(self.calculate_tim_counts(unconsolidated_tims))
-        calculated_tim.update(self.calculate_tim_bools(unconsolidated_tims))
+        calculated_tim.update(self.calculate_aggregates(unconsolidated_tims))
         calculated_tim.update(self.calculate_tim_times(unconsolidated_tims))
+        calculated_tim.update(self.consolidate_categorical_actions(unconsolidated_tims))
         # Use any of the unconsolidated TIMs to get the team and match number,
         # since that should be the same for each unconsolidated TIM
         calculated_tim['match_number'] = unconsolidated_tims[0]['match_number']
