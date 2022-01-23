@@ -85,7 +85,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
         robot_number, alliance = self.get_robot_number_and_alliance(team_number, match)
 
         for calculation, tim_requirements in self.SCHEMA.items():
-            # calculation is the name of the field, like "auto_line" or "climb" for example
+            # calculation is the name of the field, like "auto_line" for example
             # tim_requirements is dict of stuff including {"type": "bool"} and something like
             # {"initLineRobot": "Exited"}
             tim_requirements_copy = copy.deepcopy(tim_requirements)

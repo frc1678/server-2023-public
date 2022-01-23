@@ -22,19 +22,11 @@ TEST_DATA = [
         'match_number': 1,
         'score_breakdown': {
             'blue': {
-                'endgameRobot1': 'Hang',
-                'endgameRobot2': 'Park',
-                'endgameRobot3': 'None',
-                'endgameRungIsLevel': 'NotLevel',
                 'initLineRobot1': 'Exited',
                 'initLineRobot2': 'Exited',
                 'initLineRobot3': 'Exited',
             },
             'red': {
-                'endgameRobot1': 'Hang',
-                'endgameRobot2': 'Park',
-                'endgameRobot3': 'None',
-                'endgameRungIsLevel': 'NotLevel',
                 'initLineRobot1': 'Hand',
                 'initLineRobot2': 'Park',
                 'initLineRobot3': 'None',
@@ -54,19 +46,11 @@ TEST_DATA = [
         'match_number': 2,
         'score_breakdown': {
             'blue': {
-                'endgameRobot1': 'Hang',
-                'endgameRobot2': 'Hang',
-                'endgameRobot3': 'Park',
-                'endgameRungIsLevel': 'NotLevel',
                 'initLineRobot1': 'Exited',
                 'initLineRobot2': 'Exited',
                 'initLineRobot3': 'Exited',
             },
             'red': {
-                'endgameRobot1': 'Hang',
-                'endgameRobot2': 'Hang',
-                'endgameRobot3': 'None',
-                'endgameRungIsLevel': 'NotLevel',
                 'initLineRobot1': 'Exited',
                 'initLineRobot2': 'Exited',
                 'initLineRobot3': 'Exited',
@@ -80,97 +64,61 @@ TIMS = [
         "team_number": 254,
         "match_number": 1,
         "auto_line": False,
-        "climb": False,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 973,
         "match_number": 1,
         "auto_line": True,
-        "climb": True,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 34,
         "match_number": 1,
         "auto_line": False,
-        "climb": False,
-        "park": True,
-        "level_climb": False,
     },
     {
         "team_number": 33,
         "match_number": 1,
         "auto_line": False,
-        "climb": False,
-        "park": True,
-        "level_climb": False,
     },
     {
         "team_number": 25,
         "match_number": 1,
         "auto_line": False,
-        "climb": False,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 257,
         "match_number": 1,
         "auto_line": False,
-        "climb": False,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 97,
         "match_number": 2,
         "auto_line": True,
-        "climb": True,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 3,
         "match_number": 2,
         "auto_line": True,
-        "climb": True,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 37,
         "match_number": 2,
         "auto_line": True,
-        "climb": True,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 47,
         "match_number": 2,
         "auto_line": True,
-        "climb": True,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 57,
         "match_number": 2,
         "auto_line": True,
-        "climb": True,
-        "park": False,
-        "level_climb": False,
     },
     {
         "team_number": 67,
         "match_number": 2,
         "auto_line": True,
-        "climb": True,
-        "park": False,
-        "level_climb": False,
     },
 ]
 
@@ -195,19 +143,11 @@ class TestTBATimCalc:
                     "initLineRobot1": "Exited",
                     "initLineRobot2": "Exited",
                     "initLineRobot3": "Exited",
-                    "endgameRobot1": "Hang",
-                    "endgameRobot2": "Park",
-                    "endgameRobot3": "None",
-                    "endgameRungIsLevel": "IsLevel",
                 },
                 "red": {
                     "initLineRobot1": "Exited",
                     "initLineRobot2": "None",
                     "initLineRobot3": "Exited",
-                    "endgameRobot1": "Hang",
-                    "endgameRobot2": "Park",
-                    "endgameRobot3": "None",
-                    "endgameRungIsLevel": "IsNotLevel",
                 },
             }
         }
@@ -216,17 +156,6 @@ class TestTBATimCalc:
         assert tba_tims.TBATIMCalc.calc_tba_bool(match_data, "blue", {"initLineRobot1": "Exited"})
         assert not tba_tims.TBATIMCalc.calc_tba_bool(
             match_data, "red", {"initLineRobot2": "Exited"}
-        )
-        assert tba_tims.TBATIMCalc.calc_tba_bool(match_data, "red", {"endgameRobot2": "Park"})
-        assert not tba_tims.TBATIMCalc.calc_tba_bool(match_data, "blue", {"endgameRobot3": "Hang"})
-        assert not tba_tims.TBATIMCalc.calc_tba_bool(
-            match_data, "red", {"endgameRobot1": "Hang", "endgameRungIsLevel": "IsLevel"}
-        )
-        assert not tba_tims.TBATIMCalc.calc_tba_bool(
-            match_data, "blue", {"endgameRobot2": "Hang", "endgameRungIsLevel": "IsLevel"}
-        )
-        assert tba_tims.TBATIMCalc.calc_tba_bool(
-            match_data, "blue", {"endgameRobot1": "Hang", "endgameRungIsLevel": "IsLevel"}
         )
 
     def test_get_robot_number_and_alliance(self):
@@ -268,9 +197,6 @@ class TestTBATimCalc:
                 assert isinstance(calc["team_number"], int)
                 assert isinstance(calc["match_number"], int)
                 assert isinstance(calc["auto_line"], bool)
-                assert isinstance(calc["climb"], bool)
-                assert isinstance(calc["park"], bool)
-                assert isinstance(calc["level_climb"], bool)
 
     def test_run(self):
         entries = self.test_calc.entries_since_last()
