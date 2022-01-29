@@ -184,6 +184,8 @@ class TestObjTIMCalcs:
         assert calculated_tim['tele_balls_high'] == 5
         assert calculated_tim['climb_level'] == 'HIGH'
         assert calculated_tim['start_position'] == 'TWO'
+        assert calculated_tim['auto_balls_total'] == 2
+        assert calculated_tim['tele_balls_total'] == 7
 
 
     @mock.patch.object(
