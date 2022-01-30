@@ -18,9 +18,14 @@ def delete_tablet_downloads():
     devices = get_attached_devices()
     # Wait for USB connection to initialize
     time.sleep(0.1)
+    directory = '/storage/sdcard0/Download/*'
     for device in devices:
-        utils.run_command(f'adb -s {device} shell rm -r /storage/sdcard0/Download/*')
-        utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
+        # Check if Download folder is empty in order to avoid errors
+        # utils.run_command returns 'Empty' if directory is empty and a blank string if there it contains files
+        download_is_empty = bool(utils.run_command(f'adb -s {device} shell [ ! -d "{directory}" ] && echo "Empty"', return_output=True))
+        if not download_is_empty:
+            utils.run_command(f'adb -s {device} shell rm -r {directory}')
+            utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
 
 
 def get_attached_devices():
@@ -50,6 +55,24 @@ def push_file(serial_number, local_path, tablet_path, validate_function=None):
     if validate_function is not None:
         return validate_function(serial_number, local_path, tablet_path)
     return None
+
+
+def uninstall_app(device, app_name='com.frc1678.match_collection'):
+    """Uninstalls app `app_name` from tablet matching the serial number.
+
+    Match Collection is com.frc1678.match_collection
+    Pit Collection is com.frc1678.pit_collection
+    Viewer is com.example.viewer_2020
+    """
+    # Gets list of all installed apps. -3 returns only 3rd party apps.
+    installed_apps = utils.run_command(f'adb -s {device} shell pm list packages -3', return_output=True)
+    uninstall_command = f'adb -s {device} uninstall {app_name}'
+    if app_name in installed_apps:
+        utils.run_command(uninstall_command)
+        utils.log_info(f'Uninstalled app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
+    else:
+        utils.log_info(f'Tried to to uninstall app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device}) but it was not in list of installed apps.')
+
 
 
 def pull_device_files(local_file_path, tablet_file_path):
