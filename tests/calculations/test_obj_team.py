@@ -196,7 +196,9 @@ class TestOBJTeamCalc:
         lfm_tims = [tim for tim in tims if tim['match_number'] > 1]
         action_counts = self.test_calc.get_action_counts(tims)
         lfm_action_counts = self.test_calc.get_action_counts(lfm_tims)
-        assert self.test_calc.calculate_averages(action_counts, lfm_action_counts) == expected_output
+        assert (
+            self.test_calc.calculate_averages(action_counts, lfm_action_counts) == expected_output
+        )
 
     def test_standard_deviations(self):
         """Tests calculate_standard_deviations function from src/calculations/obj_team.py"""
@@ -290,11 +292,41 @@ class TestOBJTeamCalc:
     def test_counts(self):
         """Tests calculate_counts function from src/calculations/obj_team.py"""
         tims = [
-            {'climb_level': 'TRAVERSAL', 'climb_time': 20, 'match_number': 1, 'incap': 2}, 
-            {'climb_level': 'TRAVERSAL', 'climb_time': 20, 'match_number': 4, 'incap': 0},
-            {'climb_level': 'NONE', 'climb_time': 5, 'match_number': 3, 'incap': 0},
-            {'climb_level': 'NONE', 'climb_time': 0, 'match_number': 2, 'incap': 0},
-            {'climb_level': 'LOW', 'climb_time': 5, 'match_number': 5, 'incap': 0},
+            {
+                'start_position': 'ONE',
+                'climb_level': 'TRAVERSAL',
+                'climb_time': 20,
+                'match_number': 1,
+                'incap': 2,
+            },
+            {
+                'start_position': 'TWO',
+                'climb_level': 'TRAVERSAL',
+                'climb_time': 20,
+                'match_number': 4,
+                'incap': 0,
+            },
+            {
+                'start_position': 'FOUR',
+                'climb_level': 'NONE',
+                'climb_time': 5,
+                'match_number': 3,
+                'incap': 0,
+            },
+            {
+                'start_position': 'ONE',
+                'climb_level': 'NONE',
+                'climb_time': 0,
+                'match_number': 2,
+                'incap': 0,
+            },
+            {
+                'start_position': 'THREE',
+                'climb_level': 'LOW',
+                'climb_time': 5,
+                'match_number': 5,
+                'incap': 0,
+            },
         ]
         lfm_tims = [tim for tim in tims if tim['match_number'] > 1]
 
@@ -304,6 +336,10 @@ class TestOBJTeamCalc:
             'mid_rung_successes': 0,
             'high_rung_successes': 0,
             'traversal_rung_successes': 2,
+            'position_one_starts': 2,
+            'position_two_starts': 1,
+            'position_three_starts': 1,
+            'position_four_starts': 1,
             'matches_incap': 1,
             'matches_played': 5,
             'lfm_climb_all_attempts': 3,
@@ -317,7 +353,7 @@ class TestOBJTeamCalc:
 
     def test_extrema(self):
         tims = [
-            {   
+            {
                 'auto_balls_low': 6,
                 'auto_balls_high': 7,
                 'tele_balls_low': 8,
@@ -327,7 +363,6 @@ class TestOBJTeamCalc:
                 'exit_ball_catches': 12,
                 'opp_balls_scored': 0,
                 'climb_level': 'NONE',
-
                 'match_number': 1,
                 'auto_near_hub_highs': 3,
                 'auto_far_hub_highs': 4,
@@ -345,7 +380,7 @@ class TestOBJTeamCalc:
                 'tele_far_hub_lows': 4,
                 'start_position': 'ONE',
             },
-            {   
+            {
                 'auto_balls_low': 1,
                 'auto_balls_high': 2,
                 'tele_balls_low': 3,
@@ -355,7 +390,6 @@ class TestOBJTeamCalc:
                 'exit_ball_catches': 7,
                 'opp_balls_scored': 8,
                 'climb_level': 'NONE',
-
                 'match_number': 2,
                 'auto_near_hub_highs': 3,
                 'auto_far_hub_highs': 4,
@@ -383,7 +417,6 @@ class TestOBJTeamCalc:
                 'exit_ball_catches': 8,
                 'opp_balls_scored': 9,
                 'climb_level': 'MID',
-
                 'match_number': 3,
                 'auto_near_hub_highs': 3,
                 'auto_far_hub_highs': 4,
@@ -411,7 +444,6 @@ class TestOBJTeamCalc:
                 'exit_ball_catches': 9,
                 'opp_balls_scored': 10,
                 'climb_level': 'LOW',
-
                 'match_number': 4,
                 'auto_near_hub_highs': 3,
                 'auto_far_hub_highs': 4,
@@ -439,7 +471,6 @@ class TestOBJTeamCalc:
                 'exit_ball_catches': 10,
                 'opp_balls_scored': 11,
                 'climb_level': 'HIGH',
-
                 'match_number': 5,
                 'auto_near_hub_highs': 3,
                 'auto_far_hub_highs': 4,
@@ -472,7 +503,6 @@ class TestOBJTeamCalc:
             'max_exit_ball_catches': 12,
             'max_opp_balls_scored': 11,
             'max_climb_level': 'HIGH',
-
             'lfm_auto_max_balls_low': 4,
             'lfm_auto_max_balls_high': 5,
             'lfm_tele_max_balls_low': 6,
@@ -480,47 +510,32 @@ class TestOBJTeamCalc:
             'lfm_max_incap': 9,
             'lfm_max_exit_ball_catches': 10,
             'lfm_max_opp_balls_scored': 11,
-            'lfm_max_climb_level': 'HIGH'
+            'lfm_max_climb_level': 'HIGH',
         }
-        assert self.test_calc.calculate_extrema(action_counts, lfm_action_counts, action_categories, lfm_action_categories) == expected_output
+        assert (
+            self.test_calc.calculate_extrema(
+                action_counts, lfm_action_counts, action_categories, lfm_action_categories
+            )
+            == expected_output
+        )
 
     def test_modes(self):
         tims = [
-            {
-                'match_number': 1,
-                'climb_level': 'LOW',
-                'start_position': 'ONE'
-            },
-            {
-                'match_number': 2,
-                'climb_level': 'LOW',
-                'start_position': 'TWO'
-            },
-            {
-                'match_number': 3,
-                'climb_level': 'MID',
-                'start_position': 'THREE'
-            },
-            {
-                'match_number': 4,
-                'climb_level': 'TRAVERSAL',
-                'start_position': 'ONE'
-            },
-            {
-                'match_number': 5,
-                'climb_level': 'HIGH',
-                'start_position': 'TWO'
-            },
-            {
-                'match_number': 6,
-                'climb_level': 'LOW',
-                'start_position': 'THREE'
-            },
+            {'match_number': 1, 'climb_level': 'LOW', 'start_position': 'ONE'},
+            {'match_number': 2, 'climb_level': 'LOW', 'start_position': 'TWO'},
+            {'match_number': 3, 'climb_level': 'MID', 'start_position': 'THREE'},
+            {'match_number': 4, 'climb_level': 'TRAVERSAL', 'start_position': 'ONE'},
+            {'match_number': 5, 'climb_level': 'HIGH', 'start_position': 'TWO'},
+            {'match_number': 6, 'climb_level': 'LOW', 'start_position': 'THREE'},
         ]
         lfm_tims = [tim for tim in tims if tim['match_number'] > 2]
         action_categories = self.test_calc.get_action_categories(tims)
         lfm_action_categories = self.test_calc.get_action_categories(lfm_tims)
-        assert self.test_calc.calculate_modes(action_categories, lfm_action_categories) == {'mode_climb_level': ['LOW'], 'mode_start_position': ['ONE', 'TWO', 'THREE'], 'lfm_mode_start_position': ['THREE']}
+        assert self.test_calc.calculate_modes(action_categories, lfm_action_categories) == {
+            'mode_climb_level': ['LOW'],
+            'mode_start_position': ['ONE', 'TWO', 'THREE'],
+            'lfm_mode_start_position': ['THREE'],
+        }
 
     def test_climb_times(self):
         tims = [
@@ -531,7 +546,7 @@ class TestOBJTeamCalc:
             {'match_number': 5, 'climb_level': 'LOW', 'climb_time': 2},
             {'match_number': 6, 'climb_level': 'HIGH', 'climb_time': 10},
             {'match_number': 7, 'climb_level': 'LOW', 'climb_time': 4},
-            {'match_number': 8, 'climb_level': 'NONE', 'climb_time': 9}
+            {'match_number': 8, 'climb_level': 'NONE', 'climb_time': 9},
         ]
         expected_results = {
             'low_avg_time': 5.75,
@@ -541,12 +556,15 @@ class TestOBJTeamCalc:
             'lfm_low_avg_time': 3.0,
             'lfm_mid_avg_time': 0.0,
             'lfm_high_avg_time': 10.0,
-            'lfm_traversal_avg_time': 0.0
+            'lfm_traversal_avg_time': 0.0,
         }
         lfm_tims = [tim for tim in tims if tim['match_number'] > 4]
         successful_climb_times = self.test_calc.get_climb_times(tims)
         lfm_successful_climb_times = self.test_calc.get_climb_times(lfm_tims)
-        assert self.test_calc.calculate_climb_times(successful_climb_times, lfm_successful_climb_times) == expected_results
+        assert (
+            self.test_calc.calculate_climb_times(successful_climb_times, lfm_successful_climb_times)
+            == expected_results
+        )
 
     def test_success_rates(self):
         team_data = {
@@ -561,11 +579,15 @@ class TestOBJTeamCalc:
             'lfm_high_rung_successes': 0,
             'lfm_traversal_rung_successes': 1,
         }
-        assert self.test_calc.calculate_success_rates(team_data) == {'climb_percent_success': 0.75, 'lfm_climb_percent_success': 0.6666666666666666}
+        assert self.test_calc.calculate_success_rates(team_data) == {
+            'climb_percent_success': 0.75,
+            'lfm_climb_percent_success': 0.6666666666666666,
+        }
 
     def test_run(self):
         """Tests run function from src/calculations/obj_team.py"""
         obj_tims = [
+            # 973
             {
                 'match_number': 1,
                 'auto_balls_low': 66,
@@ -575,7 +597,6 @@ class TestOBJTeamCalc:
                 'incap': 14,
                 'confidence_rating': 30,
                 'team_number': 973,
-
                 'auto_near_hub_highs': 1,
                 'auto_far_hub_highs': 2,
                 'auto_launchpad_highs': 3,
@@ -606,7 +627,6 @@ class TestOBJTeamCalc:
                 'incap': 22,
                 'confidence_rating': 68,
                 'team_number': 973,
-
                 'auto_near_hub_highs': 2,
                 'auto_far_hub_highs': 3,
                 'auto_launchpad_highs': 4,
@@ -637,7 +657,6 @@ class TestOBJTeamCalc:
                 'incap': 18,
                 'confidence_rating': 2,
                 'team_number': 973,
-
                 'auto_near_hub_highs': 3,
                 'auto_far_hub_highs': 4,
                 'auto_launchpad_highs': 5,
@@ -657,8 +676,9 @@ class TestOBJTeamCalc:
                 'opp_balls_scored': 19,
                 'climb_time': 20,
                 'climb_level': 'HIGH',
-                'start_position': 'FOUR'
+                'start_position': 'FOUR',
             },
+            # 1678
             {
                 'match_number': 1,
                 'auto_balls_low': 47,
@@ -668,7 +688,6 @@ class TestOBJTeamCalc:
                 'incap': 17,
                 'confidence_rating': 31,
                 'team_number': 1678,
-
                 'auto_near_hub_highs': 4,
                 'auto_far_hub_highs': 5,
                 'auto_launchpad_highs': 6,
@@ -700,7 +719,6 @@ class TestOBJTeamCalc:
                 'climb_time': 35,
                 'confidence_rating': 14,
                 'team_number': 1678,
-
                 'auto_near_hub_highs': 5,
                 'auto_far_hub_highs': 6,
                 'auto_launchpad_highs': 7,
@@ -732,7 +750,6 @@ class TestOBJTeamCalc:
                 'climb_time': 97,
                 'confidence_rating': 77,
                 'team_number': 1678,
-
                 'auto_near_hub_highs': 7,
                 'auto_far_hub_highs': 8,
                 'auto_launchpad_highs': 9,
@@ -754,11 +771,72 @@ class TestOBJTeamCalc:
                 'climb_level': 'LOW',
                 'start_position': 'FOUR',
             },
+            {
+                'match_number': 4,
+                'auto_balls_low': 1,
+                'auto_balls_high': 2,
+                'tele_balls_low': 3,
+                'tele_balls_high': 4,
+                'incap': 5,
+                'climb_time': 6,
+                'confidence_rating': 7,
+                'team_number': 1678,
+                'auto_near_hub_highs': 8,
+                'auto_far_hub_highs': 9,
+                'auto_launchpad_highs': 10,
+                'auto_near_other_highs': 11,
+                'auto_far_other_highs': 12,
+                'auto_near_hub_lows': 13,
+                'auto_far_hub_lows': 14,
+                'tele_near_hub_highs': 15,
+                'tele_far_hub_highs': 16,
+                'tele_launchpad_highs': 17,
+                'tele_near_other_highs': 18,
+                'tele_far_other_highs': 19,
+                'tele_near_hub_lows': 20,
+                'tele_far_hub_lows': 21,
+                'intakes': 22,
+                'exit_ball_catches': 23,
+                'opp_balls_scored': 24,
+                'climb_time': 25,
+                'climb_level': 'MID',
+                'start_position': 'FOUR',
+            },
+            {
+                'match_number': 5,
+                'auto_balls_low': 2,
+                'auto_balls_high': 3,
+                'tele_balls_low': 4,
+                'tele_balls_high': 5,
+                'incap': 6,
+                'climb_time': 7,
+                'confidence_rating': 8,
+                'team_number': 1678,
+                'auto_near_hub_highs': 9,
+                'auto_far_hub_highs': 10,
+                'auto_launchpad_highs': 11,
+                'auto_near_other_highs': 12,
+                'auto_far_other_highs': 13,
+                'auto_near_hub_lows': 14,
+                'auto_far_hub_lows': 15,
+                'tele_near_hub_highs': 16,
+                'tele_far_hub_highs': 17,
+                'tele_launchpad_highs': 18,
+                'tele_near_other_highs': 19,
+                'tele_far_other_highs': 20,
+                'tele_near_hub_lows': 21,
+                'tele_far_hub_lows': 22,
+                'intakes': 23,
+                'exit_ball_catches': 24,
+                'opp_balls_scored': 25,
+                'climb_time': 26,
+                'climb_level': 'LOW',
+                'start_position': 'ONE',
+            },
         ]
         expected_results = [
             {
                 'team_number': 973,
-
                 # Averages
                 'auto_avg_near_hub_highs': 2.0,
                 'auto_avg_far_hub_highs': 3.0,
@@ -784,7 +862,6 @@ class TestOBJTeamCalc:
                 'tele_avg_balls_low': 38.0,
                 'tele_avg_balls_high': 38.0,
                 'avg_incap_time': 18.0,
-
                 # LFM Averages
                 'lfm_auto_avg_near_hub_highs': 2.0,
                 'lfm_auto_avg_far_hub_highs': 3.0,
@@ -807,13 +884,11 @@ class TestOBJTeamCalc:
                 'lfm_tele_avg_balls_low': 38.0,
                 'lfm_tele_avg_balls_high': 38.0,
                 'lfm_avg_incap_time': 18.0,
-
                 # Standard Deviations
                 'auto_sd_balls_low': 22.44994432064365,
                 'auto_sd_balls_high': 14.854853303438128,
                 'tele_sd_balls_low': 15.57776192739723,
                 'tele_sd_balls_high': 27.796882319185844,
-
                 # Counts
                 'matches_played': 3,
                 'climb_all_attempts': 3,
@@ -821,8 +896,11 @@ class TestOBJTeamCalc:
                 'mid_rung_successes': 0,
                 'high_rung_successes': 1,
                 'traversal_rung_successes': 0,
+                'position_one_starts': 1,
+                'position_two_starts': 1,
+                'position_three_starts': 0,
+                'position_four_starts': 1,
                 'matches_incap': 3,
-
                 # LFM Counts
                 'lfm_climb_all_attempts': 3,
                 'lfm_low_rung_successes': 1,
@@ -830,7 +908,6 @@ class TestOBJTeamCalc:
                 'lfm_high_rung_successes': 1,
                 'lfm_traversal_rung_successes': 0,
                 'lfm_matches_incap': 3,
-
                 # Extrema
                 'auto_max_balls_low': 84,
                 'auto_max_balls_high': 92,
@@ -840,7 +917,6 @@ class TestOBJTeamCalc:
                 'max_opp_balls_scored': 19,
                 'max_incap': 22,
                 'max_climb_level': 'HIGH',
-
                 # LFM Extrema
                 'lfm_auto_max_balls_low': 84,
                 'lfm_auto_max_balls_high': 92,
@@ -850,149 +926,134 @@ class TestOBJTeamCalc:
                 'lfm_max_opp_balls_scored': 19,
                 'lfm_max_incap': 22,
                 'lfm_max_climb_level': 'HIGH',
-
                 # Modes
                 'mode_climb_level': ['LOW', 'NONE', 'HIGH'],
                 'mode_start_position': ['ONE', 'TWO', 'FOUR'],
-
                 # LFM Modes
                 'lfm_mode_start_position': ['ONE', 'TWO', 'FOUR'],
-
                 # Climb Times
                 'low_avg_time': 18.0,
                 'mid_avg_time': 0.0,
                 'high_avg_time': 20.0,
                 'traversal_avg_time': 0.0,
-
                 # LFM Climb times
                 'lfm_low_avg_time': 18.0,
                 'lfm_mid_avg_time': 0.0,
                 'lfm_high_avg_time': 20.0,
                 'lfm_traversal_avg_time': 0.0,
-
                 # Success Rates
                 'climb_percent_success': 0.6666666666666666,
-
                 # LFM Success Rates
                 'lfm_climb_percent_success': 0.6666666666666666,
             },
             {
                 'team_number': 1678,
-
                 # Averages
-                'auto_avg_near_hub_highs': 5.333333333333333,
-                'auto_avg_far_hub_highs': 6.333333333333333,
-                'auto_avg_launchpad_highs': 7.333333333333333,
-                'auto_avg_near_other_highs': 8.333333333333334,
-                'auto_avg_far_other_highs': 9.333333333333334,
-                'auto_avg_near_hub_lows': 10.333333333333334,
-                'auto_avg_far_hub_lows': 11.333333333333334,
-                'tele_avg_near_hub_highs': 12.333333333333334,
-                'tele_avg_far_hub_highs': 13.333333333333334,
-                'tele_avg_launchpad_highs': 14.333333333333334,
-                'tele_avg_near_other_highs': 15.333333333333334,
-                'tele_avg_far_other_highs': 16.333333333333332,
-                'tele_avg_near_hub_lows': 17.333333333333332,
-                'tele_avg_far_hub_lows': 18.333333333333332,
-                'avg_intakes': 19.333333333333332,
-                'avg_exit_ball_catches': 20.333333333333333,
-                'avg_opp_balls_scored': 21.333333333333332,
-                'auto_avg_balls_total': 102.0,
-                'tele_avg_balls_total': 139.0,
-                'auto_avg_balls_low': 42.0,
-                'auto_avg_balls_high': 60.0,
-                'tele_avg_balls_low': 68.0,
-                'tele_avg_balls_high': 71.0,
-                'avg_incap_time': 42.0,
-                
+                'auto_avg_near_hub_highs': 6.6,
+                'auto_avg_far_hub_highs': 7.6,
+                'auto_avg_launchpad_highs': 8.6,
+                'auto_avg_near_other_highs': 9.6,
+                'auto_avg_far_other_highs': 10.6,
+                'auto_avg_near_hub_lows': 11.6,
+                'auto_avg_far_hub_lows': 12.6,
+                'tele_avg_near_hub_highs': 13.6,
+                'tele_avg_far_hub_highs': 14.6,
+                'tele_avg_launchpad_highs': 15.6,
+                'tele_avg_near_other_highs': 16.6,
+                'tele_avg_far_other_highs': 17.6,
+                'tele_avg_near_hub_lows': 18.6,
+                'tele_avg_far_hub_lows': 19.6,
+                'avg_intakes': 20.6,
+                'avg_exit_ball_catches': 21.6,
+                'avg_opp_balls_scored': 22.6,
+                'auto_avg_balls_total': 62.8,
+                'tele_avg_balls_total': 86.6,
+                'auto_avg_balls_low': 25.8,
+                'auto_avg_balls_high': 37.0,
+                'tele_avg_balls_low': 42.2,
+                'tele_avg_balls_high': 44.4,
+                'avg_incap_time': 27.4,
                 # LFM Averages
-                'lfm_auto_avg_near_hub_highs': 5.333333333333333,
-                'lfm_auto_avg_far_hub_highs': 6.333333333333333,
-                'lfm_auto_avg_launchpad_highs': 7.333333333333333,
-                'lfm_auto_avg_near_other_highs': 8.333333333333334,
-                'lfm_auto_avg_far_other_highs': 9.333333333333334,
-                'lfm_auto_avg_near_hub_lows': 10.333333333333334,
-                'lfm_auto_avg_far_hub_lows': 11.333333333333334,
-                'lfm_tele_avg_near_hub_highs': 12.333333333333334,
-                'lfm_tele_avg_far_hub_highs': 13.333333333333334,
-                'lfm_tele_avg_launchpad_highs': 14.333333333333334,
-                'lfm_tele_avg_near_other_highs': 15.333333333333334,
-                'lfm_tele_avg_far_other_highs': 16.333333333333332,
-                'lfm_tele_avg_near_hub_lows': 17.333333333333332,
-                'lfm_tele_avg_far_hub_lows': 18.333333333333332,
-                'lfm_avg_exit_ball_catches': 20.333333333333332,
-                'lfm_avg_opp_balls_scored': 21.333333333333332,
-                'lfm_auto_avg_balls_low': 42.0,
-                'lfm_auto_avg_balls_high': 60.0,
-                'lfm_tele_avg_balls_low': 68.0,
-                'lfm_tele_avg_balls_high': 71.0,
-                'lfm_avg_incap_time': 42.0,
-
+                'lfm_auto_avg_near_hub_highs': 7.25,
+                'lfm_auto_avg_far_hub_highs': 8.25,
+                'lfm_auto_avg_launchpad_highs': 9.25,
+                'lfm_auto_avg_near_other_highs': 10.25,
+                'lfm_auto_avg_far_other_highs': 11.25,
+                'lfm_auto_avg_near_hub_lows': 12.25,
+                'lfm_auto_avg_far_hub_lows': 13.25,
+                'lfm_tele_avg_near_hub_highs': 14.25,
+                'lfm_tele_avg_far_hub_highs': 15.25,
+                'lfm_tele_avg_launchpad_highs': 16.25,
+                'lfm_tele_avg_near_other_highs': 17.25,
+                'lfm_tele_avg_far_other_highs': 18.25,
+                'lfm_tele_avg_near_hub_lows': 19.25,
+                'lfm_tele_avg_far_hub_lows': 20.25,
+                'lfm_avg_exit_ball_catches': 22.25,
+                'lfm_avg_opp_balls_scored': 23.25,
+                'lfm_auto_avg_balls_low': 20.5,
+                'lfm_auto_avg_balls_high': 27.25,
+                'lfm_tele_avg_balls_low': 44.25,
+                'lfm_tele_avg_balls_high': 35.25,
+                'lfm_avg_incap_time': 30.0,
                 # Standard Deviations
-                'auto_sd_balls_low': 12.355835328567093,
-                'auto_sd_balls_high': 11.430952132988164,
-                'tele_sd_balls_low': 24.26245384677046,
-                'tele_sd_balls_high': 9.092121131323903,
-                
+                'auto_sd_balls_low': 22.03088740836374,
+                'auto_sd_balls_high': 29.5296461204668,
+                'tele_sd_balls_low': 36.766288907095316,
+                'tele_sd_balls_high': 33.332266649599454,
                 # Counts
-                'matches_played': 3,
-                'climb_all_attempts': 3,
-                'low_rung_successes': 2,
-                'mid_rung_successes': 0,
+                'matches_played': 5,
+                'climb_all_attempts': 5,
+                'low_rung_successes': 3,
+                'mid_rung_successes': 1,
                 'high_rung_successes': 0,
                 'traversal_rung_successes': 1,
-                'matches_incap': 3,
-
+                'position_one_starts': 1,
+                'position_two_starts': 0,
+                'position_three_starts': 1,
+                'position_four_starts': 3,
+                'matches_incap': 5,
                 # LFM Counts
-                'lfm_climb_all_attempts': 3,
-                'lfm_low_rung_successes': 2,
-                'lfm_mid_rung_successes': 0,
+                'lfm_climb_all_attempts': 4,
+                'lfm_low_rung_successes': 3,
+                'lfm_mid_rung_successes': 1,
                 'lfm_high_rung_successes': 0,
-                'lfm_traversal_rung_successes': 1,
-                'lfm_matches_incap': 3,
-
+                'lfm_traversal_rung_successes': 0,
+                'lfm_matches_incap': 4,
                 # Extrema
                 'auto_max_balls_low': 54,
                 'auto_max_balls_high': 76,
                 'tele_max_balls_low': 89,
                 'tele_max_balls_high': 81,
                 'max_incap': 93,
-                'max_exit_ball_catches': 22,
-                'max_opp_balls_scored': 23,
+                'max_exit_ball_catches': 24,
+                'max_opp_balls_scored': 25,
                 'max_climb_level': 'TRAVERSAL',
-
                 # LFM Extrema
                 'lfm_auto_max_balls_low': 54,
-                'lfm_auto_max_balls_high': 76,
+                'lfm_auto_max_balls_high': 54,
                 'lfm_tele_max_balls_low': 89,
-                'lfm_tele_max_balls_high': 81,
+                'lfm_tele_max_balls_high': 73,
                 'lfm_max_incap': 93,
-                'lfm_max_exit_ball_catches': 22,
-                'lfm_max_opp_balls_scored': 23,
-                'lfm_max_climb_level': 'TRAVERSAL',
-
+                'lfm_max_exit_ball_catches': 24,
+                'lfm_max_opp_balls_scored': 25,
+                'lfm_max_climb_level': 'MID',
                 # Modes
                 'mode_climb_level': ['LOW'],
                 'mode_start_position': ['FOUR'],
-
                 # LFM Modes
                 'lfm_mode_start_position': ['FOUR'],
-
                 # Climb Times
-                'low_avg_time': 23.0,
-                'mid_avg_time': 0.0,
+                'low_avg_time': 24.0,
+                'mid_avg_time': 25.0,
                 'high_avg_time': 0.0,
                 'traversal_avg_time': 21.0,
-
                 # LFM Climb Times
-                'lfm_low_avg_time': 23.0,
-                'lfm_mid_avg_time': 0.0,
+                'lfm_low_avg_time': 24.0,
+                'lfm_mid_avg_time': 25.0,
                 'lfm_high_avg_time': 0.0,
-                'lfm_traversal_avg_time': 21.0,
-
+                'lfm_traversal_avg_time': 0.0,
                 # Success Rates
                 'climb_percent_success': 1.0,
-
                 # LFM Success Rates
                 'lfm_climb_percent_success': 1.0,
             },
