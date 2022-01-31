@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019 FRC Team 1678: Citrus Circuits
+# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 import pytest
 from calculations import subj_team
 from server import Server

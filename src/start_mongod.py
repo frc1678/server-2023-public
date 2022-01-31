@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020 FRC Team 1678: Citrus Circuits
+# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 """Starts the mongod instance used by database.py, including handling the replica set"""
 import subprocess
 import utils

@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright (c) 2019-2021 FRC Team 1678: Citrus Circuits
+# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 """Contains the server class."""
 import importlib
 from typing import List

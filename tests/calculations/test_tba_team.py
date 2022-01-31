@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020 FRC Team 1678: Citrus Circuits
+# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 """This file tests the functions provided in tba_team that
 don't require the database.
 """
