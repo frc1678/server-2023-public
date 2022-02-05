@@ -187,7 +187,10 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                 num_attempts += team_counts[attempt_datapoint]
             for success_datapoint in schema['team_successes']:
                 num_successes += team_counts[success_datapoint]
-            team_info[calculation] = num_successes / num_attempts
+            if num_attempts != 0:
+                team_info[calculation] = num_successes / num_attempts 
+            else:
+                team_info[calculation] = 0
         return team_info
 
     def update_team_calcs(self, teams: list) -> list:
