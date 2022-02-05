@@ -47,7 +47,7 @@ class TIMInstanceGenerator:
             num_teams = 42
             num_matches = 118
             # Create a fake list of teams
-            teams: List[int] = [1678] + [int(str(x ** x)[0:4]) for x in range(1, num_teams)]
+            teams: List[int] = [1678] + [int(str(x**x)[0:4]) for x in range(1, num_teams)]
 
             # Generate a TIM instance for each match
             for match_number in range(1, num_matches + 1):
@@ -192,7 +192,7 @@ class DataGenerator:
         for key, value in schema.items():
             # "schema_file" is not needed and "data" is in TVD Structure format
             # Later, "data" will be converted into TUD Structure format
-            if key not in ["schema_file", "data", "schema"]:
+            if key not in ["schema_file", "data", "schema", "version"]:
                 datapoint_collections[key] = value
 
         """Convert structure of the "data" datapoint collection to TUD
@@ -239,7 +239,6 @@ class DataGenerator:
         get the type listed under the datapoint and generate a value for it
         """
         datapoint_collections = self.get_datapoint_collections_generation()
-
         generated_structure = {}
 
         # Go through each datapoint collection
@@ -357,7 +356,7 @@ def ask_input_filename():
             if x[-4:] == ".yml"
             and x != "collection_schema.yml"
             and x != "match_collection_qr_schema.yml"
-            and x != 'subj_pit_collection_schema.yml'
+            and x != "subj_pit_collection_schema.yml"
         ]
 
         if len(schema_files) == 0:
