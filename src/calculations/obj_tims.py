@@ -69,7 +69,7 @@ class ObjTIMCalcs(BaseCalculations):
         # Dictionary for final calculated tims
         final_categorical_actions ={}
         # Dictionary for associated category actions
-        categories = {"climb_level": ["ZERO", "LOW", "MID", "HIGH", "TRAVERSAL"], 
+        categories = {"climb_level": ["NONE", "LOW", "MID", "HIGH", "TRAVERSAL"], 
                     "start_position": ["ONE", "TWO", "THREE", "FOUR"]
                     }
         for category in self.schema["categorical_actions"]:
