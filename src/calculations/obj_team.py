@@ -16,7 +16,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
     def __init__(self, server):
         """Overrides watched collections, passes server object"""
         super().__init__(server)
-        self.watched_collections = ['obj_tim']
+        self.watched_collections = ['obj_tim', 'subj_aim']
 
     def get_action_counts(self, tims: List[Dict]):
         """Gets a list of times each team completed a certain action by tim for averages
@@ -117,6 +117,18 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_info[calculation] = len(tims_that_meet_filter)
         return team_info
 
+    def calculate_super_counts(self, aims, team):
+        """Calculates counts of datapoints collected by Super Scouts."""
+        team_info = {}
+        for calculation, schema in self.SCHEMA['super_counts'].items():
+            total = 0
+            aim_field = schema['aim_fields'][0]
+            for aim in aims:
+                if team in aim[aim_field.split('.')[1]]:
+                    total += 1
+            team_info[calculation] = total
+        return team_info
+
     def calculate_extrema(self, tim_action_counts, lfm_tim_action_counts, tim_action_categories, lfm_tim_action_categories):
         """Creates a dictionary of extreme values, called team_info,
         where the keys are the names of the calculations, and the values are the results
@@ -196,6 +208,8 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
     def update_team_calcs(self, teams: list) -> list:
         """Calculate data for given team using objective calculated TIMs"""
         obj_team_updates = {}
+        # Subj aim data for super counts
+        subj_aims = self.server.db.find('subj_aim')
         for team in teams:
             # Load team data from database
             obj_tims = self.server.db.find('obj_tim', team_number=team)
@@ -212,6 +226,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_data = self.calculate_averages(tim_action_counts, lfm_tim_action_counts)
             team_data['team_number'] = team
             team_data.update(self.calculate_counts(obj_tims, lfm_tims))
+            team_data.update(self.calculate_super_counts(subj_aims, team))
             team_data.update(self.calculate_standard_deviations(tim_action_counts))
             team_data.update(self.calculate_extrema(tim_action_counts, lfm_tim_action_counts, tim_action_categories, lfm_tim_action_categories))
             team_data.update(self.calculate_modes(tim_action_categories, lfm_tim_action_categories))

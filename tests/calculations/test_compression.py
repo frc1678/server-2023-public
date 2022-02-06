@@ -6,9 +6,9 @@ def test_compress_timeline():
         {'time': 51, 'action_type': 'start_incap'},
         {'time': 32, 'action_type': 'end_incap'},
     ]
-    assert compression.compress_timeline(timeline_data) == '051AK032AL'
+    assert compression.compress_timeline(timeline_data) == '051AH032AI'
     timeline_data[1]['action_type'] = 'score_ball_high_launchpad'
-    assert compression.compress_timeline(timeline_data) == '051AK032AC'
+    assert compression.compress_timeline(timeline_data) == '051AH032AB'
 
 
 def test_compress_list():
@@ -18,10 +18,10 @@ def test_compress_list():
 
 def test_compress_section_generic_data():
     # Make sure it adds schema version
-    assert compression.compress_section({}, 'generic_data') == 'A1'
+    assert compression.compress_section({}, 'generic_data') == 'A2'
     # Check generic data compression
-    schema_data = {'schema_version': 1}
-    compressed_schema = 'A1'
+    schema_data = {'schema_version': 2}
+    compressed_schema = 'A2'
     assert compression.compress_section(schema_data, 'generic_data') == compressed_schema
     # Check multiple points
     schema_data['serial_number'] = 'test'
@@ -37,13 +37,13 @@ def test_compress_section_obj():
     assert compression.compress_section(schema_data, 'objective_tim') == compressed_schema
     # With timeline
     schema_data['timeline'] = [{'time': 51, 'action_type': 'start_incap'}]
-    compressed_schema += '$W051AK'
+    compressed_schema += '$W051AH'
     assert compression.compress_section(schema_data, 'objective_tim') == compressed_schema
 
 
 def test_compress_section_subj():
-    data = {'quickness_rankings': [1, 2, 3], 'near_field_awareness_rankings': [2, 3, 1], 'far_field_awareness_rankings': [3, 2, 1]}
-    assert compression.compress_section(data, 'subjective_aim') == 'A1:2:3$B2:3:1$C3:2:1'
+    data = {'quickness_rankings': [1, 2, 3], 'near_field_awareness_rankings': [2, 3, 1], 'far_field_awareness_rankings': [3, 2, 1], 'teams_scored_far': []}
+    assert compression.compress_section(data, 'subjective_aim') == 'A1:2:3$B2:3:1$C3:2:1$D'
 
 
 def test_compress_obj_tim():
@@ -63,7 +63,7 @@ def test_compress_obj_tim():
         ],
         'climb_level': 'NONE'
     }
-    compressed_data = '+A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEI R%Z9999$Y2$XFOUR$W045AK007AL$VNONE'
+    compressed_data = '+A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEI R%Z9999$Y2$XFOUR$W045AH007AI$VNONE'
     assert compression.compress_obj_tim(data) == compressed_data
 
 
@@ -78,7 +78,8 @@ def test_compress_subj_aim():
         'scout_name': 'KEI R',
         'quickness_rankings': [1, 2, 3],
         'near_field_awareness_rankings': [2, 3, 1],
-        'far_field_awareness_rankings': [3, 2, 1]
+        'far_field_awareness_rankings': [3, 2, 1],
+        'teams_scored_far': [1, 3]
     }
-    compressed_data = '*A19$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEI R%A1:2:3$B2:3:1$C3:2:1'
+    compressed_data = '*A19$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEI R%A1:2:3$B2:3:1$C3:2:1$D1:3'
     assert compression.compress_subj_aim(data) == compressed_data

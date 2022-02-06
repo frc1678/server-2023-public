@@ -110,6 +110,9 @@ class Decompressor(base_calculations.BaseCalculations):
                     typed_value = []
                     # Convert all values in list to schema specified types
                     for item in value:
+                        # If 'teams_scored_far' is an empty list, item will be an empty string. typed_value should remain an empty list
+                        if item == '':
+                            break
                         # Name does not need to be specified because lists will not contain enums
                         typed_value.append(self.convert_data_type(item, uncompressed_type[-1]))
 
