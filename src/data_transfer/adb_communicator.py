@@ -133,7 +133,7 @@ def pull_device_data():
     """Pulls tablet data from attached tablets."""
     # Parses 'adb devices' to find num of devices so that don't try to pull from nothing
     devices = get_attached_devices()
-    data = {'qr': [], 'obj_pit': [], 'subj_pit': []}
+    data = {'qr': [], 'raw_obj_pit': []}
     if not devices:
         return data
 
@@ -163,7 +163,7 @@ def pull_device_data():
     # Add QRs to database and make sure that only QRs that should be decompressed are added to queue
     data['qr'] = qr_code_uploader.upload_qr_codes(data['qr'])
     ldc = database.Database()
-    for dataset in ['raw_obj_pit', 'raw_subj_pit']:
+    for dataset in ['raw_obj_pit']:
         current_data = ldc.find(dataset)
         modified_data = []
         for datapoint in data[dataset]:
