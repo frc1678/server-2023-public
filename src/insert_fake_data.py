@@ -19,19 +19,6 @@ def print_bold_red(text: str) -> None:
     print(f"\u001b[31m\u001b[1m{text}\u001b[0m")
 
 
-local_database = database.Database(port=1678)
-NUM_OBJ_SCOUTS = 18
-NUM_SUBJ_SCOUTS = 3
-PATH_TO_MATCH_SCHEDULE = utils.create_file_path("data/match_schedule.csv")
-if not os.path.exists(PATH_TO_MATCH_SCHEDULE):
-    # For testing purposes, let this work even when there is no match schedule
-    print_bold_red(
-        f"Watch out! {PATH_TO_MATCH_SCHEDULE} doesn't exist, so we'll just make a "
-        "fake match scheudule to work with instead"
-    )
-    PATH_TO_MATCH_SCHEDULE = None
-
-
 # Begin by creating a fake list of teams and a fake dictionary of scouts
 # That way the fake data will be realistic enough to actually be useful :)
 def fake_name() -> str:
@@ -44,20 +31,6 @@ def fake_name() -> str:
         initial = " " + random.choice(string.ascii_uppercase) + "."
         name += initial
     return name
-
-
-# Ensure no duplicate scout names by using sets
-obj_scout_names = set()
-subj_scout_names = set()
-while len(obj_scout_names) < NUM_OBJ_SCOUTS:
-    obj_scout_names.add(fake_name())
-while len(subj_scout_names) < NUM_SUBJ_SCOUTS:
-    subj_scout_names.add(fake_name())
-# Dictionary of scout ids to scout names
-# Scout ID is one greater than the index, since it starts counting at 1
-obj_scouts = {index + 1: name for index, name in zip(range(NUM_OBJ_SCOUTS), list(obj_scout_names))}
-# Super scouts don't have IDs, just names
-subj_scouts = list(subj_scout_names)
 
 
 def insert_fake_qr_data() -> List[str]:
@@ -110,10 +83,40 @@ def insert_fake_non_qr_data() -> List:
     return obj
 
 
-# If this script is being run directly, use actual team and match lists from TBA
-# If it's being imported by a test file, we don't want to rely on having a TBA key,
-# so autogenerate fake team and match lists to use instead
+def insert_all_data() -> None:
+    insert_fake_qr_data()
+    insert_fake_non_qr_data()
+    utils.log_info("Done inserting data. Please run server to calculate and upload to cloud")
+
+
+local_database = database.Database(port=1678)
+NUM_OBJ_SCOUTS = 18
+NUM_SUBJ_SCOUTS = 3
+PATH_TO_MATCH_SCHEDULE = utils.create_file_path("data/match_schedule.csv")
+if not os.path.exists(PATH_TO_MATCH_SCHEDULE):
+    # For testing purposes, let this work even when there is no match schedule
+    print_bold_red(
+        f"Watch out! {PATH_TO_MATCH_SCHEDULE} doesn't exist, so we'll just make a "
+        "fake match schedule to work with instead"
+    )
+    PATH_TO_MATCH_SCHEDULE = None
+
+# Ensure no duplicate scout names by using sets
+obj_scout_names = set()
+subj_scout_names = set()
+while len(obj_scout_names) < NUM_OBJ_SCOUTS:
+    obj_scout_names.add(fake_name())
+while len(subj_scout_names) < NUM_SUBJ_SCOUTS:
+    subj_scout_names.add(fake_name())
+# Dictionary of scout ids to scout names
+# Scout ID is one greater than the index, since it starts counting at 1
+obj_scouts = {index + 1: name for index, name in zip(range(NUM_OBJ_SCOUTS), list(obj_scout_names))}
+# Super scouts don't have IDs, just names
+subj_scouts = list(subj_scout_names)
+
+
 if __name__ == "__main__":
+
     from data_transfer import tba_communicator
 
     TEAMS = [
@@ -125,6 +128,7 @@ if __name__ == "__main__":
         for match in tba_communicator.tba_request(f"event/{Server.TBA_EVENT_KEY}/matches/simple")
         if match["comp_level"] == "qm"
     ]
+    insert_all_data()
 else:
     # Define constants for how many teams and matches we want
     NUM_TEAMS = 42
@@ -146,7 +150,3 @@ else:
             "blue": {"team_keys": blue},
         }
         MATCHES.append(current_match)
-
-insert_fake_qr_data()
-insert_fake_non_qr_data()
-print("Done inserting data. Please run server to calculate and upload to cloud")
