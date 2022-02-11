@@ -88,6 +88,8 @@ class CloudDBUpdater:
         operation = cls.OPERATION_MAP.get(entry['op'])
         if operation is None:
             return None
+        if 'o' in entry and '$v' in entry['o'].keys():
+            entry['o'].pop('$v')
         if 'o2' in entry:
             return operation(entry['o2'], entry['o'])
         return operation(entry['o'])
