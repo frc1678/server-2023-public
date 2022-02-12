@@ -19,7 +19,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
     def __init__(self, server):
         """Creates an empty list to add references of calculated tims to"""
         super().__init__(server)
-        self.calculated = []
+        self.calculated = set([tim['match_number'] for tim in self.server.db.find('tba_tim')])
 
     def entries_since_last(self) -> List[Dict[str, Any]]:
         """Checks for uncalculated matches, returns the match data
@@ -133,6 +133,6 @@ class TBATIMCalc(base_calculations.BaseCalculations):
                 calculated_documents.append(calculated_tim)
 
                 # Add the tim ref to calculated, right after it gets calculated
-                self.calculated.append(match["match_number"])
+                self.calculated.add(match["match_number"])
 
         self.server.db.insert_documents("tba_tim", calculated_documents)
