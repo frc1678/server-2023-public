@@ -180,7 +180,6 @@ class TestDataGenerator:
         self.generate_test_data = DataGenerator(self.input_filename)
 
         self.schema_files = utils.get_schema_filenames()
-        self.schema_files.remove("match_collection_qr_schema.yml")
         self.schema_files = list(self.schema_files)
         self.schema_files.sort()
 
@@ -227,7 +226,6 @@ class TestDataGenerator:
 
 def test_name_sample_data():
     schema_files = utils.get_schema_filenames()
-    schema_files.remove("match_collection_qr_schema.yml")
     schema_files = list(schema_files)
     schema_files.sort()
 

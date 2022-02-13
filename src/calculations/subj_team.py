@@ -32,7 +32,8 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         calculations = {}
         # self.SCHEMA['data'] tells us which fields we need to put in the database that don't
         # require calculations
-        for data_field, type_as_str in self.SCHEMA['data'].items():
+        for data_field, type_dict in self.SCHEMA['data'].items():
+            type_as_str = type_dict['type']
             if data_field == 'team_number':
                 calculations[data_field] = self.STR_TYPES[type_as_str](team)
             else:

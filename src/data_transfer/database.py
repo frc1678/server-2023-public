@@ -147,13 +147,22 @@ class Database:
 
 def mongo_convert(sch):
     """Converts a schema dictionary into a mongo-usable form."""
+    # Dictionary for translating data types in schema to recognized BSON types
+    # Objective Pit enums are stored as ints in the database
+    type_to_bson = {'int': 'int', 'float': 'double', 'str': 'string', 'bool': 'bool', 'List': 'array', 'Enum': 'int'}
     out = {}
-    for k in sch.keys():
-        if k == 'type':
-            out["bsonType"] = sch[k]
-        elif isinstance(sch[k], list):
-            out["minimum"] = sch[k][0]
-            out["maximum"] = sch[k][1]
-        elif isinstance(sch[k], dict):
-            out[k] = mongo_convert(sch[k])
+    out['bsonType'] = 'object'
+    out['required'] = []
+    out['properties'] = {}
+    for section, datapoints in sch.items():
+        # These sections aren't stored in the database; ignore them
+        if section in ['schema_file', 'enums']:
+            continue
+        for datapoint, info in datapoints.items():
+            datapoint_dict = {}
+            # Every document should have a team number and/or match number depending on collection
+            if datapoint in ['team_number', 'match_number']:
+                out['required'].append(datapoint)
+            datapoint_dict['bsonType'] = type_to_bson[info['type']]
+            out['properties'].update({datapoint: datapoint_dict})
     return out

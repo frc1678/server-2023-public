@@ -105,12 +105,10 @@ class DataGenerator:
     """Given a schema file, find and fill in all the datapoints with random
     data for testing
 
-    1. Given a schema file name, find the collections of datapoints that
+    1. Given a schema file name, find datapoints that
     need data to be generated for them
-    2. Reformat the "data" datapoint collection to the TUD Structure format
-    3. Go through the TUD Structure containing the datapoint collections and
-    generate data for each datapoint
-    4. Get a number or raw data structures in need or generation and return a
+    2. Generate data for each datapoint
+    3. Get a number or raw data structures in need or generation and return a
     list of them with get_data()
 
     generate_test_data = DataGenerator("<schema_file_path>")
@@ -142,94 +140,13 @@ class DataGenerator:
         return schema
 
     def get_datapoint_collections_generation(self) -> dict:
-        """Get the items from the schema with the two different types of
-        structures and convert them to the one that can be processed in the
-        function generate_for_each_datapoint_collection()
-        The idea here is to generalize the structure to make generation more
-        consistent and to have it work with any schema file
-        """
+        """Get the datapoints from the schema that we want to generate for."""
         schema = self.open_schema_file(self.schema_filename)
-
-        """Gets collections of datapoints that have the following syntax
-        structure
-
-        I coin the following unnamed syntax structure the "Type Under Datapoint
-        Structure" or the TUD Structure. The structure is explicitly shown in
-        it's json form but also includes a yaml for shown in different schema
-        files
-
-        "datapoint_collection": {
-            "datapoint_1": {
-                "type": <type>
-            },
-            "datapoint_2": {
-                "type": <type>
-            }
-        }
-
-        With the TUD Structures, it will select the collections of datapoints
-        it needs to generate for.
-
-        This shows an example Structure before and after it goes through and
-        selects the points it will generate data for
-        {
-            "schema_file": {},
-            "data": {},
-            "averages": {},
-            "counts": {},
-        }
-
-        ->
-
-        {
-            "averages": {},
-            "counts": {},
-        }
-
-        """
-        # TUD Structure format of datapoint collections
         datapoint_collections = {}
         for key, value in schema.items():
-            # "schema_file" is not needed and "data" is in TVD Structure format
-            # Later, "data" will be converted into TUD Structure format
-            if key not in ["schema_file", "data", "schema", "version"]:
+            # "schema_file" is not needed
+            if key not in ["schema_file", "enums"]:
                 datapoint_collections[key] = value
-
-        """Convert structure of the "data" datapoint collection to TUD
-        Structure
-
-        I coin this structure the "Type as Value Datapoint Structure" or the
-        TVD Structure
-
-        "data" {
-            "datapoint_1": <type>,
-            "datapoint_2": <type>,
-        }
-        """
-        # Convert data (TVD Structure format) to a TUD Structure format
-        # This will only happen if "data" is in the schema file
-        if schema.get("data") is not None:
-            new_data = {}
-            for key, value in schema["data"].items():
-                new_data[key] = {"type": value}
-
-            """Now that "data": {} has been formatted into the TUD Structure,
-            it can be added to the other parts already in the TUD Structure
-            {
-                "averages": {},
-                "counts": {},
-                "data": {}
-            }
-            """
-
-            datapoint_collections["data"] = new_data
-
-        if schema.get("schema") is not None:
-            new_schema = {}
-            for key, value in schema["schema"].items():
-                new_schema[key] = {"type": value}
-
-            datapoint_collections["schema"] = new_schema
 
         return datapoint_collections
 
@@ -356,7 +273,6 @@ def ask_input_filename():
             if x[-4:] == ".yml"
             and x != "collection_schema.yml"
             and x != "match_collection_qr_schema.yml"
-            and x != "subj_pit_collection_schema.yml"
         ]
 
         if len(schema_files) == 0:
