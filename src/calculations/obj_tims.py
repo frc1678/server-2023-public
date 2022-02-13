@@ -106,18 +106,23 @@ class ObjTIMCalcs(BaseCalculations):
         """Returns the number of actions in one TIM timeline that meets the required filters"""
         return len(self.filter_timeline_actions(tim, **filters))
 
-    def total_time_between_actions(self, tim: dict, start_action: str, end_action: str) -> int:
+    def total_time_between_actions(self, tim: dict, start_action: str, end_action: str, min_time: int) -> int:
         """Returns total number of seconds spent between two types of actions for a given TIM
 
         start_action and end_action are the names (types) of those two actions,
         such as start_incap and end_climb.
+        min_time is the minimum number of seconds between the two types of actions that we want to count
         """
         start_actions = self.filter_timeline_actions(tim, action_type=start_action)
         end_actions = self.filter_timeline_actions(tim, action_type=end_action)
         # Match scout app should automatically add an end action at the end of the match,
         # if there isn't already an end action after the last start action. That way there are the
         # same number of start actions and end actions.
-        return sum([start['time'] - end['time'] for start, end in zip(start_actions, end_actions)])
+        total_time = 0
+        for start, end in zip(start_actions, end_actions):
+            if start['time'] - end['time'] >= min_time:
+                total_time += start['time'] - end['time']
+        return total_time
 
     def calculate_tim_counts(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns the calculated count based data fields"""
@@ -148,7 +153,7 @@ class ObjTIMCalcs(BaseCalculations):
                 # action_types is a list of dictionaries, where each dictionary is
                 # "action_type" to the name of either the start or end action
                 new_cycle_time = self.total_time_between_actions(
-                    tim, action_types['start_action'], action_types['end_action']
+                    tim, action_types['start_action'], action_types['end_action'], action_types['minimum_time']
                 )
                 if not isinstance(new_cycle_time, self.type_check_dict[expected_type]):
                     raise TypeError(

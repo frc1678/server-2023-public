@@ -58,14 +58,20 @@ class TestObjTIMCalcs:
                 {'time': 58, 'action_type': 'score_ball_high_other'},
                 {'time': 68, 'action_type': 'score_ball_high_other'},
                 {'time': 80, 'action_type': 'score_ball_high_launchpad'},
+                {'time': 83, 'action_type': 'end_incap'},
                 {'time': 90, 'action_type': 'score_ball_high_hub'},
+                {'time': 93, 'action_type': 'start_incap'},
                 {'time': 96, 'action_type': 'score_ball_low'},
+                {'time': 97, 'action_type': 'end_incap'},
                 {'time': 101, 'action_type': 'score_ball_high_hub'},
+                {'time': 105, 'action_type': 'start_incap'},
                 {'time': 110, 'action_type': 'score_opponent_ball'},
                 {'time': 111, 'action_type': 'score_opponent_ball'},
                 {'time': 112, 'action_type': 'score_ball_high_launchpad'},
                 {'time': 122, 'action_type': 'score_ball_high_other'},
+                {'time': 133, 'action_type': 'end_incap'},
                 {'time': 136, 'action_type': 'score_ball_low'},
+                {'time': 138, 'action_type': 'start_incap'},
                 {'time': 140, 'action_type': 'score_ball_high_hub'},
             ],
             'climb_level': 'HIGH',
@@ -149,8 +155,9 @@ class TestObjTIMCalcs:
 
     def test_total_time_between_actions(self):
         total_time = self.test_calculator.total_time_between_actions
-        assert total_time(self.unconsolidated_tims[0], 'start_climb', 'end_climb') == 50
-        assert total_time(self.unconsolidated_tims[0], 'start_incap', 'end_incap') == 10
+        assert total_time(self.unconsolidated_tims[0], 'start_climb', 'end_climb', 0) == 50
+        assert total_time(self.unconsolidated_tims[0], 'start_incap', 'end_incap', 8) == 10
+        assert total_time(self.unconsolidated_tims[1], 'start_incap', 'end_incap', 8) == 18
 
     def test_run_consolidation(self):
         self.test_server.db.insert_documents('unconsolidated_obj_tim', self.unconsolidated_tims)
@@ -160,7 +167,7 @@ class TestObjTIMCalcs:
         calculated_tim = result[0]
         assert calculated_tim['climb_time'] == 50
         assert calculated_tim['confidence_ranking'] == 3
-        assert calculated_tim['incap'] == 0
+        assert calculated_tim['incap'] == 10
         assert calculated_tim['match_number'] == 42
         assert calculated_tim['team_number'] == 254
         assert calculated_tim['auto_hub_highs'] == 1
