@@ -293,7 +293,7 @@ class PredictedAimCalc(BaseCalculations):
         teams = set()
         match_schedule = self._get_aim_list()
         # Check if changes need to be made to teams
-        if self.entries_since_last() is not None:
+        if entries != []:
             for entry in entries:
                 # Prevents error from not having a team num
                 if 'team_number' in entry['o'].keys():

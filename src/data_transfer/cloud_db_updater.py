@@ -5,7 +5,7 @@
 import collections
 import re
 import time
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import bson
 import pymongo
@@ -27,12 +27,19 @@ class CloudDBUpdater:
         # Get an initial timestamp
         self.update_timestamp()
 
-    def entries_since_last(self) -> pymongo.cursor:
+    def entries_since_last(self) -> List[Dict]:
         """Returns the oplog entries since the last update
 
         These updates are filtered to only include Update, Insert, and Delete operations
         """
-        return self.oplog.find({'ts': {'$gt': self.last_timestamp}, 'op': {'$in': ['d', 'i', 'u']}})
+        return list(
+            self.oplog.find(
+                {
+                    'ts': {'$gt': self.last_timestamp},
+                    'op': {'$in': ['d', 'i', 'u']}
+                }
+            )
+        )
 
     def create_db_changes(self) -> collections.defaultdict:
         """Creates bulk write operations from oplog"""

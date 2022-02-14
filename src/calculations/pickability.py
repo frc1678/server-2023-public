@@ -57,7 +57,7 @@ class PickabilityCalc(base_calculations.BaseCalculations):
         """Detects when and for which teams to calculate pickabilty"""
         # Finds oplog entries in the watched collections
         entries = self.entries_since_last()
-        if not entries:
+        if entries == []:
             return
         # Stores the new pickability dictionaries
         updates = []

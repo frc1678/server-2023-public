@@ -112,7 +112,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         # See which teams are affected by new subj AIM data
         entries = self.entries_since_last()
         teams = set()
-        if self.entries_since_last() is not None:
+        if entries != []:
             for entry in entries:
                 teams.update(entry['o']['near_field_awareness_rankings'])
         for team in teams:

@@ -29,13 +29,13 @@ class BaseCalculations:
         been performed on the watched collections and returns a PyMongo cursor object
         with the query results.
         """
-        return self.oplog.find(
+        return list(self.oplog.find(
             {
                 'ts': {'$gt': self.timestamp},
                 'op': {'$in': ['i', 'd', 'u']},
                 'ns': {'$in': [f'{self.server.db.name}.{c}' for c in self.watched_collections]},
             }
-        )
+        ))
 
     def find_team_list(self) -> list:
         """Returns a list of team numbers that appear in watched_collections"""

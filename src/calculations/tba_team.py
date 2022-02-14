@@ -97,8 +97,6 @@ class TBATeamCalc(base_calculations.BaseCalculations):
 
     def run(self):
         """Executes the TBA Team calculations"""
-        # Get oplog entries
-        entries = self.entries_since_last()
         for update in self.update_team_calcs(self.find_team_list()):
             self.server.db.update_document(
                 'tba_team', update, {'team_number': update['team_number']}

@@ -103,7 +103,7 @@ class PredictedTeamCalc(BaseCalculations):
 
     def run(self):
         # Get oplog entries
-        entries = list(self.entries_since_last())
+        entries = self.entries_since_last()
         if entries != []:
             self.server.db.delete_data('predicted_team')
             predicted_aim = self.server.db.find('predicted_aim')
