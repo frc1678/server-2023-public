@@ -13,6 +13,7 @@ class BaseCalculations:
     def __init__(self, server):
         self.server = server
         self.oplog = self.server.oplog
+        self.calc_all_data = self.server.calc_all_data
         self.update_timestamp()
         self.watched_collections = NotImplemented  # Calculations should override this attribute
         self.teams_list = self._get_teams_list()
@@ -29,6 +30,14 @@ class BaseCalculations:
         been performed on the watched collections and returns a PyMongo cursor object
         with the query results.
         """
+        # If we want to use all data, read from the database but format it like an oplog entry
+        # Because the calc files expect the return value to be an oplog entry
+        if self.calc_all_data:
+            data = []
+            for c in self.watched_collections:
+                for document in self.server.db.find(c):
+                    data.append({'o': document, 'op': None})
+            return data
         return list(self.oplog.find(
             {
                 'ts': {'$gt': self.timestamp},
