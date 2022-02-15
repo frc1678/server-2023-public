@@ -162,16 +162,17 @@ def pull_device_data():
                         break  # Filename will only match one regex
     # Add QRs to database and make sure that only QRs that should be decompressed are added to queue
     data['qr'] = qr_code_uploader.upload_qr_codes(data['qr'])
-    ldc = database.Database()
+    db = database.Database()
+    # Only raw_obj_pit in the 2022 season, but other years also have raw_subj_pit which is why this iterates through datasets
     for dataset in ['raw_obj_pit']:
-        current_data = ldc.find(dataset)
+        current_data = [document.pop('_id') for document in db.find(dataset)]
         modified_data = []
-        for datapoint in data[dataset]:
-            if datapoint in current_data:
+        for document in data[dataset]:
+            if document in current_data:
                 continue
             # Specify query to ensure that each team only has one entry
-            ldc.update_document(dataset, datapoint, {'team_number': datapoint['team_number']})
-            modified_data.append({'team_number': datapoint['team_number']})
+            db.update_document(dataset, document, {'team_number': document['team_number']})
+            modified_data.append({'team_number': document['team_number']})
         utils.log_info(f'{len(modified_data)} items uploaded to {dataset}')
         data[dataset] = modified_data
     return data
@@ -225,9 +226,7 @@ FILENAME_REGEXES = {
         r'([0-9]{1,3}_[0-9]{1,4}_[A-Z0-9]+_[0-9]+\.txt)|([0-9]{1,3}_[0-9A-Z]+_[0-9]+\.txt)'
     ),
     # Format of objective pit file pattern: <team_number>_pit.json
-    'obj_pit': re.compile(r'[0-9]{1,4}_obj_pit\.json'),
-    # Format of subjective pit file pattern: <team_number>_subjective.json
-    'subj_pit': re.compile(r'[0-9]{1,4}_subj_pit\.json'),
+    'raw_obj_pit': re.compile(r'[0-9]{1,4}_obj_pit\.json'),
 }
 
 # Open the tablet serials file to find all device serials

@@ -106,8 +106,8 @@ class Database:
     ) -> None:
         """Updates one document that matches 'query' with 'new_data', uses upsert"""
         check_collection_name(collection)
-        if 'raw' in collection:
-            utils.log_warning(f'Attempted to modify raw data in collection {collection}')
+        if collection == 'raw_qr':
+            utils.log_warning(f'Attempted to modify raw qr data')
             return
         self.db[collection].update_one(query, {'$set': new_data}, upsert=True)
 
@@ -139,9 +139,6 @@ class Database:
     def bulk_write(self, collection: str, actions: list) -> pymongo.results.BulkWriteResult:
         """Bulk write `actions` into `collection` in order of `actions`"""
         check_collection_name(collection)
-        if 'raw' in collection:
-            utils.log_warning(f'Blocked bulk write operation to raw collection {collection}')
-            return
         return self.db[collection].bulk_write(actions)
 
 
