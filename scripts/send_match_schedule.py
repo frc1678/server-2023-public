@@ -14,8 +14,8 @@ import time
 from typing import List
 from dataclasses import dataclass
 
-from data_transfer import adb_communicator, tba_communicator
-import utils
+from src.data_transfer import adb_communicator, tba_communicator
+from src import utils
 from server import Server
 
 

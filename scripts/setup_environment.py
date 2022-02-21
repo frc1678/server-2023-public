@@ -9,7 +9,7 @@ import os
 import subprocess
 import venv
 
-import utils
+from src import utils
 
 
 class Logger:

@@ -3,8 +3,8 @@
 """Houses several functions to generate random qr data"""
 import random
 
-from calculations import compression
-import utils
+from src.calculations import compression
+from src import utils
 
 SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')
 

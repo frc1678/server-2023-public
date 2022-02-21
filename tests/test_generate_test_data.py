@@ -1,8 +1,8 @@
 import sys
 import utils
 
-import generate_test_data
-from generate_test_data import DataGenerator, parse_args
+import scripts.generate_test_data
+from scripts.generate_test_data import DataGenerator, parse_args
 
 CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     # Obj Team
@@ -230,7 +230,7 @@ def test_name_sample_data():
     schema_files.sort()
 
     for schema in schema_files:
-        data = generate_test_data.name_sample_data(f"schema/{schema}", 1)
+        data = scripts.generate_test_data.name_sample_data(f"schema/{schema}", 1)
         assert isinstance(data, dict)
         assert isinstance(data[f"schema/{schema}"], dict)
 

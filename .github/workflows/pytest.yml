@@ -47,7 +47,7 @@ jobs:
             
             - name: Start mongod
               run: |
-                python3 src/start_mongod.py
+                python3 scripts/start_mongod.py
 
             # Run pytest with and without always resetting the cloud db to ensure
             # that resetting the Cloud DB only on marked tests does not

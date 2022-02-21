@@ -1,4 +1,4 @@
-import insert_fake_data
+import scripts.insert_fake_data as insert_fake_data
 import server
 from calculations import decompressor
 

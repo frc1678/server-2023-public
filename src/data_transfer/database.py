@@ -11,7 +11,7 @@ from typing import Any, Optional, Union
 import pymongo
 import yaml
 
-import start_mongod
+import scripts.start_mongod as start_mongod
 import utils
 
 # Load collection names

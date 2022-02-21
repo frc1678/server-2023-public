@@ -5,7 +5,7 @@ import pytest
 import server
 from calculations import compression
 from calculations import decompressor
-import generate_test_qrs
+import scripts.generate_test_qrs as generate_test_qrs
 import utils
 
 SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')

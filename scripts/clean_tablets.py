@@ -2,9 +2,9 @@
 # Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 """Standardizes tablet font size, deletes old data, and uninstalls apps."""
 
-from data_transfer import adb_communicator
+from src.data_transfer import adb_communicator
 import os
-import utils
+from src import utils
 import shutil
 
 

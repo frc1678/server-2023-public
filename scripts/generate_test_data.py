@@ -3,9 +3,9 @@
 """Generate test data for non-QRs"""
 
 import argparse
-from calculations.generate_random_value import generate_random_value
+from src.calculations.generate_random_value import generate_random_value
 import csv
-import utils
+from src import utils
 import inquirer
 import json
 from dataclasses import dataclass
