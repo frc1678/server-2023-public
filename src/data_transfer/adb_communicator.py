@@ -138,12 +138,12 @@ def pull_device_data():
         return data
 
     device_file_paths = []
-    device_file_path = utils.create_file_path('data/tablets')
-    # Pull all files from the 'Download' folder on the tablet
+    device_file_path = utils.create_file_path('data/devices')
+    # Pull all files from the 'Download' folder on the device
     pull_device_files(device_file_path, '/storage/emulated/0/Download')
     # Iterates through the 'data' folder
     for device_dir in os.listdir(device_file_path):
-        if device_dir in TABLET_SERIAL_NUMBERS.keys():
+        if device_dir in PHONE_SERIAL_NUMBERS.keys():
             device_file_paths.append(device_dir)
         # If the folder name is a device serial, it must be a tablet folder
     for device in device_file_paths:
