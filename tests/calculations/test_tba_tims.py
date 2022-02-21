@@ -22,14 +22,14 @@ TEST_DATA = [
         'match_number': 1,
         'score_breakdown': {
             'blue': {
-                'initLineRobot1': 'Exited',
-                'initLineRobot2': 'Exited',
-                'initLineRobot3': 'Exited',
+                'taxiRobot1': 'Yes',
+                'taxiRobot2': 'Yes',
+                'taxiRobot3': 'Yes',
             },
             'red': {
-                'initLineRobot1': 'Hand',
-                'initLineRobot2': 'Park',
-                'initLineRobot3': 'None',
+                'taxiRobot1': 'Yes',
+                'taxiRobot2': 'Yes',
+                'taxiRobot3': 'No',
             },
         },
     },
@@ -46,14 +46,14 @@ TEST_DATA = [
         'match_number': 2,
         'score_breakdown': {
             'blue': {
-                'initLineRobot1': 'Exited',
-                'initLineRobot2': 'Exited',
-                'initLineRobot3': 'Exited',
+                'taxiRobot1': 'Yes',
+                'taxiRobot2': 'Yes',
+                'taxiRobot3': 'Yes',
             },
             'red': {
-                'initLineRobot1': 'Exited',
-                'initLineRobot2': 'Exited',
-                'initLineRobot3': 'Exited',
+                'taxiRobot1': 'Yes',
+                'taxiRobot2': 'Yes',
+                'taxiRobot3': 'Yes',
             },
         },
     },
@@ -140,22 +140,22 @@ class TestTBATimCalc:
         match_data = {
             "score_breakdown": {
                 "blue": {
-                    "initLineRobot1": "Exited",
-                    "initLineRobot2": "Exited",
-                    "initLineRobot3": "Exited",
+                    "taxiRobot1": "Yes",
+                    "taxiRobot2": "Yes",
+                    "taxiRobot3": "Yes",
                 },
                 "red": {
-                    "initLineRobot1": "Exited",
-                    "initLineRobot2": "None",
-                    "initLineRobot3": "Exited",
+                    "taxiRobot1": "Yes",
+                    "taxiRobot2": "No",
+                    "taxiRobot3": "Yes",
                 },
             }
         }
 
         # Tests calc_tba_bool() using the example match data above
-        assert tba_tims.TBATIMCalc.calc_tba_bool(match_data, "blue", {"initLineRobot1": "Exited"})
+        assert tba_tims.TBATIMCalc.calc_tba_bool(match_data, "blue", {"taxiRobot1": "Yes"})
         assert not tba_tims.TBATIMCalc.calc_tba_bool(
-            match_data, "red", {"initLineRobot2": "Exited"}
+            match_data, "red", {"taxiRobot2": "Yes"}
         )
 
     def test_get_robot_number_and_alliance(self):

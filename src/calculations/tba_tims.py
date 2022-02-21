@@ -87,7 +87,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
         for calculation, tim_requirements in self.SCHEMA.items():
             # calculation is the name of the field, like "auto_line" for example
             # tim_requirements is dict of stuff including {"type": "bool"} and something like
-            # {"initLineRobot": "Exited"}
+            # {"taxiRobot": "Yes"}
             tim_requirements_copy = copy.deepcopy(tim_requirements)
 
             if tim_requirements["type"] != "bool":
