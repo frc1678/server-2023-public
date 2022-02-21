@@ -146,7 +146,7 @@ def mongo_convert(sch):
     """Converts a schema dictionary into a mongo-usable form."""
     # Dictionary for translating data types in schema to recognized BSON types
     # Objective Pit enums are stored as ints in the database
-    type_to_bson = {'int': 'int', 'float': 'double', 'str': 'string', 'bool': 'bool', 'List': 'array', 'Enum': 'int'}
+    type_to_bson = {'int': 'int', 'float': 'number', 'str': 'string', 'bool': 'bool', 'List': 'array', 'Enum': 'int'}
     out = {}
     out['bsonType'] = 'object'
     out['required'] = []
