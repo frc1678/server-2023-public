@@ -13,7 +13,7 @@ class TestOBJTeamCalc:
 
     def test___init__(self):
         """Test if attributes are set correctly"""
-        assert self.test_calc.watched_collections == ['obj_tim', 'subj_aim']
+        assert self.test_calc.watched_collections == ['obj_tim', 'subj_tim']
         assert self.test_calc.server == self.test_server
 
     def test_averages(self):
@@ -289,48 +289,25 @@ class TestOBJTeamCalc:
 
     def test_super_counts(self):
         """Tests calculate_super_counts function from src/calculations.obj_team.py"""
-        aims = [
+        tims = [
             {
                 'match_number': 1,
-                'teams_scored_far': [1678],
+                'team_number': 1678,
+                'scored_far': True
             },
             {
                 'match_number': 2,
-                'teams_scored_far': [1678, 4414, 2910],
+                'team_number': 1678,
+                'scored_far': False,
             },
             {
                 'match_number': 3,
-                'teams_scored_far': [],
-            },
-        ]
-
-        expected_output = [
-            {
                 'team_number': 1678,
-                'matches_scored_far': 2,
-            },
-            {
-                'team_number': 4414,
-                'matches_scored_far': 1,
-            },
-            {
-                'team_number': 2910,
-                'matches_scored_far': 1,
-            },
-            {
-                'team_number': 254,
-                'matches_scored_far': 0,
+                'scored_far': True,
             },
         ]
-
-        output = []
-        for team in [1678, 4414, 2910, 254]:
-            counts = self.test_calc.calculate_super_counts(aims, team)
-            counts.update({'team_number': team})
-            output.append(counts)
-
-        assert output == expected_output
-
+        expected_output = {'matches_scored_far': 2}
+        assert self.test_calc.calculate_super_counts(tims) == expected_output
 
     def test_extrema(self):
         tims = [
@@ -537,27 +514,57 @@ class TestOBJTeamCalc:
 
     def test_run(self):
         """Tests run function from src/calculations/obj_team.py"""
-        subj_aims = [
+        subj_tims = [
             {
                 'match_number': 1,
-                'teams_scored_far': [973],
+                'team_number': 973,
+                'scored_far': True,
             },
             {
                 'match_number': 2,
-                'teams_scored_far': [973, 1678],
+                'team_number': 973,
+                'scored_far': True,
             },
             {
                 'match_number': 3,
-                'teams_scored_far': [1678, 973],
+                'team_number': 973,
+                'scored_far': False,
             },
             {
                 'match_number': 4,
-                'teams_scored_far': [],
+                'team_number': 973,
+                'scored_far': True,
             },
             {
                 'match_number': 5,
-                'teams_scored_far': [973],
-            },            
+                'team_number': 973,
+                'scored_far': True,
+            },      
+            {
+                'match_number': 1,
+                'team_number': 1678,
+                'scored_far': False,
+            },
+            {
+                'match_number': 2,
+                'team_number': 1678,
+                'scored_far': True,
+            },
+            {
+                'match_number': 3,
+                'team_number': 1678,
+                'scored_far': False,
+            },
+            {
+                'match_number': 4,
+                'team_number': 1678,
+                'scored_far': True,
+            },
+            {
+                'match_number': 5,
+                'team_number': 1678,
+                'scored_far': False,
+            },       
         ]
         obj_tims = [
             # 973
@@ -956,7 +963,7 @@ class TestOBJTeamCalc:
             },
         ]
         self.test_server.db.insert_documents('obj_tim', obj_tims)
-        self.test_server.db.insert_documents('subj_aim', subj_aims)
+        self.test_server.db.insert_documents('subj_tim', subj_tims)
         self.test_calc.run()
         result = self.test_server.db.find('obj_team')
         assert len(result) == 2

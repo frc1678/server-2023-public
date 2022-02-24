@@ -67,10 +67,10 @@ class TestDecompressor:
         assert '_start_character' == self.test_decompressor.get_decompressed_name('+', 'objective_tim')
         assert 'time' == self.test_decompressor.get_decompressed_name(3, 'timeline')
         assert '_start_character' == self.test_decompressor.get_decompressed_name('*', 'subjective_aim')
-        assert '_separator_internal' == self.test_decompressor.get_decompressed_name(':', 'subjective_aim')
+        assert '_team_separator' == self.test_decompressor.get_decompressed_name('#', 'subjective_aim')
         assert 'scout_id' == self.test_decompressor.get_decompressed_name('Y', 'objective_tim')
         assert 'start_position' == self.test_decompressor.get_decompressed_name('X', 'objective_tim')
-        assert 'near_field_awareness_rankings' == self.test_decompressor.get_decompressed_name('B', 'subjective_aim')
+        assert 'field_awareness_score' == self.test_decompressor.get_decompressed_name('C', 'subjective_aim')
         assert 'score_ball_high_hub' == self.test_decompressor.get_decompressed_name('AA', 'action_type')
         assert 'end_climb' == self.test_decompressor.get_decompressed_name('AK', 'action_type')
         assert 'climb_level' == self.test_decompressor.get_decompressed_name('V', 'objective_tim')
@@ -87,8 +87,8 @@ class TestDecompressor:
 
     def test_decompress_data(self):
         # Test generic data
-        assert {'schema_version': 2, 'scout_name': 'Name'} == self.test_decompressor.decompress_data(
-            ['A2', 'FName'], 'generic_data'
+        assert {'schema_version': 3, 'scout_name': 'Name'} == self.test_decompressor.decompress_data(
+            ['A3', 'FName'], 'generic_data'
         )
         # Test objective tim
         assert {'team_number': 1678} == self.test_decompressor.decompress_data(['Z1678'], 'objective_tim')
@@ -97,8 +97,8 @@ class TestDecompressor:
                    'timeline': [{'action_type': 'score_ball_high_hub', 'time': 51}]
                } == self.test_decompressor.decompress_data(['W051AA'], 'objective_tim')
         # Test using list with internal separators
-        assert {'quickness_rankings': [1678, 1323, 254]} == self.test_decompressor.decompress_data(
-            ['A1678:1323:254'], 'subjective_aim'
+        assert {'quickness_score': 1, 'field_awareness_score': 3} == self.test_decompressor.decompress_data(
+            ['B1', 'C3'], 'subjective_aim'
         )
 
     def test_decompress_generic_qr(self):
@@ -108,7 +108,7 @@ class TestDecompressor:
         assert 'does not match Server version' in str(version_error)
         # What decompress_generic_qr() should return
         expected_decompressed_data = {
-            'schema_version': 2,
+            'schema_version': 3,
             'serial_number': 's1234',
             'match_number': 34,
             'timestamp': 1230,
@@ -116,7 +116,7 @@ class TestDecompressor:
             'scout_name': 'Name',
         }
         assert expected_decompressed_data == self.test_decompressor.decompress_generic_qr(
-            'A2$Bs1234$C34$D1230$Ev1.3$FName'
+            'A3$Bs1234$C34$D1230$Ev1.3$FName'
         )
 
 
@@ -135,53 +135,92 @@ class TestDecompressor:
 
     def test_decompress_single_qr(self):
         # Expected decompressed objective qr
-        expected_objective = {
-            'schema_version': 2,
-            'serial_number': 's1234',
-            'match_number': 34,
-            'timestamp': 1230,
-            'match_collection_version_number': 'v1.3',
-            'scout_name': 'Name',
-            'team_number': 1678,
-            'scout_id': 14,
-            'start_position': 'THREE',
-            'timeline': [
-                {'time': 60, 'action_type': 'start_climb'},
-                {'time': 61, 'action_type': 'end_climb'},
-            ],
-            'climb_level': 'NONE'
-        }
+        expected_objective = [
+            {
+                'schema_version': 3,
+                'serial_number': 's1234',
+                'match_number': 34,
+                'timestamp': 1230,
+                'match_collection_version_number': 'v1.3',
+                'scout_name': 'Name',
+                'team_number': 1678,
+                'scout_id': 14,
+                'start_position': 'THREE',
+                'timeline': [
+                    {'time': 60, 'action_type': 'start_climb'},
+                    {'time': 61, 'action_type': 'end_climb'},
+                ],
+                'climb_level': 'NONE'
+            }
+        ]
         # Expected decompressed subjective qr
-        expected_subjective = {
-            'schema_version': 2,
-            'serial_number': 's1234',
-            'match_number': 34,
-            'timestamp': 1230,
-            'match_collection_version_number': 'v1.3',
-            'scout_name': 'Name',
-            'quickness_rankings': [1678, 1323, 254],
-            'near_field_awareness_rankings': [1323, 1678, 254],
-            'far_field_awareness_rankings': [1678, 254, 1323],
-            'teams_scored_far': [1678, 1323]
-        }
+        expected_subjective = [
+            {
+                'schema_version': 3,
+                'serial_number': 's1234',
+                'match_number': 34,
+                'timestamp': 1230,
+                'match_collection_version_number': 'v1.3',
+                'scout_name': 'Name',
+                'team_number': 1678,
+                'quickness_score': 1,
+                'field_awareness_score': 2,
+                'far_field_rating': 3,
+                'scored_far': True,
+                'alliance_color_is_red': True
+            },
+            {
+                'schema_version': 3,
+                'serial_number': 's1234',
+                'match_number': 34,
+                'timestamp': 1230,
+                'match_collection_version_number': 'v1.3',
+                'scout_name': 'Name',
+                'team_number': 254,
+                'quickness_score': 2,
+                'field_awareness_score': 1,
+                'far_field_rating': 1,
+                'scored_far': False,
+                'alliance_color_is_red': True
+            },
+            {
+                'schema_version': 3,
+                'serial_number': 's1234',
+                'match_number': 34,
+                'timestamp': 1230,
+                'match_collection_version_number': 'v1.3',
+                'scout_name': 'Name',
+                'team_number': 1323,
+                'quickness_score': 3,
+                'field_awareness_score': 1,
+                'far_field_rating': 2,
+                'scored_far': True,
+                'alliance_color_is_red': True
+            },
+        ]
         # Test objective qr decompression
         assert expected_objective == self.test_decompressor.decompress_single_qr(
-            'A2$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XTHREE$W060AJ061AK$VNONE', decompressor.QRType.OBJECTIVE
+            'A3$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XTHREE$W060AJ061AK$VNONE', decompressor.QRType.OBJECTIVE
         )
         # Test subjective qr decompression
         assert expected_subjective == self.test_decompressor.decompress_single_qr(
-            'A2$Bs1234$C34$D1230$Ev1.3$FName%A1678:1323:254$B1323:1678:254$C1678:254:1323$D1678:1323',
+            'A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$ETRUE$FTRUE#A254$B2$C1$D1$EFALSE$FTRUE#A1323$B3$C1$D2$ETRUE$FTRUE',
             decompressor.QRType.SUBJECTIVE,
         )
         # Test error raising for objective and subjective using incomplete qrs
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                'A2$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14', decompressor.QRType.OBJECTIVE
+                'A3$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14', decompressor.QRType.OBJECTIVE
             )
         assert 'QR missing data fields' in str(excinfo)
+        with pytest.raises(IndexError) as excinfo:
+            self.test_decompressor.decompress_single_qr(
+                'A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE', decompressor.QRType.SUBJECTIVE
+            )
+        assert 'Incorrect number of teams in Subjective QR' in str(excinfo)
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                'A2$Bs1234$C34$D1230$Ev1.3$FName%A1678:1323:254', decompressor.QRType.SUBJECTIVE
+                'A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2#A254#A1323', decompressor.QRType.SUBJECTIVE
             )
         assert 'QR missing data fields' in str(excinfo)
 
@@ -190,7 +229,7 @@ class TestDecompressor:
         expected_output = {
             'unconsolidated_obj_tim': [
                 {
-                    'schema_version': 2,
+                    'schema_version': 3,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
@@ -206,31 +245,61 @@ class TestDecompressor:
                     'climb_level': 'HIGH'
                 }
             ],
-            'subj_aim': [
+            'subj_tim': [
                 {
-                    'schema_version': 2,
+                    'schema_version': 3,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
                     'match_collection_version_number': 'v1.3',
                     'scout_name': 'Name',
-                    'quickness_rankings': [1678, 1323, 254],
-                    'near_field_awareness_rankings': [1323, 1678, 254],
-                    'far_field_awareness_rankings': [1678, 254, 1323],
-                    'teams_scored_far': [254, 1678]
-                }
+                    'team_number': 1678,
+                    'quickness_score': 1,
+                    'field_awareness_score': 2,
+                    'far_field_rating': 3,
+                    'scored_far': False,
+                    'alliance_color_is_red': False
+                },
+                {
+                    'schema_version': 3,
+                    'serial_number': 's1234',
+                    'match_number': 34,
+                    'timestamp': 1230,
+                    'match_collection_version_number': 'v1.3',
+                    'scout_name': 'Name',
+                    'team_number': 254,
+                    'quickness_score': 2,
+                    'field_awareness_score': 2,
+                    'far_field_rating': 1,
+                    'scored_far': False,
+                    'alliance_color_is_red': False
+                },
+                {
+                    'schema_version': 3,
+                    'serial_number': 's1234',
+                    'match_number': 34,
+                    'timestamp': 1230,
+                    'match_collection_version_number': 'v1.3',
+                    'scout_name': 'Name',
+                    'team_number': 1323,
+                    'quickness_score': 3,
+                    'field_awareness_score': 3,
+                    'far_field_rating': 2,
+                    'scored_far': True,
+                    'alliance_color_is_red': False
+                },
             ],
         }
         assert expected_output == self.test_decompressor.decompress_qrs(
             [
-                {'data': '+A2$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XFOUR$W060AJ061AK$VHIGH'},
-                {'data': '*A2$Bs1234$C34$D1230$Ev1.3$FName%A1678:1323:254$B1323:1678:254$C1678:254:1323$D254:1678'},
+                {'data': '+A3$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XFOUR$W060AJ061AK$VHIGH'},
+                {'data': '*A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE$FFALSE#A254$B2$C2$D1$EFALSE$FFALSE#A1323$B3$C3$D2$ETRUE$FFALSE'},
             ]
         )
 
     def test_run(self):
         expected_obj = {
-            'schema_version': 2,
+            'schema_version': 3,
             'serial_number': 'gCbtwqZ',
             'match_number': 51,
             'timestamp': 9321,
@@ -287,41 +356,61 @@ class TestDecompressor:
             ],
             'climb_level': 'TRAVERSAL'
         }
-        expected_sbj = {
-            'schema_version': 2,
-            'serial_number': 'Y',
-            'match_number': 19,
-            'timestamp': 2378,
-            'match_collection_version_number': 'v1.3',
-            'scout_name': 'oV5tmZ1oWu',
-            'quickness_rankings': [
-                304,
-                7730,
-                7582
-            ],
-            'near_field_awareness_rankings': [
-                8282,
-                506,
-                5738
-            ],
-            'far_field_awareness_rankings': [
-                451,
-                9823,
-                1583
-            ],
-            'teams_scored_far': [],
-        }
+        expected_sbj = [
+                {
+                    'schema_version': 3,
+                    'serial_number': 's1234',
+                    'match_number': 34,
+                    'timestamp': 1230,
+                    'match_collection_version_number': 'v1.3',
+                    'scout_name': 'Name',
+                    'team_number': 1678,
+                    'quickness_score': 1,
+                    'field_awareness_score': 2,
+                    'far_field_rating': 3,
+                    'scored_far': False,
+                    'alliance_color_is_red': False
+                },
+                {
+                    'schema_version': 3,
+                    'serial_number': 's1234',
+                    'match_number': 34,
+                    'timestamp': 1230,
+                    'match_collection_version_number': 'v1.3',
+                    'scout_name': 'Name',
+                    'team_number': 254,
+                    'quickness_score': 2,
+                    'field_awareness_score': 2,
+                    'far_field_rating': 1,
+                    'scored_far': False,
+                    'alliance_color_is_red': False
+                },
+                {
+                    'schema_version': 3,
+                    'serial_number': 's1234',
+                    'match_number': 34,
+                    'timestamp': 1230,
+                    'match_collection_version_number': 'v1.3',
+                    'scout_name': 'Name',
+                    'team_number': 1323,
+                    'quickness_score': 3,
+                    'field_awareness_score': 3,
+                    'far_field_rating': 2,
+                    'scored_far': True,
+                    'alliance_color_is_red': False
+                },
+            ]
         curr_time = datetime.datetime.utcnow()
 
         self.test_server.db.insert_documents('raw_qr', [
             {
-                'data': '+A2$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V%Z3603$Y13$XONE$W000AB001AD002AE003AF004AG005AC006AD007AH008AI009AJ010AK$VTRAVERSAL',
+                'data': '+A3$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V%Z3603$Y13$XONE$W000AB001AD002AE003AF004AG005AC006AD007AH008AI009AJ010AK$VTRAVERSAL',
                 'blocklisted': False,
                 'epoch_time': curr_time.timestamp(),
                 'readable_time': curr_time.strftime('%D - %H:%M:%S')
             },
             {
-                'data': '*A2$BY$C19$D2378$Ev1.3$FoV5tmZ1oWu%A304:7730:7582$B8282:506:5738$C451:9823:1583$D',
+                'data': '*A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE$FFALSE#A254$B2$C2$D1$EFALSE$FFALSE#A1323$B3$C3$D2$ETRUE$FFALSE',
                 'blocklisted': False,
                 'epoch_time': curr_time.timestamp(),
                 'readable_time': curr_time.strftime('%D - %H:%M:%S')
@@ -329,15 +418,15 @@ class TestDecompressor:
         ])
         self.test_decompressor.run()
         result_obj = self.test_server.db.find('unconsolidated_obj_tim')
-        result_sbj = self.test_server.db.find('subj_aim')
-        print(result_sbj)
+        result_sbj = self.test_server.db.find('subj_tim')
         assert len(result_obj) == 1
-        assert len(result_sbj) == 1
-        result_obj, result_sbj = result_obj[0], result_sbj[0]
+        assert len(result_sbj) == 3
+        result_obj = result_obj[0]
         result_obj.pop('_id')
-        result_sbj.pop('_id')
         assert result_obj == expected_obj
-        assert result_sbj == expected_sbj
+        for result in result_sbj:
+            result.pop('_id')
+            assert result in expected_sbj
 
     def test_get_qr_type(self):
         # Test when QRType.OBJECTIVE returns when first character is '+'

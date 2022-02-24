@@ -48,14 +48,5 @@ def test_generate_obj_tim():
     # Decompress and Compress the data to make sure the qr is valid
     decompressed_qr = DECOMPRESSOR.decompress_single_qr(
         obj_tim_qr[1:], decompressor.QRType.OBJECTIVE
-    )
+    )[0]
     assert compression.compress_obj_tim(decompressed_qr) == obj_tim_qr
-
-
-def test_generate_subj_aim():
-    subj_aim_qr = generate_test_qrs.generate_subj_aim()
-    # Decompress and Compress the data to make sure the qr is valid
-    decompressed_qr = DECOMPRESSOR.decompress_single_qr(
-        subj_aim_qr[1:], decompressor.QRType.SUBJECTIVE
-    )
-    assert compression.compress_subj_aim(decompressed_qr) == subj_aim_qr

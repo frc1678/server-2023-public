@@ -139,10 +139,12 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     },
     # Subj Team
     {
-        "driver_near_field_awareness": 84.4422,
-        "driver_far_field_awareness": 84.4422,
+        "driver_field_awareness": 84.4422,
+        "driver_far_field_rating": 84.4422,
         "driver_quickness": 84.4422,
         "driver_ability": 84.4422,
+        "unadjusted_field_awareness": 84.4422,
+        "unadjusted_quickness": 84.4422,
         "team_number": 49,
     },
     # TBA Team

@@ -13,7 +13,7 @@ class TestSubjTeamCalcs:
 
     def test___init__(self):
         """Test if attributes are set correctly"""
-        assert self.test_calcs.watched_collections == ['subj_aim']
+        assert self.test_calcs.watched_collections == ['subj_tim']
         assert self.test_calcs.server == self.test_server
 
     @staticmethod
@@ -21,37 +21,166 @@ class TestSubjTeamCalcs:
         return abs(num1 - num2) <= max_diff
 
     def test_teams_played_with(self):
-        aims = [
-            {'near_field_awareness_rankings': [1, 1678, 2]},
-            {'near_field_awareness_rankings': [2, 1678, 3]},
-            {'near_field_awareness_rankings': [1, 3, 4]},
+        tims = [
+            {
+                'match_number': 1,
+                'team_number': 1678,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 1,
+                'team_number': 4414,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 1,
+                'team_number': 1323,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 1,
+                'team_number': 3,
+                'alliance_color_is_red': False,
+            },
+            {
+                'match_number': 2,
+                'team_number': 4,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 3,
+                'team_number': 1678,
+                'alliance_color_is_red': False,
+            },
+            {
+                'match_number': 3,
+                'team_number': 2910,
+                'alliance_color_is_red': False,
+            },
         ]
-        self.test_server.db.insert_documents('subj_aim', aims)
-        assert self.test_calcs.teams_played_with(1678) == [1, 1678, 2, 2, 1678, 3]
+        self.test_server.db.insert_documents('subj_tim', tims)
+        assert self.test_calcs.teams_played_with(1678) == [1678, 4414, 1323, 1678, 2910]
+
+    def test_calculate_ratings(self):
+        tims = [
+            {
+                'team_number': 1678,
+                'match_number': 1,
+                'far_field_rating': 2
+            },
+            {
+                'team_number': 1678,
+                'match_number': 2,
+                'far_field_rating': 0
+            },
+            {
+                'team_number': 1678,
+                'match_number': 3,
+                'far_field_rating': 1
+            },
+            {
+                'team_number': 1678,
+                'match_number': 4,
+                'far_field_rating': 2
+            },
+        ]
+        self.test_server.db.insert_documents('subj_tim', tims)
+        ratings = self.test_calcs.calculate_ratings(1678)
+        assert ratings == {'driver_far_field_rating': 1.6666666666666667}
 
     def test_all_calcs(self):
-        aims = [
-            {'near_field_awareness_rankings': [118, 1678, 254], 'quickness_rankings': [254, 118, 1678], 'far_field_awareness_rankings': [118, 1678, 254]},
-            {'near_field_awareness_rankings': [1678, 118, 254], 'quickness_rankings': [118, 254, 1678], 'far_field_awareness_rankings': [118, 1678, 254]},
+        tims = [
+            {
+                'match_number': 1,
+                'team_number': 118,
+                'quickness_score': 2,
+                'field_awareness_score': 1,
+                'far_field_rating': 3,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 1,
+                'team_number': 1678,
+                'quickness_score': 1,
+                'field_awareness_score': 2,
+                'far_field_rating': 2,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 1,
+                'team_number': 254,
+                'quickness_score': 3,
+                'field_awareness_score': 3,
+                'far_field_rating': 1,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 2,
+                'team_number': 118,
+                'quickness_score': 2,
+                'field_awareness_score': 1,
+                'far_field_rating': 2,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 2,
+                'team_number': 1678,
+                'quickness_score': 3,
+                'field_awareness_score': 3,
+                'far_field_rating': 0,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 2,
+                'team_number': 254,
+                'quickness_score': 1,
+                'field_awareness_score': 2,
+                'far_field_rating': 0,
+                'alliance_color_is_red': True,
+            },
+            {
+                'match_number': 3,
+                'team_number': 118,
+                'quickness_score': 1,
+                'field_awareness_score': 3,
+                'far_field_rating': 2,
+                'alliance_color_is_red': False,
+            },
+            {
+                'match_number': 3,
+                'team_number': 1678,
+                'quickness_score': 2,
+                'field_awareness_score': 2,
+                'far_field_rating': 1,
+                'alliance_color_is_red': False,
+            },
+            {
+                'match_number': 3,
+                'team_number': 254,
+                'quickness_score': 1,
+                'field_awareness_score': 3,
+                'far_field_rating': 0,
+                'alliance_color_is_red': False,
+            },
 
         ]
-        self.test_server.db.insert_documents('subj_aim', aims)
+        self.test_server.db.insert_documents('subj_tim', tims)
         self.test_calcs.run()
         robonauts = self.test_server.db.find('subj_team', team_number=118)[0]
         citrus = self.test_server.db.find('subj_team', team_number=1678)[0]
         chezy = self.test_server.db.find('subj_team', team_number=254)[0]
 
-        assert self.near(robonauts['driver_near_field_awareness'], -0.71)
-        assert self.near(robonauts['driver_far_field_awareness'], -1.22)
-        assert self.near(robonauts['driver_quickness'], -0.71)
-        assert self.near(robonauts['driver_ability'], -0.51)
+        assert self.near(robonauts['driver_field_awareness'], 0.9259)
+        assert self.near(robonauts['driver_quickness'], 0.55555)
+        assert self.near(robonauts['driver_ability'], 0.59645)
+        assert robonauts['driver_far_field_rating'] == 2.3333333333333335
 
-        assert self.near(citrus['driver_near_field_awareness'], -0.71)
-        assert self.near(citrus['driver_far_field_awareness'], 0.0)
-        assert self.near(citrus['driver_quickness'], 1.41)
-        assert self.near(citrus['driver_ability'], 0.14)
+        assert self.near(citrus['driver_field_awareness'], 1.296)
+        assert self.near(citrus['driver_quickness'], 0.666667)
+        assert self.near(citrus['driver_ability'], 2.55167)
+        assert citrus['driver_far_field_rating'] == 1.5
 
-        assert self.near(chezy['driver_near_field_awareness'], 1.41)
-        assert self.near(chezy['driver_far_field_awareness'], 1.22)
-        assert self.near(chezy['driver_quickness'], -0.71)
-        assert self.near(chezy['driver_ability'], 0.37)
+        assert self.near(chezy['driver_field_awareness'], 1.481)
+        assert self.near(chezy['driver_quickness'], 0.555555)
+        assert self.near(chezy['driver_ability'], 2.85188)
+        assert chezy['driver_far_field_rating'] == 1

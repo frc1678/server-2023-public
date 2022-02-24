@@ -104,18 +104,6 @@ class Decompressor(base_calculations.BaseCalculations):
                         raise NotImplementedError(
                             f'Decompression of {uncompressed_name} as a dict not supported.'
                         )
-
-                else:  # Normal list, split by internal separator
-                    value = value.split(self.SCHEMA[section]['_separator_internal'])
-                    typed_value = []
-                    # Convert all values in list to schema specified types
-                    for item in value:
-                        # If 'teams_scored_far' is an empty list, item will be an empty string. typed_value should remain an empty list
-                        if item == '':
-                            break
-                        # Name does not need to be specified because lists will not contain enums
-                        typed_value.append(self.convert_data_type(item, uncompressed_type[-1]))
-
             else:  # Normal data type
                 typed_value = self.convert_data_type(value, uncompressed_type, uncompressed_name)
             decompressed_data[uncompressed_name] = typed_value
@@ -173,28 +161,36 @@ class Decompressor(base_calculations.BaseCalculations):
         # Split into generic data and objective/subjective data
         qr_data = qr_data.split(self.SCHEMA['generic_data']['_section_separator'])
         # Generic QR is first section of QR
-        decompressed_data = self.decompress_generic_qr(qr_data[0])
+        decompressed_data = []
         # Decompress subjective QR
         if qr_type == QRType.SUBJECTIVE:
-            subjective_data = qr_data[1].split(self.SCHEMA['subjective_aim']['_separator'])
-            decompressed_data.update(self.decompress_data(subjective_data, 'subjective_aim'))
-            if set(decompressed_data.keys()) != self.SUBJECTIVE_QR_FIELDS:
-                raise ValueError('QR missing data fields')
+            teams_data = qr_data[1].split(self.SCHEMA['subjective_aim']['_team_separator'])
+            if len(teams_data) != 3:
+                raise IndexError('Incorrect number of teams in Subjective QR')
+            for team in teams_data:
+                decompressed_document = self.decompress_generic_qr(qr_data[0])
+                subjective_data = team.split(self.SCHEMA['subjective_aim']['_separator'])
+                decompressed_document.update(self.decompress_data(subjective_data, 'subjective_aim'))
+                decompressed_data.append(decompressed_document)
+                if set(decompressed_document.keys()) != self.SUBJECTIVE_QR_FIELDS:
+                    raise ValueError('QR missing data fields')
         elif qr_type == QRType.OBJECTIVE:  # Decompress objective QR
             objective_data = qr_data[1].split(self.SCHEMA['objective_tim']['_separator'])
-            decompressed_data.update(self.decompress_data(objective_data, 'objective_tim'))
-            if set(decompressed_data.keys()) != self.OBJECTIVE_QR_FIELDS:
+            decompressed_document = self.decompress_generic_qr(qr_data[0])
+            decompressed_document.update(self.decompress_data(objective_data, 'objective_tim'))
+            decompressed_data.append(decompressed_document)
+            if set(decompressed_document.keys()) != self.OBJECTIVE_QR_FIELDS:
                 raise ValueError('QR missing data fields')
             utils.log_info(
-                f'Match: {decompressed_data["match_number"]} '
-                f'Team: {decompressed_data["team_number"]} '
-                f'Scout_ID: {decompressed_data["scout_id"]}'
+                f'Match: {decompressed_document["match_number"]} '
+                f'Team: {decompressed_document["team_number"]} '
+                f'Scout_ID: {decompressed_document["scout_id"]}'
             )
         return decompressed_data
 
     def decompress_qrs(self, split_qrs):
         """Decompresses a list of QRs. Returns dict of decompressed QRs split by type."""
-        output = {'unconsolidated_obj_tim': [], 'subj_aim': []}
+        output = {'unconsolidated_obj_tim': [], 'subj_tim': []}
         utils.log_info(f"Started decompression on qr batch")
         for qr in split_qrs:
             qr_type = utils.catch_function_errors(self.get_qr_type, qr['data'][0])
@@ -206,9 +202,9 @@ class Decompressor(base_calculations.BaseCalculations):
             if decompressed_qr is None:
                 continue
             if qr_type == QRType.OBJECTIVE:
-                output['unconsolidated_obj_tim'].append(decompressed_qr)
+                output['unconsolidated_obj_tim'].extend(decompressed_qr)
             elif qr_type == QRType.SUBJECTIVE:
-                output['subj_aim'].append(decompressed_qr)
+                output['subj_tim'].extend(decompressed_qr)
         utils.log_info(f"Finished decompression on qr batch")
         return output
 
@@ -251,5 +247,5 @@ class Decompressor(base_calculations.BaseCalculations):
     def run(self):
         new_qrs = [entry['o'] for entry in self.entries_since_last()]
         decompressed_qrs = self.decompress_qrs(new_qrs)
-        for collection in ['unconsolidated_obj_tim', 'subj_aim']:
+        for collection in ['unconsolidated_obj_tim', 'subj_tim']:
             self.server.db.insert_documents(collection, decompressed_qrs[collection])
