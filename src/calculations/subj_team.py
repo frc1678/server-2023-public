@@ -59,6 +59,10 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         for each team. Recalculating all of them is necessary because ability scores compensate for
         luck of match schedule, so a team's ability score will depend on the unadjusted
         scores for all of their alliance partners"""
+        # If no teams have competed yet, there is not point in running the calculation
+        if len(self.teams_that_have_competed) == 0:
+            return {}
+        
         calculations = {}
         for calc_name, calc_info in self.SCHEMA['component_calculations'].items():
             collection_name, _, unadjusted_calc = calc_info['requires'][0].partition('.')
