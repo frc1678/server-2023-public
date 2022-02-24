@@ -84,7 +84,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
             else:
                 # Set team name to "UNKNOWN NAME" if the team is not already in the database
                 # If the team is, it is assumed that the name in the database will be more accurate
-                if not self.server.db.find('tba_team', {'team_number': team}):
+                if not self.server.db.find('tba_team', team_number=team):
                     team_data['team_name'] = 'UNKNOWN NAME'
                 # Warn that the team is not in the team list for event if there is team data
                 if team_names:

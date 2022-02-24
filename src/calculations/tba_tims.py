@@ -36,8 +36,11 @@ class TBATIMCalc(base_calculations.BaseCalculations):
         for match in tba_match_data:
             if match["comp_level"] != "qm" or match.get("score_breakdown") is None:
                 continue
-            # Check if the reference is already calculated
-            if match["match_number"] not in self.calculated:
+            # If we want to run calcs on all data, add all quals matches to the list
+            if self.calc_all_data:
+                not_calculated.append(match)
+            # If we only want to run calcs on new data, check if the reference is already calculated
+            elif match["match_number"] not in self.calculated:
                 # Add the actual match data to the not_calculated list, to
                 # be calculated when called by update_calc_tba_tims
                 not_calculated.append(match)
@@ -130,9 +133,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
                 if calculated_tim is None:
                     continue
 
-                calculated_documents.append(calculated_tim)
-
                 # Add the tim ref to calculated, right after it gets calculated
                 self.calculated.add(match["match_number"])
 
-        self.server.db.insert_documents("tba_tim", calculated_documents)
+                self.server.db.update_document("tba_tim", calculated_tim, {'match_number': calculated_tim['match_number'], 'team_number': calculated_tim['team_number']})
