@@ -6,7 +6,7 @@ import re
 
 from pymongo import MongoClient
 
-from src import utils
+import utils
 
 
 def setup_connection(specifier, COMPETITION_KEY):
@@ -35,14 +35,14 @@ if CODE_MATCH is None:
 
 setup_connection("mongodb://localhost:1678", COMPETITION_KEY)
 
-from src.data_transfer import database
+from data_transfer import database
 
 DB = database.Database()
 DB.set_indexes()
 
 CLOUD_DB_PERMISSION = utils.get_boolean_input('Would you like to add this database to the cloud?')
 if CLOUD_DB_PERMISSION:
-    from src.data_transfer import cloud_db_updater
+    from data_transfer import cloud_db_updater
 
     connection_string = cloud_db_updater.CloudDBUpdater.get_connection_string()
     # Checks if competition key exists in the cloud

@@ -11,8 +11,8 @@ tablet serial number, and match number are added to the blocklist.
 import re
 import sys
 
-from src.data_transfer import database
-from src import utils
+from data_transfer import database
+import utils
 from server import Server
 
 db = database.Database()

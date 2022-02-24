@@ -4,7 +4,7 @@
 
 from termcolor import colored
 
-from src.data_transfer import adb_communicator
+from data_transfer import adb_communicator
 
 
 def missing_devices():

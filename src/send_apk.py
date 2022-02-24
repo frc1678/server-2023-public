@@ -10,8 +10,8 @@ import json
 import sys
 import time
 
-from src.data_transfer import adb_communicator
-from src import utils
+from data_transfer import adb_communicator
+import utils
 
 
 def install_apk(device_serial):
