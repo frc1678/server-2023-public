@@ -252,6 +252,6 @@ class Decompressor(base_calculations.BaseCalculations):
             # If not, insert. This ensures that there will always be a team_number field when obj_tims reads 'entries_since_last' 
             if self.calc_all_data:
                 for document in decompressed_qrs[collection]:
-                    self.server.db.update_document(collection, document, {'timestamp': document['timestamp']})
+                    self.server.db.update_document(collection, document, {'team_number': document['team_number'], 'match_number': document['match_number'], 'serial_number': document['serial_number']})
             else:
                 self.server.db.insert_documents(collection, decompressed_qrs[collection])
