@@ -1,4 +1,4 @@
-import csv
+import json
 
 import pymongo
 import statistics
@@ -8,7 +8,7 @@ import utils
 
 class BaseCalculations:
     # Used for converting to a type that is given as a string
-    STR_TYPES = {'str': str, 'float': float, 'int': int}
+    STR_TYPES = {"str": str, "float": float, "int": int}
 
     def __init__(self, server):
         self.server = server
@@ -20,8 +20,8 @@ class BaseCalculations:
 
     def update_timestamp(self):
         """Updates the timestamp to the most recent oplog entry timestamp"""
-        last_op = self.oplog.find({}).sort('ts', pymongo.DESCENDING).limit(1)
-        self.timestamp = last_op.next()['ts']
+        last_op = self.oplog.find({}).sort("ts", pymongo.DESCENDING).limit(1)
+        self.timestamp = last_op.next()["ts"]
 
     def entries_since_last(self):
         """Find changes in watched collections since the last update_timestamp()
@@ -40,9 +40,9 @@ class BaseCalculations:
             return data
         return list(self.oplog.find(
             {
-                'ts': {'$gt': self.timestamp},
-                'op': {'$in': ['i', 'd', 'u']},
-                'ns': {'$in': [f'{self.server.db.name}.{c}' for c in self.watched_collections]},
+                "ts": {"$gt": self.timestamp},
+                "op": {"$in": ["i", "d", "u"]},
+                "ns": {"$in": [f"{self.server.db.name}.{c}" for c in self.watched_collections]},
             }
         ))
 
@@ -54,11 +54,11 @@ class BaseCalculations:
             if "team_number" in entry["o"].keys():
                 teams.add(entry["o"]["team_number"])
             # If the doc was updated, need to manually find the document
-            elif entry['op'] == 'u':
+            elif entry["op"] == "u":
                 if (
-                    query := self.server.db.find(entry['ns'].split('.')[-1])
-                ) != [] and 'team_number' in query[0].keys():
-                    teams.add(query[0]['team_number'])
+                    query := self.server.db.find(entry["ns"].split(".")[-1])
+                ) != [] and "team_number" in query[0].keys():
+                    teams.add(query[0]["team_number"])
         return list(teams)
 
     @staticmethod
@@ -75,7 +75,7 @@ class BaseCalculations:
             # Normal (not weighted) average
             return sum(nums) / len(nums)
         if len(nums) != len(weights):
-            raise ValueError(f'Weighted average expects one weight for each number.')
+            raise ValueError(f"Weighted average expects one weight for each number.")
         weighted_sum = sum([num * weight for num, weight in zip(nums, weights)])
         return weighted_sum / sum(weights)
 
@@ -92,7 +92,6 @@ class BaseCalculations:
         max_occurrences = max(frequencies.values())
         return [item for item, frequency in frequencies.items() if frequency == max_occurrences]
 
-
     @staticmethod
     def get_z_scores(nums: list) -> list:
         """Given a list of numbers, returns their Z-scores"""
@@ -105,32 +104,33 @@ class BaseCalculations:
     @staticmethod
     def _get_teams_list():
         try:
-            with open('data/team_list.csv') as f:
-                reader = csv.reader(f)
-                return [int(n) for n in next(reader)]
+            with open("data/team_list.json") as file:
+                reader = json.load(file)
+
+                return [int(team_number) for team_number in reader]
         except FileNotFoundError:
-            utils.log_error('base_calculations: data/team_list.csv not found')
+            utils.log_error("base_calculations: data/team_list.json not found")
             return []
 
-    
     @staticmethod
     def _get_aim_list():
-        """Each line in match_schedule.csv is a list with the first item being the match number,
-    
-        followed by the team numbers prefixed with alliance color.
-        Ex. 1,B-3859,B-5496,B-5199,R-3647,R-5107,R-4276
+        """match_schedule.json is a dictionary with keys as match numbers and values of lists of team dicts.
+
+        Each team dict contains alliance color and team number.
         Returns a list of dictionaries of aims with match_number, alliance_color, and team_list data.
         """
         try:
-            with open('data/match_schedule.csv') as f:
-                reader = list(csv.reader(f))
+            with open("data/match_schedule.json") as file:
+                reader = json.load(file)
         except FileNotFoundError:
-            utils.log_error('base_calculations: data/match_schedule.csv not found')
+            utils.log_error("base_calculations: data/match_schedule.json not found")
             return []
         aim_list = []
         for match in reader:
-            for alliance in ['R', 'B']:
-                aim = {'match_number': int(match[0]), 'alliance_color': alliance}
-                aim['team_list'] = [int(team[2:]) for team in match if alliance in team]
+            for alliance in ["blue", "red"]:
+                aim = {"match_number": int(match), "alliance_color": alliance[0].upper()}
+                aim["team_list"] = [
+                    team["number"] for team in reader[match]["teams"] if alliance == team["color"]
+                ]
                 aim_list.append(aim)
         return aim_list

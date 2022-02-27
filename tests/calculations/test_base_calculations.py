@@ -92,9 +92,31 @@ class TestBaseCalculations:
         # Test average with weights
         assert 1 == BaseCalculations.avg([1, 3], [2.0, 0.0])
 
+    def test_get_aim_list(self):
+        test_json = """
+        {
+            "1": 
+            {
+                "teams": [
+                    {"number": 88, "color": "blue"}, 
+                    {"number": 2342, "color": "blue"},
+                    {"number": 157, "color": "blue"}, 
+                    {"number": 4041, "color": "red"},
+                    {"number": 1153, "color": "red"},
+                    {"number": 2370, "color": "red"}
+                ]
+            }
+        }
+        """
+        expected_aim_list = [{"match_number": 1, "alliance_color": "B", "team_list": [88, 2342, 157]},
+                            {"match_number": 1, "alliance_color": "R", "team_list": [4041, 1153, 2370]}]
+        with patch('calculations.base_calculations.open', mock_open(read_data=test_json)):
+            assert BaseCalculations._get_aim_list() == expected_aim_list
+
+
     @patch('utils.log_error')
     def test_get_teams_list(self, log_error_mock):
-        with patch('calculations.base_calculations.open', mock_open(read_data='1,2,3')) as _:
+        with patch('calculations.base_calculations.open', mock_open(read_data='[1,2,3]')) as _:
             assert BaseCalculations._get_teams_list() == [1, 2, 3]
 
         def f(*args):
@@ -102,4 +124,4 @@ class TestBaseCalculations:
 
         with patch('calculations.base_calculations.open', Mock(side_effect=f)):
             assert BaseCalculations._get_teams_list() == []
-            log_error_mock.assert_called_with('base_calculations: data/team_list.csv not found')
+            log_error_mock.assert_called_with('base_calculations: data/team_list.json not found')
