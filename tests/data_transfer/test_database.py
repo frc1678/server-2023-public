@@ -107,6 +107,19 @@ class TestDatabase:
         TEST_DB_ACTUAL.update_document('test', {'test_2': 'c'}, {'test_2': 'a'})
         assert TEST_DB_HELPER.test.find_one({'test_2': 'c'})['test_2'] == 'c'
 
+    def test_update_qr_blocklist_status(self):
+        """Tests blocklisting of qrs"""
+        TEST_DB_HELPER.raw_qr.insert_one({
+            'data': 'test_qr_string',
+            'blocklisted': False,
+            'epoch_time': 1641525570,
+            'readable_time': 'Thursday, January 6, 2022 7:19:30 PM',
+            })
+        TEST_DB_ACTUAL.update_qr_blocklist_status({'data': 'test_qr_string'})
+        test_qr = TEST_DB_HELPER.raw_qr.find_one({})
+        assert test_qr['blocklisted'] == True
+
+
     def test_bulk_write(self):
         operations = [
             pymongo.InsertOne({'a': 1}),
