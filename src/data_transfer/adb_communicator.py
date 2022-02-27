@@ -18,14 +18,13 @@ def delete_tablet_downloads():
     devices = get_attached_devices()
     # Wait for USB connection to initialize
     time.sleep(0.1)
-    directory = '/storage/sdcard0/Download/*'
+    directory = '/storage/emulated/0/Download'
     for device in devices:
-        # Check if Download folder is empty in order to avoid errors
-        # utils.run_command returns 'Empty' if directory is empty and a blank string if there it contains files
-        download_is_empty = bool(utils.run_command(f'adb -s {device} shell [ ! -d "{directory}" ] && echo "Empty"', return_output=True))
-        if not download_is_empty:
+        try:
             utils.run_command(f'adb -s {device} shell rm -r {directory}')
-            utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
+            utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]} ({device})')
+        except:
+            utils.log_info(f'Found no files to delete on {DEVICE_SERIAL_NUMBERS[device]} ({device})')
 
 
 def get_attached_devices():
