@@ -9,6 +9,7 @@ import shlex
 import subprocess
 import sys
 import traceback
+import csv
 
 try:
     import yaml
@@ -223,6 +224,13 @@ def get_boolean_input(question: str) -> bool:
             return False
         else:
             print("Please be sure to enter either 'yes' or 'no'")
+
+
+def read_csv_file(file_path):
+    """Reads csv a CSV file and return the parsed data as a list of list"""
+    with open(file_path, "r") as csv_file:
+        csv_data = list(csv.reader(csv_file))
+    return csv_data
 
 
 _TBA_EVENT_KEY_FILE = 'data/competition.txt'
