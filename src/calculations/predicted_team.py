@@ -72,7 +72,10 @@ class PredictedTeamCalc(BaseCalculations):
             for aim in aim_list:
                 if team in aim['team_list']:
                     scheduled_matches += 1
-            predicted_rps[team] = predicted_rps[team] / scheduled_matches
+            if scheduled_matches > 0:
+                predicted_rps[team] = predicted_rps[team] / scheduled_matches
+            else:
+                predicted_rps[team] = 0
         predicted_ranks = sorted(predicted_rps.keys(), key=lambda x: predicted_rps[x], reverse=True)
         for num, update in enumerate(updates):
             rank = predicted_ranks.index(update['team_number']) + 1
