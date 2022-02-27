@@ -49,7 +49,17 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                 datapoints.append(team_data[calc[0]][calc[1]])
             else:
                 return None
-        weights = self.pickability_schema[calc_name]['weights']
+        weights = []
+        for weight in self.pickability_schema[calc_name]['weights']:
+            # If the weight isn't a constant number, it's a datapoint
+            # Find the value of the datapoint
+            if isinstance(weight, str):
+                collection, datapoint = weight.split('.')
+                if (data := self.server.db.find(collection, team_number=team_number)) != []:
+                    weight = data[0][datapoint]
+                else: 
+                    weight = 0
+            weights.append(weight)
         weighted_sum = sum([datapoint * weight for datapoint, weight in zip(datapoints, weights)])
         return weighted_sum
 
@@ -71,19 +81,11 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                 else:
                     continue
 
-            if (
-                first_pickability := self.calculate_pickability(
-                    team, 'first_pickability', team_data
-                )
-            ) is None:
+            if (first_pickability := self.calculate_pickability(team, 'first_pickability', team_data)) is None:
                 utils.log_error(f'First pickability could not be calculated for team: {team}')
                 continue
 
-            if (
-                second_pickability := self.calculate_pickability(
-                    team, 'second_pickability', team_data
-                )
-            ) is None:
+            if (second_pickability := self.calculate_pickability(team, 'second_pickability', team_data)) is None:
                 utils.log_error(f'Second pickability could not be calculated for team: {team}')
                 continue
             # Append the new pickability to the updates list
