@@ -83,6 +83,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "tele_max_balls_low": 49,
         "tele_max_balls_high": 49,
         "max_incap": 49,
+        "position_zero_starts": 49,
         "position_four_starts": 49,
         "position_one_starts": 49,
         "position_three_starts": 49,

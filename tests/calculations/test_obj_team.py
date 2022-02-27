@@ -272,6 +272,7 @@ class TestOBJTeamCalc:
             'mid_rung_successes': 0,
             'high_rung_successes': 0,
             'traversal_rung_successes': 2,
+            'position_zero_starts': 0,
             'position_one_starts': 2,
             'position_two_starts': 1,
             'position_three_starts': 1,
@@ -454,7 +455,12 @@ class TestOBJTeamCalc:
             {'match_number': 3, 'climb_level': 'MID', 'start_position': 'THREE'},
             {'match_number': 4, 'climb_level': 'TRAVERSAL', 'start_position': 'ONE'},
             {'match_number': 5, 'climb_level': 'HIGH', 'start_position': 'TWO'},
-            {'match_number': 6, 'climb_level': 'LOW', 'start_position': 'THREE'},
+            {'match_number': 6, 'climb_level': 'MID', 'start_position': 'THREE'},
+            {'match_number': 7, 'climb_level': 'LOW', 'start_position': 'ZERO'},
+            {'match_number': 8, 'climb_level': 'LOW', 'start_position': 'ZERO'},
+            {'match_number': 9, 'climb_level': 'TRAVERSAL', 'start_position': 'ZERO'},
+            {'match_number': 10, 'climb_level': 'LOW', 'start_position': 'ZERO'},
+            {'match_number': 11, 'climb_level': 'HIGH', 'start_position': 'ZERO'},
         ]
         lfm_tims = [tim for tim in tims if tim['match_number'] > 2]
         action_categories = self.test_calc.get_action_categories(tims)
@@ -812,6 +818,7 @@ class TestOBJTeamCalc:
                 'mid_rung_successes': 0,
                 'high_rung_successes': 1,
                 'traversal_rung_successes': 0,
+                'position_zero_starts': 0,
                 'position_one_starts': 1,
                 'position_two_starts': 1,
                 'position_three_starts': 0,
@@ -909,6 +916,7 @@ class TestOBJTeamCalc:
                 'mid_rung_successes': 1,
                 'high_rung_successes': 0,
                 'traversal_rung_successes': 1,
+                'position_zero_starts': 0,
                 'position_one_starts': 1,
                 'position_two_starts': 0,
                 'position_three_starts': 1,

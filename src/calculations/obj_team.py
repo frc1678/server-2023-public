@@ -169,9 +169,10 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         for calculation, schema in self.SCHEMA['modes'].items():
             tim_field = schema['tim_fields'][0]
             if 'lfm' in calculation:
-                team_info[calculation] = multimode(lfm_tim_action_categories[tim_field])
+                values_to_count = [value for value in lfm_tim_action_categories[tim_field] if value != schema['ignore']]
             else:
-                team_info[calculation] = multimode(tim_action_categories[tim_field])
+                values_to_count = [value for value in tim_action_categories[tim_field] if value != schema['ignore']]
+            team_info[calculation] = multimode(values_to_count)
         return team_info
 
     def calculate_climb_times(self, successful_climb_times, lfm_successful_climb_times):
