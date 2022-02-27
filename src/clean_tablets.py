@@ -11,7 +11,7 @@ import shutil
 class TabletClean:
     """Clean local data copied over from tablets"""
 
-    def __init__(self, tablet_data_path='data/tablets'):
+    def __init__(self, tablet_data_path='data/devices'):
         """Set default settings for tablet data path and default font size
 
         Both of the values have defaults and can be overwritten by parameters.
@@ -21,7 +21,7 @@ class TabletClean:
         self.tablet_data_path = tablet_data_path
 
     def clean_local_tablet_directory(self):
-        """Cleans out files in the data/tablets directory on the server computer."""
+        """Cleans out files in the data/devices directory on the server computer."""
         # Checks if the directory exists
         if os.path.isdir(self.tablet_data_path):
             # Deletes the directory
@@ -32,7 +32,7 @@ class TabletClean:
 
 
 if __name__ == '__main__':
-    FILE_PATH = utils.create_file_path('data/tablets')
+    FILE_PATH = utils.create_file_path('data/devices')
     DEVICES = adb_communicator.get_attached_devices()
 
     adb_communicator.adb_font_size_enforcer()

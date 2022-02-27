@@ -320,11 +320,11 @@ class ExportImagePaths(BaseExport):
     def get_image_paths(self) -> Dict[str, Any]:
         """Gets dictionary of image paths"""
         # Iterates through each device in the tablets folder
-        for device in os.listdir(utils.create_file_path("data/tablets")):
+        for device in os.listdir(utils.create_file_path("data/devices")):
             # If the device is a phone serial number
             if device not in ["9AQAY1EV7J", "9AMAY1E54G", "9AMAY1E53P"]:
                 continue
-            device_dir = utils.create_file_path(f"data/tablets/{device}/")
+            device_dir = utils.create_file_path(f"data/devices/{device}/")
             # Iterates through all of files in the phone's folder
             for file in os.listdir(device_dir):
                 # Tries to match the file name with the regular expression

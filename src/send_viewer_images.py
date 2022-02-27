@@ -12,9 +12,9 @@ IMAGE_PATH_PATTERN = re.compile(r"([0-9]+)_(full_robot|drivetrain|mechanism_[0-9
 
 
 def find_robot_images() -> Dict[str, str]:
-    """Iterate through the data/tablets folder to find all robot images."""
+    """Iterate through the data/devices folder to find all robot images."""
     paths = {}
-    for device in os.listdir(utils.create_file_path("data/tablets")):
+    for device in os.listdir(utils.create_file_path("data/devices")):
         # Check folder names to only look for images from phones
         if device not in adb_communicator.PHONE_SERIAL_NUMBERS:
             continue
