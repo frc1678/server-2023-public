@@ -89,6 +89,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "position_three_starts": 49,
         "position_two_starts": 49,
         "matches_scored_far": 49,
+        "avg_climb_points": 84.4422,
     },
     # Obj TIM
     {
