@@ -18,7 +18,7 @@ def find_robot_images() -> Dict[str, str]:
         # Check folder names to only look for images from phones
         if device not in adb_communicator.PHONE_SERIAL_NUMBERS:
             continue
-        device_dir = utils.create_file_path(f"data/tablets/{device}/")
+        device_dir = utils.create_file_path(f"data/devices/{device}/")
         for file in os.listdir(device_dir):
             full_local_path = os.path.join(device_dir, file)
             # Tries to match the file name with the regular expression
