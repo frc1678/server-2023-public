@@ -8,7 +8,7 @@ from typing import Dict
 import utils
 from data_transfer import adb_communicator
 
-IMAGE_PATH_PATTERN = re.compile(r"([0-9]+)_(full_robot|drivetrain|mechanism_[0-9]+)\.jpg")
+IMAGE_PATH_PATTERN = re.compile(r"([0-9]+)_(full_robot_[1-2]+|drivetrain|mechanism_[0-9]+)\.jpg")
 
 
 def find_robot_images() -> Dict[str, str]:
