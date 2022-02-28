@@ -62,6 +62,9 @@ class PredictedTeamCalc(BaseCalculations):
                 if aim['match_number'] not in predicted_alliance_rps.keys():
                     utils.log_warning(f'Missing predicted RPs for Match {aim["match_number"]}')
                     break
+                if aim['alliance_color'] not in predicted_alliance_rps[aim['match_number']].keys():
+                    utils.log_warning(f'Missing predicted RPs for Alliance {aim["alliance_color"]} in Match {aim["match_number"]}')
+                    break
                 rps += predicted_alliance_rps[aim['match_number']][aim['alliance_color']]
         return rps
 
@@ -93,7 +96,8 @@ class PredictedTeamCalc(BaseCalculations):
         for team in teams:
             update = {'team_number': team}
             current_values = self.calculate_current_values(ranking_data, team)
-            update.update(current_values)
+            if current_values:
+                update.update(current_values)
 
             predicted_rps = self.calculate_predicted_team_rps(
                 team, aim_list, predicted_alliance_rps

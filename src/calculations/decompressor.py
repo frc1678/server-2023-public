@@ -248,10 +248,8 @@ class Decompressor(base_calculations.BaseCalculations):
         new_qrs = [entry['o'] for entry in self.entries_since_last()]
         decompressed_qrs = self.decompress_qrs(new_qrs)
         for collection in ['unconsolidated_obj_tim', 'subj_tim']:
-            # If calculating with all data, update to avoid duplicate documents
-            # If not, insert. This ensures that there will always be a team_number field when obj_tims reads 'entries_since_last' 
             if self.calc_all_data:
-                for document in decompressed_qrs[collection]:
-                    self.server.db.update_document(collection, document, {'team_number': document['team_number'], 'match_number': document['match_number'], 'serial_number': document['serial_number']})
-            else:
-                self.server.db.insert_documents(collection, decompressed_qrs[collection])
+                # Prevent duplicates when calculating all data by deleting data before inserting
+                # Updating doesn't work because unconsolidated_obj_tim doesn't have unique keys
+                self.server.db.delete_data(collection)
+            self.server.db.insert_documents(collection, decompressed_qrs[collection])

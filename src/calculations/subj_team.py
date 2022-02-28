@@ -69,8 +69,9 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             # scores is a dictionary of team numbers to rank score
             scores = {}
             for team in self.teams_that_have_competed:
-                score = self.server.db.find(collection_name, team_number=team)[0][unadjusted_calc]
-                scores[team] = score
+                tim = self.server.db.find(collection_name, team_number=team)
+                if tim != []:
+                    scores[team] = tim[0][unadjusted_calc]
             # Now scale the scores so they range from 0 to 1, and use those scaled scores to
             # compensate for alliance partners
             # That way, teams that are always paired with good/bad teams won't have unfair rankings

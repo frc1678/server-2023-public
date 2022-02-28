@@ -241,7 +241,10 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             for field, value in zip(schema["point_fields"], schema["point_values"]):
                 total_successes += team_data[field]
                 total_points += team_data[field] * value
-            team_info[calculation] = total_points / total_successes
+            if total_successes > 0:
+                team_info[calculation] = total_points / total_successes
+            else:
+                team_info[calculation] = 0
         return team_info
 
     def update_team_calcs(self, teams: list) -> list:
@@ -279,7 +282,12 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         """Executes the OBJ Team calculations"""
         # Get oplog entries
         entries = self.entries_since_last()
-        for update in self.update_team_calcs(self.find_team_list()):
+        teams = []
+        # Filter out teams that are in subj_tim but not obj_tim
+        for team in self.find_team_list():
+            if self.server.db.find('obj_tim', team_number=team) != []:
+                teams.append(team)
+        for update in self.update_team_calcs(teams):
             self.server.db.update_document(
                 "obj_team", update, {"team_number": update["team_number"]}
             )

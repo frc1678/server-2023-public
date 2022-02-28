@@ -80,7 +80,7 @@ class ObjTIMCalcs(BaseCalculations):
                 continue
             
             # Add up the indexes of the scout responses
-            category_avg = sum([categories[category].index(value) for value in categorical_actions])/3
+            category_avg = self.avg([categories[category].index(value) for value in categorical_actions])
             # Round the average and append the correct action to the final dict
             final_categorical_actions[category] = categories[category][round(category_avg)]
         return final_categorical_actions
