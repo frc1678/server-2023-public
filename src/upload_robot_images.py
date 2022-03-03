@@ -308,8 +308,8 @@ def run(creds):
                 # print(img_type)
                 if team not in teams:
                     teams[team] = []
-                # Prioritize the full_robot images over everythin else
-                if img_type == "full_robot":
+                # Prioritize the full_robot images over everything else
+                if img_type in ["full_robot_1", "full_robot_2"]:
                     teams[team].insert(0, image["link"])
                 else:
                     teams[team].append(image["link"])
