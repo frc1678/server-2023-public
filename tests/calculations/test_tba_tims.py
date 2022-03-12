@@ -132,7 +132,8 @@ def mock_entries_since_last():
 @pytest.mark.clouddb
 class TestTBATimCalc:
     def setup_method(self):
-        self.test_server = Server()
+        with mock.patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = Server()
         self.test_calc = tba_tims.TBATIMCalc(self.test_server)
 
     def test_calc_tba_bool(self):

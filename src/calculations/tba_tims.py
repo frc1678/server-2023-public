@@ -122,7 +122,10 @@ class TBATIMCalc(base_calculations.BaseCalculations):
         # Get the list of matches that have not been calculated, i.e. their
         # reference is not in the self.calculated
         entries = self.entries_since_last()
-        calculated_documents = []
+
+        # Delete and re-insert if updating all data
+        if self.calc_all_data:
+            self.server.db.delete_data("tba_tim")
 
         for match in entries:
             for team_number in self.get_team_list_from_match(match):

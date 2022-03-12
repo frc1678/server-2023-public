@@ -32,7 +32,8 @@ FAKE_SCHEMA = {
 class TestPickability:
     @staticmethod
     def test__init__():
-        m_server = Server()
+        with mock.patch('server.Server.ask_calc_all_data', return_value=False):
+            m_server = Server()
         with mock.patch('utils.read_schema', return_value=FAKE_SCHEMA):
             test_calc = pickability.PickabilityCalc(m_server)
         assert test_calc.server == m_server
@@ -51,8 +52,9 @@ class TestPickability:
         } == test_calc.calcs
 
     @staticmethod
+    @mock.patch('server.Server.ask_calc_all_data', return_value=False)
     @mock.patch('utils.read_schema', return_value=FAKE_SCHEMA)
-    def test_calculate_pickabilty(mock):
+    def test_calculate_pickabilty(mock, calc_all_data_mock):
         test_calc = pickability.PickabilityCalc(Server())
         calc_data = {
             'test': {
@@ -84,7 +86,8 @@ class TestPickability:
 
     @staticmethod
     @mock.patch('utils.read_schema', return_value=FAKE_SCHEMA)
-    def test_run(mock):
+    @mock.patch('server.Server.ask_calc_all_data', return_value=False)
+    def test_run(calc_all_data_mock, schema_mock):
         server_obj = Server()
         test_calc = pickability.PickabilityCalc(server_obj)
         # This is not enough to do a pickability calc, it needs the test2 datapoint

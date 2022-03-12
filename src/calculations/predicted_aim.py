@@ -262,6 +262,10 @@ class PredictedAimCalc(BaseCalculations):
                 if team in teams:
                     aims.append(alliance)
                     break
+        # Delete and re-insert if updating all data
+        if self.calc_all_data:
+            self.server.db.delete_data("predicted_aim")
+
         for update in self.update_predicted_aim(aims):
             self.server.db.update_document(
                 "predicted_aim",

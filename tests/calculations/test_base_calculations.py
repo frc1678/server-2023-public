@@ -9,9 +9,11 @@ from server import Server
 @pytest.mark.clouddb
 class TestBaseCalculations:
     def setup_method(self, method):
-        self.test_server = Server()
+        with patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = Server()
         self.base_calc = BaseCalculations(self.test_server)
-        self.test_server_all_data = Server(False, True)
+        with patch('server.Server.ask_calc_all_data', return_value=True):
+            self.test_server_all_data = Server()
         self.base_calc_all_data = BaseCalculations(self.test_server_all_data)
 
     def test__init__(self):

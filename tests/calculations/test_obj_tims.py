@@ -105,7 +105,8 @@ class TestObjTIMCalcs:
 
     @mock.patch.object(base_calculations.BaseCalculations, '_get_teams_list', return_value=[3])
     def setup_method(self, method, get_teams_list_dummy):
-        self.test_server = Server()
+        with mock.patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = Server()
         self.test_calculator = obj_tims.ObjTIMCalcs(self.test_server)
 
     def test_modes(self):

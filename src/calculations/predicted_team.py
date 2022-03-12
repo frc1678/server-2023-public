@@ -117,3 +117,4 @@ class PredictedTeamCalc(BaseCalculations):
             self.server.db.insert_documents(
                 'predicted_team', self.update_predicted_team(predicted_aim)
             )
+        self.update_timestamp()

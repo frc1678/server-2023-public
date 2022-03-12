@@ -5,7 +5,8 @@ import server
 
 class TestPredictedAimCalc:
     def setup_method(self, method):
-        self.test_server = server.Server()
+        with patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = server.Server()
         self.test_calc = predicted_aim.PredictedAimCalc(self.test_server)
         self.aims_list = [
             {'match_number': 1, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]},

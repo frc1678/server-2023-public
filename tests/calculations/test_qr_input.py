@@ -14,7 +14,8 @@ FAKE_SCHEMA = {
 @pytest.mark.clouddb
 class TestQRInput:
     def setup(self):
-        self.server = server.Server()
+        with mock.patch('server.Server.ask_calc_all_data', return_value=False):
+            self.server = server.Server()
 
     def test_run(self, capsys):
         with mock.patch('utils.read_schema', return_value=FAKE_SCHEMA), mock.patch(

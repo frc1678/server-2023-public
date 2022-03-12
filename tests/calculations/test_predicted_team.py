@@ -6,7 +6,8 @@ from unittest import mock
 
 class TestPredictedTeamCalc:
     def setup_method(self, method):
-        self.test_server = server.Server()
+        with mock.patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = server.Server()
         self.test_calc = predicted_team.PredictedTeamCalc(self.test_server)
         self.predicted_aim = [
             {

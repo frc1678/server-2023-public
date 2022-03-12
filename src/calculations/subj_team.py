@@ -132,8 +132,10 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         self.teams_that_have_competed = set()
         for tim in self.server.db.find('subj_tim'):
             self.teams_that_have_competed.add(tim['team_number'])
+        # Delete and re-insert if updating all data
+        if self.calc_all_data:
+            self.server.db.delete_data("subj_team")
         # See which teams are affected by new subj TIM data
-        entries = self.entries_since_last()
         updated_teams = self.find_team_list()
         for team in updated_teams:
             new_calc = self.unadjusted_ability_calcs(team)

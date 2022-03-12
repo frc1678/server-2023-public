@@ -11,12 +11,14 @@ import utils
 from server import Server
 
 import pytest
+from unittest.mock import patch
 
 
 @pytest.mark.clouddb
 class TestTBATeamCalc:
     def setup_method(self, method):
-        self.test_server = Server()
+        with patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = Server()
         self.test_calc = tba_team.TBATeamCalc(self.test_server)
 
     def test___init__(self):

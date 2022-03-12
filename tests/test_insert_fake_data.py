@@ -1,8 +1,11 @@
+from unittest.mock import patch
+
 import insert_fake_data
 import server
 from calculations import decompressor
 
-DECOMPRESSOR = decompressor.Decompressor(server.Server())
+with patch('server.Server.ask_calc_all_data', return_value=False):
+    DECOMPRESSOR = decompressor.Decompressor(server.Server())
 
 
 def test_fake_name():

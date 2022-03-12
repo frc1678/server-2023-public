@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 import pytest
+from unittest.mock import patch
 from calculations import subj_team
 from server import Server
 
@@ -8,7 +9,8 @@ from server import Server
 @pytest.mark.clouddb
 class TestSubjTeamCalcs:
     def setup_method(self, method):
-        self.test_server = Server()
+        with patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = Server()
         self.test_calcs = subj_team.SubjTeamCalcs(self.test_server)
 
     def test___init__(self):

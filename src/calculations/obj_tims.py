@@ -210,6 +210,9 @@ class ObjTIMCalcs(BaseCalculations):
         for tim in tims:
             if tim not in unique_tims:
                 unique_tims.append(tim)
+        # Delete and re-insert if updating all data
+        if self.calc_all_data:
+            self.server.db.delete_data("obj_tim")
 
         for update in self.update_obj_tim_calcs(unique_tims):
             if update != {}:

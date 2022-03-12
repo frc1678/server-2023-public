@@ -22,14 +22,14 @@ class Server:
     CALCULATIONS_FILE = utils.create_file_path("src/calculations.yml")
     TBA_EVENT_KEY = utils.load_tba_event_key_file(utils._TBA_EVENT_KEY_FILE)
 
-    def __init__(self, write_cloud=False, calc_all_data=False):
+    def __init__(self, write_cloud=False):
         self.db = database.Database()
         self.oplog = self.db.client.local.oplog.rs
         if write_cloud:
             self.cloud_db_updater = cloud_db_updater.CloudDBUpdater()
         else:
             self.cloud_db_updater = None
-        self.calc_all_data = calc_all_data
+        self.calc_all_data = self.ask_calc_all_data()
 
         self.calculations: List[BaseCalculations] = self.load_calculations()
 
@@ -66,12 +66,24 @@ class Server:
         for calc in self.calculations:
             calc.run()
 
+    def ask_calc_all_data(self):
+        print(
+            "Run calculations on all data?\n"
+            "WARNING: This will re-calculate, delete and re-insert all calculated documents, leading to a much longer runtime."
+        )
+        calc_all_data = input("y/N").lower()
+        if calc_all_data in ["y", "yes"]:
+            return True
+        else:
+            return False
+
     def run(self):
         """Starts server cycles, runs in infinite loop"""
         while True:
             self.run_calculations()
             if write_cloud:
-                self.cloud_db_updater.write_db_changes()
+                self.cloud_db_updater.write_db_changes(self.calc_all_data)
+            self.calc_all_data = self.ask_calc_all_data()
 
 
 if __name__ == "__main__":
@@ -80,10 +92,5 @@ if __name__ == "__main__":
         write_cloud = True
     else:
         write_cloud = False
-    calc_all_data_question = input("Run calculations on all data (not just new data)? y/N").lower()
-    if calc_all_data_question in ["y", "yes"]:
-        calc_all_data = True
-    else:
-        calc_all_data = False
-    server = Server(write_cloud, calc_all_data)
+    server = Server(write_cloud)
     server.run()

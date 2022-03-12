@@ -1,6 +1,7 @@
 # Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 
 import pytest
+from unittest.mock import patch
 
 import server
 from calculations import compression
@@ -9,7 +10,8 @@ import generate_test_qrs
 import utils
 
 SCHEMA = utils.read_schema('schema/match_collection_qr_schema.yml')
-DECOMPRESSOR = decompressor.Decompressor(server.Server())
+with patch('server.Server.ask_calc_all_data', return_value=False):
+    DECOMPRESSOR = decompressor.Decompressor(server.Server())
 
 
 def test_generate_type_data():

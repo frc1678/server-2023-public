@@ -287,6 +287,10 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         for team in self.find_team_list():
             if self.server.db.find('obj_tim', team_number=team) != []:
                 teams.append(team)
+        # Delete and re-insert if updating all data
+        if self.calc_all_data:
+            self.server.db.delete_data("obj_team")
+
         for update in self.update_team_calcs(teams):
             self.server.db.update_document(
                 "obj_team", update, {"team_number": update["team_number"]}

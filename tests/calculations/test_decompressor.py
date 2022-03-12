@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from unittest.mock import patch
 
 import server
 from calculations import decompressor
@@ -9,7 +10,8 @@ from calculations import decompressor
 @pytest.mark.clouddb
 class TestDecompressor:
     def setup_method(self, method):
-        self.test_server = server.Server()
+        with patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = server.Server()
         self.test_decompressor = decompressor.Decompressor(self.test_server)
 
     def test___init__(self):

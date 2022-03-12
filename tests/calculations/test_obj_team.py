@@ -2,6 +2,7 @@
 # Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 from cmath import exp
 import pytest
+from unittest.mock import patch
 from calculations import obj_team
 from server import Server
 
@@ -9,7 +10,8 @@ from server import Server
 @pytest.mark.clouddb
 class TestOBJTeamCalc:
     def setup_method(self, method):
-        self.test_server = Server()
+        with patch('server.Server.ask_calc_all_data', return_value=False):
+            self.test_server = Server()
         self.test_calc = obj_team.OBJTeamCalc(self.test_server)
 
     def test___init__(self):

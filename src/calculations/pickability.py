@@ -63,13 +63,8 @@ class PickabilityCalc(base_calculations.BaseCalculations):
         weighted_sum = sum([datapoint * weight for datapoint, weight in zip(datapoints, weights)])
         return weighted_sum
 
-    def run(self) -> None:
-        """Detects when and for which teams to calculate pickabilty"""
-        # Finds oplog entries in the watched collections
-        entries = self.entries_since_last()
-        if entries == []:
-            return
-        # Stores the new pickability dictionaries
+    def update_pickability(self):
+        """Creates updated pickability documents"""
         updates = []
         for team in self.find_team_list():
             # Data that is needed to calculate pickability
@@ -93,14 +88,17 @@ class PickabilityCalc(base_calculations.BaseCalculations):
             update['first_pickability'] = first_pickability
             update['second_pickability'] = second_pickability
             updates.append(update)
-        if updates:
-            self.server.db.bulk_write(
-                'pickability',
-                [
-                    pymongo.UpdateOne(
-                        {'team_number': update['team_number']}, {'$set': update}, upsert=True
-                    )
-                    for update in updates
-                ],
-            )
-        self.update_timestamp()
+        return updates
+
+    def run(self) -> None:
+        """Detects when and for which teams to calculate pickabilty"""
+        # Finds oplog entries in the watched collections
+        entries = self.entries_since_last()
+        if entries == []:
+            return
+        # Delete and re-insert if updating all data
+        if self.calc_all_data:
+            self.server.db.delete_data("pickability")
+
+        for update in self.update_pickability():
+            self.server.db.update_document('pickability', update, {'team_number': update['team_number']})
