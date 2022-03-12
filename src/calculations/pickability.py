@@ -30,7 +30,7 @@ class PickabilityCalc(base_calculations.BaseCalculations):
         e.g. {'first_pickability': [('obj_team', 'avg_ball_high')]}
         Key is the calc, each tuple represents the collection and the specific datapoint needed"""
         self.calcs = {}
-        for calc_name in ['first_pickability', 'second_pickability']:
+        for calc_name in self.pickability_schema.keys():
             sub_calcs = []
             for sub_calc in self.pickability_schema[calc_name]['requires']:
                 sub_calcs.append((sub_calc.split(".")[0], sub_calc.split('.')[1]))
