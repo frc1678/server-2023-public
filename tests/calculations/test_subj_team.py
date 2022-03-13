@@ -63,33 +63,6 @@ class TestSubjTeamCalcs:
         self.test_server.db.insert_documents('subj_tim', tims)
         assert self.test_calcs.teams_played_with(1678) == [1678, 4414, 1323, 1678, 2910]
 
-    def test_calculate_ratings(self):
-        tims = [
-            {
-                'team_number': 1678,
-                'match_number': 1,
-                'far_field_rating': 2
-            },
-            {
-                'team_number': 1678,
-                'match_number': 2,
-                'far_field_rating': 0
-            },
-            {
-                'team_number': 1678,
-                'match_number': 3,
-                'far_field_rating': 1
-            },
-            {
-                'team_number': 1678,
-                'match_number': 4,
-                'far_field_rating': 2
-            },
-        ]
-        self.test_server.db.insert_documents('subj_tim', tims)
-        ratings = self.test_calcs.calculate_ratings(1678)
-        assert ratings == {'driver_far_field_rating': 1.6666666666666667}
-
     def test_all_calcs(self):
         tims = [
             {
@@ -97,7 +70,6 @@ class TestSubjTeamCalcs:
                 'team_number': 118,
                 'quickness_score': 2,
                 'field_awareness_score': 1,
-                'far_field_rating': 3,
                 'alliance_color_is_red': True,
             },
             {
@@ -105,7 +77,6 @@ class TestSubjTeamCalcs:
                 'team_number': 1678,
                 'quickness_score': 1,
                 'field_awareness_score': 2,
-                'far_field_rating': 2,
                 'alliance_color_is_red': True,
             },
             {
@@ -113,7 +84,6 @@ class TestSubjTeamCalcs:
                 'team_number': 254,
                 'quickness_score': 3,
                 'field_awareness_score': 3,
-                'far_field_rating': 1,
                 'alliance_color_is_red': True,
             },
             {
@@ -121,7 +91,6 @@ class TestSubjTeamCalcs:
                 'team_number': 118,
                 'quickness_score': 2,
                 'field_awareness_score': 1,
-                'far_field_rating': 2,
                 'alliance_color_is_red': True,
             },
             {
@@ -129,7 +98,6 @@ class TestSubjTeamCalcs:
                 'team_number': 1678,
                 'quickness_score': 3,
                 'field_awareness_score': 3,
-                'far_field_rating': 0,
                 'alliance_color_is_red': True,
             },
             {
@@ -137,7 +105,6 @@ class TestSubjTeamCalcs:
                 'team_number': 254,
                 'quickness_score': 1,
                 'field_awareness_score': 2,
-                'far_field_rating': 0,
                 'alliance_color_is_red': True,
             },
             {
@@ -145,7 +112,6 @@ class TestSubjTeamCalcs:
                 'team_number': 118,
                 'quickness_score': 1,
                 'field_awareness_score': 3,
-                'far_field_rating': 2,
                 'alliance_color_is_red': False,
             },
             {
@@ -153,7 +119,6 @@ class TestSubjTeamCalcs:
                 'team_number': 1678,
                 'quickness_score': 2,
                 'field_awareness_score': 2,
-                'far_field_rating': 1,
                 'alliance_color_is_red': False,
             },
             {
@@ -161,7 +126,6 @@ class TestSubjTeamCalcs:
                 'team_number': 254,
                 'quickness_score': 1,
                 'field_awareness_score': 3,
-                'far_field_rating': 0,
                 'alliance_color_is_red': False,
             },
 
@@ -175,14 +139,11 @@ class TestSubjTeamCalcs:
         assert self.near(robonauts['driver_field_awareness'], 0.9259)
         assert self.near(robonauts['driver_quickness'], 0.55555)
         assert self.near(robonauts['driver_ability'], 0.59645)
-        assert robonauts['driver_far_field_rating'] == 2.3333333333333335
 
         assert self.near(citrus['driver_field_awareness'], 1.296)
         assert self.near(citrus['driver_quickness'], 0.666667)
         assert self.near(citrus['driver_ability'], 2.55167)
-        assert citrus['driver_far_field_rating'] == 1.5
 
         assert self.near(chezy['driver_field_awareness'], 1.481)
         assert self.near(chezy['driver_quickness'], 0.555555)
         assert self.near(chezy['driver_ability'], 2.85188)
-        assert chezy['driver_far_field_rating'] == 1

@@ -113,17 +113,6 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
                 calculations[team][calc_name] = driver_ability + 2
         return calculations
 
-    def calculate_ratings(self, team):
-        """Calculates rating datapoints, which aren't rankings."""
-        calculations = {}
-        for calc_name, calc_info in self.SCHEMA['ratings'].items():
-            for requirement in calc_info['requires']:
-                collection_name, _, rating_name = requirement.partition('.')
-                # Filter out all values of 0 (when the team didn't perform the ranked action)
-                tim_ratings = [tim[rating_name] for tim in self.server.db.find(collection_name, team_number=team) if tim[rating_name] != 0]
-                calculations[calc_name] = self.avg(tim_ratings)
-        return calculations
-
     def run(self):
         """Gets oplog entries from watched collection and uses that to calculate subjective team
         info, then puts those calculations in the database"""
@@ -139,7 +128,6 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         updated_teams = self.find_team_list()
         for team in updated_teams:
             new_calc = self.unadjusted_ability_calcs(team)
-            new_calc.update(self.calculate_ratings(team))
             self.server.db.update_document(
                 'subj_team', new_calc, {'team_number': new_calc['team_number']}
             )
