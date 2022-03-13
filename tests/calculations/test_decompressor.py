@@ -23,16 +23,12 @@ class TestDecompressor:
         # List of compressed names and decompressed names of enums
         action_type_dict = {
             'AA': 'score_ball_high_hub',
-            'AB': 'score_ball_high_launchpad',
-            'AC': 'score_ball_high_other',
-            'AD': 'score_ball_low',
-            'AE': 'intake',
-            'AF': 'catch_exit_ball',
-            'AG': 'score_opponent_ball',       
-            'AH': 'start_incap',
-            'AI': 'end_incap',
-            'AJ': 'start_climb',
-            'AK': 'end_climb'
+            'AB': 'score_ball_high_other',
+            'AC': 'score_ball_low',
+            'AD': 'intake',   
+            'AE': 'start_incap',
+            'AF': 'end_incap',
+            'AG': 'climb_attempt'
         }
         # Test a few values for each type to make sure they make sense
         assert 5 == self.test_decompressor.convert_data_type('5', 'int')
@@ -74,7 +70,7 @@ class TestDecompressor:
         assert 'start_position' == self.test_decompressor.get_decompressed_name('X', 'objective_tim')
         assert 'field_awareness_score' == self.test_decompressor.get_decompressed_name('C', 'subjective_aim')
         assert 'score_ball_high_hub' == self.test_decompressor.get_decompressed_name('AA', 'action_type')
-        assert 'end_climb' == self.test_decompressor.get_decompressed_name('AK', 'action_type')
+        assert 'climb_attempt' == self.test_decompressor.get_decompressed_name('AG', 'action_type')
         assert 'climb_level' == self.test_decompressor.get_decompressed_name('V', 'objective_tim')
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.get_decompressed_name('#', 'generic_data')
@@ -89,8 +85,8 @@ class TestDecompressor:
 
     def test_decompress_data(self):
         # Test generic data
-        assert {'schema_version': 3, 'scout_name': 'Name'} == self.test_decompressor.decompress_data(
-            ['A3', 'FName'], 'generic_data'
+        assert {'schema_version': 5, 'scout_name': 'Name'} == self.test_decompressor.decompress_data(
+            ['A5', 'FName'], 'generic_data'
         )
         # Test objective tim
         assert {'team_number': 1678} == self.test_decompressor.decompress_data(['Z1678'], 'objective_tim')
@@ -110,7 +106,7 @@ class TestDecompressor:
         assert 'does not match Server version' in str(version_error)
         # What decompress_generic_qr() should return
         expected_decompressed_data = {
-            'schema_version': 3,
+            'schema_version': 5,
             'serial_number': 's1234',
             'match_number': 34,
             'timestamp': 1230,
@@ -118,7 +114,7 @@ class TestDecompressor:
             'scout_name': 'Name',
         }
         assert expected_decompressed_data == self.test_decompressor.decompress_generic_qr(
-            'A3$Bs1234$C34$D1230$Ev1.3$FName'
+            'A5$Bs1234$C34$D1230$Ev1.3$FName'
         )
 
 
@@ -129,9 +125,9 @@ class TestDecompressor:
         assert 'Invalid timeline -- Timeline length invalid: [\'abcdefg\']' in str(excinfo)
         # Test timeline decompression
         assert [
-                   {'time': 60, 'action_type': 'start_climb'},
-                   {'time': 61, 'action_type': 'end_climb'},
-               ] == self.test_decompressor.decompress_timeline('060AJ061AK')
+                   {'time': 60, 'action_type': 'start_incap'},
+                   {'time': 61, 'action_type': 'end_incap'},
+               ] == self.test_decompressor.decompress_timeline('060AE061AF')
         # Should return empty list if passed an empty string
         assert [] == self.test_decompressor.decompress_timeline('')
 
@@ -139,7 +135,7 @@ class TestDecompressor:
         # Expected decompressed objective qr
         expected_objective = [
             {
-                'schema_version': 3,
+                'schema_version': 5,
                 'serial_number': 's1234',
                 'match_number': 34,
                 'timestamp': 1230,
@@ -149,8 +145,8 @@ class TestDecompressor:
                 'scout_id': 14,
                 'start_position': 'THREE',
                 'timeline': [
-                    {'time': 60, 'action_type': 'start_climb'},
-                    {'time': 61, 'action_type': 'end_climb'},
+                    {'time': 60, 'action_type': 'start_incap'},
+                    {'time': 61, 'action_type': 'end_incap'},
                 ],
                 'climb_level': 'NONE'
             }
@@ -158,7 +154,7 @@ class TestDecompressor:
         # Expected decompressed subjective qr
         expected_subjective = [
             {
-                'schema_version': 3,
+                'schema_version': 5,
                 'serial_number': 's1234',
                 'match_number': 34,
                 'timestamp': 1230,
@@ -168,11 +164,11 @@ class TestDecompressor:
                 'quickness_score': 1,
                 'field_awareness_score': 2,
                 'far_field_rating': 3,
-                'scored_far': True,
+                'played_defense': True,
                 'alliance_color_is_red': True
             },
             {
-                'schema_version': 3,
+                'schema_version': 5,
                 'serial_number': 's1234',
                 'match_number': 34,
                 'timestamp': 1230,
@@ -182,11 +178,11 @@ class TestDecompressor:
                 'quickness_score': 2,
                 'field_awareness_score': 1,
                 'far_field_rating': 1,
-                'scored_far': False,
+                'played_defense': False,
                 'alliance_color_is_red': True
             },
             {
-                'schema_version': 3,
+                'schema_version': 5,
                 'serial_number': 's1234',
                 'match_number': 34,
                 'timestamp': 1230,
@@ -196,33 +192,33 @@ class TestDecompressor:
                 'quickness_score': 3,
                 'field_awareness_score': 1,
                 'far_field_rating': 2,
-                'scored_far': True,
+                'played_defense': True,
                 'alliance_color_is_red': True
             },
         ]
         # Test objective qr decompression
         assert expected_objective == self.test_decompressor.decompress_single_qr(
-            'A3$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XTHREE$W060AJ061AK$VNONE', decompressor.QRType.OBJECTIVE
+            'A5$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XTHREE$W060AE061AF$VNONE', decompressor.QRType.OBJECTIVE
         )
         # Test subjective qr decompression
         assert expected_subjective == self.test_decompressor.decompress_single_qr(
-            'A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$ETRUE$FTRUE#A254$B2$C1$D1$EFALSE$FTRUE#A1323$B3$C1$D2$ETRUE$FTRUE',
+            'A5$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$ETRUE$FTRUE#A254$B2$C1$D1$EFALSE$FTRUE#A1323$B3$C1$D2$ETRUE$FTRUE',
             decompressor.QRType.SUBJECTIVE,
         )
         # Test error raising for objective and subjective using incomplete qrs
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                'A3$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14', decompressor.QRType.OBJECTIVE
+                'A5$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14', decompressor.QRType.OBJECTIVE
             )
         assert 'QR missing data fields' in str(excinfo)
         with pytest.raises(IndexError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                'A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE', decompressor.QRType.SUBJECTIVE
+                'A5$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE', decompressor.QRType.SUBJECTIVE
             )
         assert 'Incorrect number of teams in Subjective QR' in str(excinfo)
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                'A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2#A254#A1323', decompressor.QRType.SUBJECTIVE
+                'A5$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2#A254#A1323', decompressor.QRType.SUBJECTIVE
             )
         assert 'QR missing data fields' in str(excinfo)
 
@@ -231,7 +227,7 @@ class TestDecompressor:
         expected_output = {
             'unconsolidated_obj_tim': [
                 {
-                    'schema_version': 3,
+                    'schema_version': 5,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
@@ -241,15 +237,15 @@ class TestDecompressor:
                     'scout_id': 14,
                     'start_position': 'FOUR',
                     'timeline': [
-                        {'time': 60, 'action_type': 'start_climb'},
-                        {'time': 61, 'action_type': 'end_climb'},
+                        {'time': 60, 'action_type': 'start_incap'},
+                        {'time': 61, 'action_type': 'end_incap'},
                     ],
                     'climb_level': 'HIGH'
                 }
             ],
             'subj_tim': [
                 {
-                    'schema_version': 3,
+                    'schema_version': 5,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
@@ -259,11 +255,11 @@ class TestDecompressor:
                     'quickness_score': 1,
                     'field_awareness_score': 2,
                     'far_field_rating': 3,
-                    'scored_far': False,
+                    'played_defense': False,
                     'alliance_color_is_red': False
                 },
                 {
-                    'schema_version': 3,
+                    'schema_version': 5,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
@@ -273,11 +269,11 @@ class TestDecompressor:
                     'quickness_score': 2,
                     'field_awareness_score': 2,
                     'far_field_rating': 1,
-                    'scored_far': False,
+                    'played_defense': False,
                     'alliance_color_is_red': False
                 },
                 {
-                    'schema_version': 3,
+                    'schema_version': 5,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
@@ -287,21 +283,21 @@ class TestDecompressor:
                     'quickness_score': 3,
                     'field_awareness_score': 3,
                     'far_field_rating': 2,
-                    'scored_far': True,
+                    'played_defense': True,
                     'alliance_color_is_red': False
                 },
             ],
         }
         assert expected_output == self.test_decompressor.decompress_qrs(
             [
-                {'data': '+A3$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XFOUR$W060AJ061AK$VHIGH'},
-                {'data': '*A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE$FFALSE#A254$B2$C2$D1$EFALSE$FFALSE#A1323$B3$C3$D2$ETRUE$FFALSE'},
+                {'data': '+A5$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XFOUR$W060AE061AF$VHIGH'},
+                {'data': '*A5$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE$FFALSE#A254$B2$C2$D1$EFALSE$FFALSE#A1323$B3$C3$D2$ETRUE$FFALSE'},
             ]
         )
 
     def test_run(self):
         expected_obj = {
-            'schema_version': 3,
+            'schema_version': 5,
             'serial_number': 'gCbtwqZ',
             'match_number': 51,
             'timestamp': 9321,
@@ -313,7 +309,7 @@ class TestDecompressor:
             'timeline': [
                 {
                     'time': 0,
-                    'action_type': 'score_ball_high_launchpad'
+                    'action_type': 'score_ball_high_other'
                 },
                 {
                     'time': 1,
@@ -322,14 +318,6 @@ class TestDecompressor:
                 {
                     'time': 2,
                     'action_type': 'intake'
-                },
-                {
-                    'time': 3,
-                    'action_type': 'catch_exit_ball'
-                },
-                {
-                    'time': 4,
-                    'action_type': 'score_opponent_ball'
                 },
                 {
                     'time': 5,
@@ -347,20 +335,12 @@ class TestDecompressor:
                     'time': 8,
                     'action_type': 'end_incap'
                 },
-                {
-                    'time': 9,
-                    'action_type': 'start_climb'
-                },
-                {
-                    'time': 10,
-                    'action_type': 'end_climb'
-                }
             ],
             'climb_level': 'TRAVERSAL'
         }
         expected_sbj = [
                 {
-                    'schema_version': 3,
+                    'schema_version': 5,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
@@ -370,11 +350,11 @@ class TestDecompressor:
                     'quickness_score': 1,
                     'field_awareness_score': 2,
                     'far_field_rating': 3,
-                    'scored_far': False,
+                    'played_defense': False,
                     'alliance_color_is_red': False
                 },
                 {
-                    'schema_version': 3,
+                    'schema_version': 5,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
@@ -384,11 +364,11 @@ class TestDecompressor:
                     'quickness_score': 2,
                     'field_awareness_score': 2,
                     'far_field_rating': 1,
-                    'scored_far': False,
+                    'played_defense': False,
                     'alliance_color_is_red': False
                 },
                 {
-                    'schema_version': 3,
+                    'schema_version': 5,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
@@ -398,7 +378,7 @@ class TestDecompressor:
                     'quickness_score': 3,
                     'field_awareness_score': 3,
                     'far_field_rating': 2,
-                    'scored_far': True,
+                    'played_defense': True,
                     'alliance_color_is_red': False
                 },
             ]
@@ -406,13 +386,13 @@ class TestDecompressor:
 
         self.test_server.db.insert_documents('raw_qr', [
             {
-                'data': '+A3$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V%Z3603$Y13$XONE$W000AB001AD002AE003AF004AG005AC006AD007AH008AI009AJ010AK$VTRAVERSAL',
+                'data': '+A5$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V%Z3603$Y13$XONE$W000AB001AC002AD005AB006AC007AE008AF$VTRAVERSAL',
                 'blocklisted': False,
                 'epoch_time': curr_time.timestamp(),
                 'readable_time': curr_time.strftime('%D - %H:%M:%S')
             },
             {
-                'data': '*A3$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE$FFALSE#A254$B2$C2$D1$EFALSE$FFALSE#A1323$B3$C3$D2$ETRUE$FFALSE',
+                'data': '*A5$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE$FFALSE#A254$B2$C2$D1$EFALSE$FFALSE#A1323$B3$C3$D2$ETRUE$FFALSE',
                 'blocklisted': False,
                 'epoch_time': curr_time.timestamp(),
                 'readable_time': curr_time.strftime('%D - %H:%M:%S')

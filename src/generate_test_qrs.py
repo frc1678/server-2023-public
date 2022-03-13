@@ -29,26 +29,11 @@ def generate_timeline():
         return final_timeline
     end_time = random.randint(0, 5)
     times = [int(end_time + ((x - 1) * (150 / action_amount))) for x in range(1, action_amount + 1)]
-    # 50% chance for any team to climb in each match
-    if random.randint(0, 1) == 1 and len(times) > 1:
-        final_timeline.append({'action_type': 'end_climb', 'time': times.pop(0)})
-        final_timeline.append({'action_type': 'start_climb', 'time': times.pop(0)})
-        # If there are no actions left, just return the timeline
-        if len(times) == 0:
-            return final_timeline
     # 10% chance for a team to go incap if it has enough actions left
     if random.randint(0, 9) == 9 and len(times) > 1:
         incap_time = random.randint(0, len(times) - 2)
         final_timeline.append({'action_type': 'end_incap', 'time': times.pop(incap_time)})
         final_timeline.append({'action_type': 'start_incap', 'time': times.pop(incap_time)})
-        # If there are no actions left, just return the timeline
-        if len(times) == 0:
-            return final_timeline
-    # 5% chance for a team to error
-    if random.randint(0, 19) == 19:
-        error_time = random.randint(0, len(times) - 1)
-        error_choice = random.choice(['score_opponent_ball', 'catch_exit_ball'])
-        final_timeline.append({'action_type': error_choice, 'time': times.pop(error_time)})
         # If there are no actions left, just return the timeline
         if len(times) == 0:
             return final_timeline

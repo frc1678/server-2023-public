@@ -53,16 +53,6 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             ]
         return tim_action_categories
 
-    def get_climb_times(self, tims: List[Dict]):
-        """Gets a list of successful climb times (in seconds) for each climb level."""
-        climb_times = {}
-        # If the climb level isn't 'NONE', the climb was successful
-        for climb_level in ["LOW", "MID", "HIGH", "TRAVERSAL"]:
-            climb_times[climb_level] = [
-                tim["climb_time"] for tim in tims if tim["climb_level"] == climb_level
-            ]
-        return climb_times
-
     def calculate_averages(self, tim_action_counts, lfm_tim_action_counts):
         """Creates a dictionary of calculated averages, called team_info,
         where the keys are the names of the calculations, and the values are the results
@@ -198,23 +188,6 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_info[calculation] = multimode(values_to_count)
         return team_info
 
-    def calculate_climb_times(self, successful_climb_times, lfm_successful_climb_times):
-        """Creates a dictionary of average climb times, called team_info,
-        where the keys are the names of the calculations, and the values are the results
-        """
-        team_info = {}
-        for calculation, schema in self.SCHEMA["climb_times"].items():
-            for climb_level in schema["tim_fields"].values():
-                if "lfm" in calculation:
-                    team_info[calculation] = self.avg(
-                        lfm_successful_climb_times[climb_level]
-                    )
-                else:
-                    team_info[calculation] = self.avg(
-                        successful_climb_times[climb_level]
-                    )
-        return team_info
-
     def calculate_success_rates(self, team_counts: Dict):
         """Creates a dictionary of action success rates, called team_info,
         where the keys are the names of the calculations, and the values are the results
@@ -262,8 +235,6 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             lfm_tim_action_counts = self.get_action_counts(lfm_tims)
             tim_action_categories = self.get_action_categories(obj_tims)
             lfm_tim_action_categories = self.get_action_categories(lfm_tims)
-            successful_climb_times = self.get_climb_times(obj_tims)
-            lfm_successful_climb_times = self.get_climb_times(lfm_tims)
 
             team_data = self.calculate_averages(tim_action_counts, lfm_tim_action_counts)
             team_data["team_number"] = team
@@ -272,7 +243,6 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_data.update(self.calculate_standard_deviations(tim_action_counts))
             team_data.update(self.calculate_extrema(tim_action_counts, lfm_tim_action_counts, tim_action_categories, lfm_tim_action_categories))
             team_data.update(self.calculate_modes(tim_action_categories, lfm_tim_action_categories))
-            team_data.update(self.calculate_climb_times(successful_climb_times, lfm_successful_climb_times))
             team_data.update(self.calculate_success_rates(team_data))
             team_data.update(self.calculate_average_points(team_data))
             obj_team_updates[team] = team_data
