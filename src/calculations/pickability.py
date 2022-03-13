@@ -75,19 +75,14 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                     team_data[collection] = query[0]
                 else:
                     continue
-
-            if (first_pickability := self.calculate_pickability(team, 'first_pickability', team_data)) is None:
-                utils.log_error(f'First pickability could not be calculated for team: {team}')
-                continue
-
-            if (second_pickability := self.calculate_pickability(team, 'second_pickability', team_data)) is None:
-                utils.log_error(f'Second pickability could not be calculated for team: {team}')
-                continue
-            # Append the new pickability to the updates list
             update = {'team_number': team}
-            update['first_pickability'] = first_pickability
-            update['second_pickability'] = second_pickability
-            updates.append(update)
+            for calc_name in self.pickability_schema.keys():
+                value = self.calculate_pickability(team, calc_name, team_data)
+                if value is None:
+                    utils.log_error(f'{calc_name} could not be calculated for team: {team}')
+                    continue
+                update[calc_name] = value
+                updates.append(update)
         return updates
 
     def run(self) -> None:

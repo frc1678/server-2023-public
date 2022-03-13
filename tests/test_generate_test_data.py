@@ -93,7 +93,13 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "start_position": "yyyyyyyyyyyyyyyyyyyyyy",
     },
     # Pickability
-    {"first_pickability": 84.4422, "second_pickability": 84.4422, "team_number": 49},
+    {
+        "first_pickability": 84.4422,
+        "second_pickability": 84.4422,
+        "test_first_pickability": 84.4422,
+        "test_second_pickability": 84.4422,
+        "team_number": 49,
+    },
     # Predicted AIM
     {
         "predicted_score": 84.4422,
@@ -125,6 +131,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "driver_field_awareness": 84.4422,
         "driver_quickness": 84.4422,
         "driver_ability": 84.4422,
+        "test_driver_ability": 84.4422,
         "unadjusted_field_awareness": 84.4422,
         "unadjusted_quickness": 84.4422,
         "team_number": 49,
