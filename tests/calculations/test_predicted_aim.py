@@ -22,7 +22,7 @@ class TestPredictedAimCalc:
             {'match_number': 3, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]},
             {'match_number': 3, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]},
         ]
-        self.expected_results = [
+        self.final_values_test_data = [
             {
                 'match_number': 1,
                 'alliance_color_is_red': True,
@@ -33,6 +33,10 @@ class TestPredictedAimCalc:
                 'predicted_score': 243.3107142857143,
                 'predicted_rp1': 1.0,
                 'predicted_rp2': 1.0,
+                'final_predicted_score': 0.0,
+                'final_predicted_rp1': 0.0,
+                'final_predicted_rp2': 0.0,
+                'has_final_scores': False,
             },
             {
                 'match_number': 1,
@@ -44,6 +48,10 @@ class TestPredictedAimCalc:
                 'predicted_score': 241.79642857142858,
                 'predicted_rp1': 1.0,
                 'predicted_rp2': 1.0,
+                'final_predicted_score': 241.79642857142858,
+                'final_predicted_rp1': 1.0,
+                'final_predicted_rp2': 1.0,
+                'has_final_scores': True,
             },
             {
                 'match_number': 3,
@@ -55,6 +63,10 @@ class TestPredictedAimCalc:
                 'predicted_score': 243.3107142857143,
                 'predicted_rp1': 1.0,
                 'predicted_rp2': 1.0,
+                'final_predicted_score': 0.0,
+                'final_predicted_rp1': 0.0,
+                'final_predicted_rp2': 0.0,
+                'has_final_scores': False,
             },
             {
                 'match_number': 3,
@@ -66,6 +78,138 @@ class TestPredictedAimCalc:
                 'predicted_score': 241.79642857142858,
                 'predicted_rp1': 1.0,
                 'predicted_rp2': 1.0,
+                'final_predicted_score': 0.0,
+                'final_predicted_rp1': 0.0,
+                'final_predicted_rp2': 0.0,
+                'has_final_scores': False,
+            },
+        ]
+        self.expected_updates = [
+            {
+                'match_number': 1,
+                'alliance_color_is_red': True,
+                'has_actual_data': True,
+                'actual_score': 320,
+                'actual_rp1': 0.0,
+                'actual_rp2': 1.0,
+                'won_match': True,
+                'predicted_score': 243.3107142857143,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+                'final_predicted_score': 243.3107142857143,
+                'final_predicted_rp1': 1.0,
+                'final_predicted_rp2': 1.0,
+                'has_final_scores': True,
+            },
+            {
+                'match_number': 1,
+                'alliance_color_is_red': False,
+                'has_actual_data': True,
+                'actual_score': 278,
+                'actual_rp1': 1.0,
+                'actual_rp2': 1.0,
+                'won_match': False,
+                'predicted_score': 241.79642857142858,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+            },
+            {
+                'match_number': 3,
+                'alliance_color_is_red': True,
+                'has_actual_data': False,
+                'actual_score': 0,
+                'actual_rp1': 0.0,
+                'actual_rp2': 0.0,
+                'won_match': False,
+                'predicted_score': 243.3107142857143,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+                'final_predicted_score': 0.0,
+                'final_predicted_rp1': 0.0,
+                'final_predicted_rp2': 0.0,
+                'has_final_scores': False,
+            },
+            {
+                'match_number': 3,
+                'alliance_color_is_red': False,
+                'has_actual_data': False,
+                'actual_score': 0,
+                'actual_rp1': 0.0,
+                'actual_rp2': 0.0,
+                'won_match': False,
+                'predicted_score': 241.79642857142858,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+                'final_predicted_score': 0.0,
+                'final_predicted_rp1': 0.0,
+                'final_predicted_rp2': 0.0,
+                'has_final_scores': False,
+            },
+        ]
+        self.expected_results = [
+            {
+                'match_number': 1,
+                'alliance_color_is_red': True,
+                'has_actual_data': True,
+                'actual_score': 320,
+                'actual_rp1': 0.0,
+                'actual_rp2': 1.0,
+                'won_match': True,
+                'predicted_score': 243.3107142857143,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+                'final_predicted_score': 243.3107142857143,
+                'final_predicted_rp1': 1.0,
+                'final_predicted_rp2': 1.0,
+                'has_final_scores': True,
+            },
+            {
+                'match_number': 1,
+                'alliance_color_is_red': False,
+                'has_actual_data': True,
+                'actual_score': 278,
+                'actual_rp1': 1.0,
+                'actual_rp2': 1.0,
+                'won_match': False,
+                'predicted_score': 241.79642857142858,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+                'final_predicted_score': 241.79642857142858,
+                'final_predicted_rp1': 1.0,
+                'final_predicted_rp2': 1.0,
+                'has_final_scores': True,
+            },
+            {
+                'match_number': 3,
+                'alliance_color_is_red': True,
+                'has_actual_data': False,
+                'actual_score': 0,
+                'actual_rp1': 0.0,
+                'actual_rp2': 0.0,
+                'won_match': False,
+                'predicted_score': 243.3107142857143,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+                'final_predicted_score': 0.0,
+                'final_predicted_rp1': 0.0,
+                'final_predicted_rp2': 0.0,
+                'has_final_scores': False,
+            },
+            {
+                'match_number': 3,
+                'alliance_color_is_red': False,
+                'has_actual_data': False,
+                'actual_score': 0,
+                'actual_rp1': 0.0,
+                'actual_rp2': 0.0,
+                'won_match': False,
+                'predicted_score': 241.79642857142858,
+                'predicted_rp1': 1.0,
+                'predicted_rp2': 1.0,
+                'final_predicted_score': 0.0,
+                'final_predicted_rp1': 0.0,
+                'final_predicted_rp2': 0.0,
+                'has_final_scores': False,
             },
         ]
         self.full_predicted_values = predicted_aim.PredictedAimScores(
@@ -237,44 +381,66 @@ class TestPredictedAimCalc:
         assert self.test_calc.calculate_predicted_climb_rp(self.full_predicted_values) == 1
 
     def test_calculate_ball_rp(self):
-        print(self.blank_predicted_values)
         assert self.test_calc.calculate_predicted_ball_rp(self.obj_team, self.blank_predicted_values) == 0
         assert self.test_calc.calculate_predicted_ball_rp(self.obj_team, self.full_predicted_values) == 1
 
+    def test_get_final_values(self):
+        with patch('data_transfer.database.Database.find', return_value=[self.final_values_test_data[0]]):
+            assert self.test_calc.get_final_values(self.filtered_aims_list[0], self.tba_match_data
+            ) == {
+                'final_predicted_score': 243.3107142857143,
+                'final_predicted_rp1': 1.0,
+                'final_predicted_rp2': 1.0,
+                'has_final_scores': True,
+            }
+        with patch('data_transfer.database.Database.find', return_value=[self.final_values_test_data[1]]):
+            assert self.test_calc.get_final_values(self.filtered_aims_list[1], self.tba_match_data) == {}
+        with patch('data_transfer.database.Database.find', return_value=[self.final_values_test_data[2]]):
+            assert self.test_calc.get_final_values(self.filtered_aims_list[2], self.tba_match_data
+            ) == {
+                'final_predicted_score': 0.0,
+                'final_predicted_rp1': 0.0,
+                'final_predicted_rp2': 0.0,
+                'has_final_scores': False,
+            }
+
     def test_get_actual_values(self):
-        with patch('data_transfer.tba_communicator.tba_request', return_value=self.tba_match_data):
-            assert self.test_calc.get_actual_values(
-                {'match_number': 1, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]}
-            ) == {
-                'has_actual_data': True,
-                'actual_score': 320,
-                'actual_rp1': 0.0,
-                'actual_rp2': 1.0,
-            }
-            assert self.test_calc.get_actual_values(
-                {'match_number': 1, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]}
-            ) == {
-                'has_actual_data': True,
-                'actual_score': 278,
-                'actual_rp1': 1.0,
-                'actual_rp2': 1.0,
-            }
-            assert self.test_calc.get_actual_values(
-                {'match_number': 3, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]}
-            ) == {
-                'has_actual_data': False,
-                'actual_score': 0,
-                'actual_rp1': 0.0,
-                'actual_rp2': 0.0,
-            }
-            assert self.test_calc.get_actual_values(
-                {'match_number': 3, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]}
-            ) == {
-                'has_actual_data': False,
-                'actual_score': 0,
-                'actual_rp1': 0.0,
-                'actual_rp2': 0.0,
-            }
+        assert self.test_calc.get_actual_values(
+            {'match_number': 1, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]}, self.tba_match_data
+        ) == {
+            'has_actual_data': True,
+            'actual_score': 320,
+            'actual_rp1': 0.0,
+            'actual_rp2': 1.0,
+            'won_match': True
+        }
+        assert self.test_calc.get_actual_values(
+            {'match_number': 1, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]}, self.tba_match_data
+        ) == {
+            'has_actual_data': True,
+            'actual_score': 278,
+            'actual_rp1': 1.0,
+            'actual_rp2': 1.0,
+            'won_match': False
+        }
+        assert self.test_calc.get_actual_values(
+            {'match_number': 3, 'alliance_color': 'R', 'team_list': [1678, 1533, 7229]}, self.tba_match_data
+        ) == {
+            'has_actual_data': False,
+            'actual_score': 0,
+            'actual_rp1': 0.0,
+            'actual_rp2': 0.0,
+            'won_match': False
+        }
+        assert self.test_calc.get_actual_values(
+            {'match_number': 3, 'alliance_color': 'B', 'team_list': [1678, 1533, 2468]}, self.tba_match_data
+        ) == {
+            'has_actual_data': False,
+            'actual_score': 0,
+            'actual_rp1': 0.0,
+            'actual_rp2': 0.0,
+            'won_match': False
+        }
 
     def test_filter_aims_list(self):
         assert (
@@ -283,14 +449,18 @@ class TestPredictedAimCalc:
         )
 
     def test_update_predicted_aim(self):
+        self.test_server.db.delete_data('predicted_aim')
+        self.test_server.db.insert_documents('predicted_aim', self.final_values_test_data)
         with patch('data_transfer.tba_communicator.tba_request', return_value=self.tba_match_data):
-            assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_results
+            assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_updates
 
     def test_run(self):
         self.test_server.db.delete_data('obj_team')
         self.test_server.db.delete_data('tba_team')
+        self.test_server.db.delete_data('predicted_aim')
         self.test_server.db.insert_documents('obj_team', self.obj_team)
         self.test_server.db.insert_documents('tba_team', self.tba_team)
+        self.test_server.db.insert_documents('predicted_aim', self.final_values_test_data)
         with patch(
             'calculations.predicted_aim.PredictedAimCalc._get_aim_list', return_value=self.aims_list
         ), patch('data_transfer.tba_communicator.tba_request', return_value=self.tba_match_data):

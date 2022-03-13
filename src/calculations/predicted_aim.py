@@ -154,7 +154,37 @@ class PredictedAimCalc(BaseCalculations):
             return 1.0
         return 0.0
 
-    def get_actual_values(self, aim):
+    def get_final_values(self, aim, tba_match_data):
+        """Finds whether or not the predicted match was played to store the final values."""
+        final_predictions = {
+            "final_predicted_score": 0.0,
+            "final_predicted_rp1": 0.0,
+            "final_predicted_rp2": 0.0,
+            "has_final_scores": False
+        }
+        alliance_color_is_red = aim["alliance_color"] == 'R'
+        current_predicted_aim = self.server.db.find("predicted_aim", match_number=aim["match_number"], alliance_color_is_red=alliance_color_is_red)[0]
+        # Only store final scores if they haven't already been stored.
+        if not current_predicted_aim["has_final_scores"]:
+            # Checks the value of winning_alliance to determine if the match has been played.
+            # If there is no data for the match, winning_alliance is an empty string.
+            for match in tba_match_data:
+                if (
+                    match["match_number"] == aim["match_number"]
+                    and match["winning_alliance"] != ""
+                ):
+                    final_predictions = {}
+                    final_predictions["final_predicted_score"] = current_predicted_aim["predicted_score"]
+                    final_predictions["final_predicted_rp1"] = current_predicted_aim["predicted_rp1"]
+                    final_predictions["final_predicted_rp2"] = current_predicted_aim["predicted_rp2"]
+                    final_predictions["has_final_scores"] = True
+                    break
+            return final_predictions
+        # If the aim already has final predictions, return a blank dictionary so nothing is changed
+        return {}
+        
+        
+    def get_actual_values(self, aim, tba_match_data):
         """Pulls actual AIM data from TBA if it exists.
 
         Otherwise, returns dictionary with all values of 0 and has_actual_data of False.
@@ -163,15 +193,12 @@ class PredictedAimCalc(BaseCalculations):
             "actual_score": 0,
             "actual_rp1": 0.0,
             "actual_rp2": 0.0,
+            "won_match": False,
             "has_actual_data": False,
         }
-
-        match_data = tba_communicator.tba_request(
-            f"event/{self.server.TBA_EVENT_KEY}/matches"
-        )
         match_number = aim["match_number"]
 
-        for match in match_data:
+        for match in tba_match_data:
             # Checks the value of winning_alliance to determine if the match has data.
             # If there is no data for the match, winning_alliance is an empty string.
             if (
@@ -191,8 +218,11 @@ class PredictedAimCalc(BaseCalculations):
                     actual_match_dict["actual_rp1"] = 1.0
                 if actual_aim[alliance_color]["hangarBonusRankingPoint"]:
                     actual_match_dict["actual_rp2"] = 1.0
+                # Gets whether the alliance won the match by checking the winning alliance against the alliance color/
+                actual_match_dict["won_match"] = match["winning_alliance"] == alliance_color
                 # Sets actual_match_data to true once the actual data has been pulled
                 actual_match_dict["has_actual_data"] = True
+                break
 
         return actual_match_dict
 
@@ -227,6 +257,7 @@ class PredictedAimCalc(BaseCalculations):
         updates = []
         obj_team = self.server.db.find("obj_team")
         tba_team = self.server.db.find("tba_team")
+        tba_match_data = tba_communicator.tba_request(f"event/{self.server.TBA_EVENT_KEY}/matches")
 
         filtered_aims_list = self.filter_aims_list(obj_team, tba_team, aims_list)
 
@@ -236,26 +267,20 @@ class PredictedAimCalc(BaseCalculations):
                 "match_number": aim["match_number"],
                 "alliance_color_is_red": aim["alliance_color"] == "R",
             }
+            update.update(self.get_final_values(aim, tba_match_data))
             update["predicted_score"] = self.calculate_predicted_alliance_score(
                 predicted_values, obj_team, tba_team, aim["team_list"]
             )
             update["predicted_rp1"] = self.calculate_predicted_ball_rp(obj_team, predicted_values)
             update["predicted_rp2"] = self.calculate_predicted_climb_rp(predicted_values)
-            update.update(self.get_actual_values(aim))
+            update.update(self.get_actual_values(aim, tba_match_data))
             updates.append(update)
         return updates
 
     def run(self):
-        # Get oplog entries
-        entries = self.entries_since_last()
-        teams = set()
         match_schedule = self._get_aim_list()
         # Check if changes need to be made to teams
-        if entries != []:
-            for entry in entries:
-                # Prevents error from not having a team num
-                if "team_number" in entry["o"].keys():
-                    teams.add(entry["o"]["team_number"])
+        teams = self.find_team_list()
         aims = []
         for alliance in match_schedule:
             for team in alliance["team_list"]:

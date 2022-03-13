@@ -105,6 +105,11 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "actual_score": 49,
         "actual_rp1": 84.4422,
         "actual_rp2": 84.4422,
+        "won_match": True,
+        "final_predicted_score": 84.4422,
+        "final_predicted_rp1": 84.4422,
+        "final_predicted_rp2": 84.4422,
+        "has_final_scores": True,
     },
     # Predicted Team
     {
@@ -118,7 +123,6 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     # Subj Team
     {
         "driver_field_awareness": 84.4422,
-        "driver_far_field_rating": 84.4422,
         "driver_quickness": 84.4422,
         "driver_ability": 84.4422,
         "unadjusted_field_awareness": 84.4422,
