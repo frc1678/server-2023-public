@@ -82,7 +82,7 @@ class Server:
         while True:
             self.run_calculations()
             if write_cloud:
-                self.cloud_db_updater.write_db_changes(self.calc_all_data)
+                self.cloud_db_updater.write_db_changes()
             self.calc_all_data = self.ask_calc_all_data()
 
 
