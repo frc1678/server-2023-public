@@ -131,11 +131,12 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             self.server.db.update_document(
                 'subj_team', new_calc, {'team_number': new_calc['team_number']}
             )
-        # Now use the new info to recalculate adjusted ability scores
-        adjusted_calcs = self.adjusted_ability_calcs()
-        for team in self.teams_that_have_competed:
-            self.server.db.update_document('subj_team', adjusted_calcs[team], {'team_number': team})
-        # Use the adjusted ability scores to calculate driver ability
-        driver_ability_calcs = self.calculate_driver_ability()
-        for team in self.teams_that_have_competed:
-            self.server.db.update_document('subj_team', driver_ability_calcs[team], {'team_number': team})
+        if len(self.teams_that_have_competed) != 0:
+            # Now use the new info to recalculate adjusted ability scores
+            adjusted_calcs = self.adjusted_ability_calcs()
+            for team in self.teams_that_have_competed:
+                self.server.db.update_document('subj_team', adjusted_calcs[team], {'team_number': team})
+            # Use the adjusted ability scores to calculate driver ability
+            driver_ability_calcs = self.calculate_driver_ability()
+            for team in self.teams_that_have_competed:
+                self.server.db.update_document('subj_team', driver_ability_calcs[team], {'team_number': team})
