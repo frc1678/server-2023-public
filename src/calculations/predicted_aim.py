@@ -12,10 +12,10 @@ from data_transfer import tba_communicator
 
 @dataclasses.dataclass
 class PredictedAimScores:
-    auto_balls_low: float = 0.0
-    auto_balls_high: float = 0.0
-    tele_balls_low: float = 0.0
-    tele_balls_high: float = 0.0
+    auto_low_balls: float = 0.0
+    auto_high_balls: float = 0.0
+    tele_low_balls: float = 0.0
+    tele_high_balls: float = 0.0
     auto_line_success_rate: float = 0.0
     low_rung_success_rate: float = 0.0
     mid_rung_success_rate: float = 0.0
@@ -26,10 +26,10 @@ class PredictedAimScores:
 class PredictedAimCalc(BaseCalculations):
     ENDGAME_CLIMB_THRESHOLD = 16
     POINTS = {
-        "auto_balls_low": 2,
-        "auto_balls_high": 4,
-        "tele_balls_low": 1,
-        "tele_balls_high": 2,
+        "auto_low_balls": 2,
+        "auto_high_balls": 4,
+        "tele_low_balls": 1,
+        "tele_high_balls": 2,
         "auto_line_success_rate": 2,
         "low_rung_success_rate": 4,
         "mid_rung_success_rate": 6,
@@ -43,7 +43,7 @@ class PredictedAimCalc(BaseCalculations):
 
     def calculate_predicted_quintet_success(self, obj_team):
         auto_balls_scored = 0
-        auto_balls_scored += sum([team["auto_avg_balls_total"] for team in obj_team])
+        auto_balls_scored += sum([team["auto_avg_total_balls"] for team in obj_team])
 
         if auto_balls_scored <= 4:
             cargo_rp_threshold = 20
@@ -76,12 +76,12 @@ class PredictedAimCalc(BaseCalculations):
         tba_team is a list of dictionaries of tba team data.
         The value of [stage]_balls_percent_inner is a decimal between 1 and 0."""
         # Find the predicted balls scored in auto
-        predicted_values.auto_balls_low += obj_team["auto_avg_lows"]
-        predicted_values.auto_balls_high += obj_team["auto_avg_balls_high"]
+        predicted_values.auto_low_balls += obj_team["auto_avg_low_balls"]
+        predicted_values.auto_high_balls += obj_team["auto_avg_high_balls"]
 
         # Find the predicted balls scored in tele
-        predicted_values.tele_balls_low += obj_team["tele_avg_lows"]
-        predicted_values.tele_balls_high += obj_team["tele_avg_balls_high"]
+        predicted_values.tele_low_balls += obj_team["tele_avg_low_balls"]
+        predicted_values.tele_high_balls += obj_team["tele_avg_high_balls"]
 
     def calculate_predicted_alliance_score(
         self, predicted_values, obj_team_data, tba_team_data, team_numbers
@@ -147,8 +147,8 @@ class PredictedAimCalc(BaseCalculations):
 
     def calculate_predicted_ball_rp(self, obj_team, predicted_values):
         cargo_rp_threshold = self.calculate_predicted_quintet_success(obj_team)
-        balls_scored = (predicted_values.auto_balls_low + predicted_values.auto_balls_high + 
-                        predicted_values.tele_balls_low + predicted_values.tele_balls_high)
+        balls_scored = (predicted_values.auto_low_balls + predicted_values.auto_high_balls +
+                        predicted_values.tele_low_balls + predicted_values.tele_high_balls)
 
         if balls_scored >= cargo_rp_threshold:
             return 1.0
@@ -163,9 +163,12 @@ class PredictedAimCalc(BaseCalculations):
             "has_final_scores": False
         }
         alliance_color_is_red = aim["alliance_color"] == 'R'
-        current_predicted_aim = self.server.db.find("predicted_aim", match_number=aim["match_number"], alliance_color_is_red=alliance_color_is_red)[0]
-        # Only store final scores if they haven't already been stored.
-        if not current_predicted_aim["has_final_scores"]:
+        aim_data = self.server.db.find("predicted_aim", match_number=aim["match_number"], alliance_color_is_red=alliance_color_is_red)
+        if aim_data != []:
+            current_predicted_aim = aim_data[0]
+            # If the aim already has final predictions, return a blank dictionary so nothing is changed
+            if current_predicted_aim["has_final_scores"]:
+                return {}
             # Checks the value of winning_alliance to determine if the match has been played.
             # If there is no data for the match, winning_alliance is an empty string.
             for match in tba_match_data:
@@ -179,10 +182,8 @@ class PredictedAimCalc(BaseCalculations):
                     final_predictions["final_predicted_rp2"] = current_predicted_aim["predicted_rp2"]
                     final_predictions["has_final_scores"] = True
                     break
-            return final_predictions
-        # If the aim already has final predictions, return a blank dictionary so nothing is changed
-        return {}
-        
+        return final_predictions
+                
         
     def get_actual_values(self, aim, tba_match_data):
         """Pulls actual AIM data from TBA if it exists.
