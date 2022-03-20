@@ -64,7 +64,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
         teams_api_endpoint = f'event/{Server.TBA_EVENT_KEY}/teams/simple'
         team_request_output = self.server.db.get_tba_cache(teams_api_endpoint)
         if team_request_output is None:
-            team_request_output = tba_communicator.tba_request(teams_api_endpoint)
+            team_request_output = {'data': tba_communicator.tba_request(teams_api_endpoint)}
         team_request_output = team_request_output.get('data', [])
         team_names = {team['team_number']: team['nickname'] for team in team_request_output}
 
