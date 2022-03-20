@@ -213,7 +213,7 @@ def get_tablet_file_path_hash(device_id, tablet_file_path):
     tablet_hash = utils.run_command(
         f'adb -s {device_id} shell sha256sum -b {tablet_file_path}', return_output=True
     )
-    return tablet_hash
+    return tablet_hash.strip('\n')
 
 
 # Store regex patterns to match files containing either pit or match data
