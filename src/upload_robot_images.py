@@ -277,19 +277,21 @@ def run(creds):
         prompt = input(
             "\nPress 1 for uploading image. \nPress 2 for listing images. \nPress 3 for exporting the images to a csv. \n(1, 2, or 3): "
         ).strip()
+        images = imgur.list_all_images(filtered=True)
         if prompt == "1":
-
             # Uploads each image in the devices directory
             for img_path in get_image_paths():
                 # Prefix image name with event key
                 title = TBA_EVENT_KEY + "_" + (os.path.basename(img_path).split(".")[0])
+                # Check if the image is already on imgur and skip if it is
+                if title in images:
+                    continue
                 # Upload image to imgur
                 resp = imgur.upload_img_filename(img_path, title)
                 log = f"Response success: {resp['success']}    Title: {title}    Link: {resp['data']['link']}"
                 print(log)
                 log_info(log)
         if prompt == "2":
-            images = imgur.list_all_images(filtered=True)
             # print(images)
 
             images = list(map(lambda x: f"{x['title']}: {x['link']}", images))
@@ -297,7 +299,6 @@ def run(creds):
                 print(image)
 
         if prompt == "3":
-            images = imgur.list_all_images(filtered=True)
             teams: dict[str, List[str]] = {}
 
             for image in images:
