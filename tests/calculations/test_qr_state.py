@@ -14,6 +14,7 @@ class TestQRState:
             'timestamp',
             'match_collection_version_number',
             'scout_name',
+            'alliance_color_is_red'
         }
         # Test that it returns the correct data type
         assert isinstance(self.test_qrstate._get_data_fields('generic_data'), set)

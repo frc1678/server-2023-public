@@ -85,8 +85,8 @@ class TestDecompressor:
 
     def test_decompress_data(self):
         # Test generic data
-        assert {'schema_version': 6, 'scout_name': 'Name'} == self.test_decompressor.decompress_data(
-            ['A6', 'FName'], 'generic_data'
+        assert {'schema_version': 7, 'scout_name': 'Name'} == self.test_decompressor.decompress_data(
+            ['A7', 'FName'], 'generic_data'
         )
         # Test objective tim
         assert {'team_number': 1678} == self.test_decompressor.decompress_data(['Z1678'], 'objective_tim')
@@ -106,7 +106,7 @@ class TestDecompressor:
         assert 'does not match Server version' in str(version_error)
         # What decompress_generic_qr() should return
         expected_decompressed_data = {
-            'schema_version': 6,
+            'schema_version': 7,
             'serial_number': 's1234',
             'match_number': 34,
             'timestamp': 1230,
@@ -114,7 +114,7 @@ class TestDecompressor:
             'scout_name': 'Name',
         }
         assert expected_decompressed_data == self.test_decompressor.decompress_generic_qr(
-            'A6$Bs1234$C34$D1230$Ev1.3$FName'
+            'A7$Bs1234$C34$D1230$Ev1.3$FName'
         )
 
 
@@ -135,12 +135,13 @@ class TestDecompressor:
         # Expected decompressed objective qr
         expected_objective = [
             {
-                'schema_version': 6,
+                'schema_version': 7,
                 'serial_number': 's1234',
                 'match_number': 34,
                 'timestamp': 1230,
                 'match_collection_version_number': 'v1.3',
                 'scout_name': 'Name',
+                'alliance_color_is_red': False,
                 'team_number': 1678,
                 'scout_id': 14,
                 'start_position': 'THREE',
@@ -154,68 +155,68 @@ class TestDecompressor:
         # Expected decompressed subjective qr
         expected_subjective = [
             {
-                'schema_version': 6,
+                'schema_version': 7,
                 'serial_number': 's1234',
                 'match_number': 34,
                 'timestamp': 1230,
                 'match_collection_version_number': 'v1.3',
                 'scout_name': 'Name',
+                'alliance_color_is_red': True,
                 'team_number': 1678,
                 'quickness_score': 1,
                 'field_awareness_score': 2,
                 'played_defense': True,
-                'alliance_color_is_red': True
             },
             {
-                'schema_version': 6,
+                'schema_version': 7,
                 'serial_number': 's1234',
                 'match_number': 34,
                 'timestamp': 1230,
                 'match_collection_version_number': 'v1.3',
                 'scout_name': 'Name',
+                'alliance_color_is_red': True,
                 'team_number': 254,
                 'quickness_score': 2,
                 'field_awareness_score': 1,
                 'played_defense': False,
-                'alliance_color_is_red': True
             },
             {
-                'schema_version': 6,
+                'schema_version': 7,
                 'serial_number': 's1234',
                 'match_number': 34,
                 'timestamp': 1230,
                 'match_collection_version_number': 'v1.3',
                 'scout_name': 'Name',
+                'alliance_color_is_red': True,
                 'team_number': 1323,
                 'quickness_score': 3,
                 'field_awareness_score': 1,
                 'played_defense': True,
-                'alliance_color_is_red': True
             },
         ]
         # Test objective qr decompression
         assert expected_objective == self.test_decompressor.decompress_single_qr(
-            'A6$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XTHREE$W060AE061AF$VNONE', decompressor.QRType.OBJECTIVE
+            'A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$XTHREE$W060AE061AF$VNONE', decompressor.QRType.OBJECTIVE
         )
         # Test subjective qr decompression
         assert expected_subjective == self.test_decompressor.decompress_single_qr(
-            'A6$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$DTRUE$ETRUE#A254$B2$C1$DFALSE$ETRUE#A1323$B3$C1$DTRUE$ETRUE',
+            'A7$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$B1$C2$DTRUE#A254$B2$C1$DFALSE#A1323$B3$C1$DTRUE',
             decompressor.QRType.SUBJECTIVE,
         )
         # Test error raising for objective and subjective using incomplete qrs
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                'A6$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14', decompressor.QRType.OBJECTIVE
+                'A7$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14', decompressor.QRType.OBJECTIVE
             )
         assert 'QR missing data fields' in str(excinfo)
         with pytest.raises(IndexError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                'A6$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$D3$EFALSE', decompressor.QRType.SUBJECTIVE
+                'A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$D3$EFALSE', decompressor.QRType.SUBJECTIVE
             )
         assert 'Incorrect number of teams in Subjective QR' in str(excinfo)
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                'A6$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2#A254#A1323', decompressor.QRType.SUBJECTIVE
+                'A7$Bs1234$C34$D1230$Ev1.3$FNameGTRUE%A1678$B1$C2#A254#A1323', decompressor.QRType.SUBJECTIVE
             )
         assert 'QR missing data fields' in str(excinfo)
 
@@ -224,12 +225,13 @@ class TestDecompressor:
         expected_output = {
             'unconsolidated_obj_tim': [
                 {
-                    'schema_version': 6,
+                    'schema_version': 7,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
                     'match_collection_version_number': 'v1.3',
                     'scout_name': 'Name',
+                    'alliance_color_is_red': True,
                     'team_number': 1678,
                     'scout_id': 14,
                     'start_position': 'FOUR',
@@ -242,61 +244,62 @@ class TestDecompressor:
             ],
             'subj_tim': [
                 {
-                    'schema_version': 6,
+                    'schema_version': 7,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
                     'match_collection_version_number': 'v1.3',
                     'scout_name': 'Name',
+                    'alliance_color_is_red': False,
                     'team_number': 1678,
                     'quickness_score': 1,
                     'field_awareness_score': 2,
                     'played_defense': False,
-                    'alliance_color_is_red': False
                 },
                 {
-                    'schema_version': 6,
+                    'schema_version': 7,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
                     'match_collection_version_number': 'v1.3',
                     'scout_name': 'Name',
+                    'alliance_color_is_red': False,
                     'team_number': 254,
                     'quickness_score': 2,
                     'field_awareness_score': 2,
                     'played_defense': False,
-                    'alliance_color_is_red': False
                 },
                 {
-                    'schema_version': 6,
+                    'schema_version': 7,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
                     'match_collection_version_number': 'v1.3',
                     'scout_name': 'Name',
+                    'alliance_color_is_red': False,
                     'team_number': 1323,
                     'quickness_score': 3,
                     'field_awareness_score': 3,
                     'played_defense': True,
-                    'alliance_color_is_red': False
                 },
             ],
         }
         assert expected_output == self.test_decompressor.decompress_qrs(
             [
-                {'data': '+A6$Bs1234$C34$D1230$Ev1.3$FName%Z1678$Y14$XFOUR$W060AE061AF$VHIGH'},
-                {'data': '*A6$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$DFALSE$EFALSE#A254$B2$C2$DFALSE$EFALSE#A1323$B3$C3$DTRUE$EFALSE'},
+                {'data': '+A7$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$XFOUR$W060AE061AF$VHIGH'},
+                {'data': '*A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE#A254$B2$C2$DFALSE#A1323$B3$C3$DTRUE'},
             ]
         )
 
     def test_run(self):
         expected_obj = {
-            'schema_version': 6,
+            'schema_version': 7,
             'serial_number': 'gCbtwqZ',
             'match_number': 51,
             'timestamp': 9321,
             'match_collection_version_number': 'v1.3',
             'scout_name': 'XvfaPcSrgJw25VKrcsphdbyEVjmHrH1V',
+            'alliance_color_is_red': False,
             'team_number': 3603,
             'scout_id': 13,
             'start_position': 'ONE',
@@ -334,56 +337,56 @@ class TestDecompressor:
         }
         expected_sbj = [
                 {
-                    'schema_version': 6,
+                    'schema_version': 7,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
                     'match_collection_version_number': 'v1.3',
                     'scout_name': 'Name',
+                    'alliance_color_is_red': False,
                     'team_number': 1678,
                     'quickness_score': 1,
                     'field_awareness_score': 2,
                     'played_defense': False,
-                    'alliance_color_is_red': False
                 },
                 {
-                    'schema_version': 6,
+                    'schema_version': 7,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
                     'match_collection_version_number': 'v1.3',
                     'scout_name': 'Name',
+                    'alliance_color_is_red': False,
                     'team_number': 254,
                     'quickness_score': 2,
                     'field_awareness_score': 2,
                     'played_defense': False,
-                    'alliance_color_is_red': False
                 },
                 {
-                    'schema_version': 6,
+                    'schema_version': 7,
                     'serial_number': 's1234',
                     'match_number': 34,
                     'timestamp': 1230,
                     'match_collection_version_number': 'v1.3',
                     'scout_name': 'Name',
+                    'alliance_color_is_red': False,
                     'team_number': 1323,
                     'quickness_score': 3,
                     'field_awareness_score': 3,
                     'played_defense': True,
-                    'alliance_color_is_red': False
                 },
             ]
         curr_time = datetime.datetime.utcnow()
 
         self.test_server.db.insert_documents('raw_qr', [
             {
-                'data': '+A6$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V%Z3603$Y13$XONE$W000AB001AC002AD005AB006AC007AE008AF$VTRAVERSAL',
+                'data': '+A7$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AB001AC002AD005AB006AC007AE008AF$VTRAVERSAL',
                 'blocklisted': False,
                 'epoch_time': curr_time.timestamp(),
                 'readable_time': curr_time.strftime('%D - %H:%M:%S')
             },
             {
-                'data': '*A6$Bs1234$C34$D1230$Ev1.3$FName%A1678$B1$C2$DFALSE$EFALSE#A254$B2$C2$DFALSE$EFALSE#A1323$B3$C3$DTRUE$EFALSE',
+                'data': '*A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE#A254$B2$C2$DFALSE#A1323$B3$C3$DTRUE',
                 'blocklisted': False,
                 'epoch_time': curr_time.timestamp(),
                 'readable_time': curr_time.strftime('%D - %H:%M:%S')
