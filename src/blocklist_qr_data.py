@@ -49,12 +49,10 @@ PATTERN_ELEMENTS = [
 
 # If the user requests to blocklist a specific QR code
 if ROLLBACK_OR_BLOCKLIST == '1':
-    # Takes user input for tablet serial number
-    TABLET_SERIAL_NUMBER = input('Enter the tablet serial number of the QR code to delete: ')
-    # Modifies the regex pattern elements to include the tablet serial number
-    PATTERN_ELEMENTS.insert(
-        1, (SCHEMA['generic_data']['serial_number'][0] + TABLET_SERIAL_NUMBER + '.*')
-    )
+    # Takes user input for scout name
+    SCOUT_NAME = input('Enter the scout name of the QR code to delete: ')
+    # Modifies the regex pattern elements to include the scout name
+    PATTERN_ELEMENTS.insert(1, (SCHEMA['generic_data']['scout_name'][0] + SCOUT_NAME + '.*'))
 
 # Stores all regex pattern objects
 PATTERNS = []
