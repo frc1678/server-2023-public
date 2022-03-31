@@ -18,6 +18,7 @@ class TestObjTIMCalcs:
             'timestamp': 5,
             'match_collection_version_number': 'STR5',
             'scout_name': 'EDWIN',
+            'alliance_color_is_red': True,
             'team_number': 254,
             'scout_id': 17,
             'timeline': [
@@ -43,7 +44,8 @@ class TestObjTIMCalcs:
             'match_number': 42,
             'timestamp': 6,
             'match_collection_version_number': 'STR1',
-            'scout_name': 'EDWIN',
+            'scout_name': 'RAY',
+            'alliance_color_is_red': True,
             'team_number': 254,
             'scout_id': 17,
             'timeline': [
@@ -79,7 +81,8 @@ class TestObjTIMCalcs:
             'match_number': 42,
             'timestamp': 11,
             'match_collection_version_number': 'STR6',
-            'scout_name': 'EDWIN',
+            'scout_name': 'ADRIAN',
+            'alliance_color_is_red': False,
             'team_number': 254,
             'scout_id': 17,
             'timeline': [
@@ -88,7 +91,8 @@ class TestObjTIMCalcs:
                 {'time': 37, 'action_type': 'score_ball_high_hub'},
                 {'time': 47, 'action_type': 'score_ball_high_hub'},
                 {'time': 58, 'action_type': 'score_ball_high_hub'},
-                {'time': 69, 'action_type': 'score_ball_high_far_other'},
+                {'time': 69, 'action_type': 'score_ball_high_other'},
+                {'time': 79, 'action_type': 'start_climb'},
                 {'time': 96, 'action_type': 'score_ball_low'},
             ],
             'climb_level': 'HIGH',
@@ -190,8 +194,8 @@ class TestObjTIMCalcs:
         'entries_since_last',
         return_value=[{'o': {'team_number': 3, 'match_number': 2}}],
     )
-    @mock.patch.object(obj_tims.ObjTIMCalcs, 'update_obj_tim_calcs', return_value=[{}])
-    def test_in_list_check2(self, entries_since_last_dummy, update_obj_tim_calcs_dummy):
+    @mock.patch.object(obj_tims.ObjTIMCalcs, 'update_calcs', return_value=[{}])
+    def test_in_list_check2(self, entries_since_last_dummy, update_calcs_dummy):
         with mock.patch('utils.log_warning') as warning_check:
             self.test_calculator.run()
             warning_check.assert_not_called()

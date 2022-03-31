@@ -54,7 +54,7 @@ class ObjTIMCalcs(BaseCalculations):
         """Given a list of consolidated tims by calculate_tim_counts, return consolidated aggregates"""
         calculated_tim = self.calculate_tim_counts(unconsolidated_tims)
         final_aggregates = {}
-        # Get each aggregate and it's associated counts
+        # Get each aggregate and its associated counts
         for aggregate, filters in self.schema["aggregates"].items():
             total_count = 0
             aggregate_counts = filters["counts"]
@@ -67,7 +67,7 @@ class ObjTIMCalcs(BaseCalculations):
     def consolidate_categorical_actions(self, unconsolidated_tims: List[Dict]):
         """Given string type obj_tims, return actual string"""
         # Dictionary for final calculated tims
-        final_categorical_actions ={}
+        final_categorical_actions = {}
         # Dictionary for associated category actions
         categories = {"climb_level": ["NONE", "LOW", "MID", "HIGH", "TRAVERSAL"], 
                     "start_position": ["ONE", "TWO", "THREE", "FOUR"]
@@ -84,7 +84,6 @@ class ObjTIMCalcs(BaseCalculations):
             # Round the average and append the correct action to the final dict
             final_categorical_actions[category] = categories[category][round(category_avg)]
         return final_categorical_actions
-
 
     def filter_timeline_actions(self, tim: dict, **filters) -> list:
         """Removes timeline actions that don't meet the filters and returns all the actions that do"""
@@ -138,7 +137,6 @@ class ObjTIMCalcs(BaseCalculations):
                     raise TypeError(f'Expected {new_count} calculation to be a {expected_type}')
                 unconsolidated_counts.append(new_count)
             calculated_tim[calculation] = self.consolidate_nums(unconsolidated_counts)
-            
         return calculated_tim
 
     def calculate_tim_times(self, unconsolidated_tims: List[Dict]) -> dict:
@@ -163,6 +161,42 @@ class ObjTIMCalcs(BaseCalculations):
             calculated_tim[calculation] = self.consolidate_nums(unconsolidated_cycle_times)
         return calculated_tim
 
+    def calculate_unconsolidated_tims(self, unconsolidated_tims: List[Dict]):
+        """Given a list of unconsolidated TIMS, returns the unconsolidated calculated TIMs"""
+        if len(unconsolidated_tims) == 0:
+            utils.log_warning('calculate_tim: zero TIMs given')
+            return {}
+        
+        unconsolidated_totals = []
+        # Calculates unconsolidated tim counts
+        for tim in unconsolidated_tims:
+            tim_totals = {}
+            tim_totals['scout_name'] = tim['scout_name']
+            tim_totals['match_number'] = tim['match_number']
+            tim_totals['team_number'] = tim['team_number']
+            tim_totals['alliance_color_is_red'] = tim['alliance_color_is_red']
+            # Calculate unconsolidated tim counts
+            for aggregate, filters in self.schema['aggregates'].items():
+                total_count = 0
+                aggregate_counts = filters['counts']
+                for calculation, filters in self.schema['timeline_counts'].items():
+                    filters_ = copy.deepcopy(filters)
+                    expected_type = filters_.pop('type')
+                    new_count = self.count_timeline_actions(tim, **filters_)
+                    if not isinstance(new_count, self.type_check_dict[expected_type]):
+                        raise TypeError(f'Expected {new_count} calculation to be a {expected_type}')
+                    tim_totals[calculation] = new_count
+                    # Calculate unconsolidated aggregates
+                    for count in aggregate_counts:
+                        if calculation == count:
+                            total_count += new_count
+                    tim_totals[aggregate] = total_count
+            # Calculate unconsolidated categorical actions
+            for category in self.schema["categorical_actions"]:
+                tim_totals[category] = tim[category]
+            unconsolidated_totals.append(tim_totals)
+        return unconsolidated_totals
+
     def calculate_tim(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns a calculated TIM"""
         if len(unconsolidated_tims) == 0:
@@ -181,14 +215,16 @@ class ObjTIMCalcs(BaseCalculations):
         calculated_tim['confidence_ranking'] = len(unconsolidated_tims)
         return calculated_tim
 
-    def update_obj_tim_calcs(self, tims: List[Dict[str, int]]) -> List[dict]:
+    def update_calcs(self, tims: List[Dict[str, int]]) -> List[dict]:
         """Calculate data for each of the given TIMs. Those TIMs are represented as dictionaries:
         {'team_number': 1678, 'match_number': 69}"""
         calculated_tims = []
+        unconsolidated_totals = []
         for tim in tims:
             unconsolidated_obj_tims = self.server.db.find('unconsolidated_obj_tim', **tim)
             calculated_tims.append(self.calculate_tim(unconsolidated_obj_tims))
-        return calculated_tims
+            unconsolidated_totals.extend(self.calculate_unconsolidated_tims(unconsolidated_obj_tims))
+        return calculated_tims, unconsolidated_totals
 
     def run(self):
         """Executes the OBJ TIM calculations"""
@@ -214,10 +250,18 @@ class ObjTIMCalcs(BaseCalculations):
         if self.calc_all_data:
             self.server.db.delete_data("obj_tim")
 
-        for update in self.update_obj_tim_calcs(unique_tims):
+        updates = self.update_calcs(unique_tims)
+        for update in updates[0]:
             if update != {}:
                 self.server.db.update_document(
                     'obj_tim',
                     update,
                     {'team_number': update['team_number'], 'match_number': update['match_number']},
                 )
+        if len(updates) > 1:
+            for document in updates[1]:
+                self.server.db.update_document(
+                    'unconsolidated_totals', 
+                    document,
+                    {'team_number': document['team_number'], 'match_number': document['match_number'], 'scout_name': document['scout_name']}
+                    )
