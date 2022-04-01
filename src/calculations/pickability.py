@@ -51,14 +51,15 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                 return None
         weights = []
         for weight in self.pickability_schema[calc_name]['weights']:
-            # If the weight isn't a constant number, it's a datapoint
-            # Find the value of the datapoint
-            if isinstance(weight, str):
-                collection, datapoint = weight.split('.')
-                if (data := self.server.db.find(collection, team_number=team_number)) != []:
-                    weight = data[0][datapoint]
-                else: 
-                    weight = 0
+            # If the weight is a dictionary, it's a datapoint
+            # Key is datapoint name, value is adjustable weight
+            if isinstance(weight, dict):
+                for datapoint, weight_value in weight.items():
+                    collection, datapoint = datapoint.split('.')
+                    if (data := self.server.db.find(collection, team_number=team_number)) != []:
+                        weight = data[0][datapoint] * weight_value
+                    else: 
+                        weight = 0
             weights.append(weight)
         weighted_sum = sum([datapoint * weight for datapoint, weight in zip(datapoints, weights)])
         return weighted_sum

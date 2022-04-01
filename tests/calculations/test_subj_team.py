@@ -63,6 +63,7 @@ class TestSubjTeamCalcs:
         self.test_server.db.insert_documents('subj_tim', tims)
         assert self.test_calcs.teams_played_with(1678) == [1678, 4414, 1323, 1678, 2910]
 
+    @pytest.mark.xfail
     def test_all_calcs(self):
         tims = [
             {

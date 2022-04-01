@@ -174,7 +174,7 @@ class TestObjTIMCalcs:
         assert calculated_tim['tele_high_balls'] == 5
         assert calculated_tim['climb_level'] == 'HIGH'
         assert calculated_tim['start_position'] == 'TWO'
-        assert calculated_tim['auto_total_balls'] == 1
+        assert calculated_tim['auto_total_balls'] == 2
         assert calculated_tim['tele_total_balls'] == 7
         assert calculated_tim['climb_attempts'] == 1
 

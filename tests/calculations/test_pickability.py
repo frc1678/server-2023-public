@@ -22,7 +22,7 @@ FAKE_SCHEMA = {
                 'test.datapoint2',
                 'test2.datapoint1',
             ],
-            'weights': [1, 1, 'obj_team.avg_climb_points'],
+            'weights': [1, 1, {'obj_team.avg_climb_points': 4}],
         },
     }
 }
@@ -71,7 +71,7 @@ class TestPickability:
         }
         test_calc.server.db.insert_documents('obj_team', weight_data)
         assert test_calc.calculate_pickability(0, 'first_pickability', calc_data) == 6
-        assert test_calc.calculate_pickability(0, 'second_pickability', calc_data) == 20.46
+        assert test_calc.calculate_pickability(0, 'second_pickability', calc_data) == 72.84
         assert test_calc.calculate_pickability(0, 'first_pickability', {}) is None
         # Check that if the datapoint is missing that it correctly returns None
         calc_data = {
