@@ -35,7 +35,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
             for match in matches.values():
                 # Check for TBA TIM and objective TIM fields in the match
                 # Skip match if either field is missing to avoid inaccurate data
-                if not ('auto_line' in match and 'tele_balls_high' in match):
+                if not ('auto_line' in match and 'tele_high_balls' in match):
                     continue
                 for key, value in schema_entry.items():
                     # Handle `not` field

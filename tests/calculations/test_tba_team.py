@@ -51,10 +51,10 @@ class TestTBATeamCalc:
         obj_tims = [
             {
 
-                'auto_balls_low': 66,
-                'auto_balls_high': 61,
-                'tele_balls_low': 18,
-                'tele_balls_high': 45,
+                'auto_low_balls': 66,
+                'auto_high_balls': 61,
+                'tele_low_balls': 18,
+                'tele_high_balls': 45,
                 'incap': 14,
                 'confidence_rating': 30,
                 'team_number': 973,
@@ -62,10 +62,10 @@ class TestTBATeamCalc:
             },
             {
 
-                'auto_balls_low': 30,
-                'auto_balls_high': 59,
-                'tele_balls_low': 57,
-                'tele_balls_high': 1,
+                'auto_low_balls': 30,
+                'auto_high_balls': 59,
+                'tele_low_balls': 57,
+                'tele_high_balls': 1,
                 'incap': 22,
                 'confidence_rating': 68,
                 'team_number': 973,
@@ -73,10 +73,10 @@ class TestTBATeamCalc:
             },
             {
 
-                'auto_balls_low': 84,
-                'auto_balls_high': 92,
-                'tele_balls_low': 40,
-                'tele_balls_high': 67,
+                'auto_low_balls': 84,
+                'auto_high_balls': 92,
+                'tele_low_balls': 40,
+                'tele_high_balls': 67,
                 'incap': 18,
                 'confidence_rating': 2,
                 'team_number': 973,
@@ -84,10 +84,10 @@ class TestTBATeamCalc:
             },
             {
 
-                'auto_balls_low': 47,
-                'auto_balls_high': 76,
-                'tele_balls_low': 34,
-                'tele_balls_high': 81,
+                'auto_low_balls': 47,
+                'auto_high_balls': 76,
+                'tele_low_balls': 34,
+                'tele_high_balls': 81,
                 'incap': 17,
                 'confidence_rating': 31,
                 'team_number': 1678,
@@ -95,10 +95,10 @@ class TestTBATeamCalc:
             },
             {
 
-                'auto_balls_low': 25,
-                'auto_balls_high': 54,
-                'tele_balls_low': 81,
-                'tele_balls_high': 59,
+                'auto_low_balls': 25,
+                'auto_high_balls': 54,
+                'tele_low_balls': 81,
+                'tele_high_balls': 59,
                 'incap': 93,
                 'confidence_rating': 14,
                 'team_number': 1678,
@@ -106,10 +106,10 @@ class TestTBATeamCalc:
             },
             {
 
-                'auto_balls_low': 54,
-                'auto_balls_high': 49,
-                'tele_balls_low': 88,
-                'tele_balls_high': 74,
+                'auto_low_balls': 54,
+                'auto_high_balls': 49,
+                'tele_low_balls': 88,
+                'tele_high_balls': 74,
                 'incap': 15,
                 'confidence_rating': 77,
                 'team_number': 1678,
