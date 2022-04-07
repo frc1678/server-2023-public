@@ -91,8 +91,8 @@ class PredictedTeamCalc(BaseCalculations):
             'rankings'
         ]
         predicted_alliance_rps = self.calculate_predicted_alliance_rps(predicted_aim)
-        teams = self._get_teams_list()
-        aim_list = self._get_aim_list()
+        teams = self.get_teams_list()
+        aim_list = self.get_aim_list()
         for team in teams:
             update = {'team_number': team}
             current_values = self.calculate_current_values(ranking_data, team)

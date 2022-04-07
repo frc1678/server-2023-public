@@ -300,9 +300,9 @@ class PredictedAimCalc(BaseCalculations):
         return updates
 
     def run(self):
-        match_schedule = self._get_aim_list()
+        match_schedule = self.get_aim_list()
         # Check if changes need to be made to teams
-        teams = self.find_team_list()
+        teams = self.get_updated_teams()
         aims = []
         for alliance in match_schedule:
             for team in alliance["team_list"]:

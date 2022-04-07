@@ -232,10 +232,10 @@ class TestPredictedTeamCalc:
         with mock.patch(
             'data_transfer.tba_communicator.tba_request', return_value=self.ranking_data
         ), mock.patch(
-            'calculations.predicted_team.PredictedTeamCalc._get_aim_list',
+            'calculations.predicted_team.PredictedTeamCalc.get_aim_list',
             return_value=self.aim_list,
         ), mock.patch(
-            'calculations.predicted_team.PredictedTeamCalc._get_teams_list', return_value=self.teams
+            'calculations.predicted_team.PredictedTeamCalc.get_teams_list', return_value=self.teams
         ):
             assert self.test_calc.update_predicted_team(self.predicted_aim) == self.expected_results
 
@@ -244,10 +244,10 @@ class TestPredictedTeamCalc:
         with mock.patch(
             'data_transfer.tba_communicator.tba_request', return_value=self.ranking_data
         ), mock.patch(
-            'calculations.predicted_team.PredictedTeamCalc._get_aim_list',
+            'calculations.predicted_team.PredictedTeamCalc.get_aim_list',
             return_value=self.aim_list,
         ), mock.patch(
-            'calculations.predicted_team.PredictedTeamCalc._get_teams_list', return_value=self.teams
+            'calculations.predicted_team.PredictedTeamCalc.get_teams_list', return_value=self.teams
         ):
             self.test_calc.run()
         result = self.test_server.db.find('predicted_team')

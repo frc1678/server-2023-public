@@ -256,7 +256,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         entries = self.entries_since_last()
         teams = []
         # Filter out teams that are in subj_tim but not obj_tim
-        for team in self.find_team_list():
+        for team in self.get_updated_teams():
             if self.server.db.find('obj_tim', team_number=team) != []:
                 teams.append(team)
         # Delete and re-insert if updating all data

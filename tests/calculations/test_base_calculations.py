@@ -59,7 +59,7 @@ class TestBaseCalculations:
         assert contains_first_insert == True
 
 
-    def test_find_team_list(self):
+    def test_get_updated_teams(self):
         self.base_calc.update_timestamp()
         self.base_calc.watched_collections = ['test']
         self.test_server.db.insert_documents(
@@ -70,17 +70,17 @@ class TestBaseCalculations:
                 {'team_number': 1, 'useless': 0},
             ],
         )
-        assert self.base_calc.find_team_list() == [0, 1]
+        assert self.base_calc.get_updated_teams() == [0, 1]
         self.base_calc.update_timestamp()
         self.test_server.db.update_document('test', {'team_number': 1}, {'useless': 1})
-        assert self.base_calc.find_team_list() == [1]
+        assert self.base_calc.get_updated_teams() == [1]
         # Test with calc_all_data as True
         self.base_calc_all_data.watched_collections = ['test1']
         self.test_server_all_data.db.insert_documents('test1', {'team_number': 6})
         self.base_calc_all_data.update_timestamp()
         self.test_server_all_data.db.insert_documents('test1', {'team_number': 8})
         # Cast to set to disregard order of items
-        assert set(self.base_calc_all_data.find_team_list()) == set([8, 6])
+        assert set(self.base_calc_all_data.get_updated_teams()) == set([8, 6])
 
     def test_avg(self):
         # Test if there is no input
@@ -113,17 +113,17 @@ class TestBaseCalculations:
         expected_aim_list = [{"match_number": 1, "alliance_color": "B", "team_list": [88, 2342, 157]},
                             {"match_number": 1, "alliance_color": "R", "team_list": [4041, 1153, 2370]}]
         with patch('calculations.base_calculations.open', mock_open(read_data=test_json)):
-            assert BaseCalculations._get_aim_list() == expected_aim_list
+            assert BaseCalculations.get_aim_list() == expected_aim_list
 
 
     @patch('utils.log_error')
     def test_get_teams_list(self, log_error_mock):
         with patch('calculations.base_calculations.open', mock_open(read_data='[1,2,3]')) as _:
-            assert BaseCalculations._get_teams_list() == [1, 2, 3]
+            assert BaseCalculations.get_teams_list() == [1, 2, 3]
 
         def f(*args):
             raise FileNotFoundError
 
         with patch('calculations.base_calculations.open', Mock(side_effect=f)):
-            assert BaseCalculations._get_teams_list() == []
+            assert BaseCalculations.get_teams_list() == []
             log_error_mock.assert_called_with('base_calculations: data/team_list.json not found')

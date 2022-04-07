@@ -16,7 +16,7 @@ class BaseCalculations:
         self.calc_all_data = self.server.calc_all_data
         self.update_timestamp()
         self.watched_collections = NotImplemented  # Calculations should override this attribute
-        self.teams_list = self._get_teams_list()
+        self.teams_list = self.get_teams_list()
 
     def update_timestamp(self):
         """Updates the timestamp to the most recent oplog entry timestamp"""
@@ -46,7 +46,7 @@ class BaseCalculations:
             }
         ))
 
-    def find_team_list(self) -> list:
+    def get_updated_teams(self) -> list:
         """Returns a list of team numbers that appear in watched_collections"""
         teams = set()
         for entry in self.entries_since_last():
@@ -55,8 +55,9 @@ class BaseCalculations:
                 teams.add(entry["o"]["team_number"])
             # If the doc was updated, need to manually find the document
             elif entry["op"] == "u":
+                document_id = entry['o2']['_id']
                 if (
-                    query := self.server.db.find(entry["ns"].split(".")[-1])
+                    query := self.server.db.find(entry["ns"].split(".")[-1], _id=document_id)
                 ) != [] and "team_number" in query[0].keys():
                     teams.add(query[0]["team_number"])
         return list(teams)
@@ -102,7 +103,7 @@ class BaseCalculations:
         return [(num - mean) / standard_deviation for num in nums]
 
     @staticmethod
-    def _get_teams_list():
+    def get_teams_list():
         try:
             with open("data/team_list.json") as file:
                 reader = json.load(file)
@@ -113,7 +114,7 @@ class BaseCalculations:
             return []
 
     @staticmethod
-    def _get_aim_list():
+    def get_aim_list():
         """match_schedule.json is a dictionary with keys as match numbers and values of lists of team dicts.
 
         Each team dict contains alliance color and team number.

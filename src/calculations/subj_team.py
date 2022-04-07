@@ -125,7 +125,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         if self.calc_all_data:
             self.server.db.delete_data("subj_team")
         # See which teams are affected by new subj TIM data
-        updated_teams = self.find_team_list()
+        updated_teams = self.get_updated_teams()
         for team in updated_teams:
             new_calc = self.unadjusted_ability_calcs(team)
             self.server.db.update_document(

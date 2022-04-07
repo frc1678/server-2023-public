@@ -67,7 +67,7 @@ class PickabilityCalc(base_calculations.BaseCalculations):
     def update_pickability(self):
         """Creates updated pickability documents"""
         updates = []
-        for team in self.find_team_list():
+        for team in self.get_updated_teams():
             # Data that is needed to calculate pickability
             team_data = {}
             # Get each calc name and search for it in the database

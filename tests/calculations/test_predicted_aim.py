@@ -564,7 +564,7 @@ class TestPredictedAimCalc:
             "predicted_aim", self.final_values_test_data
         )
         with patch(
-            "calculations.predicted_aim.PredictedAimCalc._get_aim_list",
+            "calculations.predicted_aim.PredictedAimCalc.get_aim_list",
             return_value=self.aims_list,
         ), patch(
             "data_transfer.tba_communicator.tba_request",

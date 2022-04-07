@@ -99,7 +99,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
         # Delete and re-insert if updating all data
         if self.calc_all_data:
             self.server.db.delete_data("tba_team")
-        for update in self.update_team_calcs(self.find_team_list()):
+        for update in self.update_team_calcs(self.get_updated_teams()):
             self.server.db.update_document(
                 'tba_team', update, {'team_number': update['team_number']}
             )
