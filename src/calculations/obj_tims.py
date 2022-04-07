@@ -89,7 +89,11 @@ class ObjTIMCalcs(BaseCalculations):
         """Removes timeline actions that don't meet the filters and returns all the actions that do"""
         actions = tim['timeline']
         for field, required_value in filters.items():
-            if field == 'time':
+            if tim['climb_level'] != "NONE" and required_value == "climb_attempt":
+                # Counting climbs based on attempts sometimes yields an over 100% climb success
+                actions = [{"time": 149, "action_type": "climb_attempt"}]
+                break
+            elif field == 'time':
                 # Times are given as closed intervals: either [0,134] or [135,150]
                 actions = filter(
                     lambda action: required_value[0] <= action['time'] <= required_value[1], actions

@@ -22,7 +22,6 @@ class TestObjTIMCalcs:
             'team_number': 254,
             'scout_id': 17,
             'timeline': [
-                {'time': 8, 'action_type': 'climb_attempt'},
                 {'time': 15, 'action_type': 'score_ball_high_other'},
                 {'time': 26, 'action_type': 'score_ball_low'},
                 {'time': 37, 'action_type': 'end_incap'},
@@ -35,7 +34,7 @@ class TestObjTIMCalcs:
                 {'time': 135, 'action_type': 'score_ball_low'},
                 {'time': 140, 'action_type': 'score_ball_high_hub'},
             ],
-            'climb_level': 'TRAVERSAL',
+            'climb_level': 'NONE',
             'start_position': 'ONE'
         },
         {
@@ -86,7 +85,6 @@ class TestObjTIMCalcs:
             'team_number': 254,
             'scout_id': 17,
             'timeline': [
-                {'time': 9, 'action_type': 'climb_attempt'},
                 {'time': 26, 'action_type': 'score_ball_low'},
                 {'time': 37, 'action_type': 'score_ball_high_hub'},
                 {'time': 47, 'action_type': 'score_ball_high_hub'},
@@ -131,7 +129,6 @@ class TestObjTIMCalcs:
     def test_filter_timeline_actions(self):
         actions = self.test_calculator.filter_timeline_actions(self.unconsolidated_tims[0])
         assert actions == [
-            {'action_type': 'climb_attempt', 'time': 8},
             {'action_type': 'score_ball_high_other', 'time': 15},
             {'action_type': 'score_ball_low', 'time': 26},
             {'action_type': 'end_incap', 'time': 37},
@@ -147,7 +144,7 @@ class TestObjTIMCalcs:
 
     def test_count_timeline_actions(self):
         action_num = self.test_calculator.count_timeline_actions(self.unconsolidated_tims[0])
-        assert action_num == 12
+        assert action_num == 11
 
     def test_total_time_between_actions(self):
         total_time = self.test_calculator.total_time_between_actions
