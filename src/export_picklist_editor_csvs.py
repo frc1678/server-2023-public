@@ -234,7 +234,6 @@ class ExportTIM(BaseExport):
 class ExportTeam(BaseExport):
     db_data_paths = [
         "raw_obj_pit",
-        "raw_subj_pit",
         "obj_team",
         "subj_team",
         "tba_team",
@@ -279,9 +278,13 @@ class ExportTeam(BaseExport):
 
                 # Goes through each field in the current document
                 for key, value in document.items():
-                    # Don't add the ObjectId that stores the mongodb id but
-                    # is not useful in the data we want exported
-                    if key != "_id":
+                    # Don't export datapoints we don't need
+                    if key not in [
+                        "_id",
+                        "test_first_pickability",
+                        "test_second_pickability",
+                        "test_driver_ability",
+                    ]:
                         # If the key is a new one, add it to column_headers
                         if key not in column_headers:
                             column_headers.append(key)
