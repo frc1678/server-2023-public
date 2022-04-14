@@ -182,6 +182,7 @@ class PredictedAimCalc(BaseCalculations):
             for match in tba_match_data:
                 if (
                     match["match_number"] == aim["match_number"]
+                    and match["comp_level"] == "qm"
                     and match["post_result_time"] != None
                 ):
                     final_predictions = {}
@@ -217,6 +218,7 @@ class PredictedAimCalc(BaseCalculations):
             # If there is no data for the match, winning_alliance is an empty string.
             if (
                 match["match_number"] == match_number
+                and match["comp_level"] == "qm"
                 and match["post_result_time"] != None
             ):
                 actual_aim = match["score_breakdown"]

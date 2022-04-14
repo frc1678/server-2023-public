@@ -353,6 +353,7 @@ class TestPredictedAimCalc:
         self.tba_match_data = [
             {
                 "match_number": 1,
+                "comp_level": "qm",
                 "score_breakdown": {
                     "blue": {
                         "cargoBonusRankingPoint": True,
@@ -369,7 +370,26 @@ class TestPredictedAimCalc:
                 "winning_alliance": "red",
             },
             {
+                "match_number": 1,
+                "comp_level": "qf",
+                "score_breakdown": {
+                    "blue": {
+                        "cargoBonusRankingPoint": True,
+                        "hangarBonusRankingPoint": True,
+                        "totalPoints": 300,
+                    },
+                    "red": {
+                        "cargoBonusRankingPoint": True,
+                        "hangarBonusRankingPoint": True,
+                        "totalPoints": 400,
+                    },
+                },
+                "post_result_time": 182,
+                "winning_alliance": "red",
+            },
+            {
                 "match_number": 3,
+                "comp_level": "qm",
                 "score_breakdown": {
                     "blue": {
                         "cargoBonusRankingPoint": None,

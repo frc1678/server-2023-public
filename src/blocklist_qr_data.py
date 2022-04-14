@@ -52,7 +52,7 @@ if ROLLBACK_OR_BLOCKLIST == '1':
     # Takes user input for scout name
     SCOUT_NAME = input('Enter the scout name of the QR code to delete: ')
     # Modifies the regex pattern elements to include the scout name
-    PATTERN_ELEMENTS.insert(1, (SCHEMA['generic_data']['scout_name'][0] + SCOUT_NAME + '.*'))
+    PATTERN_ELEMENTS.insert(4, (SCHEMA['generic_data']['scout_name'][0] + SCOUT_NAME + '.*'))
 
 # Stores all regex pattern objects
 PATTERNS = []
@@ -61,7 +61,7 @@ PATTERNS = []
 PATTERN = PATTERNS.append(re.compile(''.join(PATTERN_ELEMENTS)))
 
 # Stores the already blocklisted QR codes from the local database
-BLOCKLISTED_QRS = db.find('raw_qr', {'blocklisted': True})
+BLOCKLISTED_QRS = db.find('raw_qr', blocklisted=True)
 
 # Counts the numbers of QR codes newly blocklisted in this run
 num_blocklisted = 0
@@ -72,7 +72,7 @@ for qr_code in db.find('raw_qr'):
         continue
     # Iterates through all regex pattern objects
     for PATTERN in PATTERNS:
-        if re.search(PATTERN, qr_code) is None:
+        if re.search(PATTERN, qr_code['data']) is None:
             # If the pattern doesn't match, go to the next QR code
             break
     # If none of the other statements are true, blocklist it

@@ -279,12 +279,13 @@ def run(creds):
         ).strip()
         images = imgur.list_all_images(filtered=True)
         if prompt == "1":
+            image_titles = [image['title'] for image in images]
             # Uploads each image in the devices directory
             for img_path in get_image_paths():
                 # Prefix image name with event key
                 title = TBA_EVENT_KEY + "_" + (os.path.basename(img_path).split(".")[0])
                 # Check if the image is already on imgur and skip if it is
-                if title in images:
+                if title in image_titles:
                     continue
                 # Upload image to imgur
                 resp = imgur.upload_img_filename(img_path, title)

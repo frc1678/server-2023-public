@@ -70,6 +70,9 @@ class CloudDBUpdater:
                 results[collection] = self.cloud_db.bulk_write(collection, bulk_ops)
             except pymongo.errors.BulkWriteError:
                 utils.log_error(f'Error Writing to {collection}.')
+                current_documents = self.db.find(collection)
+                self.cloud_db.delete_data(collection)
+                self.cloud_db.insert_documents(collection, current_documents)
             except pymongo.errors.ServerSelectionTimeoutError:
                 utils.log_warning(f'Unable to write to {collection} due to poor internet')
                 break  # Don't delay server cycle with more operations without internet
