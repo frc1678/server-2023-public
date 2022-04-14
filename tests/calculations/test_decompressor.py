@@ -386,6 +386,12 @@ class TestDecompressor:
                 'readable_time': curr_time.strftime('%D - %H:%M:%S')
             },
             {
+                'data': '+A7$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AB001AC002AD005AB006AC007AE008AF$VTRAVERSAL',
+                'blocklisted': True,
+                'epoch_time': curr_time.timestamp(),
+                'readable_time': curr_time.strftime('%D - %H:%M:%S')
+            },
+            {
                 'data': '*A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE#A254$B2$C2$DFALSE#A1323$B3$C3$DTRUE',
                 'blocklisted': False,
                 'epoch_time': curr_time.timestamp(),

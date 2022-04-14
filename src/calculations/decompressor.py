@@ -245,7 +245,7 @@ class Decompressor(base_calculations.BaseCalculations):
                         utils.log_warning(f'Scout ID {id_} missing from Match {match}')
 
     def run(self):
-        new_qrs = [entry['o'] for entry in self.entries_since_last()]
+        new_qrs = [entry['o'] for entry in self.entries_since_last() if not entry['o']['blocklisted']]
         decompressed_qrs = self.decompress_qrs(new_qrs)
         for collection in ['unconsolidated_obj_tim', 'subj_tim']:
             if self.calc_all_data:
