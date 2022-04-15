@@ -157,8 +157,8 @@ def mongo_convert(sch):
             continue
         for datapoint, info in datapoints.items():
             datapoint_dict = {}
-            # Every document should have a team number and/or match number depending on collection
-            if datapoint in ['team_number', 'match_number']:
+            # Every document should have a team number, match number, and/or scout name depending on collection
+            if datapoint in ['team_number', 'match_number', 'scout_name']:
                 out['required'].append(datapoint)
             datapoint_dict['bsonType'] = type_to_bson[info['type']]
             out['properties'].update({datapoint: datapoint_dict})

@@ -127,6 +127,19 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "current_rps": 49,
         "current_avg_rps": 84.4422,
     },
+    # Scout Precision
+    {
+        "scout_name": "yyyyyyyyyyyyyyyyyyyyyy",
+        "scout_precision": 84.4422,
+    },
+    # SIM Precision
+    {
+        "scout_name": "yyyyyyyyyyyyyyyyyyyyyy",
+        "sim_precision": 84.4422,
+        "team_number": 49,
+        "match_number": 49,
+        "alliance_color_is_red": True,
+    },
     # Subj Team
     {
         "driver_field_awareness": 84.4422,

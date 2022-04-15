@@ -36,3 +36,6 @@
 
 - import_path: calculations.predicted_team
   class_name: PredictedTeamCalc
+
+- import_path: calculations.scout_precision
+  class_name: ScoutPrecisionCalc
