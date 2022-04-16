@@ -38,7 +38,7 @@ setup_connection("mongodb://localhost:1678", COMPETITION_KEY)
 from data_transfer import database
 
 DB = database.Database()
-DB.set_indexes()
+DB.setup_db()
 
 CLOUD_DB_PERMISSION = utils.get_boolean_input('Would you like to add this database to the cloud?')
 if CLOUD_DB_PERMISSION:
