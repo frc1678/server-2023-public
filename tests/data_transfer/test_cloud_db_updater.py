@@ -105,19 +105,19 @@ class TestCloudDBUpdater:
     @mock.patch('data_transfer.cloud_db_updater.CloudDBUpdater.update_timestamp')
     def test_write_db_changes(self, mock1):
         changes = collections.defaultdict()
-        changes['test'] = [
+        changes['obj_team'] = [
             pymongo.InsertOne({'_id': '1234', 'v': 2}),
             pymongo.InsertOne({'_id': '4321', 'v': 1}),
             pymongo.UpdateOne({'_id': '1234'}, {'$set': {'v': 1, 'c': 2}}),
         ]
-        changes['test2'] = [pymongo.InsertOne({'_id': '43210', 'b': 1})]
+        changes['subj_team'] = [pymongo.InsertOne({'_id': '43210', 'b': 1})]
         with mock.patch.object(self.CloudDBUpdater, 'create_db_changes', return_value=changes) as _:
             result = self.CloudDBUpdater.write_db_changes()
-        assert result['test'].inserted_count == 2
-        assert result['test'].modified_count == 1
-        assert result['test2'].inserted_count == 1
-        assert result['test2'].modified_count == 0
-        assert self.CloudDBUpdater.cloud_db.find('test') == [
+        assert result['obj_team'].inserted_count == 2
+        assert result['obj_team'].modified_count == 1
+        assert result['subj_team'].inserted_count == 1
+        assert result['subj_team'].modified_count == 0
+        assert self.CloudDBUpdater.cloud_db.find('obj_team') == [
             {'_id': '1234', 'v': 1, 'c': 2},
             {'_id': '4321', 'v': 1},
         ]

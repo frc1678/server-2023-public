@@ -125,11 +125,10 @@ class TestDatabase:
     def test_bulk_write(self):
         operations = [
             pymongo.InsertOne({'a': 1}),
-            pymongo.UpdateOne({'a': 1}, {'$set': {'b': 2}}),
-            pymongo.InsertOne({'a': 2}),
+            pymongo.UpdateOne({'a': 5}, {'$set': {'b': 2}}),
+            pymongo.InsertOne({'b': 2}),
         ]
-        TEST_DB_ACTUAL.bulk_write('test', operations)
-        result = TEST_DB_ACTUAL.find('test')
+        TEST_DB_ACTUAL.bulk_write('raw_qr', operations)
+        result = TEST_DB_ACTUAL.find('raw_qr')
         assert result[0]['a'] == 1
-        assert result[0]['b'] == 2
-        assert result[1]['a'] == 2
+        assert result[1]['b'] == 2

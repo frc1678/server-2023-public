@@ -17,6 +17,7 @@ import utils
 # Load collection names
 COLLECTION_SCHEMA = utils.read_schema('schema/collection_schema.yml')
 COLLECTION_NAMES = [collection for collection in COLLECTION_SCHEMA['collections'].keys()]
+VALID_COLLECTIONS = ['obj_team', 'obj_tim', 'subj_team', 'subj_tim', 'tba_team', 'tba_tim', 'raw_qr', 'predicted_aim', 'predicted_team', 'pickability', 'raw_obj_pit']
 
 # Start mongod and initialize replica set
 start_mongod.start_mongod()
@@ -139,7 +140,10 @@ class Database:
     def bulk_write(self, collection: str, actions: list) -> pymongo.results.BulkWriteResult:
         """Bulk write `actions` into `collection` in order of `actions`"""
         check_collection_name(collection)
-        return self.db[collection].bulk_write(actions)
+        if collection in VALID_COLLECTIONS:
+            return self.db[collection].bulk_write(actions)
+        else:
+            utils.log_info(f'database.py: Invalid collection name: "{collection}"')
 
 
 def mongo_convert(sch):
