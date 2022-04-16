@@ -158,47 +158,6 @@ class PredictedAimCalc(BaseCalculations):
             return 1.0
         return 0.0
 
-    def get_final_values(self, aim, tba_match_data):
-        """Finds whether or not the predicted match was played to store the final values."""
-        final_predictions = {
-            "final_predicted_score": 0.0,
-            "final_predicted_rp1": 0.0,
-            "final_predicted_rp2": 0.0,
-            "has_final_scores": False,
-        }
-        alliance_color_is_red = aim["alliance_color"] == "R"
-        aim_data = self.server.db.find(
-            "predicted_aim",
-            match_number=aim["match_number"],
-            alliance_color_is_red=alliance_color_is_red,
-        )
-        if aim_data != []:
-            current_predicted_aim = aim_data[0]
-            # If the aim already has final predictions, return a blank dictionary so nothing is changed
-            if current_predicted_aim["has_final_scores"]:
-                return {}
-            # Checks the value of winning_alliance to determine if the match has been played.
-            # If there is no data for the match, winning_alliance is an empty string.
-            for match in tba_match_data:
-                if (
-                    match["match_number"] == aim["match_number"]
-                    and match["comp_level"] == "qm"
-                    and match["post_result_time"] != None
-                ):
-                    final_predictions = {}
-                    final_predictions["final_predicted_score"] = current_predicted_aim[
-                        "predicted_score"
-                    ]
-                    final_predictions["final_predicted_rp1"] = current_predicted_aim[
-                        "predicted_rp1"
-                    ]
-                    final_predictions["final_predicted_rp2"] = current_predicted_aim[
-                        "predicted_rp2"
-                    ]
-                    final_predictions["has_final_scores"] = True
-                    break
-        return final_predictions
-
     def get_actual_values(self, aim, tba_match_data):
         """Pulls actual AIM data from TBA if it exists.
 
@@ -287,7 +246,6 @@ class PredictedAimCalc(BaseCalculations):
                 "match_number": aim["match_number"],
                 "alliance_color_is_red": aim["alliance_color"] == "R",
             }
-            update.update(self.get_final_values(aim, tba_match_data))
             update["predicted_score"] = self.calculate_predicted_alliance_score(
                 predicted_values, obj_team, tba_team, aim["team_list"]
             )
@@ -300,6 +258,21 @@ class PredictedAimCalc(BaseCalculations):
             update.update(self.get_actual_values(aim, tba_match_data))
             updates.append(update)
         return updates
+
+    def calculate_predicted_win_chance(self):
+        new_aims = []
+        aims = self.server.db.find("predicted_aim")
+        match_list = set([aim["match_number"] for aim in aims])
+        for match in match_list:
+            aims_in_match = [aim for aim in aims if aim["match_number"] == match]
+            if len(aims_in_match) < 2:
+                break
+            for aim in range(2):
+                aim_score = aims_in_match[aim]["predicted_score"]
+                opponent_score = aims_in_match[(aim + 1) % 2]["predicted_score"]
+                aims_in_match[aim]["win_chance"] = 0.5 + ((aim_score - opponent_score) * 0.0227)
+                new_aims.append(aims_in_match[aim])
+        return new_aims
 
     def run(self):
         match_schedule = self.get_aim_list()
@@ -323,4 +296,14 @@ class PredictedAimCalc(BaseCalculations):
                     "match_number": update["match_number"],
                     "alliance_color_is_red": update["alliance_color_is_red"],
                 },
+            )
+
+        for update in self.calculate_predicted_win_chance():
+            self.server.db.update_document(
+                "predicted_aim",
+                update,
+                {
+                    "match_number": update["match_number"],
+                    "alliance_color_is_red": update["alliance_color_is_red"]
+                }
             )
