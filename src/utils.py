@@ -18,7 +18,7 @@ except ImportError:
 
 # Set the basic config for logging functions
 logging.basicConfig(
-    filename='server.log', level='NOTSET', filemode='a', format='%(asctime)s %(message)s'
+    filename="server.log", level="NOTSET", filemode="a", format="%(asctime)s %(message)s"
 )
 
 
@@ -32,17 +32,17 @@ def create_file_path(path_after_main, create_directories=True) -> str:
     Linux/Unix style. create_directories defaults to True.
     """
     # Removes trailing slash in 'path_after_main' (if it exists) and split by '/'
-    path_after_main = path_after_main.rstrip('/').split('/')
+    path_after_main = path_after_main.rstrip("/").split("/")
     if create_directories is True:
         # Checks if the last item in the path is a file
-        if '.' in path_after_main[-1]:
+        if "." in path_after_main[-1]:
             # Only try to create directories if there are directories specified before filename
             if len(path_after_main) > 1:
                 # The '*' before the variable name expands the list into arguments for the function
                 directories = os.path.join(*path_after_main[:-1])
             # Make directories a blank string
             else:
-                directories = ''
+                directories = ""
         # The last item is a directory
         else:
             directories = os.path.join(*path_after_main)
@@ -71,18 +71,18 @@ def catch_function_errors(fn, *args, **kwargs):
     # Notify user that error occurred
     except Exception as err:
         logging.error(f'{err}\n{"".join(traceback.format_stack()[:-1])}')
-        print(f'Function {fn.__name__}: {err.__class__} - {err}')
+        print(f"Function {fn.__name__}: {err.__class__} - {err}")
         result = None
     return result
 
 
 def log_error(error):
     """Logs `error` at log level 'Error' to server.log"""
-    traceback_msg = ''.join(traceback.format_stack()[:-1])
+    traceback_msg = "".join(traceback.format_stack()[:-1])
     # Logs error, also contains a traceback
-    logging.error(f'{error}\n{traceback_msg}')
+    logging.error(f"{error}\n{traceback_msg}")
     # Prints error and traceback to console
-    print(f'ERROR: {error}\n{traceback_msg}', file=sys.stderr)
+    print(f"ERROR: {error}\n{traceback_msg}", file=sys.stderr)
 
 
 def log_warning(warning: str):
@@ -91,9 +91,9 @@ def log_warning(warning: str):
     Logs to server.log in this directory.
     """
     # Logs warning
-    logging.warning(f'{warning}\n')
+    logging.warning(f"{warning}\n")
     # Prints warning to console
-    print(f'WARNING: {warning}', file=sys.stderr)
+    print(f"WARNING: {warning}", file=sys.stderr)
 
 
 def log_info(info: str):
@@ -102,7 +102,7 @@ def log_info(info: str):
     'info' is the information being logged to server.log in this directory.
     """
     # Logs info
-    logging.info(f'{info}\n')
+    logging.info(f"{info}\n")
 
 
 def log_debug(debug: str):
@@ -111,7 +111,7 @@ def log_debug(debug: str):
     'debug' is the message being logged to server.log in this directory.
     """
     # Logs debug
-    logging.debug(f'{debug}\n')
+    logging.debug(f"{debug}\n")
 
 
 def run_command(command, return_output=False):
@@ -129,17 +129,17 @@ def run_command(command, return_output=False):
             raise Exception(
                 delim.join(
                     [
-                        f'utils.run_command: error in command \"{" ".join(command)}\"',
-                        'Captured stdout:',
-                        result.stdout.decode('utf-8'),
-                        'Captured stderr:',
-                        result.stderr.decode('utf-8'),
+                        f'utils.run_command: error in command "{" ".join(command)}"',
+                        "Captured stdout:",
+                        result.stdout.decode("utf-8"),
+                        "Captured stderr:",
+                        result.stderr.decode("utf-8"),
                     ]
                 )
             )
-        return result.stdout.decode('utf-8').replace('\r\n', '\n') if return_output else None
+        return result.stdout.decode("utf-8").replace("\r\n", "\n") if return_output else None
     except FileNotFoundError:
-        raise Exception(f'utils.run_command: unknown command {command[0]}')
+        raise Exception(f"utils.run_command: unknown command {command[0]}")
 
 
 def _inner_read_schema(schema_file_path: str) -> dict:
@@ -151,13 +151,13 @@ def _inner_read_schema(schema_file_path: str) -> dict:
 
     # Opens the schema file and returns it as a dictionary
     try:
-        with open(create_file_path(schema_file_path, False), 'r') as schema_file:
+        with open(create_file_path(schema_file_path, False), "r") as schema_file:
             # Specify loader to avoid warnings about default loader
             return yaml.load(schema_file, yaml.Loader)
     except FileNotFoundError as e:
         # TODO - use logger (waiting on #544 for better logging)
         print('server: Error: file "{schema_file_path}" not found.')
-        print('server: full info: {e}')
+        print("server: full info: {e}")
         # Please check for None
         return None
 
@@ -193,9 +193,9 @@ def load_tba_event_key_file(file_path):
         with open(create_file_path(file_path)) as file:
             # Remove trailing newline (if it exists) from file data.
             # Many file editors will automatically add a newline at the end of files.
-            return file.read().rstrip('\n')
+            return file.read().rstrip("\n")
     except FileNotFoundError:
-        log_warning(f'ERROR Loading TBA Key: File {file_path} NOT FOUND')
+        log_warning(f"ERROR Loading TBA Key: File {file_path} NOT FOUND")
         return None
 
 
@@ -206,7 +206,7 @@ def unprefix_schema_dict(schema_in):
     schema_out = {}
     keys = list(schema_in.keys())
     for key in keys:
-        stripped_key = key.split('.')[-1]  # Turn a.b.c.d.e into e
+        stripped_key = key.split(".")[-1]  # Turn a.b.c.d.e into e
         schema_out[stripped_key] = schema_in[key]
         if type(schema_in[key]) == dict:
             # Apply recursively.
@@ -217,10 +217,10 @@ def unprefix_schema_dict(schema_in):
 def get_boolean_input(question: str) -> bool:
     """Asks the given question and returns True if the user enters Y or False if they enter N"""
     while True:
-        user_input = input(f'{question} [Y/n]:').lower()
-        if user_input in ['y', 'yes']:
+        user_input = input(f"{question} [Y/n]:").lower()
+        if user_input in ["y", "yes"]:
             return True
-        elif user_input in ['n', 'no']:
+        elif user_input in ["n", "no"]:
             return False
         else:
             print("Please be sure to enter either 'yes' or 'no'")
@@ -233,7 +233,7 @@ def read_csv_file(file_path):
     return csv_data
 
 
-_TBA_EVENT_KEY_FILE = 'data/competition.txt'
+_TBA_EVENT_KEY_FILE = "data/competition.txt"
 TBA_EVENT_KEY = load_tba_event_key_file(_TBA_EVENT_KEY_FILE)
 
 if sys.prefix == sys.base_prefix:

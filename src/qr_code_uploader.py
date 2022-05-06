@@ -23,10 +23,10 @@ def upload_qr_codes(qr_codes):
     qr_codes is a list of QR code strings to upload.
     """
     # Gets the starting character for each QR code type, used to identify QR code type
-    schema = utils.read_schema('schema/match_collection_qr_schema.yml')
+    schema = utils.read_schema("schema/match_collection_qr_schema.yml")
 
     # Acquires current qr data using database.py
-    qr_data = [qr_code['data'] for qr_code in local_database.find('raw_qr')]
+    qr_data = [qr_code["data"] for qr_code in local_database.find("raw_qr")]
 
     # Creates a set to store QR codes
     # This is a set in order to prevent addition of duplicate qr codes
@@ -38,8 +38,8 @@ def upload_qr_codes(qr_codes):
         # Checks to make sure the qr is valid by checking its starting character. If the starting
         # character doesn't match either of the options, the QR is printed out.
         elif not (
-            qr_code.startswith(schema['subjective_aim']['_start_character'])
-            or qr_code.startswith(schema['objective_tim']['_start_character'])
+            qr_code.startswith(schema["subjective_aim"]["_start_character"])
+            or qr_code.startswith(schema["objective_tim"]["_start_character"])
         ):
             utils.log_warning(f'Invalid QR code not uploaded: "{qr_code}"')
         else:
@@ -50,13 +50,13 @@ def upload_qr_codes(qr_codes):
         curr_time = datetime.datetime.now()
         qr = [
             {
-                'data': qr_code,
-                'blocklisted': False,
-                'epoch_time': curr_time.timestamp(),
-                'readable_time': curr_time.strftime('%D - %H:%M:%S'),
+                "data": qr_code,
+                "blocklisted": False,
+                "epoch_time": curr_time.timestamp(),
+                "readable_time": curr_time.strftime("%D - %H:%M:%S"),
             }
             for qr_code in qr
         ]
-        local_database.insert_documents('raw_qr', qr)
+        local_database.insert_documents("raw_qr", qr)
 
     return qr

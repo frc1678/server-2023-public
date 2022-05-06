@@ -36,10 +36,10 @@ def send_images() -> None:
             continue
         images_sent = 0
         for filename, full_path in find_robot_images().items():
-            adb_communicator.push_file(device, full_path, f'storage/emulated/0/Download/{filename}')
+            adb_communicator.push_file(device, full_path, f"storage/emulated/0/Download/{filename}")
             images_sent += 1
-        print(f'Sent {images_sent} photos to {adb_communicator.DEVICE_SERIAL_NUMBERS[device]}')
+        print(f"Sent {images_sent} photos to {adb_communicator.DEVICE_SERIAL_NUMBERS[device]}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     send_images()

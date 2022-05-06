@@ -6,9 +6,9 @@ import utils
 
 # Replica Set constants
 PORT = 1678
-DB_PATH = utils.create_file_path('data/db')
-REPLICA_SET_NAME = 'ScoutingReplica0'
-MONGOD_LOG_PATH = utils.create_file_path('data/mongod.log')
+DB_PATH = utils.create_file_path("data/db")
+REPLICA_SET_NAME = "ScoutingReplica0"
+MONGOD_LOG_PATH = utils.create_file_path("data/mongod.log")
 
 
 def start_mongod():
@@ -18,47 +18,47 @@ def start_mongod():
     raise the oplog size"""
     start_mongod_result = subprocess.run(
         [
-            'mongod',
-            '--replSet',
+            "mongod",
+            "--replSet",
             REPLICA_SET_NAME,
-            '--port',
+            "--port",
             str(PORT),
-            '--bind_ip',
-            'localhost',
-            '--dbpath',
+            "--bind_ip",
+            "localhost",
+            "--dbpath",
             DB_PATH,
-            '--logpath',
+            "--logpath",
             MONGOD_LOG_PATH,
-            '--fork',
+            "--fork",
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )
 
     if start_mongod_result.returncode == 48:
-        utils.log_info('Custom mongod process already started')
+        utils.log_info("Custom mongod process already started")
     elif start_mongod_result.returncode > 0:
-        utils.log_error('Error starting mongod. Check data/mongod.log for more details')
+        utils.log_error("Error starting mongod. Check data/mongod.log for more details")
 
     init_repl_set_result = subprocess.run(
-        ['mongo', '--eval', 'rs.initiate()', '--port', str(PORT)],
+        ["mongo", "--eval", "rs.initiate()", "--port", str(PORT)],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )
-    output = init_repl_set_result.stdout.decode('utf-8')
+    output = init_repl_set_result.stdout.decode("utf-8")
     if init_repl_set_result.returncode != 0:
-        utils.log_error(f'Error initiating Replica Set.\n{output}')
+        utils.log_error(f"Error initiating Replica Set.\n{output}")
         return
 
     if '"codeName" : "AlreadyInitialized"' in output:
-        utils.log_info('Replica Set already started')
+        utils.log_info("Replica Set already started")
     elif '"codeName" : "NoReplicationEnabled"' in output:
-        utils.log_error(f'Replication not enabled on mongod running on localhost:{PORT}')
+        utils.log_error(f"Replication not enabled on mongod running on localhost:{PORT}")
     elif '"ok" : 0' in output:
-        utils.log_warning('Unknown problem initializing replica set\n{output}')
+        utils.log_warning("Unknown problem initializing replica set\n{output}")
     else:
-        utils.log_info('Replica set started successfully')
+        utils.log_info("Replica set started successfully")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start_mongod()

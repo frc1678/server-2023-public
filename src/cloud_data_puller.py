@@ -12,22 +12,22 @@ from server import Server
 import utils
 
 termcolor.cprint(
-    'WARNING: This script does not currently work on the new database structure',
-    color='yellow',
+    "WARNING: This script does not currently work on the new database structure",
+    color="yellow",
 )
 
-CONFIRMATION = input(f'Confirm Overwrite of data in {Server.TBA_EVENT_KEY}? (y/N): ')
-if CONFIRMATION.lower() not in ['y', 'yes']:
-    print('Aborting...', file=sys.stderr)
+CONFIRMATION = input(f"Confirm Overwrite of data in {Server.TBA_EVENT_KEY}? (y/N): ")
+if CONFIRMATION.lower() not in ["y", "yes"]:
+    print("Aborting...", file=sys.stderr)
     sys.exit(1)
 
-EVENT = input(f'Enter event code to pull data from. Leave blank to use {Server.TBA_EVENT_KEY}: ')
+EVENT = input(f"Enter event code to pull data from. Leave blank to use {Server.TBA_EVENT_KEY}: ")
 
-if EVENT == '':
+if EVENT == "":
     EVENT = Server.TBA_EVENT_KEY
-    print(f'Using event code {EVENT}')
-elif not re.fullmatch('[0-9]{4}[a-z0-9]+', EVENT):
-    raise ValueError(f'Invalid event code {EVENT}')
+    print(f"Using event code {EVENT}")
+elif not re.fullmatch("[0-9]{4}[a-z0-9]+", EVENT):
+    raise ValueError(f"Invalid event code {EVENT}")
 # TODO Update this for new db structure
 # CLOUD_DATA = cloud_db_updater.CLOUD_DB.competitions.find_one({'tba_event_key': EVENT}, {'_id': 0})
 # if CLOUD_DATA is None:

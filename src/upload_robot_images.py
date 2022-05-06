@@ -279,7 +279,7 @@ def run(creds):
         ).strip()
         images = imgur.list_all_images(filtered=True)
         if prompt == "1":
-            image_titles = [image['title'] for image in images]
+            image_titles = [image["title"] for image in images]
             # Uploads each image in the devices directory
             for img_path in get_image_paths():
                 # Prefix image name with event key
@@ -316,7 +316,7 @@ def run(creds):
                 else:
                     teams[team].append(image["link"])
             # Write everything to images.csv
-            with open("data/images.csv", "w", newline='') as csvfile:
+            with open("data/images.csv", "w", newline="") as csvfile:
                 file_writer = csv.writer(csvfile)
                 for team in teams:
                     file_writer.writerow([team] + teams[team])
