@@ -17,33 +17,33 @@ def tba_request(api_url):
 
     (the part after '/api/v3').
     """
-    utils.log_info(f'tba request from {api_url} started')
-    full_url = f'https://www.thebluealliance.com/api/v3/{api_url}'
-    request_headers = {'X-TBA-Auth-Key': get_api_key()}
+    utils.log_info(f"tba request from {api_url} started")
+    full_url = f"https://www.thebluealliance.com/api/v3/{api_url}"
+    request_headers = {"X-TBA-Auth-Key": get_api_key()}
     db = database.Database()
     cached = db.get_tba_cache(api_url)
     # Check if cache exists
     if cached:
-        request_headers['If-Modified-Since'] = cached['timestamp']
-    print(f'Retrieving data from {full_url}')
-    utils.log_info(f'tba request from {api_url} finished')
+        request_headers["If-Modified-Since"] = cached["timestamp"]
+    print(f"Retrieving data from {full_url}")
+    utils.log_info(f"tba request from {api_url} finished")
     try:
         request = requests.get(full_url, headers=request_headers)
     except requests.exceptions.ConnectionError:
-        utils.log_warning('Error: No internet connection.')
+        utils.log_warning("Error: No internet connection.")
         return None
     # A 200 status code means the request was successful
     # 304 means that data was not modified since the last timestamp
     # specified in request_headers['If-Modified-Since']
     if request.status_code == 304:
-        return cached['data']
+        return cached["data"]
     if request.status_code == 200:
-        db.update_tba_cache(request.json(), api_url, request.headers['Last-Modified'])
+        db.update_tba_cache(request.json(), api_url, request.headers["Last-Modified"])
         return request.json()
-    raise Warning(f'Request failed with status code {request.status_code}')
+    raise Warning(f"Request failed with status code {request.status_code}")
 
 
 def get_api_key() -> str:
-    with open(utils.create_file_path('data/api_keys/tba_key.txt')) as file:
-        api_key = file.read().rstrip('\n')
+    with open(utils.create_file_path("data/api_keys/tba_key.txt")) as file:
+        api_key = file.read().rstrip("\n")
     return api_key

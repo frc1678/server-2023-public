@@ -16,13 +16,13 @@ import utils
 
 class CloudDBUpdater:
 
-    BASE_CONNECTION_STRING = 'mongodb+srv://server:{}@scouting-system-3das1.gcp.mongodb.net/test?authSource=admin&replicaSet=scouting-system-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true'
-    OPERATION_MAP = {'i': pymongo.InsertOne, 'u': pymongo.UpdateOne, 'd': pymongo.DeleteOne}
+    BASE_CONNECTION_STRING = "mongodb+srv://server:{}@scouting-system-3das1.gcp.mongodb.net/test?authSource=admin&replicaSet=scouting-system-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"
+    OPERATION_MAP = {"i": pymongo.InsertOne, "u": pymongo.UpdateOne, "d": pymongo.DeleteOne}
 
     def __init__(self):
         self.cloud_db = self.get_cloud_db()
         self.db = database.Database()
-        self.db_pattern = re.compile(r'^{}\..*'.format(self.db.name))
+        self.db_pattern = re.compile(r"^{}\..*".format(self.db.name))
         self.oplog = self.db.client.local.oplog.rs
         # Get an initial timestamp
         self.update_timestamp()
@@ -33,12 +33,7 @@ class CloudDBUpdater:
         These updates are filtered to only include Update, Insert, and Delete operations
         """
         return list(
-            self.oplog.find(
-                {
-                    'ts': {'$gt': self.last_timestamp},
-                    'op': {'$in': ['d', 'i', 'u']}
-                }
-            )
+            self.oplog.find({"ts": {"$gt": self.last_timestamp}, "op": {"$in": ["d", "i", "u"]}})
         )
 
     def create_db_changes(self) -> collections.defaultdict:
@@ -47,12 +42,12 @@ class CloudDBUpdater:
         for entry in self.entries_since_last():
             # 'ns' in the entry is of the format <database>.<collection> and shows where the changes
             # were written
-            location: str = entry['ns']
+            location: str = entry["ns"]
             # Ignore writes to a database other than the current local database
             if not self.db_pattern.match(location):
                 continue
             # Get collection name from full location
-            collection = location[location.index('.') + 1 :]
+            collection = location[location.index(".") + 1 :]
             changes[collection].append(self.create_bulk_operation(entry))
         return changes
 
@@ -69,12 +64,12 @@ class CloudDBUpdater:
             try:
                 results[collection] = self.cloud_db.bulk_write(collection, bulk_ops)
             except pymongo.errors.BulkWriteError:
-                utils.log_error(f'Error Writing to {collection}.')
+                utils.log_error(f"Error Writing to {collection}.")
                 current_documents = self.db.find(collection)
                 self.cloud_db.delete_data(collection)
                 self.cloud_db.insert_documents(collection, current_documents)
             except pymongo.errors.ServerSelectionTimeoutError:
-                utils.log_warning(f'Unable to write to {collection} due to poor internet')
+                utils.log_warning(f"Unable to write to {collection} due to poor internet")
                 break  # Don't delay server cycle with more operations without internet
         # Update timestamp if loop exited properly
         else:
@@ -83,8 +78,8 @@ class CloudDBUpdater:
 
     def update_timestamp(self):
         """Updates the timestamp to the most recent oplog entry timestamp"""
-        last_op = self.oplog.find({}).sort('ts', pymongo.DESCENDING).limit(1)
-        self.last_timestamp = last_op.next()['ts']
+        last_op = self.oplog.find({}).sort("ts", pymongo.DESCENDING).limit(1)
+        self.last_timestamp = last_op.next()["ts"]
 
     @classmethod
     def create_bulk_operation(
@@ -95,14 +90,14 @@ class CloudDBUpdater:
         Note: this does not handle the collection that is written to, and the operations need to be
         applied to a specific collection to work.
         """
-        operation = cls.OPERATION_MAP.get(entry['op'])
+        operation = cls.OPERATION_MAP.get(entry["op"])
         if operation is None:
             return None
-        if 'o' in entry and '$v' in entry['o'].keys():
-            entry['o'].pop('$v')
-        if 'o2' in entry:
-            return operation(entry['o2'], entry['o'])
-        return operation(entry['o'])
+        if "o" in entry and "$v" in entry["o"].keys():
+            entry["o"].pop("$v")
+        if "o2" in entry:
+            return operation(entry["o2"], entry["o"])
+        return operation(entry["o"])
 
     @classmethod
     def get_cloud_db(cls) -> Optional[database.Database]:
@@ -114,18 +109,18 @@ class CloudDBUpdater:
             return database.Database(connection=cls.get_connection_string())
         except pymongo.errors.ConfigurationError:
             # Raised when DNS operation times out, effectively means no internet
-            utils.log_warning('Cannot connect to Cloud DB')
+            utils.log_warning("Cannot connect to Cloud DB")
             return None
 
     @classmethod
     def get_connection_string(cls) -> str:
         """Adds the password to the class connection string"""
         try:
-            with open(utils.create_file_path('data/api_keys/cloud_password.txt')) as f:
+            with open(utils.create_file_path("data/api_keys/cloud_password.txt")) as f:
                 password = f.read().rstrip()
         except FileNotFoundError:
             raise FileNotFoundError(
-                'Missing Cloud DB password file (data/api_keys/cloud_password.txt)'
+                "Missing Cloud DB password file (data/api_keys/cloud_password.txt)"
             )
         return cls.BASE_CONNECTION_STRING.format(password)
 
@@ -137,4 +132,4 @@ def cloud_db_connector():
         cloud_db = CloudDBUpdater.get_cloud_db()
         if cloud_db is not None:
             return cloud_db
-    raise IOError('Three connection attempts failed to the CloudDB')
+    raise IOError("Three connection attempts failed to the CloudDB")

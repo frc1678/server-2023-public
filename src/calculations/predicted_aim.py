@@ -98,14 +98,10 @@ class PredictedAimCalc(BaseCalculations):
 
         for team in team_numbers:
             obj_team = [
-                team_data
-                for team_data in obj_team_data
-                if team_data["team_number"] == team
+                team_data for team_data in obj_team_data if team_data["team_number"] == team
             ][0]
             tba_team = [
-                team_data
-                for team_data in tba_team_data
-                if team_data["team_number"] == team
+                team_data for team_data in tba_team_data if team_data["team_number"] == team
             ][0]
 
             self.calculate_predicted_balls_score(predicted_values, obj_team)
@@ -118,9 +114,7 @@ class PredictedAimCalc(BaseCalculations):
             )
 
         for data_field in dataclasses.asdict(predicted_values).keys():
-            total_score += (
-                getattr(predicted_values, data_field) * self.POINTS[data_field]
-            )
+            total_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
 
         return total_score
 
@@ -131,12 +125,9 @@ class PredictedAimCalc(BaseCalculations):
         """
         endgame_score = 0
         endgame_score += (
-            predicted_values.low_rung_success_rate
-            * self.POINTS["low_rung_success_rate"]
-            + predicted_values.mid_rung_success_rate
-            * self.POINTS["mid_rung_success_rate"]
-            + predicted_values.high_rung_success_rate
-            * self.POINTS["high_rung_success_rate"]
+            predicted_values.low_rung_success_rate * self.POINTS["low_rung_success_rate"]
+            + predicted_values.mid_rung_success_rate * self.POINTS["mid_rung_success_rate"]
+            + predicted_values.high_rung_success_rate * self.POINTS["high_rung_success_rate"]
             + predicted_values.traversal_rung_success_rate
             * self.POINTS["traversal_rung_success_rate"]
         )
@@ -185,18 +176,14 @@ class PredictedAimCalc(BaseCalculations):
                     alliance_color = "red"
                 else:
                     alliance_color = "blue"
-                actual_match_dict["actual_score"] = actual_aim[alliance_color][
-                    "totalPoints"
-                ]
+                actual_match_dict["actual_score"] = actual_aim[alliance_color]["totalPoints"]
                 # TBA stores RPs as booleans. If the RP is true, they get 1 RP, otherwise they get 0.
                 if actual_aim[alliance_color]["cargoBonusRankingPoint"]:
                     actual_match_dict["actual_rp1"] = 1.0
                 if actual_aim[alliance_color]["hangarBonusRankingPoint"]:
                     actual_match_dict["actual_rp2"] = 1.0
                 # Gets whether the alliance won the match by checking the winning alliance against the alliance color/
-                actual_match_dict["won_match"] = (
-                    match["winning_alliance"] == alliance_color
-                )
+                actual_match_dict["won_match"] = match["winning_alliance"] == alliance_color
                 # Sets actual_match_data to true once the actual data has been pulled
                 actual_match_dict["has_actual_data"] = True
                 break
@@ -234,9 +221,7 @@ class PredictedAimCalc(BaseCalculations):
         updates = []
         obj_team = self.server.db.find("obj_team")
         tba_team = self.server.db.find("tba_team")
-        tba_match_data = tba_communicator.tba_request(
-            f"event/{self.server.TBA_EVENT_KEY}/matches"
-        )
+        tba_match_data = tba_communicator.tba_request(f"event/{self.server.TBA_EVENT_KEY}/matches")
 
         filtered_aims_list = self.filter_aims_list(obj_team, tba_team, aims_list)
 
@@ -249,12 +234,8 @@ class PredictedAimCalc(BaseCalculations):
             update["predicted_score"] = self.calculate_predicted_alliance_score(
                 predicted_values, obj_team, tba_team, aim["team_list"]
             )
-            update["predicted_rp1"] = self.calculate_predicted_ball_rp(
-                obj_team, predicted_values
-            )
-            update["predicted_rp2"] = self.calculate_predicted_climb_rp(
-                predicted_values
-            )
+            update["predicted_rp1"] = self.calculate_predicted_ball_rp(obj_team, predicted_values)
+            update["predicted_rp2"] = self.calculate_predicted_climb_rp(predicted_values)
             update.update(self.get_actual_values(aim, tba_match_data))
             updates.append(update)
         return updates
@@ -304,6 +285,6 @@ class PredictedAimCalc(BaseCalculations):
                 update,
                 {
                     "match_number": update["match_number"],
-                    "alliance_color_is_red": update["alliance_color_is_red"]
-                }
+                    "alliance_color_is_red": update["alliance_color_is_red"],
+                },
             )

@@ -18,25 +18,27 @@ def delete_tablet_downloads():
     devices = get_attached_devices()
     # Wait for USB connection to initialize
     time.sleep(0.1)
-    directory = '/storage/emulated/0/Download'
+    directory = "/storage/emulated/0/Download"
     for device in devices:
         try:
-            utils.run_command(f'adb -s {device} shell rm -r {directory}')
-            utils.log_info(f'Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]} ({device})')
+            utils.run_command(f"adb -s {device} shell rm -r {directory}")
+            utils.log_info(f"Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]} ({device})")
         except:
-            utils.log_info(f'Found no files to delete on {DEVICE_SERIAL_NUMBERS[device]} ({device})')
+            utils.log_info(
+                f"Found no files to delete on {DEVICE_SERIAL_NUMBERS[device]} ({device})"
+            )
 
 
 def get_attached_devices():
     """Uses ADB to get a list serials of devices attached."""
     # Get output from `adb_devices` command. Example output:
     # "List of devices attached\nHA0XUZA9\tdevice\n9AMAY1E53P\tdevice"
-    adb_output = utils.run_command('adb devices', return_output=True)
+    adb_output = utils.run_command("adb devices", return_output=True)
     # Split output by lines
     # [1:] removes line one, 'List of devices attached'
-    adb_output = adb_output.rstrip('\n').split('\n')[1:]
+    adb_output = adb_output.rstrip("\n").split("\n")[1:]
     # Remove '\tdevice' from each line
-    return [line.split('\t')[0] for line in adb_output]
+    return [line.split("\t")[0] for line in adb_output]
 
 
 def push_file(serial_number, local_path, tablet_path, validate_function=None):
@@ -48,7 +50,7 @@ def push_file(serial_number, local_path, tablet_path, validate_function=None):
     # Calls 'adb push' command, which runs over the Android Debug Bridge (ADB) to copy the file at
     # local_path to the tablet
     # The -s flag specifies the device by its serial number
-    push_command = f'adb -s {serial_number} push {local_path} {tablet_path}'
+    push_command = f"adb -s {serial_number} push {local_path} {tablet_path}"
     utils.run_command(push_command)
     # Return bool indicating if file loaded correctly
     if validate_function is not None:
@@ -56,7 +58,7 @@ def push_file(serial_number, local_path, tablet_path, validate_function=None):
     return None
 
 
-def uninstall_app(device, app_name='com.frc1678.match_collection'):
+def uninstall_app(device, app_name="com.frc1678.match_collection"):
     """Uninstalls app `app_name` from tablet matching the serial number.
 
     Match Collection is com.frc1678.match_collection
@@ -64,14 +66,19 @@ def uninstall_app(device, app_name='com.frc1678.match_collection'):
     Viewer is com.example.viewer_2020
     """
     # Gets list of all installed apps. -3 returns only 3rd party apps.
-    installed_apps = utils.run_command(f'adb -s {device} shell pm list packages -3', return_output=True)
-    uninstall_command = f'adb -s {device} uninstall {app_name}'
+    installed_apps = utils.run_command(
+        f"adb -s {device} shell pm list packages -3", return_output=True
+    )
+    uninstall_command = f"adb -s {device} uninstall {app_name}"
     if app_name in installed_apps:
         utils.run_command(uninstall_command)
-        utils.log_info(f'Uninstalled app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
+        utils.log_info(
+            f"Uninstalled app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device})"
+        )
     else:
-        utils.log_info(f'Tried to to uninstall app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device}) but it was not in list of installed apps.')
-
+        utils.log_info(
+            f"Tried to to uninstall app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device}) but it was not in list of installed apps."
+        )
 
 
 def pull_device_files(local_file_path, tablet_file_path):
@@ -106,7 +113,7 @@ def pull_device_files(local_file_path, tablet_file_path):
             # Calls 'adb push' command, which uses the Android Debug
             # Bridge (ADB) to copy the match schedule file to the tablet.
             # The -s flag specifies the device by its serial number.
-            utils.run_command(f'adb -s {device} pull {tablet_file_path} {full_local_path}')
+            utils.run_command(f"adb -s {device} pull {tablet_file_path} {full_local_path}")
 
 
 def adb_remove_files(tablet_file_path):
@@ -124,22 +131,22 @@ def adb_remove_files(tablet_file_path):
         # Calls 'adb push' command, which uses the Android Debug
         # Bridge (ADB) to copy the match schedule file to the tablet
         # The -s flag specifies the devices by their serial numbers
-        utils.run_command(f'adb -s {device} shell rm -r {tablet_file_path}')
-        utils.log_info(f'removed {tablet_file_path} on {DEVICE_SERIAL_NUMBERS[device]}, ({device})')
+        utils.run_command(f"adb -s {device} shell rm -r {tablet_file_path}")
+        utils.log_info(f"removed {tablet_file_path} on {DEVICE_SERIAL_NUMBERS[device]}, ({device})")
 
 
 def pull_device_data():
     """Pulls tablet data from attached tablets."""
     # Parses 'adb devices' to find num of devices so that don't try to pull from nothing
     devices = get_attached_devices()
-    data = {'qr': [], 'raw_obj_pit': []}
+    data = {"qr": [], "raw_obj_pit": []}
     if not devices:
         return data
 
     device_file_paths = []
-    device_file_path = utils.create_file_path('data/devices')
+    device_file_path = utils.create_file_path("data/devices")
     # Pull all files from the 'Download' folder on the device
-    pull_device_files(device_file_path, '/storage/emulated/0/Download')
+    pull_device_files(device_file_path, "/storage/emulated/0/Download")
     # Iterates through the 'data' folder
     for device_dir in os.listdir(device_file_path):
         if device_dir in PHONE_SERIAL_NUMBERS.keys():
@@ -153,26 +160,26 @@ def pull_device_data():
                 if re.fullmatch(pattern, file):
                     with open(os.path.join(download_directory, file)) as data_file:
                         # QR data is just read
-                        if dataset == 'qr':
-                            file_contents = data_file.read().rstrip('\n')
+                        if dataset == "qr":
+                            file_contents = data_file.read().rstrip("\n")
                         else:
                             file_contents = json.load(data_file)
                         data[dataset].append(file_contents)
                         break  # Filename will only match one regex
     # Add QRs to database and make sure that only QRs that should be decompressed are added to queue
-    data['qr'] = qr_code_uploader.upload_qr_codes(data['qr'])
+    data["qr"] = qr_code_uploader.upload_qr_codes(data["qr"])
     db = database.Database()
     # Only raw_obj_pit in the 2022 season, but other years also have raw_subj_pit which is why this iterates through datasets
-    for dataset in ['raw_obj_pit']:
-        current_data = [document.pop('_id') for document in db.find(dataset)]
+    for dataset in ["raw_obj_pit"]:
+        current_data = [document.pop("_id") for document in db.find(dataset)]
         modified_data = []
         for document in data[dataset]:
             if document in current_data:
                 continue
             # Specify query to ensure that each team only has one entry
-            db.update_document(dataset, document, {'team_number': document['team_number']})
-            modified_data.append({'team_number': document['team_number']})
-        utils.log_info(f'{len(modified_data)} items uploaded to {dataset}')
+            db.update_document(dataset, document, {"team_number": document["team_number"]})
+            modified_data.append({"team_number": document["team_number"]})
+        utils.log_info(f"{len(modified_data)} items uploaded to {dataset}")
         data[dataset] = modified_data
     return data
 
@@ -187,7 +194,7 @@ def validate_apk(device_serial, local_file_path):
     local_file_path is the local APK file path.
     """
     check_success = utils.run_command(
-        f'adb -s {device_serial} install -r {local_file_path}', return_output=True
+        f"adb -s {device_serial} install -r {local_file_path}", return_output=True
     )
     return check_success
 
@@ -200,7 +207,7 @@ def adb_font_size_enforcer():
     for device in devices:
         # The -s flag specifies the device by its serial number.
         utils.run_command(
-            f'adb -s {device} shell settings put system font_scale 1.30', return_output=False
+            f"adb -s {device} shell settings put system font_scale 1.30", return_output=False
         )
 
 
@@ -211,9 +218,9 @@ def get_tablet_file_path_hash(device_id, tablet_file_path):
     The -b flag to sha256sum specifies 'brief,' meaning that only the hash is output.
     """
     tablet_hash = utils.run_command(
-        f'adb -s {device_id} shell sha256sum -b {tablet_file_path}', return_output=True
+        f"adb -s {device_id} shell sha256sum -b {tablet_file_path}", return_output=True
     )
-    return tablet_hash.strip('\n')
+    return tablet_hash.strip("\n")
 
 
 # Store regex patterns to match files containing either pit or match data
@@ -221,19 +228,19 @@ FILENAME_REGEXES = {
     # Matches either objective or subjective QR filenames
     # Format of objective QR file pattern: <qual_num>_<team_num>_<serial_num>_<timestamp>.txt
     # Format of subjective QR file pattern: <qual_num>_<serial_num>_<timestamp>.txt
-    'qr': re.compile(
-        r'([0-9]{1,3}_[0-9]{1,4}_[A-Z0-9]+_[0-9]+\.txt)|([0-9]{1,3}_[0-9A-Z]+_[0-9]+\.txt)'
+    "qr": re.compile(
+        r"([0-9]{1,3}_[0-9]{1,4}_[A-Z0-9]+_[0-9]+\.txt)|([0-9]{1,3}_[0-9A-Z]+_[0-9]+\.txt)"
     ),
     # Format of objective pit file pattern: <team_number>_pit.json
-    'raw_obj_pit': re.compile(r'[0-9]{1,4}_obj_pit\.json'),
+    "raw_obj_pit": re.compile(r"[0-9]{1,4}_obj_pit\.json"),
 }
 
 # Open the tablet serials file to find all device serials
-with open(utils.create_file_path('data/tablet_serials.json')) as serial_numbers:
+with open(utils.create_file_path("data/tablet_serials.json")) as serial_numbers:
     DEVICE_SERIAL_NUMBERS = json.load(serial_numbers)
 TABLET_SERIAL_NUMBERS = {
-    serial: key for serial, key in DEVICE_SERIAL_NUMBERS.items() if 'Tab' in key
+    serial: key for serial, key in DEVICE_SERIAL_NUMBERS.items() if "Tab" in key
 }
 PHONE_SERIAL_NUMBERS = {
-    serial: key for serial, key in DEVICE_SERIAL_NUMBERS.items() if 'Pixel' in key
+    serial: key for serial, key in DEVICE_SERIAL_NUMBERS.items() if "Pixel" in key
 }

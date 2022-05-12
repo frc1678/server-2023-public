@@ -14,12 +14,12 @@ from server import Server
 class TBATIMCalc(base_calculations.BaseCalculations):
     """Runs TBA Tim calculations"""
 
-    SCHEMA = utils.unprefix_schema_dict(utils.read_schema('schema/calc_tba_tim_schema.yml'))['tba']
+    SCHEMA = utils.unprefix_schema_dict(utils.read_schema("schema/calc_tba_tim_schema.yml"))["tba"]
 
     def __init__(self, server):
         """Creates an empty list to add references of calculated tims to"""
         super().__init__(server)
-        self.calculated = set([tim['match_number'] for tim in self.server.db.find('tba_tim')])
+        self.calculated = set([tim["match_number"] for tim in self.server.db.find("tba_tim")])
 
     def entries_since_last(self) -> List[Dict[str, Any]]:
         """Checks for uncalculated matches, returns the match data
@@ -28,7 +28,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
         match numbers in self.calculated, and will return the match data if it has not been
         calculated (not in self.calculated)
         """
-        tba_match_data = tba_communicator.tba_request(f'event/{Server.TBA_EVENT_KEY}/matches')
+        tba_match_data = tba_communicator.tba_request(f"event/{Server.TBA_EVENT_KEY}/matches")
         not_calculated: List[Dict[str, Any]] = []
 
         # Go through the matches that it pulled from tba to check if the each
@@ -51,16 +51,16 @@ class TBATIMCalc(base_calculations.BaseCalculations):
     def calc_tba_bool(match_data: Dict, alliance: str, filters: Dict) -> bool:
         """Returns a bool representing if match_data meets all filters defined in filters."""
         for key, value in filters.items():
-            if match_data['score_breakdown'][alliance][key] != value:
+            if match_data["score_breakdown"][alliance][key] != value:
                 return False
         return True
 
     @staticmethod
     def get_robot_number_and_alliance(team_num: int, match_data: Dict) -> Tuple[int, str]:
         """Gets the robot number (e.g. the `1` in initLineRobot1) and alliance color."""
-        team_key = f'frc{team_num}'
-        for alliance in ['red', 'blue']:
-            for i, key in enumerate(match_data['alliances'][alliance]['team_keys'], start=1):
+        team_key = f"frc{team_num}"
+        for alliance in ["red", "blue"]:
+            for i, key in enumerate(match_data["alliances"][alliance]["team_keys"], start=1):
                 if team_key == key:
                     return i, alliance
         raise ValueError(f'Team {team_num} not found in match {match_data["match_number"]}')
@@ -69,10 +69,10 @@ class TBATIMCalc(base_calculations.BaseCalculations):
     def get_team_list_from_match(match_data: Dict) -> List[int]:
         """Extracts list of teams that played in the match with data given in match_data."""
         team_list = []
-        for alliance in ['red', 'blue']:
+        for alliance in ["red", "blue"]:
             team_list.extend(
                 # This fetches the numeric values from the string
-                [int(team[3:]) for team in match_data['alliances'][alliance]['team_keys']]
+                [int(team[3:]) for team in match_data["alliances"][alliance]["team_keys"]]
             )
         return team_list
 
@@ -106,7 +106,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
             for field, expected_value in tim_requirements.items():
                 if field.endswith("Robot"):
                     del tim_requirements_copy[field]
-                    tim_requirements_copy[f'{field}{robot_number}'] = expected_value
+                    tim_requirements_copy[f"{field}{robot_number}"] = expected_value
 
             # Fun calc_tba_bool for each calculation, and add it to tim
             if isinstance(tim["match_number"], int):
@@ -139,4 +139,11 @@ class TBATIMCalc(base_calculations.BaseCalculations):
                 # Add the tim ref to calculated, right after it gets calculated
                 self.calculated.add(match["match_number"])
 
-                self.server.db.update_document("tba_tim", calculated_tim, {'match_number': calculated_tim['match_number'], 'team_number': calculated_tim['team_number']})
+                self.server.db.update_document(
+                    "tba_tim",
+                    calculated_tim,
+                    {
+                        "match_number": calculated_tim["match_number"],
+                        "team_number": calculated_tim["team_number"],
+                    },
+                )

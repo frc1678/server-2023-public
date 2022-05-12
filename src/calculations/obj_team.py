@@ -11,9 +11,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
     """Runs OBJ Team calculations"""
 
     # Get the last section of each entry (so foo.bar.baz becomes baz)
-    SCHEMA = utils.unprefix_schema_dict(
-        utils.read_schema("schema/calc_obj_team_schema.yml")
-    )
+    SCHEMA = utils.unprefix_schema_dict(utils.read_schema("schema/calc_obj_team_schema.yml"))
 
     def __init__(self, server):
         """Overrides watched collections, passes server object"""
@@ -34,9 +32,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             tim_fields.add(schema["tim_fields"][0])
         for tim_field in tim_fields:
             # Gets the total number of actions across all tims
-            tim_action_counts[tim_field] = [
-                tim[tim_field.split(".")[1]] for tim in tims
-            ]
+            tim_action_counts[tim_field] = [tim[tim_field.split(".")[1]] for tim in tims]
         return tim_action_counts
 
     def get_action_categories(self, tims: List[Dict]):
@@ -48,9 +44,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             tim_fields.add(schema["tim_fields"][0])
         for tim_field in tim_fields:
             # Gets the total number of actions across all tims
-            tim_action_categories[tim_field] = [
-                tim[tim_field.split(".")[1]] for tim in tims
-            ]
+            tim_action_categories[tim_field] = [tim[tim_field.split(".")[1]] for tim in tims]
         return tim_action_categories
 
     def calculate_averages(self, tim_action_counts, lfm_tim_action_counts):
@@ -148,9 +142,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                 if "lfm" in calculation:
                     int_levels = [
                         climb_levels.index(str_level)
-                        for str_level in lfm_tim_action_categories[
-                            "obj_tim.climb_level"
-                        ]
+                        for str_level in lfm_tim_action_categories["obj_tim.climb_level"]
                     ]
                 else:
                     int_levels = [
@@ -179,12 +171,18 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         where the keys are the names of the calculations, and the values are the results
         """
         team_info = {}
-        for calculation, schema in self.SCHEMA['modes'].items():
-            tim_field = schema['tim_fields'][0]
-            if 'lfm' in calculation:
-                values_to_count = [value for value in lfm_tim_action_categories[tim_field] if value != schema['ignore']]
+        for calculation, schema in self.SCHEMA["modes"].items():
+            tim_field = schema["tim_fields"][0]
+            if "lfm" in calculation:
+                values_to_count = [
+                    value
+                    for value in lfm_tim_action_categories[tim_field]
+                    if value != schema["ignore"]
+                ]
             else:
-                values_to_count = [value for value in tim_action_categories[tim_field] if value != schema['ignore']]
+                values_to_count = [
+                    value for value in tim_action_categories[tim_field] if value != schema["ignore"]
+                ]
             team_info[calculation] = multimode(values_to_count)
         return team_info
 
@@ -243,7 +241,14 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_data.update(self.calculate_counts(obj_tims, lfm_tims))
             team_data.update(self.calculate_super_counts(subj_tims))
             team_data.update(self.calculate_standard_deviations(tim_action_counts))
-            team_data.update(self.calculate_extrema(tim_action_counts, lfm_tim_action_counts, tim_action_categories, lfm_tim_action_categories))
+            team_data.update(
+                self.calculate_extrema(
+                    tim_action_counts,
+                    lfm_tim_action_counts,
+                    tim_action_categories,
+                    lfm_tim_action_categories,
+                )
+            )
             team_data.update(self.calculate_modes(tim_action_categories, lfm_tim_action_categories))
             team_data.update(self.calculate_success_rates(team_data))
             team_data.update(self.calculate_average_points(team_data))
@@ -257,7 +262,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         teams = []
         # Filter out teams that are in subj_tim but not obj_tim
         for team in self.get_updated_teams():
-            if self.server.db.find('obj_tim', team_number=team) != []:
+            if self.server.db.find("obj_tim", team_number=team) != []:
                 teams.append(team)
         # Delete and re-insert if updating all data
         if self.calc_all_data:

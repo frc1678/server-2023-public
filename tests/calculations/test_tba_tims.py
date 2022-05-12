@@ -10,50 +10,50 @@ from calculations import tba_tims
 
 TEST_DATA = [
     {
-        'alliances': {
-            'blue': {
-                'team_keys': ['frc33', 'frc25', 'frc257'],
+        "alliances": {
+            "blue": {
+                "team_keys": ["frc33", "frc25", "frc257"],
             },
-            'red': {
-                'team_keys': ['frc34', 'frc973', 'frc254'],
+            "red": {
+                "team_keys": ["frc34", "frc973", "frc254"],
             },
         },
-        'comp_level': 'qm',
-        'match_number': 1,
-        'score_breakdown': {
-            'blue': {
-                'taxiRobot1': 'Yes',
-                'taxiRobot2': 'Yes',
-                'taxiRobot3': 'Yes',
+        "comp_level": "qm",
+        "match_number": 1,
+        "score_breakdown": {
+            "blue": {
+                "taxiRobot1": "Yes",
+                "taxiRobot2": "Yes",
+                "taxiRobot3": "Yes",
             },
-            'red': {
-                'taxiRobot1': 'Yes',
-                'taxiRobot2': 'Yes',
-                'taxiRobot3': 'No',
+            "red": {
+                "taxiRobot1": "Yes",
+                "taxiRobot2": "Yes",
+                "taxiRobot3": "No",
             },
         },
     },
     {
-        'alliances': {
-            'blue': {
-                'team_keys': ['frc97', 'frc3', 'frc37'],
+        "alliances": {
+            "blue": {
+                "team_keys": ["frc97", "frc3", "frc37"],
             },
-            'red': {
-                'team_keys': ['frc47', 'frc57', 'frc67'],
+            "red": {
+                "team_keys": ["frc47", "frc57", "frc67"],
             },
         },
-        'comp_level': 'qm',
-        'match_number': 2,
-        'score_breakdown': {
-            'blue': {
-                'taxiRobot1': 'Yes',
-                'taxiRobot2': 'Yes',
-                'taxiRobot3': 'Yes',
+        "comp_level": "qm",
+        "match_number": 2,
+        "score_breakdown": {
+            "blue": {
+                "taxiRobot1": "Yes",
+                "taxiRobot2": "Yes",
+                "taxiRobot3": "Yes",
             },
-            'red': {
-                'taxiRobot1': 'Yes',
-                'taxiRobot2': 'Yes',
-                'taxiRobot3': 'Yes',
+            "red": {
+                "taxiRobot1": "Yes",
+                "taxiRobot2": "Yes",
+                "taxiRobot3": "Yes",
             },
         },
     },
@@ -132,7 +132,7 @@ def mock_entries_since_last():
 @pytest.mark.clouddb
 class TestTBATimCalc:
     def setup_method(self):
-        with mock.patch('server.Server.ask_calc_all_data', return_value=False):
+        with mock.patch("server.Server.ask_calc_all_data", return_value=False):
             self.test_server = Server()
         self.test_calc = tba_tims.TBATIMCalc(self.test_server)
 
@@ -155,9 +155,7 @@ class TestTBATimCalc:
 
         # Tests calc_tba_bool() using the example match data above
         assert tba_tims.TBATIMCalc.calc_tba_bool(match_data, "blue", {"taxiRobot1": "Yes"})
-        assert not tba_tims.TBATIMCalc.calc_tba_bool(
-            match_data, "red", {"taxiRobot2": "Yes"}
-        )
+        assert not tba_tims.TBATIMCalc.calc_tba_bool(match_data, "red", {"taxiRobot2": "Yes"})
 
     def test_get_robot_number_and_alliance(self):
         # Generates example team keys to test get_robot_number_and_alliance()

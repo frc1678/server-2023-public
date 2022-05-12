@@ -15,9 +15,21 @@ import start_mongod
 import utils
 
 # Load collection names
-COLLECTION_SCHEMA = utils.read_schema('schema/collection_schema.yml')
-COLLECTION_NAMES = [collection for collection in COLLECTION_SCHEMA['collections'].keys()]
-VALID_COLLECTIONS = ['obj_team', 'obj_tim', 'subj_team', 'subj_tim', 'tba_team', 'tba_tim', 'raw_qr', 'predicted_aim', 'predicted_team', 'pickability', 'raw_obj_pit']
+COLLECTION_SCHEMA = utils.read_schema("schema/collection_schema.yml")
+COLLECTION_NAMES = [collection for collection in COLLECTION_SCHEMA["collections"].keys()]
+VALID_COLLECTIONS = [
+    "obj_team",
+    "obj_tim",
+    "subj_team",
+    "subj_tim",
+    "tba_team",
+    "tba_tim",
+    "raw_qr",
+    "predicted_aim",
+    "predicted_team",
+    "pickability",
+    "raw_obj_pit",
+]
 
 # Start mongod and initialize replica set
 start_mongod.start_mongod()
@@ -35,14 +47,14 @@ class Database:
     def __init__(
         self,
         tba_event_key: str = utils.load_tba_event_key_file(utils._TBA_EVENT_KEY_FILE),
-        connection: str = 'localhost',
+        connection: str = "localhost",
         port: int = start_mongod.PORT,
     ) -> None:
         self.connection = connection
         self.port = port
         self.client = pymongo.MongoClient(connection, port)
-        production_mode: bool = os.environ.get('SCOUTING_SERVER_ENV') == 'production'
-        self.name = tba_event_key if production_mode else f'test{tba_event_key}'
+        production_mode: bool = os.environ.get("SCOUTING_SERVER_ENV") == "production"
+        self.name = tba_event_key if production_mode else f"test{tba_event_key}"
         self.db = self.client[self.name]
 
     def setup_db(self):
@@ -54,13 +66,13 @@ class Database:
 
     def set_indexes(self) -> None:
         """Adds indexes into competition collections"""
-        for collection in COLLECTION_SCHEMA['collections']:
-            collection_dict = COLLECTION_SCHEMA['collections'][collection]
-            if collection_dict['indexes'] is not None:
-                for index in collection_dict['indexes']:
+        for collection in COLLECTION_SCHEMA["collections"]:
+            collection_dict = COLLECTION_SCHEMA["collections"][collection]
+            if collection_dict["indexes"] is not None:
+                for index in collection_dict["indexes"]:
                     self.db[collection].create_index(
-                        [(field, pymongo.ASCENDING) for field in index['fields']],
-                        unique=index['unique'],
+                        [(field, pymongo.ASCENDING) for field in index["fields"]],
+                        unique=index["unique"],
                     )
 
     def find(self, collection: str, **filters: dict) -> list:
@@ -70,20 +82,20 @@ class Database:
 
     def get_tba_cache(self, api_url: str) -> Optional[dict]:
         """Gets the TBA Cache of 'api_url'"""
-        return self.db.tba_cache.find_one({'api_url': api_url})
+        return self.db.tba_cache.find_one({"api_url": api_url})
 
     def update_tba_cache(self, data: Any, api_url: str, timestamp: Optional[str] = None) -> None:
         """Updates one TBA Cache at 'api_url'"""
-        write_object = {'data': data}
+        write_object = {"data": data}
         if timestamp is not None:
-            write_object['timestamp'] = timestamp
-        self.db.tba_cache.update_one({'api_url': api_url}, {'$set': write_object}, upsert=True)
+            write_object["timestamp"] = timestamp
+        self.db.tba_cache.update_one({"api_url": api_url}, {"$set": write_object}, upsert=True)
 
     def delete_data(self, collection: str, **filters: dict) -> None:
         """Deletes data in 'collection' according to 'filters'"""
         check_collection_name(collection)
-        if 'raw' in collection:
-            utils.log_warning(f'Attempted to delete raw data from collection {collection}')
+        if "raw" in collection:
+            utils.log_warning(f"Attempted to delete raw data from collection {collection}")
             return
         self.db[collection].delete_many(filters)
 
@@ -107,32 +119,32 @@ class Database:
     ) -> None:
         """Updates one document that matches 'query' with 'new_data', uses upsert"""
         check_collection_name(collection)
-        if collection == 'raw_qr':
-            utils.log_warning(f'Attempted to modify raw qr data')
+        if collection == "raw_qr":
+            utils.log_warning(f"Attempted to modify raw qr data")
             return
-        self.db[collection].update_one(query, {'$set': new_data}, upsert=True)
+        self.db[collection].update_one(query, {"$set": new_data}, upsert=True)
 
     def update_qr_blocklist_status(self, query) -> None:
         """Changes the status of a raw qr matching 'query' from blocklisted: true to blocklisted: false
         Lowers risk of data loss from using normal update."""
-        self.db['raw_qr'].update_one(query, {'$set': {'blocklisted': True}})
+        self.db["raw_qr"].update_one(query, {"$set": {"blocklisted": True}})
 
     def _enable_validation(self, collection: str, file: str):
-        sch = utils.read_schema('schema/' + file)
+        sch = utils.read_schema("schema/" + file)
         sch = mongo_convert(sch)
         cmd = OrderedDict(
             [
-                ('collMod', collection),
-                ('validator', {"$jsonSchema": sch}),
-                ('validationLevel', 'moderate'),
+                ("collMod", collection),
+                ("validator", {"$jsonSchema": sch}),
+                ("validationLevel", "moderate"),
             ]
         )
         self.db.command(cmd)
 
     def _get_all_schema_names(self) -> dict:
         out = {}
-        for entry in COLLECTION_SCHEMA['collections'].keys():
-            out[entry] = COLLECTION_SCHEMA['collections'][entry]['schema']
+        for entry in COLLECTION_SCHEMA["collections"].keys():
+            out[entry] = COLLECTION_SCHEMA["collections"][entry]["schema"]
             if out[entry] == None:
                 out.pop(entry)
         return out
@@ -150,20 +162,27 @@ def mongo_convert(sch):
     """Converts a schema dictionary into a mongo-usable form."""
     # Dictionary for translating data types in schema to recognized BSON types
     # Objective Pit enums are stored as ints in the database
-    type_to_bson = {'int': 'int', 'float': 'number', 'str': 'string', 'bool': 'bool', 'List': 'array', 'Enum': 'int'}
+    type_to_bson = {
+        "int": "int",
+        "float": "number",
+        "str": "string",
+        "bool": "bool",
+        "List": "array",
+        "Enum": "int",
+    }
     out = {}
-    out['bsonType'] = 'object'
-    out['required'] = []
-    out['properties'] = {}
+    out["bsonType"] = "object"
+    out["required"] = []
+    out["properties"] = {}
     for section, datapoints in sch.items():
         # These sections aren't stored in the database; ignore them
-        if section in ['schema_file', 'enums']:
+        if section in ["schema_file", "enums"]:
             continue
         for datapoint, info in datapoints.items():
             datapoint_dict = {}
             # Every document should have a team number, match number, and/or scout name depending on collection
-            if datapoint in ['team_number', 'match_number', 'scout_name']:
-                out['required'].append(datapoint)
-            datapoint_dict['bsonType'] = type_to_bson[info['type']]
-            out['properties'].update({datapoint: datapoint_dict})
+            if datapoint in ["team_number", "match_number", "scout_name"]:
+                out["required"].append(datapoint)
+            datapoint_dict["bsonType"] = type_to_bson[info["type"]]
+            out["properties"].update({datapoint: datapoint_dict})
     return out

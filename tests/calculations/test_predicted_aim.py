@@ -84,7 +84,7 @@ class TestPredictedAimCalc:
                 "predicted_score": 243.3107142857143,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.5343742857142861
+                "win_chance": 0.5343742857142861,
             },
             {
                 "match_number": 1,
@@ -97,7 +97,7 @@ class TestPredictedAimCalc:
                 "predicted_score": 241.79642857142858,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.46562571428571387
+                "win_chance": 0.46562571428571387,
             },
             {
                 "match_number": 3,
@@ -110,7 +110,7 @@ class TestPredictedAimCalc:
                 "predicted_score": 243.3107142857143,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.5343742857142861
+                "win_chance": 0.5343742857142861,
             },
             {
                 "match_number": 3,
@@ -123,7 +123,7 @@ class TestPredictedAimCalc:
                 "predicted_score": 241.79642857142858,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.46562571428571387
+                "win_chance": 0.46562571428571387,
             },
         ]
         self.full_predicted_values = predicted_aim.PredictedAimScores(
@@ -316,25 +316,16 @@ class TestPredictedAimCalc:
         )
 
     def test_calculate_climb_rp(self):
-        assert (
-            self.test_calc.calculate_predicted_climb_rp(self.blank_predicted_values)
-            == 0
-        )
-        assert (
-            self.test_calc.calculate_predicted_climb_rp(self.full_predicted_values) == 1
-        )
+        assert self.test_calc.calculate_predicted_climb_rp(self.blank_predicted_values) == 0
+        assert self.test_calc.calculate_predicted_climb_rp(self.full_predicted_values) == 1
 
     def test_calculate_ball_rp(self):
         assert (
-            self.test_calc.calculate_predicted_ball_rp(
-                self.obj_team, self.blank_predicted_values
-            )
+            self.test_calc.calculate_predicted_ball_rp(self.obj_team, self.blank_predicted_values)
             == 0
         )
         assert (
-            self.test_calc.calculate_predicted_ball_rp(
-                self.obj_team, self.full_predicted_values
-            )
+            self.test_calc.calculate_predicted_ball_rp(self.obj_team, self.full_predicted_values)
             == 1
         )
 
@@ -382,9 +373,7 @@ class TestPredictedAimCalc:
 
     def test_filter_aims_list(self):
         assert (
-            self.test_calc.filter_aims_list(
-                self.obj_team, self.tba_team, self.aims_list
-            )
+            self.test_calc.filter_aims_list(self.obj_team, self.tba_team, self.aims_list)
             == self.filtered_aims_list
         )
 
@@ -394,10 +383,7 @@ class TestPredictedAimCalc:
             "data_transfer.tba_communicator.tba_request",
             return_value=self.tba_match_data,
         ):
-            assert (
-                self.test_calc.update_predicted_aim(self.aims_list)
-                == self.expected_updates
-            )
+            assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_updates
 
     def test_calculate_predicted_win_chance(self):
         with patch("data_transfer.database.Database.find", return_value=self.expected_updates):

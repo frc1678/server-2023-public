@@ -9,12 +9,12 @@ from typing import Dict, List
 class SubjTeamCalcs(base_calculations.BaseCalculations):
     """Runs subjective team calculations"""
 
-    SCHEMA = utils.read_schema('schema/calc_subj_team_schema.yml')
+    SCHEMA = utils.read_schema("schema/calc_subj_team_schema.yml")
 
     def __init__(self, server):
         """Overrides watched collections, passes server object"""
         super().__init__(server)
-        self.watched_collections = ['subj_tim']
+        self.watched_collections = ["subj_tim"]
         self.teams_that_have_competed = set()
 
     def teams_played_with(self, team: int) -> List[int]:
@@ -23,12 +23,14 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         partners = []
         # matches_played is a dictionary where keys are match numbers and values represent alliance color
         matches_played = {}
-        for tim in self.server.db.find('subj_tim', team_number=team):
-            matches_played.update({tim['match_number']: tim['alliance_color_is_red']})
+        for tim in self.server.db.find("subj_tim", team_number=team):
+            matches_played.update({tim["match_number"]: tim["alliance_color_is_red"]})
         for match_num, alliance_color in matches_played.items():
             # Find subj_tim data for robots in the same match and alliance as the team
-            alliance_data = self.server.db.find('subj_tim', match_number=match_num, alliance_color_is_red=alliance_color)
-            partners.extend([tim['team_number'] for tim in alliance_data])
+            alliance_data = self.server.db.find(
+                "subj_tim", match_number=match_num, alliance_color_is_red=alliance_color
+            )
+            partners.extend([tim["team_number"] for tim in alliance_data])
         return partners
 
     def unadjusted_ability_calcs(self, team: int) -> Dict[str, float]:
@@ -37,19 +39,21 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         calculations = {}
         # self.SCHEMA['data'] tells us which fields we need to put in the database that don't
         # require calculations
-        for data_field, type_dict in self.SCHEMA['data'].items():
-            type_as_str = type_dict['type']
-            if data_field == 'team_number':
+        for data_field, type_dict in self.SCHEMA["data"].items():
+            type_as_str = type_dict["type"]
+            if data_field == "team_number":
                 calculations[data_field] = self.STR_TYPES[type_as_str](team)
             else:
                 raise Exception(f"Schema mentions {data_field} but we don't know what that is")
         # Next, actually run the calculations
-        for calc_name, calc_info in self.SCHEMA['unadjusted_calculations'].items():
-            collection_name, _, ranking_name = calc_info['requires'][0].partition('.')
+        for calc_name, calc_info in self.SCHEMA["unadjusted_calculations"].items():
+            collection_name, _, ranking_name = calc_info["requires"][0].partition(".")
             # For calculations such as driver_field_awareness and driver_quickness,
             # we just pull the rankings from the database and average them
             # Ethan and Nathan were here :)
-            team_rankings = [tim[ranking_name] for tim in self.server.db.find(collection_name, team_number=team)]
+            team_rankings = [
+                tim[ranking_name] for tim in self.server.db.find(collection_name, team_number=team)
+            ]
             average_team_rankings = self.avg(team_rankings)
             calculations[calc_name] = average_team_rankings
         return calculations
@@ -62,10 +66,10 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         # If no teams have competed yet, there is not point in running the calculation
         if len(self.teams_that_have_competed) == 0:
             return {}
-        
+
         calculations = {}
-        for calc_name, calc_info in self.SCHEMA['component_calculations'].items():
-            collection_name, _, unadjusted_calc = calc_info['requires'][0].partition('.')
+        for calc_name, calc_info in self.SCHEMA["component_calculations"].items():
+            collection_name, _, unadjusted_calc = calc_info["requires"][0].partition(".")
             # scores is a dictionary of team numbers to rank score
             scores = {}
             for team in self.teams_that_have_competed:
@@ -77,9 +81,13 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             # That way, teams that are always paired with good/bad teams won't have unfair rankings
             worst = min(scores.values())
             best = max(scores.values())
-            scaled_scores = {team: (score - worst) / (best - worst) for team, score in scores.items()}
+            scaled_scores = {
+                team: (score - worst) / (best - worst) for team, score in scores.items()
+            }
             for team, score in scores.items():
-                teammate_scaled_scores = [scaled_scores[partner] for partner in self.teams_played_with(team)]
+                teammate_scaled_scores = [
+                    scaled_scores[partner] for partner in self.teams_played_with(team)
+                ]
                 calculations[team] = calculations.get(team, {})
                 # If teammates tend to rank low, the team's score is lowered more than if teammates tend to rank high
                 calculations[team][calc_name] = score * self.avg(teammate_scaled_scores)
@@ -88,7 +96,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
     def calculate_driver_ability(self):
         """Takes a weighted average of all the adjusted component scores to calculate overall driver ability."""
         calculations = {}
-        for calc_name, calc_info in self.SCHEMA['averaged_calculations'].items():
+        for calc_name, calc_info in self.SCHEMA["averaged_calculations"].items():
             # ability_dict is a dictionary where keys are team numbers
             # and values are driver_ability scores
             ability_dict = {}
@@ -97,16 +105,18 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
                 # For example, if they have good quickness and average
                 # field awareness, scores might look like [.8, -.3]
                 scores = []
-                for requirement in calc_info['requires']:
-                    collection_name, _, score_name = requirement.partition('.')
+                for requirement in calc_info["requires"]:
+                    collection_name, _, score_name = requirement.partition(".")
                     scores.append(
                         self.server.db.find(collection_name, team_number=team)[0][score_name]
                     )
                 # driver_ability is a weighted average of its component scores
-                ability_dict[team] = self.avg(scores, calc_info['weights'])
+                ability_dict[team] = self.avg(scores, calc_info["weights"])
             # Put the driver abilities of all teams in a list
             driver_ability_list = [ability for ability in ability_dict.values()]
-            normalized_abilities = dict(zip(ability_dict.keys(), self.get_z_scores(driver_ability_list)))
+            normalized_abilities = dict(
+                zip(ability_dict.keys(), self.get_z_scores(driver_ability_list))
+            )
             for team, driver_ability in normalized_abilities.items():
                 calculations[team] = calculations.get(team, {})
                 # Add 2 to driver ability in order to move the lowest scores closer to 0 instead of negative
@@ -119,8 +129,8 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         # Adjusted calcs have to be re-run on all teams that have competed
         # because team data changing for one team affects all teams that played with that team
         self.teams_that_have_competed = set()
-        for tim in self.server.db.find('subj_tim'):
-            self.teams_that_have_competed.add(tim['team_number'])
+        for tim in self.server.db.find("subj_tim"):
+            self.teams_that_have_competed.add(tim["team_number"])
         # Delete and re-insert if updating all data
         if self.calc_all_data:
             self.server.db.delete_data("subj_team")
@@ -129,14 +139,18 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         for team in updated_teams:
             new_calc = self.unadjusted_ability_calcs(team)
             self.server.db.update_document(
-                'subj_team', new_calc, {'team_number': new_calc['team_number']}
+                "subj_team", new_calc, {"team_number": new_calc["team_number"]}
             )
         if len(self.teams_that_have_competed) != 0:
             # Now use the new info to recalculate adjusted ability scores
             adjusted_calcs = self.adjusted_ability_calcs()
             for team in self.teams_that_have_competed:
-                self.server.db.update_document('subj_team', adjusted_calcs[team], {'team_number': team})
+                self.server.db.update_document(
+                    "subj_team", adjusted_calcs[team], {"team_number": team}
+                )
             # Use the adjusted ability scores to calculate driver ability
             driver_ability_calcs = self.calculate_driver_ability()
             for team in self.teams_that_have_competed:
-                self.server.db.update_document('subj_team', driver_ability_calcs[team], {'team_number': team})
+                self.server.db.update_document(
+                    "subj_team", driver_ability_calcs[team], {"team_number": team}
+                )

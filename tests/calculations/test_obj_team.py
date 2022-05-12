@@ -10,7 +10,7 @@ from server import Server
 @pytest.mark.clouddb
 class TestOBJTeamCalc:
     def setup_method(self, method):
-        with patch('server.Server.ask_calc_all_data', return_value=False):
+        with patch("server.Server.ask_calc_all_data", return_value=False):
             self.test_server = Server()
         self.test_calc = obj_team.OBJTeamCalc(self.test_server)
 
@@ -126,8 +126,7 @@ class TestOBJTeamCalc:
         action_counts = self.test_calc.get_action_counts(tims)
         lfm_action_counts = self.test_calc.get_action_counts(lfm_tims)
         assert (
-            self.test_calc.calculate_averages(action_counts, lfm_action_counts)
-            == expected_output
+            self.test_calc.calculate_averages(action_counts, lfm_action_counts) == expected_output
         )
 
     def test_standard_deviations(self):
@@ -187,10 +186,7 @@ class TestOBJTeamCalc:
             "tele_sd_high_balls": 3.265986323710904,
         }
         action_counts = self.test_calc.get_action_counts(tims)
-        assert (
-            self.test_calc.calculate_standard_deviations(action_counts)
-            == expected_output
-        )
+        assert self.test_calc.calculate_standard_deviations(action_counts) == expected_output
 
     def test_counts(self):
         """Tests calculate_counts function from src/calculations/obj_team.py"""
@@ -235,24 +231,24 @@ class TestOBJTeamCalc:
         lfm_tims = [tim for tim in tims if tim["match_number"] > 1]
 
         expected_output = {
-            'climb_all_attempts': 3,
-            'low_rung_successes': 1,
-            'mid_rung_successes': 0,
-            'high_rung_successes': 0,
-            'traversal_rung_successes': 2,
-            'position_zero_starts': 0,
-            'position_one_starts': 2,
-            'position_two_starts': 1,
-            'position_three_starts': 1,
-            'position_four_starts': 1,
-            'matches_incap': 1,
-            'matches_played': 5,
-            'lfm_climb_all_attempts': 2,
-            'lfm_low_rung_successes': 1,
-            'lfm_mid_rung_successes': 0,
-            'lfm_high_rung_successes': 0,
-            'lfm_traversal_rung_successes': 1,
-            'lfm_matches_incap': 0,
+            "climb_all_attempts": 3,
+            "low_rung_successes": 1,
+            "mid_rung_successes": 0,
+            "high_rung_successes": 0,
+            "traversal_rung_successes": 2,
+            "position_zero_starts": 0,
+            "position_one_starts": 2,
+            "position_two_starts": 1,
+            "position_three_starts": 1,
+            "position_four_starts": 1,
+            "matches_incap": 1,
+            "matches_played": 5,
+            "lfm_climb_all_attempts": 2,
+            "lfm_low_rung_successes": 1,
+            "lfm_mid_rung_successes": 0,
+            "lfm_high_rung_successes": 0,
+            "lfm_traversal_rung_successes": 1,
+            "lfm_matches_incap": 0,
         }
         assert self.test_calc.calculate_counts(tims, lfm_tims) == expected_output
 
@@ -393,29 +389,26 @@ class TestOBJTeamCalc:
 
     def test_modes(self):
         tims = [
-            {'match_number': 1, 'climb_level': 'LOW', 'start_position': 'ONE'},
-            {'match_number': 2, 'climb_level': 'LOW', 'start_position': 'TWO'},
-            {'match_number': 3, 'climb_level': 'MID', 'start_position': 'THREE'},
-            {'match_number': 4, 'climb_level': 'TRAVERSAL', 'start_position': 'ONE'},
-            {'match_number': 5, 'climb_level': 'HIGH', 'start_position': 'TWO'},
-            {'match_number': 6, 'climb_level': 'MID', 'start_position': 'THREE'},
-            {'match_number': 7, 'climb_level': 'LOW', 'start_position': 'ZERO'},
-            {'match_number': 8, 'climb_level': 'LOW', 'start_position': 'ZERO'},
-            {'match_number': 9, 'climb_level': 'TRAVERSAL', 'start_position': 'ZERO'},
-            {'match_number': 10, 'climb_level': 'LOW', 'start_position': 'ZERO'},
-            {'match_number': 11, 'climb_level': 'HIGH', 'start_position': 'ZERO'},
+            {"match_number": 1, "climb_level": "LOW", "start_position": "ONE"},
+            {"match_number": 2, "climb_level": "LOW", "start_position": "TWO"},
+            {"match_number": 3, "climb_level": "MID", "start_position": "THREE"},
+            {"match_number": 4, "climb_level": "TRAVERSAL", "start_position": "ONE"},
+            {"match_number": 5, "climb_level": "HIGH", "start_position": "TWO"},
+            {"match_number": 6, "climb_level": "MID", "start_position": "THREE"},
+            {"match_number": 7, "climb_level": "LOW", "start_position": "ZERO"},
+            {"match_number": 8, "climb_level": "LOW", "start_position": "ZERO"},
+            {"match_number": 9, "climb_level": "TRAVERSAL", "start_position": "ZERO"},
+            {"match_number": 10, "climb_level": "LOW", "start_position": "ZERO"},
+            {"match_number": 11, "climb_level": "HIGH", "start_position": "ZERO"},
         ]
         lfm_tims = [tim for tim in tims if tim["match_number"] > 2]
         action_categories = self.test_calc.get_action_categories(tims)
         lfm_action_categories = self.test_calc.get_action_categories(lfm_tims)
-        assert self.test_calc.calculate_modes(
-            action_categories, lfm_action_categories
-        ) == {
+        assert self.test_calc.calculate_modes(action_categories, lfm_action_categories) == {
             "mode_climb_level": ["LOW"],
             "mode_start_position": ["ONE", "TWO", "THREE"],
             "lfm_mode_start_position": ["THREE"],
         }
-
 
     def test_success_rates(self):
         team_data = {
@@ -694,18 +687,18 @@ class TestOBJTeamCalc:
                 "tele_sd_low_balls": 15.57776192739723,
                 "tele_sd_high_balls": 27.796882319185844,
                 # Counts
-                'matches_played': 3,
-                'climb_all_attempts': 3,
-                'low_rung_successes': 1,
-                'mid_rung_successes': 0,
-                'high_rung_successes': 1,
-                'traversal_rung_successes': 0,
-                'position_zero_starts': 0,
-                'position_one_starts': 1,
-                'position_two_starts': 1,
-                'position_three_starts': 0,
-                'position_four_starts': 1,
-                'matches_incap': 3,
+                "matches_played": 3,
+                "climb_all_attempts": 3,
+                "low_rung_successes": 1,
+                "mid_rung_successes": 0,
+                "high_rung_successes": 1,
+                "traversal_rung_successes": 0,
+                "position_zero_starts": 0,
+                "position_one_starts": 1,
+                "position_two_starts": 1,
+                "position_three_starts": 0,
+                "position_four_starts": 1,
+                "matches_incap": 3,
                 # LFM Counts
                 "lfm_climb_all_attempts": 3,
                 "lfm_low_rung_successes": 1,
@@ -772,18 +765,18 @@ class TestOBJTeamCalc:
                 "tele_sd_low_balls": 36.766288907095316,
                 "tele_sd_high_balls": 33.332266649599454,
                 # Counts
-                'matches_played': 5,
-                'climb_all_attempts': 5,
-                'low_rung_successes': 3,
-                'mid_rung_successes': 1,
-                'high_rung_successes': 0,
-                'traversal_rung_successes': 1,
-                'position_zero_starts': 0,
-                'position_one_starts': 1,
-                'position_two_starts': 0,
-                'position_three_starts': 1,
-                'position_four_starts': 3,
-                'matches_incap': 5,
+                "matches_played": 5,
+                "climb_all_attempts": 5,
+                "low_rung_successes": 3,
+                "mid_rung_successes": 1,
+                "high_rung_successes": 0,
+                "traversal_rung_successes": 1,
+                "position_zero_starts": 0,
+                "position_one_starts": 1,
+                "position_two_starts": 0,
+                "position_three_starts": 1,
+                "position_four_starts": 3,
+                "matches_incap": 5,
                 # LFM Counts
                 "lfm_climb_all_attempts": 4,
                 "lfm_low_rung_successes": 3,

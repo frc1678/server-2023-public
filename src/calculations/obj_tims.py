@@ -10,12 +10,12 @@ from typing import List, Union, Dict
 
 
 class ObjTIMCalcs(BaseCalculations):
-    schema = utils.read_schema('schema/calc_obj_tim_schema.yml')
-    type_check_dict = {'float': float, 'int': int, 'str': str, 'bool': bool}
+    schema = utils.read_schema("schema/calc_obj_tim_schema.yml")
+    type_check_dict = {"float": float, "int": int, "str": str, "bool": bool}
 
     def __init__(self, server):
         super().__init__(server)
-        self.watched_collections = ['unconsolidated_obj_tim']
+        self.watched_collections = ["unconsolidated_obj_tim"]
 
     def consolidate_nums(self, nums: List[Union[int, float]]) -> int:
         """Given numbers reported by multiple scouts, estimates actual number
@@ -37,7 +37,7 @@ class ObjTIMCalcs(BaseCalculations):
         # Calculate weighted average, where the weight for each num is its reciprocal square z-score
         # That way, we account less for data farther from the mean
         z_scores = [(num - mean) / std_dev for num in nums]
-        weights = [1 / z ** 2 for z in z_scores]
+        weights = [1 / z**2 for z in z_scores]
         float_nums = self.avg(nums, weights)
         return round(float_nums)
 
@@ -69,34 +69,37 @@ class ObjTIMCalcs(BaseCalculations):
         # Dictionary for final calculated tims
         final_categorical_actions = {}
         # Dictionary for associated category actions
-        categories = {"climb_level": ["NONE", "LOW", "MID", "HIGH", "TRAVERSAL"], 
-                    "start_position": ["ONE", "TWO", "THREE", "FOUR"]
-                    }
+        categories = {
+            "climb_level": ["NONE", "LOW", "MID", "HIGH", "TRAVERSAL"],
+            "start_position": ["ONE", "TWO", "THREE", "FOUR"],
+        }
         for category in self.schema["categorical_actions"]:
             categorical_actions = [scout[category] for scout in unconsolidated_tims]
             # If at least 2 scouts agree, take their answer
             if len(self.modes(categorical_actions)) == 1:
                 final_categorical_actions[category] = self.modes(categorical_actions)[0]
                 continue
-            
+
             # Add up the indexes of the scout responses
-            category_avg = self.avg([categories[category].index(value) for value in categorical_actions])
+            category_avg = self.avg(
+                [categories[category].index(value) for value in categorical_actions]
+            )
             # Round the average and append the correct action to the final dict
             final_categorical_actions[category] = categories[category][round(category_avg)]
         return final_categorical_actions
 
     def filter_timeline_actions(self, tim: dict, **filters) -> list:
         """Removes timeline actions that don't meet the filters and returns all the actions that do"""
-        actions = tim['timeline']
+        actions = tim["timeline"]
         for field, required_value in filters.items():
-            if tim['climb_level'] != "NONE" and required_value == "climb_attempt":
+            if tim["climb_level"] != "NONE" and required_value == "climb_attempt":
                 # Counting climbs based on attempts sometimes yields an over 100% climb success
                 actions = [{"time": 149, "action_type": "climb_attempt"}]
                 break
-            elif field == 'time':
+            elif field == "time":
                 # Times are given as closed intervals: either [0,134] or [135,150]
                 actions = filter(
-                    lambda action: required_value[0] <= action['time'] <= required_value[1], actions
+                    lambda action: required_value[0] <= action["time"] <= required_value[1], actions
                 )
             else:
                 # Removes actions for which action[field] != required_value
@@ -109,7 +112,9 @@ class ObjTIMCalcs(BaseCalculations):
         """Returns the number of actions in one TIM timeline that meets the required filters"""
         return len(self.filter_timeline_actions(tim, **filters))
 
-    def total_time_between_actions(self, tim: dict, start_action: str, end_action: str, min_time: int) -> int:
+    def total_time_between_actions(
+        self, tim: dict, start_action: str, end_action: str, min_time: int
+    ) -> int:
         """Returns total number of seconds spent between two types of actions for a given TIM
 
         start_action and end_action are the names (types) of those two actions,
@@ -123,22 +128,22 @@ class ObjTIMCalcs(BaseCalculations):
         # same number of start actions and end actions.
         total_time = 0
         for start, end in zip(start_actions, end_actions):
-            if start['time'] - end['time'] >= min_time:
-                total_time += start['time'] - end['time']
+            if start["time"] - end["time"] >= min_time:
+                total_time += start["time"] - end["time"]
         return total_time
 
     def calculate_tim_counts(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns the calculated count based data fields"""
         calculated_tim = {}
-        for calculation, filters in self.schema['timeline_counts'].items():
+        for calculation, filters in self.schema["timeline_counts"].items():
             unconsolidated_counts = []
             # Variable type of a calculation is in the schema, but it's not a filter
             filters_ = copy.deepcopy(filters)
-            expected_type = filters_.pop('type')
+            expected_type = filters_.pop("type")
             for tim in unconsolidated_tims:
                 new_count = self.count_timeline_actions(tim, **filters_)
                 if not isinstance(new_count, self.type_check_dict[expected_type]):
-                    raise TypeError(f'Expected {new_count} calculation to be a {expected_type}')
+                    raise TypeError(f"Expected {new_count} calculation to be a {expected_type}")
                 unconsolidated_counts.append(new_count)
             calculated_tim[calculation] = self.consolidate_nums(unconsolidated_counts)
         return calculated_tim
@@ -146,20 +151,23 @@ class ObjTIMCalcs(BaseCalculations):
     def calculate_tim_times(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns the calculated time data fields"""
         calculated_tim = {}
-        for calculation, action_types in self.schema['timeline_cycle_time'].items():
+        for calculation, action_types in self.schema["timeline_cycle_time"].items():
             unconsolidated_cycle_times = []
             # Variable type of a calculation is in the schema, but it's not a filter
             filters_ = copy.deepcopy(action_types)
-            expected_type = filters_.pop('type')
+            expected_type = filters_.pop("type")
             for tim in unconsolidated_tims:
                 # action_types is a list of dictionaries, where each dictionary is
                 # "action_type" to the name of either the start or end action
                 new_cycle_time = self.total_time_between_actions(
-                    tim, action_types['start_action'], action_types['end_action'], action_types['minimum_time']
+                    tim,
+                    action_types["start_action"],
+                    action_types["end_action"],
+                    action_types["minimum_time"],
                 )
                 if not isinstance(new_cycle_time, self.type_check_dict[expected_type]):
                     raise TypeError(
-                        f'Expected {new_cycle_time} calculation to be a {expected_type}'
+                        f"Expected {new_cycle_time} calculation to be a {expected_type}"
                     )
                 unconsolidated_cycle_times.append(new_cycle_time)
             calculated_tim[calculation] = self.consolidate_nums(unconsolidated_cycle_times)
@@ -168,27 +176,27 @@ class ObjTIMCalcs(BaseCalculations):
     def calculate_unconsolidated_tims(self, unconsolidated_tims: List[Dict]):
         """Given a list of unconsolidated TIMS, returns the unconsolidated calculated TIMs"""
         if len(unconsolidated_tims) == 0:
-            utils.log_warning('calculate_tim: zero TIMs given')
+            utils.log_warning("calculate_tim: zero TIMs given")
             return {}
-        
+
         unconsolidated_totals = []
         # Calculates unconsolidated tim counts
         for tim in unconsolidated_tims:
             tim_totals = {}
-            tim_totals['scout_name'] = tim['scout_name']
-            tim_totals['match_number'] = tim['match_number']
-            tim_totals['team_number'] = tim['team_number']
-            tim_totals['alliance_color_is_red'] = tim['alliance_color_is_red']
+            tim_totals["scout_name"] = tim["scout_name"]
+            tim_totals["match_number"] = tim["match_number"]
+            tim_totals["team_number"] = tim["team_number"]
+            tim_totals["alliance_color_is_red"] = tim["alliance_color_is_red"]
             # Calculate unconsolidated tim counts
-            for aggregate, filters in self.schema['aggregates'].items():
+            for aggregate, filters in self.schema["aggregates"].items():
                 total_count = 0
-                aggregate_counts = filters['counts']
-                for calculation, filters in self.schema['timeline_counts'].items():
+                aggregate_counts = filters["counts"]
+                for calculation, filters in self.schema["timeline_counts"].items():
                     filters_ = copy.deepcopy(filters)
-                    expected_type = filters_.pop('type')
+                    expected_type = filters_.pop("type")
                     new_count = self.count_timeline_actions(tim, **filters_)
                     if not isinstance(new_count, self.type_check_dict[expected_type]):
-                        raise TypeError(f'Expected {new_count} calculation to be a {expected_type}')
+                        raise TypeError(f"Expected {new_count} calculation to be a {expected_type}")
                     tim_totals[calculation] = new_count
                     # Calculate unconsolidated aggregates
                     for count in aggregate_counts:
@@ -204,7 +212,7 @@ class ObjTIMCalcs(BaseCalculations):
     def calculate_tim(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns a calculated TIM"""
         if len(unconsolidated_tims) == 0:
-            utils.log_warning('calculate_tim: zero TIMs given')
+            utils.log_warning("calculate_tim: zero TIMs given")
             return {}
         calculated_tim = {}
         calculated_tim.update(self.calculate_tim_counts(unconsolidated_tims))
@@ -213,10 +221,10 @@ class ObjTIMCalcs(BaseCalculations):
         calculated_tim.update(self.consolidate_categorical_actions(unconsolidated_tims))
         # Use any of the unconsolidated TIMs to get the team and match number,
         # since that should be the same for each unconsolidated TIM
-        calculated_tim['match_number'] = unconsolidated_tims[0]['match_number']
-        calculated_tim['team_number'] = unconsolidated_tims[0]['team_number']
+        calculated_tim["match_number"] = unconsolidated_tims[0]["match_number"]
+        calculated_tim["team_number"] = unconsolidated_tims[0]["team_number"]
         # confidence_rating is the number of scouts that scouted one robot
-        calculated_tim['confidence_ranking'] = len(unconsolidated_tims)
+        calculated_tim["confidence_ranking"] = len(unconsolidated_tims)
         return calculated_tim
 
     def update_calcs(self, tims: List[Dict[str, int]]) -> List[dict]:
@@ -225,9 +233,11 @@ class ObjTIMCalcs(BaseCalculations):
         calculated_tims = []
         unconsolidated_totals = []
         for tim in tims:
-            unconsolidated_obj_tims = self.server.db.find('unconsolidated_obj_tim', **tim)
+            unconsolidated_obj_tims = self.server.db.find("unconsolidated_obj_tim", **tim)
             calculated_tims.append(self.calculate_tim(unconsolidated_obj_tims))
-            unconsolidated_totals.extend(self.calculate_unconsolidated_tims(unconsolidated_obj_tims))
+            unconsolidated_totals.extend(
+                self.calculate_unconsolidated_tims(unconsolidated_obj_tims)
+            )
         return calculated_tims, unconsolidated_totals
 
     def run(self):
@@ -237,13 +247,13 @@ class ObjTIMCalcs(BaseCalculations):
         # Check if changes need to be made to teams
         if (entries := self.entries_since_last()) != []:
             for entry in entries:
-                team_num = entry['o']['team_number']
+                team_num = entry["o"]["team_number"]
                 if team_num not in self.teams_list:
-                    utils.log_warning(f'obj_tims: team number {team_num} is not in teams list')
+                    utils.log_warning(f"obj_tims: team number {team_num} is not in teams list")
                 tims.append(
                     {
-                        'team_number': team_num,
-                        'match_number': entry['o']['match_number'],
+                        "team_number": team_num,
+                        "match_number": entry["o"]["match_number"],
                     }
                 )
         unique_tims = []
@@ -258,14 +268,18 @@ class ObjTIMCalcs(BaseCalculations):
         for update in updates[0]:
             if update != {}:
                 self.server.db.update_document(
-                    'obj_tim',
+                    "obj_tim",
                     update,
-                    {'team_number': update['team_number'], 'match_number': update['match_number']},
+                    {"team_number": update["team_number"], "match_number": update["match_number"]},
                 )
         if len(updates) > 1:
             for document in updates[1]:
                 self.server.db.update_document(
-                    'unconsolidated_totals', 
+                    "unconsolidated_totals",
                     document,
-                    {'team_number': document['team_number'], 'match_number': document['match_number'], 'scout_name': document['scout_name']}
-                    )
+                    {
+                        "team_number": document["team_number"],
+                        "match_number": document["match_number"],
+                        "scout_name": document["scout_name"],
+                    },
+                )

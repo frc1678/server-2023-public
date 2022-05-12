@@ -36,15 +36,17 @@ class BaseCalculations:
             data = []
             for c in self.watched_collections:
                 for document in self.server.db.find(c):
-                    data.append({'o': document, 'op': None})
+                    data.append({"o": document, "op": None})
             return data
-        return list(self.oplog.find(
-            {
-                "ts": {"$gt": self.timestamp},
-                "op": {"$in": ["i", "d", "u"]},
-                "ns": {"$in": [f"{self.server.db.name}.{c}" for c in self.watched_collections]},
-            }
-        ))
+        return list(
+            self.oplog.find(
+                {
+                    "ts": {"$gt": self.timestamp},
+                    "op": {"$in": ["i", "d", "u"]},
+                    "ns": {"$in": [f"{self.server.db.name}.{c}" for c in self.watched_collections]},
+                }
+            )
+        )
 
     def get_updated_teams(self) -> list:
         """Returns a list of team numbers that appear in watched_collections"""
@@ -55,7 +57,7 @@ class BaseCalculations:
                 teams.add(entry["o"]["team_number"])
             # If the doc was updated, need to manually find the document
             elif entry["op"] == "u":
-                document_id = entry['o2']['_id']
+                document_id = entry["o2"]["_id"]
                 if (
                     query := self.server.db.find(entry["ns"].split(".")[-1], _id=document_id)
                 ) != [] and "team_number" in query[0].keys():

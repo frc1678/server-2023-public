@@ -14,17 +14,9 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v2
-
-            - name: Setup Python
-              uses: actions/setup-python@v2
-              with:
-                  python-version: 3.9
-
-            - name: Install `black`
-              run: pip install black
-
+            
             - name: Run `black`
-              # Include all python files
-              # --check does not reformat files
-              # -l 100 sets the maximum line length to 100
-              run: black --include **/*\.py . --check -l 100
+              uses: psf/black@stable
+              with: 
+                  options: "--include '.*\\.py' --check -l 100"
+                  version: 22.3.0

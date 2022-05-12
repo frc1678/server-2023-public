@@ -9,8 +9,8 @@ class PickabilityCalc(base_calculations.BaseCalculations):
 
     def __init__(self, server):
         super().__init__(server)
-        self.pickability_schema = utils.read_schema('schema/calc_pickability_schema.yml')[
-            'calculations'
+        self.pickability_schema = utils.read_schema("schema/calc_pickability_schema.yml")[
+            "calculations"
         ]
         self.get_watched_collections()
         self.get_calc_data()
@@ -19,9 +19,9 @@ class PickabilityCalc(base_calculations.BaseCalculations):
         """Reads from the schema file to generate the correct watched collections"""
         self.watched_collections = set()
         for calc in self.pickability_schema:
-            for sub_calc in self.pickability_schema[calc]['requires']:
-                if '.' in sub_calc:
-                    self.watched_collections.add(sub_calc.split('.')[0])
+            for sub_calc in self.pickability_schema[calc]["requires"]:
+                if "." in sub_calc:
+                    self.watched_collections.add(sub_calc.split(".")[0])
         self.watched_collections = list(self.watched_collections)
 
     def get_calc_data(self):
@@ -32,8 +32,8 @@ class PickabilityCalc(base_calculations.BaseCalculations):
         self.calcs = {}
         for calc_name in self.pickability_schema.keys():
             sub_calcs = []
-            for sub_calc in self.pickability_schema[calc_name]['requires']:
-                sub_calcs.append((sub_calc.split(".")[0], sub_calc.split('.')[1]))
+            for sub_calc in self.pickability_schema[calc_name]["requires"]:
+                sub_calcs.append((sub_calc.split(".")[0], sub_calc.split(".")[1]))
             self.calcs[calc_name] = sub_calcs
 
     def calculate_pickability(self, team_number: int, calc_name: str, team_data: dict) -> float:
@@ -50,15 +50,15 @@ class PickabilityCalc(base_calculations.BaseCalculations):
             else:
                 return None
         weights = []
-        for weight in self.pickability_schema[calc_name]['weights']:
+        for weight in self.pickability_schema[calc_name]["weights"]:
             # If the weight is a dictionary, it's a datapoint
             # Key is datapoint name, value is adjustable weight
             if isinstance(weight, dict):
                 for datapoint, weight_value in weight.items():
-                    collection, datapoint = datapoint.split('.')
+                    collection, datapoint = datapoint.split(".")
                     if (data := self.server.db.find(collection, team_number=team_number)) != []:
                         weight = data[0][datapoint] * weight_value
-                    else: 
+                    else:
                         weight = 0
             weights.append(weight)
         weighted_sum = sum([datapoint * weight for datapoint, weight in zip(datapoints, weights)])
@@ -76,11 +76,11 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                     team_data[collection] = query[0]
                 else:
                     continue
-            update = {'team_number': team}
+            update = {"team_number": team}
             for calc_name in self.pickability_schema.keys():
                 value = self.calculate_pickability(team, calc_name, team_data)
                 if value is None:
-                    utils.log_error(f'{calc_name} could not be calculated for team: {team}')
+                    utils.log_error(f"{calc_name} could not be calculated for team: {team}")
                     continue
                 update[calc_name] = value
                 updates.append(update)
@@ -97,4 +97,6 @@ class PickabilityCalc(base_calculations.BaseCalculations):
             self.server.db.delete_data("pickability")
 
         for update in self.update_pickability():
-            self.server.db.update_document('pickability', update, {'team_number': update['team_number']})
+            self.server.db.update_document(
+                "pickability", update, {"team_number": update["team_number"]}
+            )
