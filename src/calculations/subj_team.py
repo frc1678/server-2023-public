@@ -23,12 +23,12 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         partners = []
         # matches_played is a dictionary where keys are match numbers and values represent alliance color
         matches_played = {}
-        for tim in self.server.db.find("subj_tim", team_number=team):
+        for tim in self.server.db.find("subj_tim", {"team_number": team}):
             matches_played.update({tim["match_number"]: tim["alliance_color_is_red"]})
         for match_num, alliance_color in matches_played.items():
             # Find subj_tim data for robots in the same match and alliance as the team
             alliance_data = self.server.db.find(
-                "subj_tim", match_number=match_num, alliance_color_is_red=alliance_color
+                "subj_tim", {"match_number": match_num, "alliance_color_is_red": alliance_color}
             )
             partners.extend([tim["team_number"] for tim in alliance_data])
         return partners
@@ -52,7 +52,8 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             # we just pull the rankings from the database and average them
             # Ethan and Nathan were here :)
             team_rankings = [
-                tim[ranking_name] for tim in self.server.db.find(collection_name, team_number=team)
+                tim[ranking_name]
+                for tim in self.server.db.find(collection_name, {"team_number": team})
             ]
             average_team_rankings = self.avg(team_rankings)
             calculations[calc_name] = average_team_rankings
@@ -73,7 +74,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             # scores is a dictionary of team numbers to rank score
             scores = {}
             for team in self.teams_that_have_competed:
-                tim = self.server.db.find(collection_name, team_number=team)
+                tim = self.server.db.find(collection_name, {"team_number": team})
                 if tim != []:
                     scores[team] = tim[0][unadjusted_calc]
             # Now scale the scores so they range from 0 to 1, and use those scaled scores to
@@ -108,7 +109,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
                 for requirement in calc_info["requires"]:
                     collection_name, _, score_name = requirement.partition(".")
                     scores.append(
-                        self.server.db.find(collection_name, team_number=team)[0][score_name]
+                        self.server.db.find(collection_name, {"team_number": team})[0][score_name]
                     )
                 # driver_ability is a weighted average of its component scores
                 ability_dict[team] = self.avg(scores, calc_info["weights"])

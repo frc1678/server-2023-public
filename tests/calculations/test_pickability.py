@@ -99,7 +99,7 @@ class TestPickability:
         result = server_obj.db.find("pickability")
         # Check that a result was added
         assert result
-        server_obj.db.delete_data("test2", **{})
+        server_obj.db.delete_data("test2")
         server_obj.db.insert_documents(
             "test2", {"team_number": 0, "datapoint1": 2000000, "datapoint2": 20}
         )

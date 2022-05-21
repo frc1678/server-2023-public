@@ -226,8 +226,8 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         # Subj aim data for super counts
         for team in teams:
             # Load team data from database
-            obj_tims = self.server.db.find("obj_tim", team_number=team)
-            subj_tims = self.server.db.find("subj_tim", team_number=team)
+            obj_tims = self.server.db.find("obj_tim", {"team_number": team})
+            subj_tims = self.server.db.find("subj_tim", {"team_number": team})
             # Last 4 tims to calculate last 4 matches
             lfm_tims = sorted(obj_tims, key=lambda tim: tim["match_number"])[-4:]
 
@@ -262,7 +262,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         teams = []
         # Filter out teams that are in subj_tim but not obj_tim
         for team in self.get_updated_teams():
-            if self.server.db.find("obj_tim", team_number=team) != []:
+            if self.server.db.find("obj_tim", {"team_number": team}) != []:
                 teams.append(team)
         # Delete and re-insert if updating all data
         if self.calc_all_data:

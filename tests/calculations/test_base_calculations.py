@@ -34,7 +34,7 @@ class TestBaseCalculations:
         self.test_server.db.insert_documents("testing", {"c": 1})
         self.base_calc.update_timestamp()
         self.test_server.db.insert_documents("testing", [{"a": 1}, {"a": 2}, {"a": 3}])
-        self.test_server.db.delete_data("testing", a=1)
+        self.test_server.db.delete_data("testing", {"a": 1})
         self.test_server.db.update_document("testing", {"b": 2}, {"a": 2})
         # There were 5 operations after the timestamp update:
         # 3 inserts, 1 deletion, 1 update
@@ -48,7 +48,7 @@ class TestBaseCalculations:
         self.test_server_all_data.db.insert_documents("testing1", {"c": 1})
         self.base_calc_all_data.update_timestamp()
         self.test_server_all_data.db.insert_documents("testing1", [{"a": 1}, {"a": 2}, {"a": 3}])
-        self.test_server_all_data.db.delete_data("testing1", a=1)
+        self.test_server_all_data.db.delete_data("testing1", {"a": 1})
         self.test_server_all_data.db.update_document("testing1", {"b": 2}, {"a": 2})
         assert len(self.base_calc_all_data.entries_since_last()) == 3
         contains_first_insert = False

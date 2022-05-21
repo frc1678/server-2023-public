@@ -132,9 +132,9 @@ class TestSubjTeamCalcs:
         ]
         self.test_server.db.insert_documents("subj_tim", tims)
         self.test_calcs.run()
-        robonauts = self.test_server.db.find("subj_team", team_number=118)[0]
-        citrus = self.test_server.db.find("subj_team", team_number=1678)[0]
-        chezy = self.test_server.db.find("subj_team", team_number=254)[0]
+        robonauts = self.test_server.db.find("subj_team", {"team_number": 118})[0]
+        citrus = self.test_server.db.find("subj_team", {"team_number": 1678})[0]
+        chezy = self.test_server.db.find("subj_team", {"team_number": 254})[0]
 
         assert self.near(robonauts["driver_field_awareness"], 0.9259)
         assert self.near(robonauts["driver_quickness"], 0.55555)

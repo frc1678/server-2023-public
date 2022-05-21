@@ -61,7 +61,7 @@ PATTERNS = []
 PATTERN = PATTERNS.append(re.compile("".join(PATTERN_ELEMENTS)))
 
 # Stores the already blocklisted QR codes from the local database
-BLOCKLISTED_QRS = db.find("raw_qr", blocklisted=True)
+BLOCKLISTED_QRS = db.find("raw_qr", {"blocklisted": True})
 
 # Counts the numbers of QR codes newly blocklisted in this run
 num_blocklisted = 0

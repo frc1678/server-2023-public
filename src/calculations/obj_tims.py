@@ -233,7 +233,7 @@ class ObjTIMCalcs(BaseCalculations):
         calculated_tims = []
         unconsolidated_totals = []
         for tim in tims:
-            unconsolidated_obj_tims = self.server.db.find("unconsolidated_obj_tim", **tim)
+            unconsolidated_obj_tims = self.server.db.find("unconsolidated_obj_tim", tim)
             calculated_tims.append(self.calculate_tim(unconsolidated_obj_tims))
             unconsolidated_totals.extend(
                 self.calculate_unconsolidated_tims(unconsolidated_obj_tims)

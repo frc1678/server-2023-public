@@ -75,10 +75,10 @@ class Database:
                         unique=index["unique"],
                     )
 
-    def find(self, collection: str, **filters: dict) -> list:
+    def find(self, collection: str, query: dict = {}) -> list:
         """Finds documents in 'collection', filtering by 'filters'"""
         check_collection_name(collection)
-        return list(self.db[collection].find(filters))
+        return list(self.db[collection].find(query))
 
     def get_tba_cache(self, api_url: str) -> Optional[dict]:
         """Gets the TBA Cache of 'api_url'"""
@@ -91,13 +91,13 @@ class Database:
             write_object["timestamp"] = timestamp
         self.db.tba_cache.update_one({"api_url": api_url}, {"$set": write_object}, upsert=True)
 
-    def delete_data(self, collection: str, **filters: dict) -> None:
+    def delete_data(self, collection: str, query: dict = {}) -> None:
         """Deletes data in 'collection' according to 'filters'"""
         check_collection_name(collection)
         if "raw" in collection:
             utils.log_warning(f"Attempted to delete raw data from collection {collection}")
             return
-        self.db[collection].delete_many(filters)
+        self.db[collection].delete_many(query)
 
     def insert_documents(self, collection: str, data: Union[list, dict]) -> None:
         """Inserts documents from 'data' list in 'collection'"""

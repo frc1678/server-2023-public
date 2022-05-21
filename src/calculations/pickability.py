@@ -56,7 +56,9 @@ class PickabilityCalc(base_calculations.BaseCalculations):
             if isinstance(weight, dict):
                 for datapoint, weight_value in weight.items():
                     collection, datapoint = datapoint.split(".")
-                    if (data := self.server.db.find(collection, team_number=team_number)) != []:
+                    if (
+                        data := self.server.db.find(collection, {"team_number": team_number})
+                    ) != []:
                         weight = data[0][datapoint] * weight_value
                     else:
                         weight = 0
@@ -72,7 +74,7 @@ class PickabilityCalc(base_calculations.BaseCalculations):
             team_data = {}
             # Get each calc name and search for it in the database
             for collection in self.watched_collections:
-                if (query := self.server.db.find(collection, team_number=team)) != []:
+                if (query := self.server.db.find(collection, {"team_number": team})) != []:
                     team_data[collection] = query[0]
                 else:
                     continue

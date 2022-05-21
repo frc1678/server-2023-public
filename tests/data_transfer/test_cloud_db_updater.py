@@ -65,7 +65,7 @@ class TestCloudDBUpdater:
 
     def test_entries_since_last(self):
         self.CloudDBUpdater.db.insert_documents("test.testing", ({"a": 1}, {"a": 2}, {"a": 3}))
-        self.CloudDBUpdater.db.delete_data("test.testing", a=1)
+        self.CloudDBUpdater.db.delete_data("test.testing", {"a": 1})
         self.CloudDBUpdater.db.update_document("test.testing", {"b": 2}, {"a": 2})
         for entry in self.CloudDBUpdater.entries_since_last():
             assert entry["ts"] > self.start_timestamp

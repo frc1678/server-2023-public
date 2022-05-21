@@ -4,7 +4,6 @@ import yaml
 
 from data_transfer import database
 from server import Server
-import pytest
 
 CLIENT = pymongo.MongoClient("localhost", 1678)
 TEST_DATABASE_NAME = "test" + Server.TBA_EVENT_KEY
@@ -45,7 +44,6 @@ class TestDatabase:
         assert test_db.db.name == TEST_DATABASE_NAME
         assert test_db.name == TEST_DATABASE_NAME
 
-    @pytest.mark.xfail
     def test_indexes(self):
         """Checks if all indexes are added properly"""
         TEST_DB_ACTUAL.set_indexes()
@@ -62,7 +60,7 @@ class TestDatabase:
     def test_find(self):
         """Tests database find"""
         TEST_DB_HELPER.test.insert_one({"test": "test"})
-        assert TEST_DB_ACTUAL.find("test", **{"test": "test"}) == [TEST_DB_HELPER.test.find_one({})]
+        assert TEST_DB_ACTUAL.find("test", {"test": "test"}) == [TEST_DB_HELPER.test.find_one({})]
 
     def test_get_tba_cache(self):
         """Tests tba cache read"""
@@ -89,7 +87,7 @@ class TestDatabase:
     def test_delete_data(self):
         """Tests deletion of data"""
         TEST_DB_HELPER.test.insert_many([{"test": "test"}, {"test1": "test1"}])
-        TEST_DB_ACTUAL.delete_data("test", **{"test": "test"})
+        TEST_DB_ACTUAL.delete_data("test", {"test": "test"})
         assert TEST_DB_HELPER.test.find_one({})["test1"] == "test1"
 
     def test_insert_documents(self):

@@ -26,7 +26,7 @@ class ScoutPrecisionCalc(BaseCalculations):
             elif entry["op"] == "u":
                 document_id = entry["o2"]["_id"]
                 if (
-                    query := self.server.db.find(entry["ns"].split(".")[-1], _id=document_id),
+                    query := self.server.db.find(entry["ns"].split(".")[-1], {"_id": document_id}),
                 ) != [] and "scout_name" in query[0].keys():
                     scouts.add(query[0]["scout_name"])
         return list(scouts)
@@ -60,7 +60,7 @@ class ScoutPrecisionCalc(BaseCalculations):
         required is the dictionary of required datapoints: point values from schema
         """
         scout_data = self.server.db.find(
-            "unconsolidated_totals", match_number=match_number, scout_name=scout
+            "unconsolidated_totals", {"match_number": match_number, "scout_name": scout}
         )
         if scout_data == []:
             utils.log_warning(f"No data from Scout {scout} in Match {match_number}")
@@ -80,8 +80,7 @@ class ScoutPrecisionCalc(BaseCalculations):
         scores_per_team = {}
         scout_data = self.server.db.find(
             "unconsolidated_totals",
-            match_number=match_number,
-            alliance_color_is_red=alliance_color_is_red,
+            {"match_number": match_number, "alliance_color_is_red": alliance_color_is_red},
         )
         teams = set([document["team_number"] for document in scout_data])
         for team in teams:
@@ -185,7 +184,7 @@ class ScoutPrecisionCalc(BaseCalculations):
         tba_match_data = tba_communicator.tba_request(f"event/{utils.TBA_EVENT_KEY}/matches")
         updates = []
         for sim in unconsolidated_sims:
-            sim_data = self.server.db.find("unconsolidated_totals", **sim)[0]
+            sim_data = self.server.db.find("unconsolidated_totals", sim)[0]
             update = {}
             update["scout_name"] = sim_data["scout_name"]
             update["match_number"] = sim_data["match_number"]
@@ -207,7 +206,7 @@ class ScoutPrecisionCalc(BaseCalculations):
         """Creates overall precision updates."""
         updates = []
         for scout in scouts:
-            scout_sims = self.server.db.find("sim_precision", scout_name=scout)
+            scout_sims = self.server.db.find("sim_precision", {"scout_name": scout})
             update = {}
             update["scout_name"] = scout
             if (scout_precision := self.calc_scout_precision(scout_sims)) != {}:
