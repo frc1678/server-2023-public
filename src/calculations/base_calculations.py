@@ -107,12 +107,14 @@ class BaseCalculations:
     @staticmethod
     def get_teams_list():
         try:
-            with open("data/team_list.json") as file:
+            with open(f"data/{utils.TBA_EVENT_KEY}_team_list.json") as file:
                 reader = json.load(file)
 
                 return [int(team_number) for team_number in reader]
         except FileNotFoundError:
-            utils.log_error("base_calculations: data/team_list.json not found")
+            utils.log_error(
+                f"base_calculations: data/{utils.TBA_EVENT_KEY}_team_list.json not found"
+            )
             return []
 
     @staticmethod
@@ -123,10 +125,12 @@ class BaseCalculations:
         Returns a list of dictionaries of aims with match_number, alliance_color, and team_list data.
         """
         try:
-            with open("data/match_schedule.json") as file:
+            with open(f"data/{utils.TBA_EVENT_KEY}_match_schedule.json") as file:
                 reader = json.load(file)
         except FileNotFoundError:
-            utils.log_error("base_calculations: data/match_schedule.json not found")
+            utils.log_error(
+                f"base_calculations: data/{utils.TBA_EVENT_KEY}_match_schedule.json not found"
+            )
             return []
         aim_list = []
         for match in reader:

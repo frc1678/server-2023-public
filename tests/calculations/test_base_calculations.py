@@ -126,4 +126,5 @@ class TestBaseCalculations:
 
         with patch("calculations.base_calculations.open", Mock(side_effect=f)):
             assert BaseCalculations.get_teams_list() == []
-            log_error_mock.assert_called_with("base_calculations: data/team_list.json not found")
+            # Assert that the FileNotFoundError was logged
+            log_error_mock.assert_called_once()

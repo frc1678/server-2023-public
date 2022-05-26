@@ -92,7 +92,7 @@ def insert_all_data() -> None:
 local_database = database.Database(port=1678)
 NUM_OBJ_SCOUTS = 18
 NUM_SUBJ_SCOUTS = 3
-PATH_TO_MATCH_SCHEDULE = utils.create_file_path("data/match_schedule.csv")
+PATH_TO_MATCH_SCHEDULE = utils.create_file_path(f"data/{utils.TBA_EVENT_KEY}_match_schedule.csv")
 if not os.path.exists(PATH_TO_MATCH_SCHEDULE):
     # For testing purposes, let this work even when there is no match schedule
     print_bold_red(
