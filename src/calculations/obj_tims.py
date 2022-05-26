@@ -50,20 +50,6 @@ class ObjTIMCalcs(BaseCalculations):
         # Scouts are evenly split, so just go with False
         return False
 
-    def calculate_aggregates(self, unconsolidated_tims: List[Dict]):
-        """Given a list of consolidated tims by calculate_tim_counts, return consolidated aggregates"""
-        calculated_tim = self.calculate_tim_counts(unconsolidated_tims)
-        final_aggregates = {}
-        # Get each aggregate and its associated counts
-        for aggregate, filters in self.schema["aggregates"].items():
-            total_count = 0
-            aggregate_counts = filters["counts"]
-            # Add up all the counts for each aggregate and add them to the final dictionary
-            for count in aggregate_counts:
-                total_count += calculated_tim[count]
-                final_aggregates[aggregate] = total_count
-        return final_aggregates
-
     def consolidate_categorical_actions(self, unconsolidated_tims: List[Dict]):
         """Given string type obj_tims, return actual string"""
         # Dictionary for final calculated tims
@@ -209,6 +195,19 @@ class ObjTIMCalcs(BaseCalculations):
             unconsolidated_totals.append(tim_totals)
         return unconsolidated_totals
 
+    def calculate_aggregates(self, calculated_tim: List[Dict]):
+        """Given a list of consolidated tims by calculate_tim_counts, return consolidated aggregates"""
+        final_aggregates = {}
+        # Get each aggregate and its associated counts
+        for aggregate, filters in self.schema["aggregates"].items():
+            total_count = 0
+            aggregate_counts = filters["counts"]
+            # Add up all the counts for each aggregate and add them to the final dictionary
+            for count in aggregate_counts:
+                total_count += calculated_tim[count]
+                final_aggregates[aggregate] = total_count
+        return final_aggregates
+
     def calculate_tim(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns a calculated TIM"""
         if len(unconsolidated_tims) == 0:
@@ -216,9 +215,9 @@ class ObjTIMCalcs(BaseCalculations):
             return {}
         calculated_tim = {}
         calculated_tim.update(self.calculate_tim_counts(unconsolidated_tims))
-        calculated_tim.update(self.calculate_aggregates(unconsolidated_tims))
         calculated_tim.update(self.calculate_tim_times(unconsolidated_tims))
         calculated_tim.update(self.consolidate_categorical_actions(unconsolidated_tims))
+        calculated_tim.update(self.calculate_aggregates(calculated_tim))
         # Use any of the unconsolidated TIMs to get the team and match number,
         # since that should be the same for each unconsolidated TIM
         calculated_tim["match_number"] = unconsolidated_tims[0]["match_number"]
