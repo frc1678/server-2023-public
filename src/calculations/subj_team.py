@@ -114,7 +114,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
                 # driver_ability is a weighted average of its component scores
                 ability_dict[team] = self.avg(scores, calc_info["weights"])
             # Put the driver abilities of all teams in a list
-            driver_ability_list = [ability for ability in ability_dict.values()]
+            driver_ability_list = list(ability_dict.values())
             normalized_abilities = dict(
                 zip(ability_dict.keys(), self.get_z_scores(driver_ability_list))
             )
