@@ -21,13 +21,12 @@ class TestDecompressor:
     def test_convert_data_type(self):
         # List of compressed names and decompressed names of enums
         action_type_dict = {
-            "AA": "score_ball_high_hub",
-            "AB": "score_ball_high_other",
-            "AC": "score_ball_low",
-            "AD": "intake",
-            "AE": "start_incap",
-            "AF": "end_incap",
-            "AG": "climb_attempt",
+            "AA": "score_ball_high",
+            "AB": "score_ball_low",
+            "AC": "intake",
+            "AD": "start_incap",
+            "AE": "end_incap",
+            "AF": "climb_attempt",
         }
         # Test a few values for each type to make sure they make sense
         assert 5 == self.test_decompressor.convert_data_type("5", "int")
@@ -80,10 +79,10 @@ class TestDecompressor:
         assert "field_awareness_score" == self.test_decompressor.get_decompressed_name(
             "C", "subjective_aim"
         )
-        assert "score_ball_high_hub" == self.test_decompressor.get_decompressed_name(
+        assert "score_ball_high" == self.test_decompressor.get_decompressed_name(
             "AA", "action_type"
         )
-        assert "climb_attempt" == self.test_decompressor.get_decompressed_name("AG", "action_type")
+        assert "climb_attempt" == self.test_decompressor.get_decompressed_name("AF", "action_type")
         assert "climb_level" == self.test_decompressor.get_decompressed_name("V", "objective_tim")
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.get_decompressed_name("#", "generic_data")
@@ -114,7 +113,7 @@ class TestDecompressor:
         )
         # Test timeline decompression
         assert {
-            "timeline": [{"action_type": "score_ball_high_hub", "time": 51}]
+            "timeline": [{"action_type": "score_ball_high", "time": 51}]
         } == self.test_decompressor.decompress_data(["W051AA"], "objective_tim")
         # Test using list with internal separators
         assert {
@@ -149,7 +148,7 @@ class TestDecompressor:
         assert [
             {"time": 60, "action_type": "start_incap"},
             {"time": 61, "action_type": "end_incap"},
-        ] == self.test_decompressor.decompress_timeline("060AE061AF")
+        ] == self.test_decompressor.decompress_timeline("060AD061AE")
         # Should return empty list if passed an empty string
         assert [] == self.test_decompressor.decompress_timeline("")
 
@@ -218,7 +217,7 @@ class TestDecompressor:
         ]
         # Test objective qr decompression
         assert expected_objective == self.test_decompressor.decompress_single_qr(
-            "A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$XTHREE$W060AE061AF$VNONE",
+            "A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$XTHREE$W060AD061AE$VNONE",
             decompressor.QRType.OBJECTIVE,
         )
         # Test subjective qr decompression
@@ -312,7 +311,7 @@ class TestDecompressor:
         assert expected_output == self.test_decompressor.decompress_qrs(
             [
                 {
-                    "data": "+A7$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$XFOUR$W060AE061AF$VHIGH"
+                    "data": "+A7$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$XFOUR$W060AD061AE$VHIGH"
                 },
                 {
                     "data": "*A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE#A254$B2$C2$DFALSE#A1323$B3$C3$DTRUE"
@@ -333,10 +332,10 @@ class TestDecompressor:
             "scout_id": 13,
             "start_position": "ONE",
             "timeline": [
-                {"time": 0, "action_type": "score_ball_high_other"},
+                {"time": 0, "action_type": "score_ball_high"},
                 {"time": 1, "action_type": "score_ball_low"},
                 {"time": 2, "action_type": "intake"},
-                {"time": 5, "action_type": "score_ball_high_other"},
+                {"time": 5, "action_type": "score_ball_high"},
                 {"time": 6, "action_type": "score_ball_low"},
                 {"time": 7, "action_type": "start_incap"},
                 {"time": 8, "action_type": "end_incap"},
@@ -390,13 +389,13 @@ class TestDecompressor:
             "raw_qr",
             [
                 {
-                    "data": "+A7$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AB001AC002AD005AB006AC007AE008AF$VTRAVERSAL",
+                    "data": "+A7$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AA001AB002AC005AA006AB007AD008AE$VTRAVERSAL",
                     "blocklisted": False,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": "+A7$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AB001AC002AD005AB006AC007AE008AF$VTRAVERSAL",
+                    "data": "+A7$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AA001AB002AC005AA006AB007AD008AE$VTRAVERSAL",
                     "blocklisted": True,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),

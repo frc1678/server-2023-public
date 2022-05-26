@@ -22,17 +22,17 @@ class TestObjTIMCalcs:
             "team_number": 254,
             "scout_id": 17,
             "timeline": [
-                {"time": 15, "action_type": "score_ball_high_other"},
+                {"time": 15, "action_type": "score_ball_high"},
                 {"time": 26, "action_type": "score_ball_low"},
                 {"time": 37, "action_type": "end_incap"},
                 {"time": 47, "action_type": "start_incap"},
-                {"time": 69, "action_type": "score_ball_high_other"},
-                {"time": 80, "action_type": "score_ball_high_hub"},
-                {"time": 90, "action_type": "score_ball_high_hub"},
+                {"time": 69, "action_type": "score_ball_high"},
+                {"time": 80, "action_type": "score_ball_high"},
+                {"time": 90, "action_type": "score_ball_high"},
                 {"time": 96, "action_type": "score_ball_low"},
-                {"time": 103, "action_type": "score_ball_high_hub"},
+                {"time": 103, "action_type": "score_ball_high"},
                 {"time": 135, "action_type": "score_ball_low"},
-                {"time": 140, "action_type": "score_ball_high_hub"},
+                {"time": 140, "action_type": "score_ball_high"},
             ],
             "climb_level": "NONE",
             "start_position": "ONE",
@@ -48,27 +48,27 @@ class TestObjTIMCalcs:
             "team_number": 254,
             "scout_id": 17,
             "timeline": [
-                {"time": 5, "action_type": "score_ball_high_other"},
-                {"time": 15, "action_type": "score_ball_high_other"},
+                {"time": 5, "action_type": "score_ball_high"},
+                {"time": 15, "action_type": "score_ball_high"},
                 {"time": 26, "action_type": "score_ball_low"},
-                {"time": 37, "action_type": "score_ball_high_hub"},
-                {"time": 47, "action_type": "score_ball_high_hub"},
-                {"time": 58, "action_type": "score_ball_high_other"},
-                {"time": 68, "action_type": "score_ball_high_other"},
-                {"time": 80, "action_type": "score_ball_high_hub"},
+                {"time": 37, "action_type": "score_ball_high"},
+                {"time": 47, "action_type": "score_ball_high"},
+                {"time": 58, "action_type": "score_ball_high"},
+                {"time": 68, "action_type": "score_ball_high"},
+                {"time": 80, "action_type": "score_ball_high"},
                 {"time": 83, "action_type": "end_incap"},
-                {"time": 90, "action_type": "score_ball_high_hub"},
+                {"time": 90, "action_type": "score_ball_high"},
                 {"time": 93, "action_type": "start_incap"},
                 {"time": 96, "action_type": "score_ball_low"},
                 {"time": 97, "action_type": "end_incap"},
-                {"time": 101, "action_type": "score_ball_high_hub"},
+                {"time": 101, "action_type": "score_ball_high"},
                 {"time": 105, "action_type": "start_incap"},
-                {"time": 112, "action_type": "score_ball_high_other"},
-                {"time": 122, "action_type": "score_ball_high_other"},
+                {"time": 112, "action_type": "score_ball_high"},
+                {"time": 122, "action_type": "score_ball_high"},
                 {"time": 133, "action_type": "end_incap"},
                 {"time": 136, "action_type": "score_ball_low"},
                 {"time": 138, "action_type": "start_incap"},
-                {"time": 140, "action_type": "score_ball_high_hub"},
+                {"time": 140, "action_type": "score_ball_high"},
             ],
             "climb_level": "HIGH",
             "start_position": "TWO",
@@ -85,10 +85,10 @@ class TestObjTIMCalcs:
             "scout_id": 17,
             "timeline": [
                 {"time": 26, "action_type": "score_ball_low"},
-                {"time": 37, "action_type": "score_ball_high_hub"},
-                {"time": 47, "action_type": "score_ball_high_hub"},
-                {"time": 58, "action_type": "score_ball_high_hub"},
-                {"time": 69, "action_type": "score_ball_high_other"},
+                {"time": 37, "action_type": "score_ball_high"},
+                {"time": 47, "action_type": "score_ball_high"},
+                {"time": 58, "action_type": "score_ball_high"},
+                {"time": 69, "action_type": "score_ball_high"},
                 {"time": 79, "action_type": "start_climb"},
                 {"time": 96, "action_type": "score_ball_low"},
             ],
@@ -127,17 +127,17 @@ class TestObjTIMCalcs:
     def test_filter_timeline_actions(self):
         actions = self.test_calculator.filter_timeline_actions(self.unconsolidated_tims[0])
         assert actions == [
-            {"action_type": "score_ball_high_other", "time": 15},
+            {"action_type": "score_ball_high", "time": 15},
             {"action_type": "score_ball_low", "time": 26},
             {"action_type": "end_incap", "time": 37},
             {"action_type": "start_incap", "time": 47},
-            {"action_type": "score_ball_high_other", "time": 69},
-            {"action_type": "score_ball_high_hub", "time": 80},
-            {"action_type": "score_ball_high_hub", "time": 90},
+            {"action_type": "score_ball_high", "time": 69},
+            {"action_type": "score_ball_high", "time": 80},
+            {"action_type": "score_ball_high", "time": 90},
             {"action_type": "score_ball_low", "time": 96},
-            {"action_type": "score_ball_high_hub", "time": 103},
+            {"action_type": "score_ball_high", "time": 103},
             {"action_type": "score_ball_low", "time": 135},
-            {"action_type": "score_ball_high_hub", "time": 140},
+            {"action_type": "score_ball_high", "time": 140},
         ]
 
     def test_count_timeline_actions(self):
@@ -159,11 +159,9 @@ class TestObjTIMCalcs:
         assert calculated_tim["incap"] == 10
         assert calculated_tim["match_number"] == 42
         assert calculated_tim["team_number"] == 254
-        assert calculated_tim["auto_hub_high_balls"] == 1
-        assert calculated_tim["auto_other_high_balls"] == 0
+        assert calculated_tim["auto_high_balls"] == 1
         assert calculated_tim["auto_low_balls"] == 1
-        assert calculated_tim["tele_hub_high_balls"] == 3
-        assert calculated_tim["tele_other_high_balls"] == 2
+        assert calculated_tim["tele_high_balls"] == 5
         assert calculated_tim["tele_low_balls"] == 2
         assert calculated_tim["auto_high_balls"] == 1
         assert calculated_tim["tele_high_balls"] == 5
