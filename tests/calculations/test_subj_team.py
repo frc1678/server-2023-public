@@ -63,7 +63,6 @@ class TestSubjTeamCalcs:
         self.test_server.db.insert_documents("subj_tim", tims)
         assert self.test_calcs.teams_played_with(1678) == [1678, 4414, 1323, 1678, 2910]
 
-    @pytest.mark.xfail
     def test_all_calcs(self):
         tims = [
             {
@@ -130,6 +129,7 @@ class TestSubjTeamCalcs:
                 "alliance_color_is_red": False,
             },
         ]
+        self.test_server.db.delete_data("subj_tim")
         self.test_server.db.insert_documents("subj_tim", tims)
         self.test_calcs.run()
         robonauts = self.test_server.db.find("subj_team", {"team_number": 118})[0]
@@ -138,12 +138,12 @@ class TestSubjTeamCalcs:
 
         assert self.near(robonauts["driver_field_awareness"], 0.9259)
         assert self.near(robonauts["driver_quickness"], 0.55555)
-        assert self.near(robonauts["driver_ability"], 0.59645)
+        assert self.near(robonauts["driver_ability"], 0.62632)
 
         assert self.near(citrus["driver_field_awareness"], 1.296)
         assert self.near(citrus["driver_quickness"], 0.666667)
-        assert self.near(citrus["driver_ability"], 2.55167)
+        assert self.near(citrus["driver_ability"], 2.39568)
 
         assert self.near(chezy["driver_field_awareness"], 1.481)
         assert self.near(chezy["driver_quickness"], 0.555555)
-        assert self.near(chezy["driver_ability"], 2.85188)
+        assert self.near(chezy["driver_ability"], 2.97799)

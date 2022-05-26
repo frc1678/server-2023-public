@@ -117,6 +117,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "final_predicted_rp1": 84.4422,
         "final_predicted_rp2": 84.4422,
         "has_final_scores": True,
+        "win_chance": 84.4422,
     },
     # Predicted Team
     {
@@ -171,7 +172,6 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "has_ground_intake": True,
         "can_eject_terminal": True,
         "has_vision": True,
-        "can_cheesecake": True,
         "can_intake_terminal": True,
         "can_under_low_rung": True,
         "can_climb": True,
@@ -198,7 +198,6 @@ class TestDataGenerator:
             datapoint_collections = generate_test_data.get_datapoint_collections_generation()
             assert "schema_file" not in datapoint_collections
 
-    @pytest.mark.xfail
     def test_generate_for_each_datapoint_collection(self):
         for num, schema_file in enumerate(self.schema_files):
             generate_test_data = DataGenerator(f"schema/{schema_file}", seed=0)
