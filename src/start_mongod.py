@@ -55,7 +55,7 @@ def start_mongod():
     elif '"codeName" : "NoReplicationEnabled"' in output:
         utils.log_error(f"Replication not enabled on mongod running on localhost:{PORT}")
     elif '"ok" : 0' in output:
-        utils.log_warning("Unknown problem initializing replica set\n{output}")
+        utils.log_warning(f"Unknown problem initializing replica set\n{output}")
     else:
         utils.log_info("Replica set started successfully")
 
