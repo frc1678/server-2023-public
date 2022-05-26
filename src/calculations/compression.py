@@ -6,6 +6,7 @@ This is used to allow QR codes to be modified and fake data to be generated for 
 """
 
 from calculations.qr_state import QRState
+from typing import List, Dict
 import utils
 
 
@@ -42,7 +43,6 @@ def compress_section(data, section):
     # Schema version is required to be at the start and exists for every version
     if section == "generic_data" and "schema_version" not in data:
         compressed_points.append(f'A{SCHEMA["schema_file"]["version"]}')
-    # TODO Handle bools (not needed currently because no bools)
     for key, value in data.items():
         compressed_key = SCHEMA[section][key][0]
         if key == "timeline":
@@ -77,18 +77,27 @@ def compress_obj_tim(tim_data):
     return f'{SCHEMA["objective_tim"]["_start_character"]}{compressed_qr}'
 
 
-def compress_subj_aim(aim_data):
+def compress_subj_aim(aim_data: List[Dict]):
     """Compresses subjective QRs"""
     generic_points = {}
-    subj_points = {}
-    for name, data in aim_data.items():
-        if name in SCHEMA["generic_data"]:
-            generic_points.update({name: data})
-        elif name in SCHEMA["subjective_aim"]:
-            subj_points.update({name: data})
+    teams_data = []
+    for team in aim_data:
+        team_data = {}
+        for name, data in team.items():
+            if name in SCHEMA["generic_data"]:
+                # If the generic data from a document doesn't match the generic data already in the dictionary from a previous document, an error has occurred
+                if generic_points.get(name) and generic_points.get(name) != data:
+                    raise ValueError("Different generic data between documents in the same subj QR")
+                generic_points.update({name: data})
+            elif name in SCHEMA["subjective_aim"]:
+                team_data.update({name: data})
+        teams_data.append(team_data)
     # Compress Generic Data
     compressed_generic = compress_section(generic_points, "generic_data")
-    compressed_subj = compress_section(subj_points, "subjective_aim")
+    # Compress Subjective data for each team
+    compressed_subj = SCHEMA["subjective_aim"]["_team_separator"].join(
+        [compress_section(team, "subjective_aim") for team in teams_data]
+    )
     compressed_qr = SCHEMA["generic_data"]["_section_separator"].join(
         [compressed_generic, compressed_subj]
     )

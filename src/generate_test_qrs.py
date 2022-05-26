@@ -92,20 +92,20 @@ def generate_obj_tim(team_number=0, scout_id=0, match_number=0, scout_name=None)
 
 def generate_subj_aim(team_list=None, match_number=0, scout_name=None):
     """Generates example data for subjective TIMs"""
-    final_data = {}
+    final_data = []
     # If the team_list isn't pre-populated, generate random teams
     if team_list is None:
         team_list = [generate_type_data("int") for x in range(3)]
-
-    # Most of the data fields specific to subjective TIMs are ordered lists of the teams
-    for data_field, info in SCHEMA["subjective_aim"].items():
-        if not data_field.startswith("_") and info[1] == "list":
-            final_data[data_field] = random.sample(team_list, len(team_list))
-        elif not data_field.startswith("_"):
-            final_data[data_field] = generate_type_data(info[1])
-
-    # Generate generic data for the TIM
-    final_data.update(generate_generic_data(match_number, scout_name))
+    generic_data = generate_generic_data(match_number, scout_name)
+    for team in team_list:
+        team_data = {}
+        for data_field, info in SCHEMA["subjective_aim"].items():
+            if not data_field.startswith("_"):
+                team_data[data_field] = generate_type_data(info[1])
+        team_data["team_number"] = team
+        # Generate generic data for the TIM
+        team_data.update(generic_data)
+        final_data.append(team_data)
 
     # Return final data compressed into a qr string
     return compression.compress_subj_aim(final_data)

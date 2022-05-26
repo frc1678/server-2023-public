@@ -1,4 +1,5 @@
 from calculations import compression
+import pytest
 
 
 def test_compress_timeline():
@@ -36,6 +37,17 @@ def test_compress_section_obj():
     assert compression.compress_section(schema_data, "objective_tim") == compressed_schema
 
 
+def test_compress_section_subj():
+    data = {
+        "team_number": 1678,
+        "quickness_score": 2,
+        "field_awareness_score": 1,
+        "played_defense": False,
+    }
+    compressed_data = "A1678$B2$C1$DFALSE"
+    assert compression.compress_section(data, "subjective_aim") == compressed_data
+
+
 def test_compress_obj_tim():
     data = {
         "schema_version": 1,
@@ -57,3 +69,87 @@ def test_compress_obj_tim():
         "+A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEI R%Z9999$Y2$XFOUR$W045AE007AF$VNONE"
     )
     assert compression.compress_obj_tim(data) == compressed_data
+
+
+def test_compress_subj_aim():
+    data = [
+        {
+            "schema_version": 1,
+            "serial_number": "HASAMPLENUM",
+            "match_number": 1,
+            "timestamp": 1582994470,
+            "match_collection_version_number": "1.0.2",
+            "scout_name": "YOUYOU X",
+            "team_number": 3128,
+            "quickness_score": 1,
+            "field_awareness_score": 2,
+            "played_defense": False,
+        },
+        {
+            "schema_version": 1,
+            "serial_number": "HASAMPLENUM",
+            "match_number": 1,
+            "timestamp": 1582994470,
+            "match_collection_version_number": "1.0.2",
+            "scout_name": "YOUYOU X",
+            "team_number": 1678,
+            "quickness_score": 2,
+            "field_awareness_score": 1,
+            "played_defense": False,
+        },
+        {
+            "schema_version": 1,
+            "serial_number": "HASAMPLENUM",
+            "match_number": 1,
+            "timestamp": 1582994470,
+            "match_collection_version_number": "1.0.2",
+            "scout_name": "YOUYOU X",
+            "team_number": 972,
+            "quickness_score": 3,
+            "field_awareness_score": 3,
+            "played_defense": True,
+        },
+    ]
+    compressed_data = "*A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FYOUYOU X%A3128$B1$C2$DFALSE#A1678$B2$C1$DFALSE#A972$B3$C3$DTRUE"
+    assert compression.compress_subj_aim(data) == compressed_data
+    error_data = [
+        {
+            "schema_version": 1,
+            "serial_number": "HASAMPLENUM",
+            "match_number": 1,
+            "timestamp": 1582994470,
+            "match_collection_version_number": "1.0.2",
+            "scout_name": "KINA L",
+            "team_number": 3128,
+            "quickness_score": 1,
+            "field_awareness_score": 2,
+            "played_defense": False,
+        },
+        {
+            "schema_version": 1,
+            "serial_number": "HASAMPLENUM",
+            "match_number": 1,
+            "timestamp": 1582994470,
+            "match_collection_version_number": "1.0.2",
+            "scout_name": "YOUYOU X",
+            "team_number": 1678,
+            "quickness_score": 2,
+            "field_awareness_score": 1,
+            "played_defense": False,
+        },
+        {
+            "schema_version": 1,
+            "serial_number": "HASAMPLENUM",
+            "match_number": 1,
+            "timestamp": 1582994470,
+            "match_collection_version_number": "1.0.2",
+            "scout_name": "YOUYOU X",
+            "team_number": 972,
+            "quickness_score": 3,
+            "field_awareness_score": 3,
+            "played_defense": True,
+        },
+    ]
+    with pytest.raises(ValueError) as error:
+        compression.compress_subj_aim(error_data)
+    assert "Different generic data between documents in the same subj QR" in str(error)
