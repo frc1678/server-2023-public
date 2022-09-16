@@ -4,7 +4,7 @@
 
 import argparse
 from calculations.generate_random_value import generate_random_value
-import csv
+import json
 import utils
 import inquirer
 import json
@@ -83,10 +83,10 @@ class TIMInstanceGenerator:
                     self.tims.append(new_match)
 
     def read_match_schedule(self, file_path):
-        """Reads csv as list of the match schedule"""
-        with open(file_path, "r") as csv_file:
-            csv_data = list(csv.reader(csv_file))
-        return csv_data
+        """Reads json as list of the match schedule"""
+        with open(file_path, "r") as json_file:
+            json_data = list(json.load(json_file))
+        return json_data
 
     def __next__(self) -> TIMInstance:
         """Return a TIM instance based on the index"""
