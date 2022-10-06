@@ -8,7 +8,7 @@ import utils
 PORT = 1678
 DB_PATH = utils.create_file_path("data/db")
 REPLICA_SET_NAME = "ScoutingReplica0"
-MONGOD_LOG_PATH = utils.create_file_path("data/mongod.log")
+MONGOD_LOG_PATH = utils.create_file_path("data/mongodlogs/mongod.log")
 
 
 def start_mongod():
