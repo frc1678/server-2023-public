@@ -83,11 +83,11 @@ class Database:
         """Gets the TBA Cache of 'api_url'"""
         return self.db.tba_cache.find_one({"api_url": api_url})
 
-    def update_tba_cache(self, data: Any, api_url: str, timestamp: Optional[str] = None) -> None:
+    def update_tba_cache(self, data: Any, api_url: str, etag: Optional[str] = None) -> None:
         """Updates one TBA Cache at 'api_url'"""
         write_object = {"data": data}
-        if timestamp is not None:
-            write_object["timestamp"] = timestamp
+        if etag is not None:
+            write_object["etag"] = etag
         self.db.tba_cache.update_one({"api_url": api_url}, {"$set": write_object}, upsert=True)
 
     def delete_data(self, collection: str, query: dict = {}) -> None:

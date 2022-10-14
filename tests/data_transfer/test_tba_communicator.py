@@ -6,7 +6,7 @@ from unittest.mock import patch, mock_open
 test_cache = {
     "api_url": "event/2020caln/teams",
     "data": [{"team_name": "Citrus Circuits"}],
-    "timestamp": "Sun, 25 Jul 2021 09:03:34 GMT",
+    "etag": 'W/"fb0425e78890c8df10daa66401177a80c154eeb2"',
 }
 
 test_json = {"teams": ["frc1678", "frc4414", "frc1671"]}
@@ -35,7 +35,7 @@ def test_status_code_304(get_mock):
 def test_status_code_200(get_mock):
     get_mock.return_value.status_code = 200
     get_mock.return_value.json.return_value = test_json
-    get_mock.return_value.headers = {"Last-Modified": "Sun, 25 Jul 2021 09:03:34 GMT"}
+    get_mock.return_value.headers = {"etag": 'W/"fb0425e78890c8df10daa66401177a80c154eeb2"'}
 
     with patch("data_transfer.database.Database.update_tba_cache") as update_mock, patch(
         "data_transfer.tba_communicator.get_api_key", return_value="api_key"
@@ -46,7 +46,7 @@ def test_status_code_200(get_mock):
         update_mock.assert_called_with(
             {"teams": ["frc1678", "frc4414", "frc1671"]},
             "events/2020caln/teams",
-            "Sun, 25 Jul 2021 09:03:34 GMT",
+            'W/"fb0425e78890c8df10daa66401177a80c154eeb2"',
         )
 
 

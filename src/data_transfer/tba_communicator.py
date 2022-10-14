@@ -24,7 +24,7 @@ def tba_request(api_url):
     cached = db.get_tba_cache(api_url)
     # Check if cache exists
     if cached:
-        request_headers["If-Modified-Since"] = cached["timestamp"]
+        request_headers["If-None-Match"] = cached["etag"]
     print(f"Retrieving data from {full_url}")
     utils.log_info(f"tba request from {api_url} finished")
     try:
@@ -38,7 +38,7 @@ def tba_request(api_url):
     if request.status_code == 304:
         return cached["data"]
     if request.status_code == 200:
-        db.update_tba_cache(request.json(), api_url, request.headers["Last-Modified"])
+        db.update_tba_cache(request.json(), api_url, request.headers["etag"])
         return request.json()
     raise Warning(f"Request failed with status code {request.status_code}")
 
