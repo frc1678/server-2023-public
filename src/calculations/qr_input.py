@@ -1,7 +1,6 @@
 """This file houses a calculation class that allows the server to input data"""
 from data_transfer import adb_communicator
 import calculations.base_calculations
-import server
 import utils
 
 import datetime

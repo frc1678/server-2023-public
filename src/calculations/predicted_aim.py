@@ -2,9 +2,7 @@
 """Makes predictive calculations for alliances in matches in a competition."""
 
 import utils
-import server
 import dataclasses
-import math
 
 from calculations.base_calculations import BaseCalculations
 from data_transfer import tba_communicator

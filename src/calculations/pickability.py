@@ -1,8 +1,6 @@
 from calculations import base_calculations
 import utils
 
-import pymongo
-
 
 class PickabilityCalc(base_calculations.BaseCalculations):
     """This class calculates pickability"""

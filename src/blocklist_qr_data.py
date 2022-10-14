@@ -13,7 +13,6 @@ import sys
 
 from data_transfer import database
 import utils
-from server import Server
 
 db = database.Database()
 

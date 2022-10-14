@@ -9,7 +9,6 @@ from collections import OrderedDict
 from typing import Any, Optional, Union
 
 import pymongo
-import yaml
 
 import start_mongod
 import utils

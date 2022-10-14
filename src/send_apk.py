@@ -6,12 +6,10 @@ Uses subprocess to send an APK to the tablets.
 ADB stands for Android Debug Bridge.
 """
 
-import json
 import sys
 import time
 
 from data_transfer import adb_communicator
-import utils
 
 
 def install_apk(device_serial):

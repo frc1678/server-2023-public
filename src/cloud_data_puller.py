@@ -7,9 +7,7 @@ import sys
 
 import termcolor
 
-from data_transfer import cloud_db_updater
 from server import Server
-import utils
 
 termcolor.cprint(
     "WARNING: This script does not currently work on the new database structure",

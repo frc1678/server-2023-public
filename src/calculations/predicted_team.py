@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Makes predictive calculations for teams in a competition."""
 
-import server
 import utils
 from data_transfer import tba_communicator
 from calculations.base_calculations import BaseCalculations

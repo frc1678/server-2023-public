@@ -6,7 +6,7 @@ import copy
 from typing import List, Dict, Tuple, Any
 
 from calculations import base_calculations
-from data_transfer import database, tba_communicator
+from data_transfer import tba_communicator
 import utils
 from server import Server
 
