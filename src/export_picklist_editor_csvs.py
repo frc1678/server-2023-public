@@ -14,6 +14,7 @@ import os
 import re
 from typing import List, Dict, Tuple, Optional, Any
 import shutil
+import json
 
 import utils
 from server import Server
@@ -57,8 +58,10 @@ class BaseExport:
     @staticmethod
     def get_teams_list() -> List[int]:
         """Access all the team numbers via the team_list.csv"""
-        with open(utils.create_file_path("data/team_list.csv")) as team_list:
-            return list(map(int, [*csv.reader(team_list)][0]))
+        with open(
+            utils.create_file_path(f"data/{Server.TBA_EVENT_KEY}_team_list.json")
+        ) as team_list:
+            return list(map(int, json.load(team_list)))
 
     @staticmethod
     def order_headers(column_headers: List[str], ordered: List[str]) -> List[str]:
