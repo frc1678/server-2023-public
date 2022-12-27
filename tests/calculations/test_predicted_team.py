@@ -88,19 +88,19 @@ class TestPredictedTeamCalc:
             3: {"R": 2, "B": 3},
         }
         self.updates = [
-            {"team_number": 1678, "predicted_rps": 5},
-            {"team_number": 1533, "predicted_rps": 7},
-            {"team_number": 7229, "predicted_rps": 5},
-            {"team_number": 254, "predicted_rps": 2},
-            {"team_number": 971, "predicted_rps": 1},
-            {"team_number": 1323, "predicted_rps": 2},
-            {"team_number": 2056, "predicted_rps": 5},
-            {"team_number": 1114, "predicted_rps": 6},
-            {"team_number": 7179, "predicted_rps": 6},
+            {"team_number": "1678", "predicted_rps": 5},
+            {"team_number": "1533", "predicted_rps": 7},
+            {"team_number": "7229", "predicted_rps": 5},
+            {"team_number": "254", "predicted_rps": 2},
+            {"team_number": "971", "predicted_rps": 1},
+            {"team_number": "1323", "predicted_rps": 2},
+            {"team_number": "2056", "predicted_rps": 5},
+            {"team_number": "1114", "predicted_rps": 6},
+            {"team_number": "7179", "predicted_rps": 6},
         ]
         self.expected_results = [
             {
-                "team_number": 1678,
+                "team_number": "1678",
                 "predicted_rps": 5,
                 "predicted_rank": 4,
                 "current_rank": 1,
@@ -108,7 +108,7 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 26 / 11,
             },
             {
-                "team_number": 1533,
+                "team_number": "1533",
                 "predicted_rps": 7,
                 "predicted_rank": 1,
                 "current_rank": 2,
@@ -116,7 +116,7 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 25 / 11,
             },
             {
-                "team_number": 7229,
+                "team_number": "7229",
                 "predicted_rps": 5,
                 "predicted_rank": 5,
                 "current_rank": 3,
@@ -124,7 +124,7 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 24 / 11,
             },
             {
-                "team_number": 254,
+                "team_number": "254",
                 "predicted_rps": 2,
                 "predicted_rank": 7,
                 "current_rank": 4,
@@ -132,7 +132,7 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 23 / 11,
             },
             {
-                "team_number": 971,
+                "team_number": "971",
                 "predicted_rps": 1,
                 "predicted_rank": 9,
                 "current_rank": 5,
@@ -140,7 +140,7 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 22 / 11,
             },
             {
-                "team_number": 1323,
+                "team_number": "1323",
                 "predicted_rps": 2,
                 "predicted_rank": 8,
                 "current_rank": 6,
@@ -148,7 +148,7 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 21 / 11,
             },
             {
-                "team_number": 2056,
+                "team_number": "2056",
                 "predicted_rps": 5,
                 "predicted_rank": 6,
                 "current_rank": 7,
@@ -156,7 +156,7 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 20 / 11,
             },
             {
-                "team_number": 1114,
+                "team_number": "1114",
                 "predicted_rps": 6,
                 "predicted_rank": 2,
                 "current_rank": 8,
@@ -164,7 +164,7 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 19 / 11,
             },
             {
-                "team_number": 7179,
+                "team_number": "7179",
                 "predicted_rps": 6,
                 "predicted_rank": 3,
                 "current_rank": 9,

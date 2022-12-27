@@ -36,7 +36,7 @@ class TestTBATeamCalc:
                     "key": "frc973",
                     "nickname": "Greybots",
                     "state_prov": "California",
-                    "team_number": 973,
+                    "team_number": "973",
                 },
                 {
                     "city": "Davis",
@@ -44,7 +44,7 @@ class TestTBATeamCalc:
                     "key": "frc1678",
                     "nickname": "Citrus Circuits",
                     "state_prov": "California",
-                    "team_number": 1678,
+                    "team_number": "1678",
                 },
             ],
         }
@@ -56,7 +56,7 @@ class TestTBATeamCalc:
                 "tele_high_balls": 45,
                 "incap": 14,
                 "confidence_rating": 30,
-                "team_number": 973,
+                "team_number": "973",
                 "match_number": 1,
             },
             {
@@ -66,7 +66,7 @@ class TestTBATeamCalc:
                 "tele_high_balls": 1,
                 "incap": 22,
                 "confidence_rating": 68,
-                "team_number": 973,
+                "team_number": "973",
                 "match_number": 2,
             },
             {
@@ -76,7 +76,7 @@ class TestTBATeamCalc:
                 "tele_high_balls": 67,
                 "incap": 18,
                 "confidence_rating": 2,
-                "team_number": 973,
+                "team_number": "973",
                 "match_number": 3,
             },
             {
@@ -86,7 +86,7 @@ class TestTBATeamCalc:
                 "tele_high_balls": 81,
                 "incap": 17,
                 "confidence_rating": 31,
-                "team_number": 1678,
+                "team_number": "1678",
                 "match_number": 1,
             },
             {
@@ -96,7 +96,7 @@ class TestTBATeamCalc:
                 "tele_high_balls": 59,
                 "incap": 93,
                 "confidence_rating": 14,
-                "team_number": 1678,
+                "team_number": "1678",
                 "match_number": 2,
             },
             {
@@ -106,7 +106,7 @@ class TestTBATeamCalc:
                 "tele_high_balls": 74,
                 "incap": 15,
                 "confidence_rating": 77,
-                "team_number": 1678,
+                "team_number": "1678",
                 "match_number": 3,
             },
         ]
@@ -114,42 +114,42 @@ class TestTBATeamCalc:
             {
                 "auto_line": False,
                 "match_number": 1,
-                "team_number": 973,
+                "team_number": "973",
             },
             {
                 "auto_line": False,
                 "match_number": 2,
-                "team_number": 973,
+                "team_number": "973",
             },
             {
                 "auto_line": True,
                 "match_number": 3,
-                "team_number": 973,
+                "team_number": "973",
             },
             {
                 "auto_line": True,
                 "match_number": 1,
-                "team_number": 1678,
+                "team_number": "1678",
             },
             {
                 "auto_line": False,
                 "match_number": 2,
-                "team_number": 1678,
+                "team_number": "1678",
             },
             {
                 "auto_line": True,
                 "match_number": 3,
-                "team_number": 1678,
+                "team_number": "1678",
             },
         ]
         expected_results = [
             {
-                "team_number": 973,
+                "team_number": "973",
                 "auto_line_successes": 1,
                 "team_name": "Greybots",
             },
             {
-                "team_number": 1678,
+                "team_number": "1678",
                 "auto_line_successes": 2,
                 "team_name": "Citrus Circuits",
             },

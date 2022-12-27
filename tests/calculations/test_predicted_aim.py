@@ -140,7 +140,7 @@ class TestPredictedAimCalc:
         self.blank_predicted_values = predicted_aim.PredictedAimScores()
         self.obj_team = [
             {
-                "team_number": 1678,
+                "team_number": "1678",
                 "auto_avg_low_balls": 4.5,
                 "auto_avg_high_balls": 7.5,
                 "auto_avg_total_balls": 12.0,
@@ -154,7 +154,7 @@ class TestPredictedAimCalc:
                 "matches_played": 8,
             },
             {
-                "team_number": 1533,
+                "team_number": "1533",
                 "auto_avg_low_balls": 3.7,
                 "auto_avg_high_balls": 8.2,
                 "auto_avg_total_balls": 11.9,
@@ -168,7 +168,7 @@ class TestPredictedAimCalc:
                 "matches_played": 7,
             },
             {
-                "team_number": 7229,
+                "team_number": "7229",
                 "auto_avg_low_balls": 3.5,
                 "auto_avg_high_balls": 6.4,
                 "auto_avg_total_balls": 9.9,
@@ -182,7 +182,7 @@ class TestPredictedAimCalc:
                 "matches_played": 7,
             },
             {
-                "team_number": 2468,
+                "team_number": "2468",
                 "auto_avg_low_balls": 1.5,
                 "auto_avg_high_balls": 3.2,
                 "auto_avg_total_balls": 4.7,
@@ -198,19 +198,19 @@ class TestPredictedAimCalc:
         ]
         self.tba_team = [
             {
-                "team_number": 1678,
+                "team_number": "1678",
                 "auto_line_successes": 8,
             },
             {
-                "team_number": 1533,
+                "team_number": "1533",
                 "auto_line_successes": 7,
             },
             {
-                "team_number": 7229,
+                "team_number": "7229",
                 "auto_line_successes": 5,
             },
             {
-                "team_number": 2468,
+                "team_number": "2468",
                 "auto_line_successes": 5,
             },
         ]

@@ -58,14 +58,14 @@ class TestPickability:
         test_calc = pickability.PickabilityCalc(Server())
         calc_data = {
             "test": {
-                "team_number": 0,
+                "team_number": "0",
                 "datapoint1": 2,
                 "datapoint2": 1,
                 "useless": None,
             },
-            "test2": {"team_number": 0, "datapoint1": 3, "useless": None},
+            "test2": {"team_number": "0", "datapoint1": 3, "useless": None},
         }
-        weight_data = {"team_number": 0, "avg_climb_points": 5.82}
+        weight_data = {"team_number": "0", "avg_climb_points": 5.82}
         test_calc.server.db.insert_documents("obj_team", weight_data)
         assert test_calc.calculate_pickability(0, "first_pickability", calc_data) == 6
         assert test_calc.calculate_pickability(0, "second_pickability", calc_data) == 72.84
@@ -73,11 +73,11 @@ class TestPickability:
         # Check that if the datapoint is missing that it correctly returns None
         calc_data = {
             "test": {
-                "team_number": 0,
+                "team_number": "0",
                 "datapoint2": 1,
                 "useless": None,
             },
-            "test2": {"team_number": 0, "datapoint1": 3, "useless": None},
+            "test2": {"team_number": "0", "datapoint1": 3, "useless": None},
         }
         assert test_calc.calculate_pickability(0, "first_pickability", calc_data) is None
 
@@ -88,12 +88,14 @@ class TestPickability:
         server_obj = Server()
         test_calc = pickability.PickabilityCalc(server_obj)
         # This is not enough to do a pickability calc, it needs the test2 datapoint
-        server_obj.db.insert_documents("test", {"team_number": 0, "datapoint1": 1, "datapoint2": 5})
+        server_obj.db.insert_documents(
+            "test", {"team_number": "0", "datapoint1": 1, "datapoint2": 5}
+        )
         test_calc.run()
         assert server_obj.db.find("pickability") == []
         # Insert all the required data
         server_obj.db.insert_documents(
-            "test2", {"team_number": 0, "datapoint1": 1, "datapoint2": 5}
+            "test2", {"team_number": "0", "datapoint1": 1, "datapoint2": 5}
         )
         test_calc.run()
         result = server_obj.db.find("pickability")
@@ -101,7 +103,7 @@ class TestPickability:
         assert result
         server_obj.db.delete_data("test2")
         server_obj.db.insert_documents(
-            "test2", {"team_number": 0, "datapoint1": 2000000, "datapoint2": 20}
+            "test2", {"team_number": "0", "datapoint1": 2000000, "datapoint2": 20}
         )
         test_calc.run()
         new_result = server_obj.db.find("pickability")

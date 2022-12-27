@@ -108,7 +108,7 @@ class TestDecompressor:
             "scout_name": "Name",
         } == self.test_decompressor.decompress_data(["A7", "FName"], "generic_data")
         # Test objective tim
-        assert {"team_number": 1678} == self.test_decompressor.decompress_data(
+        assert {"team_number": "1678"} == self.test_decompressor.decompress_data(
             ["Z1678"], "objective_tim"
         )
         # Test timeline decompression
@@ -163,7 +163,7 @@ class TestDecompressor:
                 "match_collection_version_number": "v1.3",
                 "scout_name": "Name",
                 "alliance_color_is_red": False,
-                "team_number": 1678,
+                "team_number": "1678",
                 "scout_id": 14,
                 "start_position": "THREE",
                 "timeline": [
@@ -183,7 +183,7 @@ class TestDecompressor:
                 "match_collection_version_number": "v1.3",
                 "scout_name": "Name",
                 "alliance_color_is_red": True,
-                "team_number": 1678,
+                "team_number": "1678",
                 "quickness_score": 1,
                 "field_awareness_score": 2,
                 "played_defense": True,
@@ -196,7 +196,7 @@ class TestDecompressor:
                 "match_collection_version_number": "v1.3",
                 "scout_name": "Name",
                 "alliance_color_is_red": True,
-                "team_number": 254,
+                "team_number": "254",
                 "quickness_score": 2,
                 "field_awareness_score": 1,
                 "played_defense": False,
@@ -209,7 +209,7 @@ class TestDecompressor:
                 "match_collection_version_number": "v1.3",
                 "scout_name": "Name",
                 "alliance_color_is_red": True,
-                "team_number": 1323,
+                "team_number": "1323",
                 "quickness_score": 3,
                 "field_awareness_score": 1,
                 "played_defense": True,
@@ -256,7 +256,7 @@ class TestDecompressor:
                     "match_collection_version_number": "v1.3",
                     "scout_name": "Name",
                     "alliance_color_is_red": True,
-                    "team_number": 1678,
+                    "team_number": "1678",
                     "scout_id": 14,
                     "start_position": "FOUR",
                     "timeline": [
@@ -275,7 +275,7 @@ class TestDecompressor:
                     "match_collection_version_number": "v1.3",
                     "scout_name": "Name",
                     "alliance_color_is_red": False,
-                    "team_number": 1678,
+                    "team_number": "1678",
                     "quickness_score": 1,
                     "field_awareness_score": 2,
                     "played_defense": False,
@@ -288,7 +288,7 @@ class TestDecompressor:
                     "match_collection_version_number": "v1.3",
                     "scout_name": "Name",
                     "alliance_color_is_red": False,
-                    "team_number": 254,
+                    "team_number": "254",
                     "quickness_score": 2,
                     "field_awareness_score": 2,
                     "played_defense": False,
@@ -301,7 +301,7 @@ class TestDecompressor:
                     "match_collection_version_number": "v1.3",
                     "scout_name": "Name",
                     "alliance_color_is_red": False,
-                    "team_number": 1323,
+                    "team_number": "1323",
                     "quickness_score": 3,
                     "field_awareness_score": 3,
                     "played_defense": True,
@@ -328,7 +328,7 @@ class TestDecompressor:
             "match_collection_version_number": "v1.3",
             "scout_name": "XvfaPcSrgJw25VKrcsphdbyEVjmHrH1V",
             "alliance_color_is_red": False,
-            "team_number": 3603,
+            "team_number": "3603",
             "scout_id": 13,
             "start_position": "ONE",
             "timeline": [
@@ -351,7 +351,7 @@ class TestDecompressor:
                 "match_collection_version_number": "v1.3",
                 "scout_name": "Name",
                 "alliance_color_is_red": False,
-                "team_number": 1678,
+                "team_number": "1678",
                 "quickness_score": 1,
                 "field_awareness_score": 2,
                 "played_defense": False,
@@ -364,7 +364,7 @@ class TestDecompressor:
                 "match_collection_version_number": "v1.3",
                 "scout_name": "Name",
                 "alliance_color_is_red": False,
-                "team_number": 254,
+                "team_number": "254",
                 "quickness_score": 2,
                 "field_awareness_score": 2,
                 "played_defense": False,
@@ -377,7 +377,7 @@ class TestDecompressor:
                 "match_collection_version_number": "v1.3",
                 "scout_name": "Name",
                 "alliance_color_is_red": False,
-                "team_number": 1323,
+                "team_number": "1323",
                 "quickness_score": 3,
                 "field_awareness_score": 3,
                 "played_defense": True,

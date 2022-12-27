@@ -61,62 +61,62 @@ TEST_DATA = [
 
 TIMS = [
     {
-        "team_number": 254,
+        "team_number": "254",
         "match_number": 1,
         "auto_line": False,
     },
     {
-        "team_number": 973,
+        "team_number": "973",
         "match_number": 1,
         "auto_line": True,
     },
     {
-        "team_number": 34,
-        "match_number": 1,
-        "auto_line": False,
-    },
-    {
-        "team_number": 33,
+        "team_number": "34",
         "match_number": 1,
         "auto_line": False,
     },
     {
-        "team_number": 25,
+        "team_number": "33",
         "match_number": 1,
         "auto_line": False,
     },
     {
-        "team_number": 257,
+        "team_number": "25",
         "match_number": 1,
         "auto_line": False,
     },
     {
-        "team_number": 97,
+        "team_number": "257",
+        "match_number": 1,
+        "auto_line": False,
+    },
+    {
+        "team_number": "97",
         "match_number": 2,
         "auto_line": True,
     },
     {
-        "team_number": 3,
+        "team_number": "3",
         "match_number": 2,
         "auto_line": True,
     },
     {
-        "team_number": 37,
+        "team_number": "37",
         "match_number": 2,
         "auto_line": True,
     },
     {
-        "team_number": 47,
+        "team_number": "47",
         "match_number": 2,
         "auto_line": True,
     },
     {
-        "team_number": 57,
+        "team_number": "57",
         "match_number": 2,
         "auto_line": True,
     },
     {
-        "team_number": 67,
+        "team_number": "67",
         "match_number": 2,
         "auto_line": True,
     },

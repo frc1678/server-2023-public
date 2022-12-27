@@ -28,7 +28,7 @@ def test_compress_section_generic_data():
 
 def test_compress_section_obj():
     # Without timeline
-    schema_data = {"team_number": 1678, "scout_id": 18}
+    schema_data = {"team_number": "1678", "scout_id": 18}
     compressed_schema = "Z1678$Y18"
     assert compression.compress_section(schema_data, "objective_tim") == compressed_schema
     # With timeline
@@ -39,7 +39,7 @@ def test_compress_section_obj():
 
 def test_compress_section_subj():
     data = {
-        "team_number": 1678,
+        "team_number": "1678",
         "quickness_score": 2,
         "field_awareness_score": 1,
         "played_defense": False,
@@ -55,7 +55,7 @@ def test_compress_obj_tim():
         "match_number": 1,
         "timestamp": 1582994470,
         "match_collection_version_number": "1.0.2",
-        "team_number": 9999,
+        "team_number": "9999",
         "scout_name": "KEI R",
         "scout_id": 2,
         "start_position": "FOUR",
@@ -80,7 +80,7 @@ def test_compress_subj_aim():
             "timestamp": 1582994470,
             "match_collection_version_number": "1.0.2",
             "scout_name": "YOUYOU X",
-            "team_number": 3128,
+            "team_number": "3128",
             "quickness_score": 1,
             "field_awareness_score": 2,
             "played_defense": False,
@@ -92,7 +92,7 @@ def test_compress_subj_aim():
             "timestamp": 1582994470,
             "match_collection_version_number": "1.0.2",
             "scout_name": "YOUYOU X",
-            "team_number": 1678,
+            "team_number": "1678",
             "quickness_score": 2,
             "field_awareness_score": 1,
             "played_defense": False,
@@ -104,7 +104,7 @@ def test_compress_subj_aim():
             "timestamp": 1582994470,
             "match_collection_version_number": "1.0.2",
             "scout_name": "YOUYOU X",
-            "team_number": 972,
+            "team_number": "972",
             "quickness_score": 3,
             "field_awareness_score": 3,
             "played_defense": True,
@@ -120,7 +120,7 @@ def test_compress_subj_aim():
             "timestamp": 1582994470,
             "match_collection_version_number": "1.0.2",
             "scout_name": "KINA L",
-            "team_number": 3128,
+            "team_number": "3128",
             "quickness_score": 1,
             "field_awareness_score": 2,
             "played_defense": False,
@@ -132,7 +132,7 @@ def test_compress_subj_aim():
             "timestamp": 1582994470,
             "match_collection_version_number": "1.0.2",
             "scout_name": "YOUYOU X",
-            "team_number": 1678,
+            "team_number": "1678",
             "quickness_score": 2,
             "field_awareness_score": 1,
             "played_defense": False,
@@ -144,7 +144,7 @@ def test_compress_subj_aim():
             "timestamp": 1582994470,
             "match_collection_version_number": "1.0.2",
             "scout_name": "YOUYOU X",
-            "team_number": 972,
+            "team_number": "972",
             "quickness_score": 3,
             "field_awareness_score": 3,
             "played_defense": True,

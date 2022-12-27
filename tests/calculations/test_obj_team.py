@@ -215,15 +215,15 @@ class TestOBJTeamCalc:
     def test_super_counts(self):
         """Tests calculate_super_counts function from src/calculations.obj_team.py"""
         tims = [
-            {"match_number": 1, "team_number": 1678, "played_defense": True},
+            {"match_number": 1, "team_number": "1678", "played_defense": True},
             {
                 "match_number": 2,
-                "team_number": 1678,
+                "team_number": "1678",
                 "played_defense": False,
             },
             {
                 "match_number": 3,
-                "team_number": 1678,
+                "team_number": "1678",
                 "played_defense": True,
             },
         ]
@@ -382,52 +382,52 @@ class TestOBJTeamCalc:
         subj_tims = [
             {
                 "match_number": 1,
-                "team_number": 973,
+                "team_number": "973",
                 "played_defense": True,
             },
             {
                 "match_number": 2,
-                "team_number": 973,
+                "team_number": "973",
                 "played_defense": True,
             },
             {
                 "match_number": 3,
-                "team_number": 973,
+                "team_number": "973",
                 "played_defense": False,
             },
             {
                 "match_number": 4,
-                "team_number": 973,
+                "team_number": "973",
                 "played_defense": True,
             },
             {
                 "match_number": 5,
-                "team_number": 973,
+                "team_number": "973",
                 "played_defense": True,
             },
             {
                 "match_number": 1,
-                "team_number": 1678,
+                "team_number": "1678",
                 "played_defense": False,
             },
             {
                 "match_number": 2,
-                "team_number": 1678,
+                "team_number": "1678",
                 "played_defense": True,
             },
             {
                 "match_number": 3,
-                "team_number": 1678,
+                "team_number": "1678",
                 "played_defense": False,
             },
             {
                 "match_number": 4,
-                "team_number": 1678,
+                "team_number": "1678",
                 "played_defense": True,
             },
             {
                 "match_number": 5,
-                "team_number": 1678,
+                "team_number": "1678",
                 "played_defense": False,
             },
         ]
@@ -443,7 +443,7 @@ class TestOBJTeamCalc:
                 "tele_total_balls": 63,
                 "incap": 14,
                 "confidence_rating": 30,
-                "team_number": 973,
+                "team_number": "973",
                 "climb_attempts": 1,
                 "intakes": 15,
                 "climb_level": "LOW",
@@ -459,7 +459,7 @@ class TestOBJTeamCalc:
                 "tele_total_balls": 57,
                 "incap": 22,
                 "confidence_rating": 68,
-                "team_number": 973,
+                "team_number": "973",
                 "climb_attempts": 1,
                 "intakes": 16,
                 "climb_level": "NONE",
@@ -469,13 +469,13 @@ class TestOBJTeamCalc:
                 "match_number": 3,
                 "auto_high_balls": 92,
                 "auto_low_balls": 84,
-                "auto_total_balls": 176,
+                "" "auto_total_balls": 176,
                 "tele_high_balls": 68,
                 "tele_low_balls": 40,
                 "tele_total_balls": 108,
                 "incap": 18,
                 "confidence_rating": 2,
-                "team_number": 973,
+                "team_number": "973",
                 "climb_attempts": 2,
                 "intakes": 17,
                 "climb_level": "HIGH",
@@ -492,7 +492,7 @@ class TestOBJTeamCalc:
                 "tele_total_balls": 115,
                 "incap": 17,
                 "confidence_rating": 31,
-                "team_number": 1678,
+                "team_number": "1678",
                 "climb_attempts": 1,
                 "intakes": 18,
                 "climb_level": "TRAVERSAL",
@@ -508,7 +508,7 @@ class TestOBJTeamCalc:
                 "tele_total_balls": 140,
                 "incap": 93,
                 "confidence_rating": 14,
-                "team_number": 1678,
+                "team_number": "1678",
                 "climb_attempts": 1,
                 "intakes": 19,
                 "climb_level": "LOW",
@@ -524,7 +524,7 @@ class TestOBJTeamCalc:
                 "tele_total_balls": 162,
                 "incap": 16,
                 "confidence_rating": 77,
-                "team_number": 1678,
+                "team_number": "1678",
                 "climb_attempts": 1,
                 "intakes": 21,
                 "climb_level": "LOW",
@@ -540,7 +540,7 @@ class TestOBJTeamCalc:
                 "tele_total_balls": 7,
                 "incap": 5,
                 "confidence_rating": 7,
-                "team_number": 1678,
+                "team_number": "1678",
                 "climb_attempts": 1,
                 "intakes": 22,
                 "climb_level": "MID",
@@ -556,7 +556,7 @@ class TestOBJTeamCalc:
                 "tele_total_balls": 9,
                 "incap": 6,
                 "confidence_rating": 8,
-                "team_number": 1678,
+                "team_number": "1678",
                 "climb_attempts": 1,
                 "intakes": 23,
                 "climb_level": "LOW",
@@ -565,7 +565,7 @@ class TestOBJTeamCalc:
         ]
         expected_results = [
             {
-                "team_number": 973,
+                "team_number": "973",
                 # Averages
                 "avg_intakes": 16.0,
                 "auto_avg_high_balls": 71.0,
@@ -635,7 +635,7 @@ class TestOBJTeamCalc:
                 "avg_climb_points": 7,
             },
             {
-                "team_number": 1678,
+                "team_number": "1678",
                 # Averages
                 "auto_avg_high_balls": 37.0,
                 "auto_avg_low_balls": 25.8,

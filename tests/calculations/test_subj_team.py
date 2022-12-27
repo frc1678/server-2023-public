@@ -26,37 +26,37 @@ class TestSubjTeamCalcs:
         tims = [
             {
                 "match_number": 1,
-                "team_number": 1678,
+                "team_number": "1678",
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 1,
-                "team_number": 4414,
+                "team_number": "4414",
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 1,
-                "team_number": 1323,
+                "team_number": "1323",
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 1,
-                "team_number": 3,
+                "team_number": "3",
                 "alliance_color_is_red": False,
             },
             {
                 "match_number": 2,
-                "team_number": 4,
+                "team_number": "4",
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 3,
-                "team_number": 1678,
+                "team_number": "1678",
                 "alliance_color_is_red": False,
             },
             {
                 "match_number": 3,
-                "team_number": 2910,
+                "team_number": "2910",
                 "alliance_color_is_red": False,
             },
         ]
@@ -67,63 +67,63 @@ class TestSubjTeamCalcs:
         tims = [
             {
                 "match_number": 1,
-                "team_number": 118,
+                "team_number": "118",
                 "quickness_score": 2,
                 "field_awareness_score": 1,
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 1,
-                "team_number": 1678,
+                "team_number": "1678",
                 "quickness_score": 1,
                 "field_awareness_score": 2,
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 1,
-                "team_number": 254,
+                "team_number": "254",
                 "quickness_score": 3,
                 "field_awareness_score": 3,
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 2,
-                "team_number": 118,
+                "team_number": "118",
                 "quickness_score": 2,
                 "field_awareness_score": 1,
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 2,
-                "team_number": 1678,
+                "team_number": "1678",
                 "quickness_score": 3,
                 "field_awareness_score": 3,
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 2,
-                "team_number": 254,
+                "team_number": "254",
                 "quickness_score": 1,
                 "field_awareness_score": 2,
                 "alliance_color_is_red": True,
             },
             {
                 "match_number": 3,
-                "team_number": 118,
+                "team_number": "118",
                 "quickness_score": 1,
                 "field_awareness_score": 3,
                 "alliance_color_is_red": False,
             },
             {
                 "match_number": 3,
-                "team_number": 1678,
+                "team_number": "1678",
                 "quickness_score": 2,
                 "field_awareness_score": 2,
                 "alliance_color_is_red": False,
             },
             {
                 "match_number": 3,
-                "team_number": 254,
+                "team_number": "254",
                 "quickness_score": 1,
                 "field_awareness_score": 3,
                 "alliance_color_is_red": False,
@@ -132,9 +132,9 @@ class TestSubjTeamCalcs:
         self.test_server.db.delete_data("subj_tim")
         self.test_server.db.insert_documents("subj_tim", tims)
         self.test_calcs.run()
-        robonauts = self.test_server.db.find("subj_team", {"team_number": 118})[0]
-        citrus = self.test_server.db.find("subj_team", {"team_number": 1678})[0]
-        chezy = self.test_server.db.find("subj_team", {"team_number": 254})[0]
+        robonauts = self.test_server.db.find("subj_team", {"team_number": "118"})[0]
+        citrus = self.test_server.db.find("subj_team", {"team_number": "1678"})[0]
+        chezy = self.test_server.db.find("subj_team", {"team_number": "254"})[0]
 
         assert self.near(robonauts["driver_field_awareness"], 0.9259)
         assert self.near(robonauts["driver_quickness"], 0.55555)

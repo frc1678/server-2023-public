@@ -19,7 +19,7 @@ class TestObjTIMCalcs:
             "match_collection_version_number": "STR5",
             "scout_name": "EDWIN",
             "alliance_color_is_red": True,
-            "team_number": 254,
+            "team_number": "254",
             "scout_id": 17,
             "timeline": [
                 {"time": 15, "action_type": "score_ball_high"},
@@ -45,7 +45,7 @@ class TestObjTIMCalcs:
             "match_collection_version_number": "STR1",
             "scout_name": "RAY",
             "alliance_color_is_red": True,
-            "team_number": 254,
+            "team_number": "254",
             "scout_id": 17,
             "timeline": [
                 {"time": 5, "action_type": "score_ball_high"},
@@ -81,7 +81,7 @@ class TestObjTIMCalcs:
             "match_collection_version_number": "STR6",
             "scout_name": "ADRIAN",
             "alliance_color_is_red": False,
-            "team_number": 254,
+            "team_number": "254",
             "scout_id": 17,
             "timeline": [
                 {"time": 26, "action_type": "score_ball_low"},
@@ -158,7 +158,7 @@ class TestObjTIMCalcs:
         assert calculated_tim["confidence_ranking"] == 3
         assert calculated_tim["incap"] == 10
         assert calculated_tim["match_number"] == 42
-        assert calculated_tim["team_number"] == 254
+        assert calculated_tim["team_number"] == "254"
         assert calculated_tim["auto_high_balls"] == 1
         assert calculated_tim["auto_low_balls"] == 1
         assert calculated_tim["tele_high_balls"] == 5
@@ -174,7 +174,7 @@ class TestObjTIMCalcs:
     @mock.patch.object(
         obj_tims.ObjTIMCalcs,
         "entries_since_last",
-        return_value=[{"o": {"team_number": 1, "match_number": 2}}],
+        return_value=[{"o": {"team_number": "1", "match_number": 2}}],
     )
     def test_in_list_check1(self, entries_since_last_dummy):
         with mock.patch("utils.log_warning") as warning_check:
@@ -184,7 +184,7 @@ class TestObjTIMCalcs:
     @mock.patch.object(
         obj_tims.ObjTIMCalcs,
         "entries_since_last",
-        return_value=[{"o": {"team_number": 3, "match_number": 2}}],
+        return_value=[{"o": {"team_number": "3", "match_number": 2}}],
     )
     @mock.patch.object(obj_tims.ObjTIMCalcs, "update_calcs", return_value=[{}])
     def test_in_list_check2(self, entries_since_last_dummy, update_calcs_dummy):

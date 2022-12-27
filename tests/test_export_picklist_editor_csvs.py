@@ -23,7 +23,7 @@ TEST_TIM_DATA = [
         "incap": 42,
         "climb_time": 40,
         "confidence_rating": 88,
-        "team_number": 0,
+        "team_number": "0",
         "match_number": 1,
     },
     {
@@ -36,7 +36,7 @@ TEST_TIM_DATA = [
         "incap": 52,
         "climb_time": 50,
         "confidence_rating": 49,
-        "team_number": 1661,
+        "team_number": "1661",
         "match_number": 1,
     },
 ]

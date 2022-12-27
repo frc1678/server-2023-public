@@ -50,7 +50,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "traversal_rung_successes": 49,
         "climb_all_attempts": 49,
         "matches_played": 49,
-        "team_number": 49,
+        "team_number": "49",
         "auto_max_low_balls": 49,
         "auto_max_high_balls": 49,
         "tele_max_low_balls": 49,
@@ -68,7 +68,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     {
         "confidence_rating": 49,
         "match_number": 49,
-        "team_number": 49,
+        "team_number": "49",
         "auto_low_balls": 49,
         "tele_low_balls": 49,
         "auto_high_balls": 49,
@@ -87,7 +87,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "second_pickability": 84.4422,
         "test_first_pickability": 84.4422,
         "test_second_pickability": 84.4422,
-        "team_number": 49,
+        "team_number": "49",
     },
     # Predicted AIM
     {
@@ -111,7 +111,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     {
         "predicted_rps": 84.4422,
         "predicted_rank": 49,
-        "team_number": 49,
+        "team_number": "49",
         "current_rank": 49,
         "current_rps": 49,
         "current_avg_rps": 84.4422,
@@ -125,7 +125,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     {
         "scout_name": "yyyyyyyyyyyyyyyyyyyyyy",
         "sim_precision": 84.4422,
-        "team_number": 49,
+        "team_number": "49",
         "match_number": 49,
         "alliance_color_is_red": True,
     },
@@ -137,23 +137,23 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "test_driver_ability": 84.4422,
         "unadjusted_field_awareness": 84.4422,
         "unadjusted_quickness": 84.4422,
-        "team_number": 49,
+        "team_number": "49",
     },
     # TBA Team
     {
         "team_name": "yyyyyyyyyyyyyyyyyyyyyy",
         "auto_line_successes": 49,
-        "team_number": 49,
+        "team_number": "49",
     },
     # TBA TIM
     {
         "auto_line": True,
         "match_number": 49,
-        "team_number": 49,
+        "team_number": "49",
     },
     # Obj Pit
     {
-        "team_number": 49,
+        "team_number": "49",
         "drivetrain": 1,
         "drivetrain_motor_type": 1,
         "drivetrain_motors": 49,

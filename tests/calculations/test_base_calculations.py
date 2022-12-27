@@ -64,20 +64,20 @@ class TestBaseCalculations:
         self.test_server.db.insert_documents(
             "test",
             [
-                {"team_number": 0},
+                {"team_number": "0"},
                 {"useless": 0},
-                {"team_number": 1, "useless": 0},
+                {"team_number": "1", "useless": 0},
             ],
         )
         assert self.base_calc.get_updated_teams() == [0, 1]
         self.base_calc.update_timestamp()
-        self.test_server.db.update_document("test", {"team_number": 1}, {"useless": 1})
+        self.test_server.db.update_document("test", {"team_number": "1"}, {"useless": 1})
         assert self.base_calc.get_updated_teams() == [1]
         # Test with calc_all_data as True
         self.base_calc_all_data.watched_collections = ["test1"]
-        self.test_server_all_data.db.insert_documents("test1", {"team_number": 6})
+        self.test_server_all_data.db.insert_documents("test1", {"team_number": "6"})
         self.base_calc_all_data.update_timestamp()
-        self.test_server_all_data.db.insert_documents("test1", {"team_number": 8})
+        self.test_server_all_data.db.insert_documents("test1", {"team_number": "8"})
         # Cast to set to disregard order of items
         assert set(self.base_calc_all_data.get_updated_teams()) == set([8, 6])
 
