@@ -226,9 +226,9 @@ class ObjTIMCalcs(BaseCalculations):
         calculated_tim["confidence_ranking"] = len(unconsolidated_tims)
         return calculated_tim
 
-    def update_calcs(self, tims: List[Dict[str, int]]) -> List[dict]:
+    def update_calcs(self, tims: List[Dict[str, Union[str, int]]]) -> List[dict]:
         """Calculate data for each of the given TIMs. Those TIMs are represented as dictionaries:
-        {'team_number': 1678, 'match_number': 69}"""
+        {'team_number': '1678', 'match_number': 69}"""
         calculated_tims = []
         unconsolidated_totals = []
         for tim in tims:

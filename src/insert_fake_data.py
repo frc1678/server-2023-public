@@ -38,8 +38,8 @@ def insert_fake_qr_data() -> List[str]:
     qr_codes = []
     for match in MATCHES:
         match_num = match["match_number"]
-        red = [int(team.split("frc")[1]) for team in match["alliances"]["red"]["team_keys"]]
-        blue = [int(team.split("frc")[1]) for team in match["alliances"]["blue"]["team_keys"]]
+        red = [team.split("frc")[1] for team in match["alliances"]["red"]["team_keys"]]
+        blue = [team.split("frc")[1] for team in match["alliances"]["blue"]["team_keys"]]
         obj_scouts_in_match = list(obj_scouts.items())
         subj_scouts_in_match = random.sample(list(subj_scouts), 2)
         for alliance in [red, blue]:
@@ -134,9 +134,9 @@ else:
     NUM_TEAMS = 42
     NUM_MATCHES = 118
     # Create a fake list of teams
-    TEAMS = {1678}
+    TEAMS = {"1678"}
     while len(TEAMS) < NUM_TEAMS:
-        TEAMS.add(random.randint(1, 9999))
+        TEAMS.add(str(random.randint(1, 9999)))
     TEAMS = list(TEAMS)
     MATCHES = []
     # This match schedule doesn't need to be realistic, only good enough for pytest to pass

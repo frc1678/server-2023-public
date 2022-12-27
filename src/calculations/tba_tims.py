@@ -56,7 +56,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
         return True
 
     @staticmethod
-    def get_robot_number_and_alliance(team_num: int, match_data: Dict) -> Tuple[int, str]:
+    def get_robot_number_and_alliance(team_num: str, match_data: Dict) -> Tuple[int, str]:
         """Gets the robot number (e.g. the `1` in initLineRobot1) and alliance color."""
         team_key = f"frc{team_num}"
         for alliance in ["red", "blue"]:
@@ -66,17 +66,17 @@ class TBATIMCalc(base_calculations.BaseCalculations):
         raise ValueError(f'Team {team_num} not found in match {match_data["match_number"]}')
 
     @staticmethod
-    def get_team_list_from_match(match_data: Dict) -> List[int]:
+    def get_team_list_from_match(match_data: Dict) -> List[str]:
         """Extracts list of teams that played in the match with data given in match_data."""
         team_list = []
         for alliance in ["red", "blue"]:
             team_list.extend(
                 # This fetches the numeric values from the string
-                [int(team[3:]) for team in match_data["alliances"][alliance]["team_keys"]]
+                [team[3:] for team in match_data["alliances"][alliance]["team_keys"]]
             )
         return team_list
 
-    def calculate_tim(self, team_number: int, match) -> List[Dict[str, Any]]:
+    def calculate_tim(self, team_number: str, match) -> List[Dict[str, Any]]:
         """Given a team number and a match that it's from, calculate that tim"""
         match_number: int = match["match_number"]
         tim = {"team_number": team_number, "match_number": match_number}

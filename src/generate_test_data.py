@@ -18,7 +18,7 @@ from pprint import pprint
 @dataclass
 class TIMInstance:
     match_number: int
-    team_number: int
+    team_number: str
 
     def __retr__(self):
         return f"TIMInstance(match_number={self.match_number}, \
@@ -47,7 +47,7 @@ class TIMInstanceGenerator:
             num_teams = 42
             num_matches = 118
             # Create a fake list of teams
-            teams: List[int] = [1678] + [int(str(x**x)[0:4]) for x in range(1, num_teams)]
+            teams: List[str] = ["1678"] + [str(x**x)[0:4] for x in range(1, num_teams)]
 
             # Generate a TIM instance for each match
             for match_number in range(1, num_matches + 1):
@@ -76,7 +76,7 @@ class TIMInstanceGenerator:
                 match_number: int = int(match[0])
                 # Get all the team numbers for the match and remove the color
                 # prefix, and the dash
-                team_numbers: List[int] = [int(item.split("-")[1]) for item in match[1:]]
+                team_numbers: List[str] = [item.split("-")[1] for item in match[1:]]
                 # Make a match instance for each team number, using the match number
                 for team_number in team_numbers:
                     new_match: TIMInstance = TIMInstance(match_number, team_number)
@@ -185,7 +185,7 @@ class DataGenerator:
 
         # We use isinstance here because if the get() returns a numeric zero,
         # it will be False and it will not replace the zeros in the data
-        if isinstance(data.get("team_number"), int):
+        if isinstance(data.get("team_number"), str):
             data["team_number"] = match_instance.team_number
 
         if isinstance(data.get("match_number"), int):

@@ -56,12 +56,12 @@ class BaseExport:
         return f"{name}_{self.timestamp_str}.csv"
 
     @staticmethod
-    def get_teams_list() -> List[int]:
+    def get_teams_list() -> List[str]:
         """Access all the team numbers via the team_list.csv"""
         with open(
             utils.create_file_path(f"data/{Server.TBA_EVENT_KEY}_team_list.json")
         ) as team_list:
-            return list(map(int, json.load(team_list)))
+            return list(json.load(team_list))
 
     @staticmethod
     def order_headers(column_headers: List[str], ordered: List[str]) -> List[str]:
@@ -147,7 +147,7 @@ class ExportTBA(BaseExport):
                     data[field] = match["score_breakdown"][alliance][field]
                 # Get the robot number and the team number without the frc prefix in the name
                 for i, team in enumerate(match["alliances"][alliance]["team_keys"], start=1):
-                    data[f"robot{i}"] = int(team[3:])
+                    data[f"robot{i}"] = team[3:]
                 match_scores.append(data)
                 # For each item in match_scores, get the key "match_score"
         return sorted(match_scores, key=lambda x: x["match_number"])
@@ -187,7 +187,7 @@ class ExportTIM(BaseExport):
 
         self.column_headers, self.final_built_data = self.build_data()
 
-    def build_data(self) -> Tuple[List[str], Dict[Tuple[int, int], List[Dict[str, Any]]]]:
+    def build_data(self) -> Tuple[List[str], Dict[Tuple[str, int], List[Dict[str, Any]]]]:
         """Build the raw TIM data into a dictionary format with the key as team
 
         Gets the TIM data from the database and writes a dictionary where the
@@ -199,7 +199,7 @@ class ExportTIM(BaseExport):
         tim_data = self.get_data(ExportTIM.db_data_paths)
 
         column_headers: List[str] = []
-        data_by_team_and_match: Dict[Tuple[int, int], List[Dict[str, Any]]] = {}
+        data_by_team_and_match: Dict[Tuple[str, int], List[Dict[str, Any]]] = {}
 
         # Goes through all the collections that it got from team data
         for list_of_documents in tim_data.values():
@@ -225,8 +225,8 @@ class ExportTIM(BaseExport):
                         # Add the key: value to the all the data under the key
                         # (team_num, match_num) like this
                         # {
-                        #   (1678, 1): {"team_number": 1678, ...},
-                        #   (9678, 2): {"team_number": 9678, ...},
+                        #   ('1678', 1): {"team_number": '1678', ...},
+                        #   ('9678', 2): {"team_number": '9678', ...},
                         # }
                         data_by_team_and_match[team_key][key] = value
 
@@ -254,7 +254,7 @@ class ExportTeam(BaseExport):
 
         self.column_headers, self.final_built_data = self.build_data()
 
-    def build_data(self) -> Tuple[List[str], Dict[Tuple[int, int], List[Dict[str, Any]]]]:
+    def build_data(self) -> Tuple[List[str], Dict[Tuple[str, int], List[Dict[str, Any]]]]:
         """Takes data team data and writes to CSV
 
         Merges raw and processed team data into one dictionary
@@ -266,7 +266,7 @@ class ExportTeam(BaseExport):
         team_data = self.get_data(ExportTeam.db_data_paths)
 
         column_headers: List[str] = []
-        data_by_team_num: Dict[int, List[Dict[str, Any]]] = {}
+        data_by_team_num: Dict[str, List[Dict[str, Any]]] = {}
 
         # Goes through all the collections that it got from team data
         for list_of_documents in team_data.values():
@@ -294,8 +294,8 @@ class ExportTeam(BaseExport):
                         # Add the key: value to the all the data under the key
                         # just team_num like this
                         # {
-                        #   1678: {"team_number": 1678, ...},
-                        #   9678: {"team_number": 9678, ...},
+                        #   '1678': {"team_number": '1678', ...},
+                        #   '9678': {"team_number": '9678', ...},
                         # }
                         data_by_team_num[team_num][key] = value
 
@@ -338,7 +338,7 @@ class ExportImagePaths(BaseExport):
                 # If the regular expression matched
                 if result:
                     # Team number is the result of the first capture type
-                    team_num = int(result.group(1))
+                    team_num = result.group(1)
                     if team_num not in self.teams_list:
                         continue
                     # Photo type is the result of the second capture group

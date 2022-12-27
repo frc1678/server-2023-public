@@ -110,7 +110,7 @@ class BaseCalculations:
             with open(f"data/{utils.TBA_EVENT_KEY}_team_list.json") as file:
                 reader = json.load(file)
 
-                return [int(team_number) for team_number in reader]
+                return reader
         except FileNotFoundError:
             utils.log_error(
                 f"base_calculations: data/{utils.TBA_EVENT_KEY}_team_list.json not found"

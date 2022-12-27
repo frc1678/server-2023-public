@@ -17,7 +17,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         self.watched_collections = ["subj_tim"]
         self.teams_that_have_competed = set()
 
-    def teams_played_with(self, team: int) -> List[int]:
+    def teams_played_with(self, team: str) -> List[str]:
         """Returns a list of teams that the given team has played with so far, including themselves
         and including repeats"""
         partners = []
@@ -33,7 +33,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             partners.extend([tim["team_number"] for tim in alliance_data])
         return partners
 
-    def unadjusted_ability_calcs(self, team: int) -> Dict[str, float]:
+    def unadjusted_ability_calcs(self, team: str) -> Dict[str, float]:
         """Retrieves subjective AIM info for the given team and returns a dictionary with
         calculations for that team"""
         calculations = {}

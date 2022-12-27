@@ -15,10 +15,10 @@ if __name__ == "__main__":
     teams = []
 
     for row in csvdata:
-        # Check if the team number and the positions are numbers
-        if row[0].isnumeric() and row[1].isnumeric():
+        # Check if the positions are numbers
+        if row[1].isnumeric():
             # Add the team to the list of teams
-            teams.append({"team_number": int(row[0]), "rank": int(row[1])})
+            teams.append({"team_number": row[0], "rank": int(row[1])})
 
     # Get the list of all the teams from the event
     team_list = get_team_list()

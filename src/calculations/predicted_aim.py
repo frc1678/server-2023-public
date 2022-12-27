@@ -89,7 +89,7 @@ class PredictedAimCalc(BaseCalculations):
         predicted_values is a dataclass which stores the predicted number of balls scored and success rates.
         obj_team is a list of dictionaries of objective team data.
         tba_team is a list of dictionaries of tba team data.
-        team_numbers is a list of team numbers (integers) on the alliance.
+        team_numbers is a list of team numbers (strings) on the alliance.
         """
 
         total_score = 0

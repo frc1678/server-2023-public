@@ -66,7 +66,7 @@ def generate_generic_data(match_number=0, scout_name=None):
     return final_data
 
 
-def generate_obj_tim(team_number=0, scout_id=0, match_number=0, scout_name=None):
+def generate_obj_tim(team_number="0", scout_id=0, match_number=0, scout_name=None):
     """Generates example data for objective TIMs"""
     final_data = {}
     # Fills the dictionary with random data based on type
@@ -75,7 +75,7 @@ def generate_obj_tim(team_number=0, scout_id=0, match_number=0, scout_name=None)
             final_data[data_field] = generate_type_data(info[1])
 
     # If data fields are passed in, make them not random
-    if team_number != 0:
+    if team_number != "0":
         final_data["team_number"] = team_number
     if scout_id != 0:
         final_data["scout_id"] = scout_id
@@ -95,7 +95,7 @@ def generate_subj_aim(team_list=None, match_number=0, scout_name=None):
     final_data = []
     # If the team_list isn't pre-populated, generate random teams
     if team_list is None:
-        team_list = [generate_type_data("int") for x in range(3)]
+        team_list = [generate_type_data("str") for x in range(3)]
     generic_data = generate_generic_data(match_number, scout_name)
     for team in team_list:
         team_data = {}

@@ -13,8 +13,8 @@ class PredictedTeamCalc(BaseCalculations):
 
     def calculate_current_values(self, ranking_data, team_number):
         for team_data in ranking_data:
-            # TBA return team numbers as a string, eg. 'frc1678'. This drops 'frc' and converts to int
-            if team_number == int(team_data["team_key"][3:]):
+            # TBA return team numbers as a string, eg. 'frc1678'. This drops 'frc'.
+            if team_number == team_data["team_key"][3:]:
                 current_values = {}
                 current_values["current_rank"] = team_data["rank"]
                 current_values["current_rps"] = team_data["extra_stats"][0]
