@@ -168,9 +168,18 @@ class TestTBATimCalc:
         }
 
         # Uses example team keys above to test get_robot_number_and_alliance()
-        assert tba_tims.TBATIMCalc.get_robot_number_and_alliance(1678, match_data) == (1, "blue")
-        assert tba_tims.TBATIMCalc.get_robot_number_and_alliance(1024, match_data) == (2, "red")
-        assert tba_tims.TBATIMCalc.get_robot_number_and_alliance(413, match_data) == (3, "blue")
+        assert tba_tims.TBATIMCalc.get_robot_number_and_alliance(1678, match_data) == (
+            1,
+            "blue",
+        )
+        assert tba_tims.TBATIMCalc.get_robot_number_and_alliance(1024, match_data) == (
+            2,
+            "red",
+        )
+        assert tba_tims.TBATIMCalc.get_robot_number_and_alliance(413, match_data) == (
+            3,
+            "blue",
+        )
         with pytest.raises(ValueError):
             tba_tims.TBATIMCalc.get_robot_number_and_alliance(977, match_data)
 
@@ -185,7 +194,7 @@ class TestTBATimCalc:
 
         # Ensures the team data is reformatted correctly in get_team_list_from_match()
         assert sorted(tba_tims.TBATIMCalc.get_team_list_from_match(match_data)) == sorted(
-            [612, 1024, 687, 1678, 254, 413]
+            ["612", "1024", "687", "1678", "254", "413"]
         )
 
     def test_calculate_tim(self):
@@ -193,7 +202,7 @@ class TestTBATimCalc:
             for team_number in self.test_calc.get_team_list_from_match(match):
                 calc = self.test_calc.calculate_tim(team_number, match)
                 assert isinstance(calc, dict)
-                assert isinstance(calc["team_number"], int)
+                assert isinstance(calc["team_number"], str)
                 assert isinstance(calc["match_number"], int)
                 assert isinstance(calc["auto_line"], bool)
 

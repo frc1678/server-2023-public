@@ -195,9 +195,8 @@ class ExportTIM(BaseExport):
         that specific team in a specific match
         """
         utils.log_info("Starting export of tim_data")
-        # Get the lists of column headers and dictionaries to use in export
+        # Gets the lists of column headers and dictionaries to use in export
         tim_data = self.get_data(ExportTIM.db_data_paths)
-
         column_headers: List[str] = []
         data_by_team_and_match: Dict[Tuple[str, int], List[Dict[str, Any]]] = {}
 
@@ -206,7 +205,7 @@ class ExportTIM(BaseExport):
             # Goes through each document in the collection it on
             for document in list_of_documents:
                 # Gets the team num from the document
-                team_num = document["team_number"]
+                team_num = str(document["team_number"])
                 match_num = document["match_number"]
                 # Uses a tuple of the team number and the match number as
                 # to not write over other data
@@ -273,7 +272,7 @@ class ExportTeam(BaseExport):
             # Goes through each document in the collection it on
             for document in list_of_documents:
                 # Gets the team num from the document
-                team_num = document["team_number"]
+                team_num = str(document["team_number"])
 
                 # Check if data exists for team_num
                 if not data_by_team_num.get(team_num):

@@ -9,18 +9,58 @@ class TestPredictedAimCalc:
             self.test_server = server.Server()
         self.test_calc = predicted_aim.PredictedAimCalc(self.test_server)
         self.aims_list = [
-            {"match_number": 1, "alliance_color": "R", "team_list": [1678, 1533, 7229]},
-            {"match_number": 1, "alliance_color": "B", "team_list": [1678, 1533, 2468]},
-            {"match_number": 2, "alliance_color": "R", "team_list": [1678, 1533, 1690]},
-            {"match_number": 2, "alliance_color": "B", "team_list": [254, 1323, 973]},
-            {"match_number": 3, "alliance_color": "R", "team_list": [1678, 1533, 7229]},
-            {"match_number": 3, "alliance_color": "B", "team_list": [1678, 1533, 2468]},
+            {
+                "match_number": 1,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
+            {
+                "match_number": 1,
+                "alliance_color": "B",
+                "team_list": ["1678", "1533", "2468"],
+            },
+            {
+                "match_number": 2,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "1690"],
+            },
+            {
+                "match_number": 2,
+                "alliance_color": "B",
+                "team_list": ["254", "1323", "973"],
+            },
+            {
+                "match_number": 3,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
+            {
+                "match_number": 3,
+                "alliance_color": "B",
+                "team_list": ["1678", "1533", "2468"],
+            },
         ]
         self.filtered_aims_list = [
-            {"match_number": 1, "alliance_color": "R", "team_list": [1678, 1533, 7229]},
-            {"match_number": 1, "alliance_color": "B", "team_list": [1678, 1533, 2468]},
-            {"match_number": 3, "alliance_color": "R", "team_list": [1678, 1533, 7229]},
-            {"match_number": 3, "alliance_color": "B", "team_list": [1678, 1533, 2468]},
+            {
+                "match_number": 1,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
+            {
+                "match_number": 1,
+                "alliance_color": "B",
+                "team_list": ["1678", "1533", "2468"],
+            },
+            {
+                "match_number": 3,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
+            {
+                "match_number": 3,
+                "alliance_color": "B",
+                "team_list": ["1678", "1533", "2468"],
+            },
         ]
         self.expected_updates = [
             {
@@ -310,7 +350,7 @@ class TestPredictedAimCalc:
                 self.blank_predicted_values,
                 self.obj_team,
                 self.tba_team,
-                [1678, 1533, 7229],
+                ["1678", "1533", "7229"],
             )
             == 243.3107142857143
         )
@@ -331,7 +371,11 @@ class TestPredictedAimCalc:
 
     def test_get_actual_values(self):
         assert self.test_calc.get_actual_values(
-            {"match_number": 1, "alliance_color": "R", "team_list": [1678, 1533, 7229]},
+            {
+                "match_number": 1,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
             self.tba_match_data,
         ) == {
             "has_actual_data": True,
@@ -341,7 +385,11 @@ class TestPredictedAimCalc:
             "won_match": True,
         }
         assert self.test_calc.get_actual_values(
-            {"match_number": 1, "alliance_color": "B", "team_list": [1678, 1533, 2468]},
+            {
+                "match_number": 1,
+                "alliance_color": "B",
+                "team_list": ["1678", "1533", "2468"],
+            },
             self.tba_match_data,
         ) == {
             "has_actual_data": True,
@@ -351,7 +399,11 @@ class TestPredictedAimCalc:
             "won_match": False,
         }
         assert self.test_calc.get_actual_values(
-            {"match_number": 3, "alliance_color": "R", "team_list": [1678, 1533, 7229]},
+            {
+                "match_number": 3,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
             self.tba_match_data,
         ) == {
             "has_actual_data": False,
@@ -361,7 +413,11 @@ class TestPredictedAimCalc:
             "won_match": False,
         }
         assert self.test_calc.get_actual_values(
-            {"match_number": 3, "alliance_color": "B", "team_list": [1678, 1533, 2468]},
+            {
+                "match_number": 3,
+                "alliance_color": "B",
+                "team_list": ["1678", "1533", "2468"],
+            },
             self.tba_match_data,
         ) == {
             "has_actual_data": False,

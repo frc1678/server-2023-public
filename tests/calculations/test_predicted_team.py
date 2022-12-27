@@ -61,25 +61,98 @@ class TestPredictedTeamCalc:
             },
         ]
         self.aim_list = [
-            {"match_number": 1, "alliance_color": "R", "team_list": [1678, 1533, 7229]},
-            {"match_number": 1, "alliance_color": "B", "team_list": [254, 971, 1323]},
-            {"match_number": 2, "alliance_color": "R", "team_list": [2056, 1114, 7179]},
-            {"match_number": 2, "alliance_color": "B", "team_list": [1678, 971, 7229]},
-            {"match_number": 3, "alliance_color": "R", "team_list": [2056, 254, 1323]},
-            {"match_number": 3, "alliance_color": "B", "team_list": [1533, 1114, 7179]},
-            {"match_number": 4, "alliance_color": "R", "team_list": [4414, 1690, 973]},
+            {
+                "match_number": 1,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
+            {
+                "match_number": 1,
+                "alliance_color": "B",
+                "team_list": ["254", "971", "1323"],
+            },
+            {
+                "match_number": 2,
+                "alliance_color": "R",
+                "team_list": ["2056", "1114", "7179"],
+            },
+            {
+                "match_number": 2,
+                "alliance_color": "B",
+                "team_list": ["1678", "971", "7229"],
+            },
+            {
+                "match_number": 3,
+                "alliance_color": "R",
+                "team_list": ["2056", "254", "1323"],
+            },
+            {
+                "match_number": 3,
+                "alliance_color": "B",
+                "team_list": ["1533", "1114", "7179"],
+            },
+            {
+                "match_number": 4,
+                "alliance_color": "R",
+                "team_list": ["4414", "1690", "973"],
+            },
         ]
         self.ranking_data = {
             "rankings": [
-                {"extra_stats": [26], "matches_played": 11, "rank": 1, "team_key": "frc1678"},
-                {"extra_stats": [25], "matches_played": 11, "rank": 2, "team_key": "frc1533"},
-                {"extra_stats": [24], "matches_played": 11, "rank": 3, "team_key": "frc7229"},
-                {"extra_stats": [23], "matches_played": 11, "rank": 4, "team_key": "frc254"},
-                {"extra_stats": [22], "matches_played": 11, "rank": 5, "team_key": "frc971"},
-                {"extra_stats": [21], "matches_played": 11, "rank": 6, "team_key": "frc1323"},
-                {"extra_stats": [20], "matches_played": 11, "rank": 7, "team_key": "frc2056"},
-                {"extra_stats": [19], "matches_played": 11, "rank": 8, "team_key": "frc1114"},
-                {"extra_stats": [18], "matches_played": 11, "rank": 9, "team_key": "frc7179"},
+                {
+                    "extra_stats": [26],
+                    "matches_played": 11,
+                    "rank": 1,
+                    "team_key": "frc1678",
+                },
+                {
+                    "extra_stats": [25],
+                    "matches_played": 11,
+                    "rank": 2,
+                    "team_key": "frc1533",
+                },
+                {
+                    "extra_stats": [24],
+                    "matches_played": 11,
+                    "rank": 3,
+                    "team_key": "frc7229",
+                },
+                {
+                    "extra_stats": [23],
+                    "matches_played": 11,
+                    "rank": 4,
+                    "team_key": "frc254",
+                },
+                {
+                    "extra_stats": [22],
+                    "matches_played": 11,
+                    "rank": 5,
+                    "team_key": "frc971",
+                },
+                {
+                    "extra_stats": [21],
+                    "matches_played": 11,
+                    "rank": 6,
+                    "team_key": "frc1323",
+                },
+                {
+                    "extra_stats": [20],
+                    "matches_played": 11,
+                    "rank": 7,
+                    "team_key": "frc2056",
+                },
+                {
+                    "extra_stats": [19],
+                    "matches_played": 11,
+                    "rank": 8,
+                    "team_key": "frc1114",
+                },
+                {
+                    "extra_stats": [18],
+                    "matches_played": 11,
+                    "rank": 9,
+                    "team_key": "frc7179",
+                },
             ]
         }
         self.predicted_alliance_rps = {
@@ -172,11 +245,21 @@ class TestPredictedTeamCalc:
                 "current_avg_rps": 18 / 11,
             },
         ]
-        self.teams = [1678, 1533, 7229, 254, 971, 1323, 2056, 1114, 7179]
+        self.teams = [
+            "1678",
+            "1533",
+            "7229",
+            "254",
+            "971",
+            "1323",
+            "2056",
+            "1114",
+            "7179",
+        ]
 
     def test_calculate_current_values(self):
         current_values = self.test_calc.calculate_current_values(
-            self.ranking_data["rankings"], 1678
+            self.ranking_data["rankings"], "1678"
         )
         assert current_values["current_rank"] == 1
         assert current_values["current_rps"] == 26
@@ -198,62 +281,62 @@ class TestPredictedTeamCalc:
     def test_predicted_team_rps(self):
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                1678, self.aim_list, self.predicted_alliance_rps
+                "1678", self.aim_list, self.predicted_alliance_rps
             )
             == 5
         )
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                1533, self.aim_list, self.predicted_alliance_rps
+                "1533", self.aim_list, self.predicted_alliance_rps
             )
             == 7
         )
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                7229, self.aim_list, self.predicted_alliance_rps
+                "7229", self.aim_list, self.predicted_alliance_rps
             )
             == 5
         )
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                254, self.aim_list, self.predicted_alliance_rps
+                "254", self.aim_list, self.predicted_alliance_rps
             )
             == 2
         )
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                971, self.aim_list, self.predicted_alliance_rps
+                "971", self.aim_list, self.predicted_alliance_rps
             )
             == 1
         )
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                1323, self.aim_list, self.predicted_alliance_rps
+                "1323", self.aim_list, self.predicted_alliance_rps
             )
             == 2
         )
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                2056, self.aim_list, self.predicted_alliance_rps
+                "2056", self.aim_list, self.predicted_alliance_rps
             )
             == 5
         )
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                1114, self.aim_list, self.predicted_alliance_rps
+                "1114", self.aim_list, self.predicted_alliance_rps
             )
             == 6
         )
         assert (
             self.test_calc.calculate_predicted_team_rps(
-                7179, self.aim_list, self.predicted_alliance_rps
+                "7179", self.aim_list, self.predicted_alliance_rps
             )
             == 6
         )
 
         with mock.patch("utils.log_warning") as log_mock:
             self.test_calc.calculate_predicted_team_rps(
-                4414, self.aim_list, self.predicted_alliance_rps
+                "4414", self.aim_list, self.predicted_alliance_rps
             )
             log_mock.assert_called_with("Missing predicted RPs for Match 4")
 
@@ -271,7 +354,8 @@ class TestPredictedTeamCalc:
             "calculations.predicted_team.PredictedTeamCalc.get_aim_list",
             return_value=self.aim_list,
         ), mock.patch(
-            "calculations.predicted_team.PredictedTeamCalc.get_teams_list", return_value=self.teams
+            "calculations.predicted_team.PredictedTeamCalc.get_teams_list",
+            return_value=self.teams,
         ):
             assert self.test_calc.update_predicted_team(self.predicted_aim) == self.expected_results
 
@@ -283,7 +367,8 @@ class TestPredictedTeamCalc:
             "calculations.predicted_team.PredictedTeamCalc.get_aim_list",
             return_value=self.aim_list,
         ), mock.patch(
-            "calculations.predicted_team.PredictedTeamCalc.get_teams_list", return_value=self.teams
+            "calculations.predicted_team.PredictedTeamCalc.get_teams_list",
+            return_value=self.teams,
         ):
             self.test_calc.run()
         result = self.test_server.db.find("predicted_team")

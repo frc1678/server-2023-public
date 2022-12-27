@@ -67,9 +67,9 @@ class TestPickability:
         }
         weight_data = {"team_number": "0", "avg_climb_points": 5.82}
         test_calc.server.db.insert_documents("obj_team", weight_data)
-        assert test_calc.calculate_pickability(0, "first_pickability", calc_data) == 6
-        assert test_calc.calculate_pickability(0, "second_pickability", calc_data) == 72.84
-        assert test_calc.calculate_pickability(0, "first_pickability", {}) is None
+        assert test_calc.calculate_pickability("0", "first_pickability", calc_data) == 6
+        assert test_calc.calculate_pickability("0", "second_pickability", calc_data) == 72.84
+        assert test_calc.calculate_pickability("0", "first_pickability", {}) is None
         # Check that if the datapoint is missing that it correctly returns None
         calc_data = {
             "test": {

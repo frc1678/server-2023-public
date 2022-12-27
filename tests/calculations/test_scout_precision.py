@@ -45,7 +45,12 @@ class TestScoutPrecisionCalc:
                     },
                 },
             },
-            {"match_number": 3, "actual_time": None, "comp_level": "qm", "score_breakdown": None},
+            {
+                "match_number": 3,
+                "actual_time": None,
+                "comp_level": "qm",
+                "score_breakdown": None,
+            },
         ]
         self.scout_tim_test_data = [
             # Match 1
@@ -186,21 +191,24 @@ class TestScoutPrecisionCalc:
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
         required = self.test_calc.sim_schema["calculations"]["sim_precision"]["requires"]
         assert self.test_calc.get_aim_scout_scores(1, True, required) == {
-            1678: {"ALISON LIN": 40, "NATHAN MILLS": 38},
-            4414: {"KATHY LI": 34},
-            589: {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
+            "1678": {"ALISON LIN": 40, "NATHAN MILLS": 38},
+            "4414": {"KATHY LI": 34},
+            "589": {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
         }
         assert self.test_calc.get_aim_scout_scores(2, False, required) == {
-            1678: {"NATHAN MILLS": 40},
-            4414: {"KATHY LI": 37},
-            589: {"KATE UNGER": 4},
+            "1678": {"NATHAN MILLS": 40},
+            "4414": {"KATHY LI": 37},
+            "589": {"KATE UNGER": 4},
         }
 
     def test_get_aim_scout_avg_errors(self):
         with patch("utils.log_warning") as log_patch:
             assert (
                 self.test_calc.get_aim_scout_avg_errors(
-                    {1678: {"KATHY LI": 9, "RAY FABIONAR": 7}, 589: {"NITHMI JAYASUNDARA": 17}},
+                    {
+                        "1678": {"KATHY LI": 9, "RAY FABIONAR": 7},
+                        "589": {"NITHMI JAYASUNDARA": 17},
+                    },
                     100,
                     1,
                     True,
@@ -209,9 +217,9 @@ class TestScoutPrecisionCalc:
             )
         log_patch.assert_called_with("Missing scout data for Match 1, Alliance is Red: True")
         aim_scout_scores = {
-            1678: {"ALISON LIN": 40, "NATHAN MILLS": 38},
-            4414: {"KATHY LI": 34},
-            589: {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
+            "1678": {"ALISON LIN": 40, "NATHAN MILLS": 38},
+            "4414": {"KATHY LI": 34},
+            "589": {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
         }
         assert self.test_calc.get_aim_scout_avg_errors(aim_scout_scores, 105, 1, True) == {
             "ALISON LIN": 26.666666666666668,
@@ -260,7 +268,8 @@ class TestScoutPrecisionCalc:
             }
         ]
         with patch(
-            "data_transfer.tba_communicator.tba_request", return_value=self.tba_test_data
+            "data_transfer.tba_communicator.tba_request",
+            return_value=self.tba_test_data,
         ), patch(
             "calculations.scout_precision.ScoutPrecisionCalc.calc_sim_precision",
             return_value={"sim_precision": 5},
@@ -319,7 +328,10 @@ class TestScoutPrecisionCalc:
         self.test_server.db.delete_data("unconsolidated_totals")
         self.test_calc.update_timestamp()
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
-        with patch("data_transfer.tba_communicator.tba_request", return_value=self.tba_test_data):
+        with patch(
+            "data_transfer.tba_communicator.tba_request",
+            return_value=self.tba_test_data,
+        ):
             self.test_calc.run()
         sim_precision_result = self.test_server.db.find("sim_precision")
         scout_precision_result = self.test_server.db.find("scout_precision")

@@ -69,17 +69,17 @@ class TestBaseCalculations:
                 {"team_number": "1", "useless": 0},
             ],
         )
-        assert self.base_calc.get_updated_teams() == [0, 1]
+        assert sorted(self.base_calc.get_updated_teams()) == ["0", "1"]
         self.base_calc.update_timestamp()
         self.test_server.db.update_document("test", {"team_number": "1"}, {"useless": 1})
-        assert self.base_calc.get_updated_teams() == [1]
+        assert self.base_calc.get_updated_teams() == ["1"]
         # Test with calc_all_data as True
         self.base_calc_all_data.watched_collections = ["test1"]
         self.test_server_all_data.db.insert_documents("test1", {"team_number": "6"})
         self.base_calc_all_data.update_timestamp()
         self.test_server_all_data.db.insert_documents("test1", {"team_number": "8"})
         # Cast to set to disregard order of items
-        assert set(self.base_calc_all_data.get_updated_teams()) == set([8, 6])
+        assert set(self.base_calc_all_data.get_updated_teams()) == set(["8", "6"])
 
     def test_avg(self):
         # Test if there is no input
@@ -99,19 +99,27 @@ class TestBaseCalculations:
             "1": 
             {
                 "teams": [
-                    {"number": 88, "color": "blue"}, 
-                    {"number": 2342, "color": "blue"},
-                    {"number": 157, "color": "blue"}, 
-                    {"number": 4041, "color": "red"},
-                    {"number": 1153, "color": "red"},
-                    {"number": 2370, "color": "red"}
+                    {"number": "88", "color": "blue"}, 
+                    {"number": "2342", "color": "blue"},
+                    {"number": "157", "color": "blue"}, 
+                    {"number": "4041", "color": "red"},
+                    {"number": "1153", "color": "red"},
+                    {"number": "2370", "color": "red"}
                 ]
             }
         }
         """
         expected_aim_list = [
-            {"match_number": 1, "alliance_color": "B", "team_list": [88, 2342, 157]},
-            {"match_number": 1, "alliance_color": "R", "team_list": [4041, 1153, 2370]},
+            {
+                "match_number": 1,
+                "alliance_color": "B",
+                "team_list": ["88", "2342", "157"],
+            },
+            {
+                "match_number": 1,
+                "alliance_color": "R",
+                "team_list": ["4041", "1153", "2370"],
+            },
         ]
         with patch("calculations.base_calculations.open", mock_open(read_data=test_json)):
             assert BaseCalculations.get_aim_list() == expected_aim_list
