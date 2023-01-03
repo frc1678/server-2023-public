@@ -38,7 +38,7 @@ def create_match_schedule_json(local_file_path, tba_request_url):
         team_dicts = []
         for alliance in ["blue", "red"]:
             teams = match["alliances"][alliance]["team_keys"]
-            teams = [{"number": int(team[3:]), "color": alliance} for team in teams]
+            teams = [{"number": str(team[3:]), "color": alliance} for team in teams]
             team_dicts.extend(teams)
         match_schedule_dict[match_key] = {"teams": team_dicts}
     with open(local_file_path, "w") as json_file:
@@ -61,7 +61,7 @@ def get_team_list():
             for team_dict in team_info["teams"]:
                 teams.add(team_dict["number"])
     # Return a list of teams sorted by team number
-    return sorted(map(int, teams))
+    return sorted(map(str, teams))
 
 
 def write_team_list(output_file_path):
