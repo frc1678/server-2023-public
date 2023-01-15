@@ -146,9 +146,10 @@ class TestDecompressor:
         assert "Invalid timeline -- Timeline length invalid: ['abcdefg']" in str(excinfo)
         # Test timeline decompression
         assert [
-            {"time": 60, "action_type": "start_incap"},
-            {"time": 61, "action_type": "end_incap"},
-        ] == self.test_decompressor.decompress_timeline("060AD061AE")
+            {"time": 59, "action_type": "score_cube_high", "in_teleop": False},
+            {"time": 60, "action_type": "to_teleop", "in_teleop": True},
+            {"time": 61, "action_type": "score_cube_mid", "in_teleop": True},
+        ] == self.test_decompressor.decompress_timeline("059AD060AM061AE")
         # Should return empty list if passed an empty string
         assert [] == self.test_decompressor.decompress_timeline("")
 

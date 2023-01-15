@@ -126,18 +126,29 @@ class Decompressor(base_calculations.BaseCalculations):
         """Decompress the timeline based on schema."""
         decompressed_timeline = []  # Timeline is a list of dictionaries
         # Return empty list if timeline is empty
+
         if data == "":
             return decompressed_timeline
+
         timeline_length = sum([entry["length"] for entry in self.TIMELINE_FIELDS])
+
         if len(data) % timeline_length != 0:
             raise ValueError(f"Invalid timeline -- Timeline length invalid: {data}")
+
         # Split into list of actions. Each action is a string of length timeline_length
         timeline_actions = [
             data[i : i + timeline_length] for i in range(0, len(data), timeline_length)
         ]
+
+        # index of to_teleop action in timeline_actions
+        teleop_index = len(timeline_actions)
+
         for action in timeline_actions:
             decompressed_action = dict()
             current_position = 0
+            # check if current action is to_teleop (AM)
+            if "AM" in action:
+                teleop_index = timeline_actions.index(action)
             for entry in self.TIMELINE_FIELDS:
                 # Get untyped value by slicing action string from current position to next position
                 next_position = current_position + entry["length"]
@@ -147,6 +158,11 @@ class Decompressor(base_calculations.BaseCalculations):
                     untyped_value, entry["type"], entry["name"]
                 )
                 current_position = next_position
+            # add and set in_teleop key to True or False depending on if it occurred before (False) or after (True) teleop_index
+            if timeline_actions.index(action) >= teleop_index:
+                decompressed_action["in_teleop"] = True
+            else:
+                decompressed_action["in_teleop"] = False
             decompressed_timeline.append(decompressed_action)
         return decompressed_timeline
 
