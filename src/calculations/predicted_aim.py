@@ -10,83 +10,102 @@ from data_transfer import tba_communicator
 
 @dataclasses.dataclass
 class PredictedAimScores:
-    auto_low_balls: float = 0.0
-    auto_high_balls: float = 0.0
-    tele_low_balls: float = 0.0
-    tele_high_balls: float = 0.0
-    auto_line_success_rate: float = 0.0
-    low_rung_success_rate: float = 0.0
-    mid_rung_success_rate: float = 0.0
-    high_rung_success_rate: float = 0.0
-    traversal_rung_success_rate: float = 0.0
+    auto_cube_low: float = 0.0
+    auto_cube_mid: float = 0.0
+    auto_cube_high: float = 0.0
+    auto_cone_low: float = 0.0
+    auto_cone_mid: float = 0.0
+    auto_cone_high: float = 0.0
+    auto_dock: float = 0.0
+    auto_engage: float = 0.0
+    mobility: float = 0.0
+    tele_cube_low: float = 0.0
+    tele_cube_mid: float = 0.0
+    tele_cube_high: float = 0.0
+    tele_cone_low: float = 0.0
+    tele_cone_mid: float = 0.0
+    tele_cone_high: float = 0.0
+    tele_dock: float = 0.0
+    tele_park: float = 0.0
+    tele_engage: float = 0.0
 
 
 class PredictedAimCalc(BaseCalculations):
-    ENDGAME_CLIMB_THRESHOLD = 16
     POINTS = {
-        "auto_low_balls": 2,
-        "auto_high_balls": 4,
-        "tele_low_balls": 1,
-        "tele_high_balls": 2,
-        "auto_line_success_rate": 2,
-        "low_rung_success_rate": 4,
-        "mid_rung_success_rate": 6,
-        "high_rung_success_rate": 10,
-        "traversal_rung_success_rate": 15,
+        "auto_cube_low": 3,
+        "auto_cube_mid": 4,
+        "auto_cube_high": 6,
+        "auto_cone_low": 3,
+        "auto_cone_mid": 4,
+        "auto_cone_high": 6,
+        "auto_dock": 8,
+        "auto_engage": 12,
+        "mobility": 3,
+        "tele_cube_low": 2,
+        "tele_cube_mid": 3,
+        "tele_cube_high": 5,
+        "tele_cone_low": 2,
+        "tele_cone_mid": 3,
+        "tele_cone_high": 5,
+        "tele_dock": 6,
+        "tele_park": 2,
+        "tele_engage": 10,
     }
 
     def __init__(self, server):
         super().__init__(server)
         self.watched_collections = ["obj_team", "tba_team"]
 
-    def calculate_predicted_quintet_success(self, obj_team):
-        auto_balls_scored = 0
-        auto_balls_scored += sum([team["auto_avg_total_balls"] for team in obj_team])
+    # def calculate_predicted_sustainability_threshold(self, obj_team):
+    # TBA
 
-        if auto_balls_scored <= 4:
-            cargo_rp_threshold = 20
-        elif auto_balls_scored < 5:
-            cargo_rp_threshold = 19
-        else:
-            cargo_rp_threshold = 18
-
-        return cargo_rp_threshold
-
-    def calculate_predicted_climb_success_rate(self, predicted_values, obj_team):
-        predicted_values.low_rung_success_rate += (
-            obj_team["low_rung_successes"] / obj_team["matches_played"]
+    def calculate_predicted_charge_success_rate(self, predicted_values, obj_team):
+        predicted_values.team_attempts += (
+            obj_team["auto_charge_attempts"] + obj_team["tele_charge_attempts"]
         )
-        predicted_values.mid_rung_success_rate += (
-            obj_team["mid_rung_successes"] / obj_team["matches_played"]
-        )
-        predicted_values.high_rung_success_rate += (
-            obj_team["high_rung_successes"] / obj_team["matches_played"]
-        )
-        predicted_values.traversal_rung_success_rate += (
-            obj_team["traversal_rung_successes"] / obj_team["matches_played"]
+        predicted_values.team_dock_success_rate += (
+            obj_team["auto_dock"] + obj_team["tele_dock"]
+        ) / predicted_values.team_attempts
+        predicted_values.team_engage_successes_rate += (
+            obj_team["auto_engage"] + obj_team["tele_engage"]
+        ) / predicted_values.team_attempts
+        predicted_values.team_park_success_rate += (
+            obj_team["tele_park"] / obj_team["tele_charge_attempts"]
         )
 
-    def calculate_predicted_balls_score(self, predicted_values, obj_team):
-        """Calculates the predicted score from balls.
+    def calculate_predicted_grid_score(self, predicted_values, obj_team):
+        """Calculates the predicted score from grid.
 
-        predicted_values is a dataclass which stores the predicted number of balls scored and success rates.
+        predicted_values is a dataclass which stores the predicted number of cones/cubes scored and success rates.
         obj_team is a list of dictionaries of objective team data.
         tba_team is a list of dictionaries of tba team data.
         The value of [stage]_balls_percent_inner is a decimal between 1 and 0."""
-        # Find the predicted balls scored in auto
-        predicted_values.auto_low_balls += obj_team["auto_avg_low_balls"]
-        predicted_values.auto_high_balls += obj_team["auto_avg_high_balls"]
+        # Finds the predicted cubes scored in auto
+        predicted_values.auto_cube_low += obj_team["auto_avg_cube_low"]
+        predicted_values.auto_cube_mid += obj_team["auto_avg_cube_mid"]
+        predicted_values.auto_cube_high += obj_team["auto_avg_cube_high"]
 
-        # Find the predicted balls scored in tele
-        predicted_values.tele_low_balls += obj_team["tele_avg_low_balls"]
-        predicted_values.tele_high_balls += obj_team["tele_avg_high_balls"]
+        # Finds the predicted cones scored in auto
+        predicted_values.auto_cone_low += obj_team["auto_avg_cone_low"]
+        predicted_values.auto_cone_mid += obj_team["auto_avg_cone_mid"]
+        predicted_values.auto_cone_high += obj_team["auto_avg_cone_high"]
+
+        # Finds the predicted cubes scored in tele
+        predicted_values.tele_cube_low += obj_team["tele_avg_cube_low"]
+        predicted_values.tele_cube_mid += obj_team["tele_avg_cube_mid"]
+        predicted_values.tele_cube_high += obj_team["tele_avg_cube_high"]
+
+        # Finds the predicted cones score in tele
+        predicted_values.tele_cone_low += obj_team["tele_avg_cone_low"]
+        predicted_values.tele_cone_low += obj_team["tele_avg_cone_mid"]
+        predicted_values.tele_cone_low += obj_team["tele_avg_cone_high"]
 
     def calculate_predicted_alliance_score(
         self, predicted_values, obj_team_data, tba_team_data, team_numbers
     ):
         """Calculates the predicted score for an alliance.
 
-        predicted_values is a dataclass which stores the predicted number of balls scored and success rates.
+        predicted_values is a dataclass which stores the predicted number of cones/cubes scored and success rates.
         obj_team is a list of dictionaries of objective team data.
         tba_team is a list of dictionaries of tba team data.
         team_numbers is a list of team numbers (strings) on the alliance.
@@ -102,39 +121,31 @@ class PredictedAimCalc(BaseCalculations):
                 team_data for team_data in tba_team_data if team_data["team_number"] == team
             ][0]
 
-            self.calculate_predicted_balls_score(predicted_values, obj_team)
-            self.calculate_predicted_climb_success_rate(predicted_values, obj_team)
-
-            # Calculates rates of success for auto line, climb, and park out of all matches played
-            # Doesn't use climb_percent_success because it is calculated out of climb attempts, not matches played
-            predicted_values.auto_line_success_rate += (
-                tba_team["auto_line_successes"] / obj_team["matches_played"]
-            )
+            self.calculate_predicted_grid_score(predicted_values, obj_team)
+            self.calculate_predicted_charge_success_rate(predicted_values, obj_team)
 
         for data_field in dataclasses.asdict(predicted_values).keys():
             total_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
 
         return total_score
 
-    def calculate_predicted_climb_rp(self, predicted_values):
+    def calculate_predicted_charge_rp(self, predicted_values):
         """Calculates whether an alliance is expected to earn the endgame RP.
 
         predicted_values is a dataclass which stores the predicted number of balls scored and success rates.
         """
-        endgame_score = 0
-        endgame_score += (
-            predicted_values.low_rung_success_rate * self.POINTS["low_rung_success_rate"]
-            + predicted_values.mid_rung_success_rate * self.POINTS["mid_rung_success_rate"]
-            + predicted_values.high_rung_success_rate * self.POINTS["high_rung_success_rate"]
-            + predicted_values.traversal_rung_success_rate
-            * self.POINTS["traversal_rung_success_rate"]
+        charge_score = 0
+        charge_score += predicted_values.team_dock_success_rate * (
+            self.POINTS["auto_dock"] + self.POINTS["tele_dock"]
+        ) + predicted_values.team_engage_success_rate * (
+            self.POINTS["auto_engage"] + self.POINTS["tele_engage"]
         )
 
-        if endgame_score >= self.ENDGAME_CLIMB_THRESHOLD:
+        if charge_score >= 26:
             return 1.0
         return 0.0
 
-    def calculate_predicted_ball_rp(self, obj_team, predicted_values):
+        # def calculate_predicted_ball_rp(self, obj_team, predicted_values):
         cargo_rp_threshold = self.calculate_predicted_quintet_success(obj_team)
         balls_scored = (
             predicted_values.auto_low_balls
@@ -142,12 +153,12 @@ class PredictedAimCalc(BaseCalculations):
             + predicted_values.tele_low_balls
             + predicted_values.tele_high_balls
         )
-
         if balls_scored >= cargo_rp_threshold:
             return 1.0
         return 0.0
+        # TBA
 
-    def get_actual_values(self, aim, tba_match_data):
+        # def get_actual_values(self, aim, tba_match_data):
         """Pulls actual AIM data from TBA if it exists.
 
         Otherwise, returns dictionary with all values of 0 and has_actual_data of False.
