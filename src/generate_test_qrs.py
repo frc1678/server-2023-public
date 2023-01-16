@@ -39,7 +39,11 @@ def generate_timeline():
             return final_timeline
     # For all other times, fill in with normal scores
     for time in times:
-        scores = [action for action in SCHEMA["action_type"].keys() if "score_ball" in action]
+        scores = [
+            action
+            for action in SCHEMA["action_type"]
+            if "score_cone" in action or "score_cube" in action
+        ]
         score_choice = random.choice(scores)
         final_timeline.append({"action_type": score_choice, "time": time})
 
