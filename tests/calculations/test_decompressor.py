@@ -21,12 +21,19 @@ class TestDecompressor:
     def test_convert_data_type(self):
         # List of compressed names and decompressed names of enums
         action_type_dict = {
-            "AA": "score_ball_high",
-            "AB": "score_ball_low",
-            "AC": "intake",
-            "AD": "start_incap",
-            "AE": "end_incap",
-            "AF": "climb_attempt",
+            "score_cone_high": "AA",
+            "score_cone_mid": "AB",
+            "score_cone_low": "AC",
+            "score_cube_high": "AD",
+            "score_cube_mid": "AE",
+            "score_cube_low": "AF",
+            "intake_ground": "AG",
+            "intake_shelf": "AH",
+            "intake_low_row": "AI",
+            "start_incap": "AJ",
+            "end_incap": "AK",
+            "charge_attempt": "AL",
+            "to_teleop": "AM",
         }
         # Test a few values for each type to make sure they make sense
         assert 5 == self.test_decompressor.convert_data_type("5", "int")
@@ -42,7 +49,7 @@ class TestDecompressor:
         assert not self.test_decompressor.convert_data_type("FALSE", "bool")
         assert "" == self.test_decompressor.convert_data_type("", "str")
         # Test all enums
-        for compressed, decompressed in action_type_dict.items():
+        for decompressed, compressed in action_type_dict.items():
             assert decompressed == self.test_decompressor.convert_data_type(
                 compressed, "Enum", name="action_type"
             )
@@ -79,11 +86,13 @@ class TestDecompressor:
         assert "field_awareness_score" == self.test_decompressor.get_decompressed_name(
             "C", "subjective_aim"
         )
-        assert "score_ball_high" == self.test_decompressor.get_decompressed_name(
+        assert "score_cone_high" == self.test_decompressor.get_decompressed_name(
             "AA", "action_type"
         )
-        assert "climb_attempt" == self.test_decompressor.get_decompressed_name("AF", "action_type")
-        assert "climb_level" == self.test_decompressor.get_decompressed_name("V", "objective_tim")
+        assert "score_cube_low" == self.test_decompressor.get_decompressed_name("AF", "action_type")
+        assert "auto_charge_level" == self.test_decompressor.get_decompressed_name(
+            "V", "objective_tim"
+        )
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.get_decompressed_name("#", "generic_data")
         assert "Retrieving Variable Name # from generic_data failed." in str(excinfo)
@@ -113,7 +122,7 @@ class TestDecompressor:
         )
         # Test timeline decompression
         assert {
-            "timeline": [{"action_type": "score_ball_high", "time": 51}]
+            "timeline": [{"action_type": "score_cone_high", "time": 51, "in_teleop": False}]
         } == self.test_decompressor.decompress_data(["W051AA"], "objective_tim")
         # Test using list with internal separators
         assert {
@@ -128,7 +137,9 @@ class TestDecompressor:
         assert "does not match Server version" in str(version_error)
         # What decompress_generic_qr() should return
         expected_decompressed_data = {
-            "schema_version": 7,
+            "schema_version": decompressor.Decompressor.SCHEMA["schema_file"][
+                "version"
+            ],  # read the current version of schema file
             "serial_number": "s1234",
             "match_number": 34,
             "timestamp": 1230,
@@ -136,7 +147,7 @@ class TestDecompressor:
             "scout_name": "Name",
         }
         assert expected_decompressed_data == self.test_decompressor.decompress_generic_qr(
-            "A7$Bs1234$C34$D1230$Ev1.3$FName"
+            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName"
         )
 
     def test_decompress_timeline(self):
@@ -157,7 +168,7 @@ class TestDecompressor:
         # Expected decompressed objective qr
         expected_objective = [
             {
-                "schema_version": 7,
+                "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                 "serial_number": "s1234",
                 "match_number": 34,
                 "timestamp": 1230,
@@ -168,16 +179,18 @@ class TestDecompressor:
                 "scout_id": 14,
                 "start_position": "THREE",
                 "timeline": [
-                    {"time": 60, "action_type": "start_incap"},
-                    {"time": 61, "action_type": "end_incap"},
+                    {"time": 60, "action_type": "score_cube_high", "in_teleop": False},
+                    {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
                 ],
-                "climb_level": "NONE",
+                "tele_charge_level": "ENGAGE",
+                "preloaded_piece": "CONE",
+                "auto_charge_level": "NONE",
             }
         ]
         # Expected decompressed subjective qr
         expected_subjective = [
             {
-                "schema_version": 7,
+                "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                 "serial_number": "s1234",
                 "match_number": 34,
                 "timestamp": 1230,
@@ -188,9 +201,10 @@ class TestDecompressor:
                 "quickness_score": 1,
                 "field_awareness_score": 2,
                 "played_defense": True,
+                "intake_cone_orientation": True,
             },
             {
-                "schema_version": 7,
+                "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                 "serial_number": "s1234",
                 "match_number": 34,
                 "timestamp": 1230,
@@ -201,9 +215,10 @@ class TestDecompressor:
                 "quickness_score": 2,
                 "field_awareness_score": 1,
                 "played_defense": False,
+                "intake_cone_orientation": True,
             },
             {
-                "schema_version": 7,
+                "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                 "serial_number": "s1234",
                 "match_number": 34,
                 "timestamp": 1230,
@@ -214,33 +229,35 @@ class TestDecompressor:
                 "quickness_score": 3,
                 "field_awareness_score": 1,
                 "played_defense": True,
+                "intake_cone_orientation": True,
             },
         ]
         # Test objective qr decompression
         assert expected_objective == self.test_decompressor.decompress_single_qr(
-            "A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$XTHREE$W060AD061AE$VNONE",
+            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$XTHREE$UENGAGE$TCONE$W060AD061AE$VNONE",
             decompressor.QRType.OBJECTIVE,
         )
         # Test subjective qr decompression
         assert expected_subjective == self.test_decompressor.decompress_single_qr(
-            "A7$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$B1$C2$DTRUE#A254$B2$C1$DFALSE#A1323$B3$C1$DTRUE",
+            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$ETRUE$B1$C2$DTRUE#A254$B2$C1$DFALSE$ETRUE#A1323$B3$C1$DTRUE$ETRUE",
             decompressor.QRType.SUBJECTIVE,
         )
         # Test error raising for objective and subjective using incomplete qrs
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                "A7$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14", decompressor.QRType.OBJECTIVE
+                f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14",
+                decompressor.QRType.OBJECTIVE,
             )
         assert "QR missing data fields" in str(excinfo)
         with pytest.raises(IndexError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                "A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$D3$EFALSE",
+                f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$D3$EFALSE",
                 decompressor.QRType.SUBJECTIVE,
             )
         assert "Incorrect number of teams in Subjective QR" in str(excinfo)
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                "A7$Bs1234$C34$D1230$Ev1.3$FNameGTRUE%A1678$B1$C2#A254#A1323",
+                f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FNameGTRUE%A1678$B1$C2#A254#A1323",
                 decompressor.QRType.SUBJECTIVE,
             )
         assert "QR missing data fields" in str(excinfo)
@@ -250,7 +267,7 @@ class TestDecompressor:
         expected_output = {
             "unconsolidated_obj_tim": [
                 {
-                    "schema_version": 7,
+                    "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                     "serial_number": "s1234",
                     "match_number": 34,
                     "timestamp": 1230,
@@ -261,15 +278,17 @@ class TestDecompressor:
                     "scout_id": 14,
                     "start_position": "FOUR",
                     "timeline": [
-                        {"time": 60, "action_type": "start_incap"},
-                        {"time": 61, "action_type": "end_incap"},
+                        {"time": 60, "action_type": "score_cube_high", "in_teleop": False},
+                        {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
                     ],
-                    "climb_level": "HIGH",
+                    "auto_charge_level": "NONE",
+                    "tele_charge_level": "NONE",
+                    "preloaded_piece": "NONE",
                 }
             ],
             "subj_tim": [
                 {
-                    "schema_version": 7,
+                    "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                     "serial_number": "s1234",
                     "match_number": 34,
                     "timestamp": 1230,
@@ -280,9 +299,10 @@ class TestDecompressor:
                     "quickness_score": 1,
                     "field_awareness_score": 2,
                     "played_defense": False,
+                    "intake_cone_orientation": True,
                 },
                 {
-                    "schema_version": 7,
+                    "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                     "serial_number": "s1234",
                     "match_number": 34,
                     "timestamp": 1230,
@@ -293,9 +313,10 @@ class TestDecompressor:
                     "quickness_score": 2,
                     "field_awareness_score": 2,
                     "played_defense": False,
+                    "intake_cone_orientation": True,
                 },
                 {
-                    "schema_version": 7,
+                    "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                     "serial_number": "s1234",
                     "match_number": 34,
                     "timestamp": 1230,
@@ -306,23 +327,24 @@ class TestDecompressor:
                     "quickness_score": 3,
                     "field_awareness_score": 3,
                     "played_defense": True,
+                    "intake_cone_orientation": True,
                 },
             ],
         }
         assert expected_output == self.test_decompressor.decompress_qrs(
             [
                 {
-                    "data": "+A7$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$XFOUR$W060AD061AE$VHIGH"
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$XFOUR$W060AD061AE$VNONE$UNONE$TNONE"
                 },
                 {
-                    "data": "*A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE#A254$B2$C2$DFALSE#A1323$B3$C3$DTRUE"
+                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE"
                 },
             ]
         )
 
     def test_run(self):
         expected_obj = {
-            "schema_version": 7,
+            "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
             "serial_number": "gCbtwqZ",
             "match_number": 51,
             "timestamp": 9321,
@@ -333,19 +355,21 @@ class TestDecompressor:
             "scout_id": 13,
             "start_position": "ONE",
             "timeline": [
-                {"time": 0, "action_type": "score_ball_high"},
-                {"time": 1, "action_type": "score_ball_low"},
-                {"time": 2, "action_type": "intake"},
-                {"time": 5, "action_type": "score_ball_high"},
-                {"time": 6, "action_type": "score_ball_low"},
-                {"time": 7, "action_type": "start_incap"},
-                {"time": 8, "action_type": "end_incap"},
+                {"time": 0, "action_type": "score_cone_high", "in_teleop": False},
+                {"time": 1, "action_type": "score_cone_mid", "in_teleop": False},
+                {"time": 2, "action_type": "score_cone_low", "in_teleop": False},
+                {"time": 5, "action_type": "to_teleop", "in_teleop": True},
+                {"time": 6, "action_type": "score_cone_mid", "in_teleop": True},
+                {"time": 7, "action_type": "score_cube_high", "in_teleop": True},
+                {"time": 8, "action_type": "score_cube_mid", "in_teleop": True},
             ],
-            "climb_level": "TRAVERSAL",
+            "auto_charge_level": "NONE",
+            "tele_charge_level": "NONE",
+            "preloaded_piece": "NONE",
         }
         expected_sbj = [
             {
-                "schema_version": 7,
+                "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                 "serial_number": "s1234",
                 "match_number": 34,
                 "timestamp": 1230,
@@ -356,9 +380,10 @@ class TestDecompressor:
                 "quickness_score": 1,
                 "field_awareness_score": 2,
                 "played_defense": False,
+                "intake_cone_orientation": True,
             },
             {
-                "schema_version": 7,
+                "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                 "serial_number": "s1234",
                 "match_number": 34,
                 "timestamp": 1230,
@@ -369,9 +394,10 @@ class TestDecompressor:
                 "quickness_score": 2,
                 "field_awareness_score": 2,
                 "played_defense": False,
+                "intake_cone_orientation": True,
             },
             {
-                "schema_version": 7,
+                "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
                 "serial_number": "s1234",
                 "match_number": 34,
                 "timestamp": 1230,
@@ -382,6 +408,7 @@ class TestDecompressor:
                 "quickness_score": 3,
                 "field_awareness_score": 3,
                 "played_defense": True,
+                "intake_cone_orientation": True,
             },
         ]
         curr_time = datetime.datetime.utcnow()
@@ -390,19 +417,19 @@ class TestDecompressor:
             "raw_qr",
             [
                 {
-                    "data": "+A7$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AA001AB002AC005AA006AB007AD008AE$VTRAVERSAL",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
                     "blocklisted": False,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": "+A7$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AA001AB002AC005AA006AB007AD008AE$VTRAVERSAL",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
                     "blocklisted": True,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": "*A7$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE#A254$B2$C2$DFALSE#A1323$B3$C3$DTRUE",
+                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE",
                     "blocklisted": False,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
