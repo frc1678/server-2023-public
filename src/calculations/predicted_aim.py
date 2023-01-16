@@ -60,17 +60,20 @@ class PredictedAimCalc(BaseCalculations):
     # TBA
 
     def calculate_predicted_charge_success_rate(self, predicted_values, obj_team):
-        predicted_values.team_attempts += (
-            obj_team["auto_charge_attempts"] + obj_team["tele_charge_attempts"]
+        predicted_values.auto_dock += (
+            obj_team["auto_dock"] / a if (a := obj_team["auto_charge_attempts"]) > 0 else 0
         )
-        predicted_values.team_dock_success_rate += (
-            obj_team["auto_dock"] + obj_team["tele_dock"]
-        ) / predicted_values.team_attempts
-        predicted_values.team_engage_successes_rate += (
-            obj_team["auto_engage"] + obj_team["tele_engage"]
-        ) / predicted_values.team_attempts
-        predicted_values.team_park_success_rate += (
-            obj_team["tele_park"] / obj_team["tele_charge_attempts"]
+        predicted_values.tele_dock += (
+            obj_team["tele_dock"] / a if (a := obj_team["tele_charge_attempts"]) > 0 else 0
+        )
+        predicted_values.auto_engage += (
+            obj_team["auto_engage"] / a if (a := obj_team["auto_charge_attempts"]) > 0 else 0
+        )
+        predicted_values.tele_engage += (
+            obj_team["tele_engage"] / a if (a := obj_team["tele_charge_attempts"]) > 0 else 0
+        )
+        predicted_values.tele_park += (
+            obj_team["tele_park"] / a if (a := obj_team["tele_charge_attempts"]) > 0 else 0
         )
 
     def calculate_predicted_grid_score(self, predicted_values, obj_team):
@@ -97,8 +100,8 @@ class PredictedAimCalc(BaseCalculations):
 
         # Finds the predicted cones score in tele
         predicted_values.tele_cone_low += obj_team["tele_avg_cone_low"]
-        predicted_values.tele_cone_low += obj_team["tele_avg_cone_mid"]
-        predicted_values.tele_cone_low += obj_team["tele_avg_cone_high"]
+        predicted_values.tele_cone_mid += obj_team["tele_avg_cone_mid"]
+        predicted_values.tele_cone_high += obj_team["tele_avg_cone_high"]
 
     def calculate_predicted_alliance_score(
         self, predicted_values, obj_team_data, tba_team_data, team_numbers
@@ -127,7 +130,7 @@ class PredictedAimCalc(BaseCalculations):
         for data_field in dataclasses.asdict(predicted_values).keys():
             total_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
 
-        return total_score
+        return round(total_score, 5)
 
     def calculate_predicted_charge_rp(self, predicted_values):
         """Calculates whether an alliance is expected to earn the endgame RP.
@@ -135,11 +138,8 @@ class PredictedAimCalc(BaseCalculations):
         predicted_values is a dataclass which stores the predicted number of balls scored and success rates.
         """
         charge_score = 0
-        charge_score += predicted_values.team_dock_success_rate * (
-            self.POINTS["auto_dock"] + self.POINTS["tele_dock"]
-        ) + predicted_values.team_engage_success_rate * (
-            self.POINTS["auto_engage"] + self.POINTS["tele_engage"]
-        )
+        for datapoint in ["auto_dock", "auto_engage", "tele_dock", "tele_engage"]:
+            charge_score += getattr(predicted_values, datapoint) * self.POINTS[datapoint]
 
         if charge_score >= 26:
             return 1.0
@@ -243,16 +243,16 @@ class PredictedAimCalc(BaseCalculations):
             update["predicted_score"] = self.calculate_predicted_alliance_score(
                 predicted_values, obj_team, tba_team, aim["team_list"]
             )
-            update["predicted_rp1"] = self.calculate_predicted_ball_rp(obj_team, predicted_values)
-            update["predicted_rp2"] = self.calculate_predicted_climb_rp(predicted_values)
-            update.update(self.get_actual_values(aim, tba_match_data))
+            update["predicted_rp1"] = self.calculate_predicted_charge_rp(predicted_values)
+            # update["predicted_rp2"] = self.calculate_predicted_link_rp(predicted_values)
+            # update.update(self.get_actual_values(aim, tba_match_data))
             updates.append(update)
         return updates
 
     def calculate_predicted_win_chance(self):
         new_aims = []
         aims = self.server.db.find("predicted_aim")
-        match_list = set([aim["match_number"] for aim in aims])
+        match_list = {aim["match_number"] for aim in aims}
         for match in match_list:
             aims_in_match = [aim for aim in aims if aim["match_number"] == match]
             if len(aims_in_match) < 2:
@@ -260,7 +260,9 @@ class PredictedAimCalc(BaseCalculations):
             for aim in range(2):
                 aim_score = aims_in_match[aim]["predicted_score"]
                 opponent_score = aims_in_match[(aim + 1) % 2]["predicted_score"]
-                aims_in_match[aim]["win_chance"] = 0.5 + ((aim_score - opponent_score) * 0.0227)
+                aims_in_match[aim]["win_chance"] = round(
+                    0.5 + ((aim_score - opponent_score) * 0.0227), 5
+                )
                 new_aims.append(aims_in_match[aim])
         return new_aims
 
