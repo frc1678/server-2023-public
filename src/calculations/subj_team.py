@@ -41,10 +41,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
         # require calculations
         for data_field, type_dict in self.SCHEMA["data"].items():
             type_as_str = type_dict["type"]
-            if data_field == "team_number":
-                calculations[data_field] = self.STR_TYPES[type_as_str](team)
-            else:
-                raise Exception(f"Schema mentions {data_field} but we don't know what that is")
+            calculations[data_field] = self.STR_TYPES[type_as_str](team)
         # Next, actually run the calculations
         for calc_name, calc_info in self.SCHEMA["unadjusted_calculations"].items():
             collection_name, _, ranking_name = calc_info["requires"][0].partition(".")

@@ -8,7 +8,7 @@ import utils
 
 class BaseCalculations:
     # Used for converting to a type that is given as a string
-    STR_TYPES = {"str": str, "float": float, "int": int}
+    STR_TYPES = {"str": str, "float": float, "int": int, "bool": bool}
 
     def __init__(self, server):
         self.server = server
