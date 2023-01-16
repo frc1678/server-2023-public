@@ -25,6 +25,6 @@ class TestQRState:
         # What get_timeline_info() should return
         expected_timeline_info = [
             {"name": "time", "length": 3, "type": "int", "position": 0},
-            {"name": "action_type", "length": 2, "type": "Enum", "position": 1},
+            {"name": "action_type", "length": 2, "type": "Enum[str]", "position": 1},
         ]
         assert expected_timeline_info == QRState.get_timeline_info()
