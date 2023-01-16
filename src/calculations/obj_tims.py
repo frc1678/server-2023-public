@@ -54,13 +54,17 @@ class ObjTIMCalcs(BaseCalculations):
         """Given string type obj_tims, return actual string"""
         # Dictionary for final calculated tims
         final_categorical_actions = {}
-        # Dictionary for associated category actions
-        categories = {
-            "climb_level": ["NONE", "LOW", "MID", "HIGH", "TRAVERSAL"],
-            "start_position": ["ONE", "TWO", "THREE", "FOUR"],
-        }
         for category in self.schema["categorical_actions"]:
-            categorical_actions = [scout[category] for scout in unconsolidated_tims]
+            scout_categorical_actions = [scout[category] for scout in unconsolidated_tims]
+            # Enums for associated category actions and shortened representation
+            actions = self.schema["enums"][category]
+            # Turn the shortened categorical actions from the scout into full strings
+            categorical_actions = []
+            for action in scout_categorical_actions:
+                for key, value in actions.items():
+                    if value == action:
+                        categorical_actions.append(key)
+                        break
             # If at least 2 scouts agree, take their answer
             if len(self.modes(categorical_actions)) == 1:
                 final_categorical_actions[category] = self.modes(categorical_actions)[0]
@@ -68,24 +72,21 @@ class ObjTIMCalcs(BaseCalculations):
 
             # Add up the indexes of the scout responses
             category_avg = self.avg(
-                [categories[category].index(value) for value in categorical_actions]
+                [list(actions.keys()).index(value) for value in categorical_actions]
             )
             # Round the average and append the correct action to the final dict
-            final_categorical_actions[category] = categories[category][round(category_avg)]
+            final_categorical_actions[category] = list(actions.keys())[round(category_avg)]
         return final_categorical_actions
 
     def filter_timeline_actions(self, tim: dict, **filters) -> list:
         """Removes timeline actions that don't meet the filters and returns all the actions that do"""
         actions = tim["timeline"]
         for field, required_value in filters.items():
-            if tim["climb_level"] != "NONE" and required_value == "climb_attempt":
-                # Counting climbs based on attempts sometimes yields an over 100% climb success
-                actions = [{"time": 149, "action_type": "climb_attempt"}]
-                break
-            elif field == "time":
+            if field == "time":
                 # Times are given as closed intervals: either [0,134] or [135,150]
                 actions = filter(
-                    lambda action: required_value[0] <= action["time"] <= required_value[1], actions
+                    lambda action: required_value[0] <= action["time"] <= required_value[1],
+                    actions,
                 )
             else:
                 # Removes actions for which action[field] != required_value
@@ -204,7 +205,9 @@ class ObjTIMCalcs(BaseCalculations):
             aggregate_counts = filters["counts"]
             # Add up all the counts for each aggregate and add them to the final dictionary
             for count in aggregate_counts:
-                total_count += calculated_tim[count]
+                total_count += (
+                    calculated_tim[count] if count in calculated_tim else final_aggregates[count]
+                )
                 final_aggregates[aggregate] = total_count
         return final_aggregates
 
@@ -269,7 +272,10 @@ class ObjTIMCalcs(BaseCalculations):
                 self.server.db.update_document(
                     "obj_tim",
                     update,
-                    {"team_number": update["team_number"], "match_number": update["match_number"]},
+                    {
+                        "team_number": update["team_number"],
+                        "match_number": update["match_number"],
+                    },
                 )
         if len(updates) > 1:
             for document in updates[1]:
