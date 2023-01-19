@@ -171,7 +171,7 @@ def read_schema(schema_file_path: str) -> dict:
     return _internal_schemas[schema_file_path]
 
 
-def get_schema_filenames() -> set:
+def get_schema_filenames() -> list:
     """Get all the file names of schema files from the collection_schema"""
     schema = read_schema("schema/collection_schema.yml")
     schema_filenames = []
@@ -179,7 +179,7 @@ def get_schema_filenames() -> set:
         schema_filename = schema["schema"]
         if schema_filename is not None:
             schema_filenames.append(schema_filename)
-    return set(schema_filenames)
+    return schema_filenames
 
 
 # The root directory of the project

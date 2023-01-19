@@ -92,7 +92,7 @@ def test_run_command():
 
 def test_get_schema_filenames():
     schema_names = utils.get_schema_filenames()
-    assert isinstance(schema_names, set)
+    assert isinstance(schema_names, list)
     assert "obj_pit_collection_schema.yml" in schema_names
 
 

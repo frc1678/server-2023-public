@@ -167,7 +167,10 @@ class DataGenerator:
             ) in datapoint_collection_values.items():
                 if datapoints_values_value.get("type") is not None:
                     value_type = datapoints_values_value["type"]
-                    if value_type != "Enum":
+                    if value_type == "List":
+                        # For list compatability
+                        generated_structure[datapoints_values_key] = []
+                    elif not value_type.__contains__("Enum"):
                         # Generate value based on the value_type
                         datapoint = generate_random_value(value_type, self.seed)
                         generated_structure[datapoints_values_key] = datapoint
