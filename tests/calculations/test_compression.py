@@ -1,5 +1,6 @@
 from calculations import compression
 import pytest
+from utils import read_schema
 
 
 def test_compress_timeline():
@@ -14,7 +15,10 @@ def test_compress_timeline():
 
 def test_compress_section_generic_data():
     # Make sure it adds schema version
-    assert compression.compress_section({}, "generic_data") == "A3"
+    assert (
+        compression.compress_section({}, "generic_data")
+        == f'A{read_schema("schema/match_collection_qr_schema.yml")["schema_file"]["version"]}'
+    )
     # Check generic data compression
     schema_data = {"schema_version": 5}
     compressed_schema = "A5"
