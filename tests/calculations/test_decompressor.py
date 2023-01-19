@@ -28,7 +28,7 @@ class TestDecompressor:
             "score_cube_mid": "AE",
             "score_cube_low": "AF",
             "intake_ground": "AG",
-            "intake_shelf": "AH",
+            "intake_station": "AH",
             "intake_low_row": "AI",
             "start_incap": "AJ",
             "end_incap": "AK",
@@ -202,6 +202,7 @@ class TestDecompressor:
                 "field_awareness_score": 2,
                 "played_defense": True,
                 "intake_cone_orientation": True,
+                "auto_pieces_start_position": ["0", "0", "0", "0"],
             },
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -216,6 +217,7 @@ class TestDecompressor:
                 "field_awareness_score": 1,
                 "played_defense": False,
                 "intake_cone_orientation": True,
+                "auto_pieces_start_position": ["0", "0", "0", "0"],
             },
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -230,6 +232,7 @@ class TestDecompressor:
                 "field_awareness_score": 1,
                 "played_defense": True,
                 "intake_cone_orientation": True,
+                "auto_pieces_start_position": ["0", "0", "0", "0"],
             },
         ]
         # Test objective qr decompression
@@ -239,7 +242,7 @@ class TestDecompressor:
         )
         # Test subjective qr decompression
         assert expected_subjective == self.test_decompressor.decompress_single_qr(
-            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$ETRUE$B1$C2$DTRUE#A254$B2$C1$DFALSE$ETRUE#A1323$B3$C1$DTRUE$ETRUE",
+            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$ETRUE$B1$C2$DTRUE#A254$B2$C1$DFALSE$ETRUE#A1323$B3$C1$DTRUE$ETRUE^F0000",
             decompressor.QRType.SUBJECTIVE,
         )
         # Test error raising for objective and subjective using incomplete qrs
@@ -251,13 +254,19 @@ class TestDecompressor:
         assert "QR missing data fields" in str(excinfo)
         with pytest.raises(IndexError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$D3$EFALSE",
+                f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$ETRUE$B1$C2$DTRUE#A254$B2$C1$DFALSE$ETRUE#A1323$B3$C1$DTRUE$ETRUE",
+                decompressor.QRType.SUBJECTIVE,
+            )
+        assert "Subjective QR missing whole-alliance data" in str(excinfo)
+        with pytest.raises(IndexError) as excinfo:
+            self.test_decompressor.decompress_single_qr(
+                f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$D3$EFALSE^F0000",
                 decompressor.QRType.SUBJECTIVE,
             )
         assert "Incorrect number of teams in Subjective QR" in str(excinfo)
         with pytest.raises(ValueError) as excinfo:
             self.test_decompressor.decompress_single_qr(
-                f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FNameGTRUE%A1678$B1$C2#A254#A1323",
+                f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FNameGTRUE%A1678$B1$C2#A254#A1323^",
                 decompressor.QRType.SUBJECTIVE,
             )
         assert "QR missing data fields" in str(excinfo)
@@ -300,6 +309,7 @@ class TestDecompressor:
                     "field_awareness_score": 2,
                     "played_defense": False,
                     "intake_cone_orientation": True,
+                    "auto_pieces_start_position": ["1", "1", "0", "0"],
                 },
                 {
                     "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -314,6 +324,7 @@ class TestDecompressor:
                     "field_awareness_score": 2,
                     "played_defense": False,
                     "intake_cone_orientation": True,
+                    "auto_pieces_start_position": ["1", "1", "0", "0"],
                 },
                 {
                     "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -328,6 +339,7 @@ class TestDecompressor:
                     "field_awareness_score": 3,
                     "played_defense": True,
                     "intake_cone_orientation": True,
+                    "auto_pieces_start_position": ["1", "1", "0", "0"],
                 },
             ],
         }
@@ -337,7 +349,7 @@ class TestDecompressor:
                     "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$XFOUR$W060AD061AE$VNONE$UNONE$TNONE"
                 },
                 {
-                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE"
+                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE^F1100"
                 },
             ]
         )
@@ -381,6 +393,7 @@ class TestDecompressor:
                 "field_awareness_score": 2,
                 "played_defense": False,
                 "intake_cone_orientation": True,
+                "auto_pieces_start_position": ["1", "0", "1", "0"],
             },
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -395,6 +408,7 @@ class TestDecompressor:
                 "field_awareness_score": 2,
                 "played_defense": False,
                 "intake_cone_orientation": True,
+                "auto_pieces_start_position": ["1", "0", "1", "0"],
             },
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -409,6 +423,7 @@ class TestDecompressor:
                 "field_awareness_score": 3,
                 "played_defense": True,
                 "intake_cone_orientation": True,
+                "auto_pieces_start_position": ["1", "0", "1", "0"],
             },
         ]
         curr_time = datetime.datetime.utcnow()
@@ -429,7 +444,7 @@ class TestDecompressor:
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE",
+                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE^F1010",
                     "blocklisted": False,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),

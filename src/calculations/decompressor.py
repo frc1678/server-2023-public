@@ -46,7 +46,7 @@ class Decompressor(base_calculations.BaseCalculations):
             return utils.get_bool(value)
         if type_ == "str":
             return value  # Value is already a str
-        if type_ == "Enum":
+        if "Enum" in type_:
             return self.get_decompressed_name(value, name)
         raise ValueError(f"Type {type_} not recognized")
 
@@ -104,6 +104,22 @@ class Decompressor(base_calculations.BaseCalculations):
                         raise NotImplementedError(
                             f"Decompression of {uncompressed_name} as a dict not supported."
                         )
+                # Decompress list of none-dicts
+                elif uncompressed_type[1] in ["int", "float", "bool", "str"]:
+                    if len(uncompressed_type) == 2:
+                        # Default case, use _list_data_separator to seperate value into list items
+                        split_values = value.split(self.SCHEMA["_list_data_separator"])
+                    else:
+                        # Use the specified length of each item to seperate
+                        split_values = [
+                            value[i : i + uncompressed_type[2]]
+                            for i in range(0, len(value), uncompressed_type[2])
+                        ]
+                    # Convert string to appropriate data type
+                    typed_value = [
+                        self.convert_data_type(split_value, uncompressed_type[1])
+                        for split_value in split_values
+                    ]
             else:  # Normal data type
                 typed_value = self.convert_data_type(value, uncompressed_type, uncompressed_name)
             decompressed_data[uncompressed_name] = typed_value
@@ -182,12 +198,22 @@ class Decompressor(base_calculations.BaseCalculations):
         decompressed_data = []
         # Decompress subjective QR
         if qr_type == QRType.SUBJECTIVE:
-            teams_data = qr_data[1].split(self.SCHEMA["subjective_aim"]["_team_separator"])
+            none_generic_data = qr_data[1].split(
+                self.SCHEMA["subjective_aim"]["_alliance_data_separator"]
+            )
+            if len(none_generic_data) != 2:
+                raise IndexError("Subjective QR missing whole-alliance data")
+            teams_data = none_generic_data[0].split(
+                self.SCHEMA["subjective_aim"]["_team_separator"]
+            )
+            alliance_data = none_generic_data[1].split(self.SCHEMA["subjective_aim"]["_separator"])
             if len(teams_data) != 3:
                 raise IndexError("Incorrect number of teams in Subjective QR")
             for team in teams_data:
                 decompressed_document = self.decompress_generic_qr(qr_data[0])
-                subjective_data = team.split(self.SCHEMA["subjective_aim"]["_separator"])
+                subjective_data = team.split(self.SCHEMA["subjective_aim"]["_separator"]) + (
+                    alliance_data if alliance_data != [""] else []
+                )
                 decompressed_document.update(
                     self.decompress_data(subjective_data, "subjective_aim")
                 )
