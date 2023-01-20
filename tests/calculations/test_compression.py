@@ -36,7 +36,7 @@ def test_compress_section_obj():
     compressed_schema = "Z1678$Y18"
     assert compression.compress_section(schema_data, "objective_tim") == compressed_schema
     # With timeline
-    schema_data["timeline"] = [{"time": 51, "action_type": "start_incap"}]
+    schema_data["timeline"] = [{"time": 51, "action_type": "start_incap", "in_teleop": False}]
     compressed_schema += "$W051AJ"
     assert compression.compress_section(schema_data, "objective_tim") == compressed_schema
 
@@ -46,9 +46,8 @@ def test_compress_section_subj():
         "team_number": "1678",
         "quickness_score": 2,
         "field_awareness_score": 1,
-        "played_defense": False,
     }
-    compressed_data = "A1678$B2$C1$DFALSE"
+    compressed_data = "A1678$B2$C1"
     assert compression.compress_section(data, "subjective_aim") == compressed_data
 
 
@@ -87,7 +86,6 @@ def test_compress_subj_aim():
             "team_number": "3128",
             "quickness_score": 1,
             "field_awareness_score": 2,
-            "played_defense": False,
         },
         {
             "schema_version": 1,
@@ -99,7 +97,6 @@ def test_compress_subj_aim():
             "team_number": "1678",
             "quickness_score": 2,
             "field_awareness_score": 1,
-            "played_defense": False,
         },
         {
             "schema_version": 1,
@@ -111,10 +108,11 @@ def test_compress_subj_aim():
             "team_number": "972",
             "quickness_score": 3,
             "field_awareness_score": 3,
-            "played_defense": True,
         },
     ]
-    compressed_data = "*A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FYOUYOU X%A3128$B1$C2$DFALSE#A1678$B2$C1$DFALSE#A972$B3$C3$DTRUE"
+    compressed_data = (
+        "*A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FYOUYOU X%A3128$B1$C2#A1678$B2$C1#A972$B3$C3"
+    )
     assert compression.compress_subj_aim(data) == compressed_data
     error_data = [
         {
@@ -127,7 +125,6 @@ def test_compress_subj_aim():
             "team_number": "3128",
             "quickness_score": 1,
             "field_awareness_score": 2,
-            "played_defense": False,
         },
         {
             "schema_version": 1,
@@ -139,7 +136,6 @@ def test_compress_subj_aim():
             "team_number": "1678",
             "quickness_score": 2,
             "field_awareness_score": 1,
-            "played_defense": False,
         },
         {
             "schema_version": 1,
@@ -151,7 +147,6 @@ def test_compress_subj_aim():
             "team_number": "972",
             "quickness_score": 3,
             "field_awareness_score": 3,
-            "played_defense": True,
         },
     ]
     with pytest.raises(ValueError) as error:
