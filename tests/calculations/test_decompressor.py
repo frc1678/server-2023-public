@@ -177,7 +177,7 @@ class TestDecompressor:
                 "alliance_color_is_red": False,
                 "team_number": "1678",
                 "scout_id": 14,
-                "start_position": "THREE",
+                "start_position": 3,
                 "timeline": [
                     {"time": 60, "action_type": "score_cube_high", "in_teleop": False},
                     {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
@@ -234,7 +234,7 @@ class TestDecompressor:
         ]
         # Test objective qr decompression
         assert expected_objective == self.test_decompressor.decompress_single_qr(
-            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$XTHREE$UENGAGE$TCONE$W060AD061AE$VNONE",
+            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$X3$UENGAGE$TCONE$W060AD061AE$VNONE",
             decompressor.QRType.OBJECTIVE,
         )
         # Test subjective qr decompression
@@ -282,7 +282,7 @@ class TestDecompressor:
                     "alliance_color_is_red": True,
                     "team_number": "1678",
                     "scout_id": 14,
-                    "start_position": "FOUR",
+                    "start_position": 4,
                     "timeline": [
                         {"time": 60, "action_type": "score_cube_high", "in_teleop": False},
                         {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
@@ -340,7 +340,7 @@ class TestDecompressor:
         assert expected_output == self.test_decompressor.decompress_qrs(
             [
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$XFOUR$W060AD061AE$VNONE$UNONE$TNONE"
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$X4$W060AD061AE$VNONE$UNONE$TNONE"
                 },
                 {
                     "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE^E1100"
@@ -359,7 +359,7 @@ class TestDecompressor:
             "alliance_color_is_red": False,
             "team_number": "3603",
             "scout_id": 13,
-            "start_position": "ONE",
+            "start_position": 1,
             "timeline": [
                 {"time": 0, "action_type": "score_cone_high", "in_teleop": False},
                 {"time": 1, "action_type": "score_cone_mid", "in_teleop": False},
@@ -423,13 +423,13 @@ class TestDecompressor:
             "raw_qr",
             [
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X1$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
                     "blocklisted": False,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$XONE$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X1$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
                     "blocklisted": True,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
