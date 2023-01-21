@@ -155,6 +155,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "lfm_avg_gamepieces": 84.4422,
         "lfm_tele_avg_gamepiece_low": 84.4422,
         "matches_scored_coop": 49,
+        "matches_played_defense": 49,
     },
     # Obj TIM
     {

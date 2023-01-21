@@ -46,8 +46,9 @@ def test_compress_section_subj():
         "team_number": "1678",
         "quickness_score": 2,
         "field_awareness_score": 1,
+        "played_defense": False,
     }
-    compressed_data = "A1678$B2$C1"
+    compressed_data = "A1678$B2$C1$FFALSE"
     assert compression.compress_section(data, "subjective_aim") == compressed_data
 
 
@@ -86,6 +87,7 @@ def test_compress_subj_aim():
             "team_number": "3128",
             "quickness_score": 1,
             "field_awareness_score": 2,
+            "played_defense": False,
         },
         {
             "schema_version": 1,
@@ -97,6 +99,7 @@ def test_compress_subj_aim():
             "team_number": "1678",
             "quickness_score": 2,
             "field_awareness_score": 1,
+            "played_defense": False,
         },
         {
             "schema_version": 1,
@@ -108,11 +111,10 @@ def test_compress_subj_aim():
             "team_number": "972",
             "quickness_score": 3,
             "field_awareness_score": 3,
+            "played_defense": True,
         },
     ]
-    compressed_data = (
-        "*A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FYOUYOU X%A3128$B1$C2#A1678$B2$C1#A972$B3$C3"
-    )
+    compressed_data = "*A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FYOUYOU X%A3128$B1$C2$FFALSE#A1678$B2$C1$FFALSE#A972$B3$C3$FTRUE"
     assert compression.compress_subj_aim(data) == compressed_data
     error_data = [
         {
@@ -125,6 +127,7 @@ def test_compress_subj_aim():
             "team_number": "3128",
             "quickness_score": 1,
             "field_awareness_score": 2,
+            "played_defense": False,
         },
         {
             "schema_version": 1,
@@ -136,6 +139,7 @@ def test_compress_subj_aim():
             "team_number": "1678",
             "quickness_score": 2,
             "field_awareness_score": 1,
+            "played_defense": True,
         },
         {
             "schema_version": 1,
@@ -147,6 +151,7 @@ def test_compress_subj_aim():
             "team_number": "972",
             "quickness_score": 3,
             "field_awareness_score": 3,
+            "played_defense": False,
         },
     ]
     with pytest.raises(ValueError) as error:
