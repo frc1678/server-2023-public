@@ -206,7 +206,11 @@ class ObjTIMCalcs(BaseCalculations):
             # Add up all the counts for each aggregate and add them to the final dictionary
             for count in aggregate_counts:
                 total_count += (
-                    calculated_tim[count] if count in calculated_tim else final_aggregates[count]
+                    calculated_tim[count]
+                    if count in calculated_tim
+                    else final_aggregates[count]
+                    if count in final_aggregates
+                    else 0
                 )
                 final_aggregates[aggregate] = total_count
         return final_aggregates
