@@ -12,6 +12,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
 
     # Get the last section of each entry (so foo.bar.baz becomes baz)
     SCHEMA = utils.unprefix_schema_dict(utils.read_schema("schema/calc_obj_team_schema.yml"))
+    TIM_SCHEMA = utils.read_schema("schema/calc_obj_tim_schema.yml")
 
     def __init__(self, server):
         """Overrides watched collections, passes server object"""
@@ -134,23 +135,34 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         """
         team_info = {}
         for calculation, schema in self.SCHEMA["extrema"].items():
-            # Max climb needs to be handled separately since climbs levels are strings
-            if "max_climb_level" in calculation:
-                climb_levels = ["NONE", "LOW", "MID", "HIGH", "TRAVERSAL"]
-                # Translates climb levels as strings into a list of climb levels as ints
-                # Only uses latest 4 matches if it's an lfm datapoint
-                if "lfm" in calculation:
-                    int_levels = [
-                        climb_levels.index(str_level)
-                        for str_level in lfm_tim_action_categories["obj_tim.climb_level"]
-                    ]
+            # Strings need to be handled differently
+            if schema["type"] == "str":
+                categorical_action = schema["tim_fields"][0].split(".")
+                if (
+                    categorical_action[0] == "obj_tim"
+                    and categorical_action[1] in self.TIM_SCHEMA["categorical_actions"]
+                ):
+                    categorical_actions = list(
+                        self.TIM_SCHEMA["enums"][categorical_action[1]].keys()
+                    )
+                    # Translates categorical action as strings into a list as ints
+                    # Only uses latest 4 matches if it's an lfm datapoint
+                    if "lfm" in calculation:
+                        int_levels = [
+                            categorical_actions.index(str_level)
+                            for str_level in lfm_tim_action_categories[schema["tim_fields"][0]]
+                        ]
+                    else:
+                        int_levels = [
+                            categorical_actions.index(str_level)
+                            for str_level in tim_action_categories[schema["tim_fields"][0]]
+                        ]
+                    # Converts max categorical action back into a string
+                    team_info[calculation] = categorical_actions[max(int_levels)]
                 else:
-                    int_levels = [
-                        climb_levels.index(str_level)
-                        for str_level in tim_action_categories["obj_tim.climb_level"]
-                    ]
-                # Converts max climb level back into a string
-                team_info[calculation] = climb_levels[max(int_levels)]
+                    raise KeyError(
+                        f"{calculation} cannot be calculated. {categorical_action[1]} not found in calc_obj_tim_schema categorical_actions"
+                    )
             # All other extrema are ints
             else:
                 tim_field = schema["tim_fields"][0]
