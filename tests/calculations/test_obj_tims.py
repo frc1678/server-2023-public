@@ -46,7 +46,7 @@ class TestObjTIMCalcs:
             ],
             "auto_charge_level": "D",
             "tele_charge_level": "P",
-            "start_position": 1,
+            "start_position": "1",
             "preloaded_gamepiece": "B",
         },
         {
@@ -82,7 +82,7 @@ class TestObjTIMCalcs:
             ],
             "auto_charge_level": "E",
             "tele_charge_level": "N",
-            "start_position": 3,
+            "start_position": "3",
             "preloaded_gamepiece": "B",
         },
         {
@@ -120,7 +120,7 @@ class TestObjTIMCalcs:
             ],
             "auto_charge_level": "N",
             "tele_charge_level": "D",
-            "start_position": 1,
+            "start_position": "1",
             "preloaded_gamepiece": "N",
         },
     ]

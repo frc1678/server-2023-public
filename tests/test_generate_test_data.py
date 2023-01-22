@@ -191,7 +191,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "tele_charge_level": 1,
         "tele_charge_attempt": 49,
         "total_charge_attempts": 49,
-        "start_position": 1,
+        "start_position": "1",
         "preloaded_gamepiece": 1,
     },
     # Pickability

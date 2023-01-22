@@ -177,7 +177,7 @@ class TestDecompressor:
                 "alliance_color_is_red": False,
                 "team_number": "1678",
                 "scout_id": 14,
-                "start_position": 3,
+                "start_position": "3",
                 "timeline": [
                     {"time": 60, "action_type": "score_cube_high", "in_teleop": False},
                     {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
@@ -282,7 +282,7 @@ class TestDecompressor:
                     "alliance_color_is_red": True,
                     "team_number": "1678",
                     "scout_id": 14,
-                    "start_position": 4,
+                    "start_position": "4",
                     "timeline": [
                         {"time": 60, "action_type": "score_cube_high", "in_teleop": False},
                         {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
