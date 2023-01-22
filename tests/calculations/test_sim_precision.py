@@ -56,7 +56,7 @@ class TestSimPrecisionCalc:
             # Match 1
             {
                 "scout_name": "ALISON LIN",
-                "team_number": 1678,
+                "team_number": "1678",
                 "match_number": 1,
                 "alliance_color_is_red": True,
                 "auto_high_balls": 5,
@@ -66,7 +66,7 @@ class TestSimPrecisionCalc:
             },
             {
                 "scout_name": "NATHAN MILLS",
-                "team_number": 1678,
+                "team_number": "1678",
                 "match_number": 1,
                 "alliance_color_is_red": True,
                 "auto_high_balls": 4,
@@ -76,7 +76,7 @@ class TestSimPrecisionCalc:
             },
             {
                 "scout_name": "KATHY LI",
-                "team_number": 4414,
+                "team_number": "4414",
                 "match_number": 1,
                 "alliance_color_is_red": True,
                 "auto_high_balls": 3,
@@ -86,7 +86,7 @@ class TestSimPrecisionCalc:
             },
             {
                 "scout_name": "KATE UNGER",
-                "team_number": 589,
+                "team_number": "589",
                 "match_number": 1,
                 "alliance_color_is_red": True,
                 "auto_high_balls": 0,
@@ -96,7 +96,7 @@ class TestSimPrecisionCalc:
             },
             {
                 "scout_name": "NITHMI JAYASUNDARA",
-                "team_number": 589,
+                "team_number": "589",
                 "match_number": 1,
                 "alliance_color_is_red": True,
                 "auto_high_balls": 0,
@@ -106,7 +106,7 @@ class TestSimPrecisionCalc:
             },
             {
                 "scout_name": "RAY FABIONAR",
-                "team_number": 589,
+                "team_number": "589",
                 "match_number": 1,
                 "alliance_color_is_red": True,
                 "auto_high_balls": 0,
@@ -117,7 +117,7 @@ class TestSimPrecisionCalc:
             # Match 2
             {
                 "scout_name": "NATHAN MILLS",
-                "team_number": 1678,
+                "team_number": "1678",
                 "match_number": 2,
                 "alliance_color_is_red": False,
                 "auto_high_balls": 3,
@@ -127,7 +127,7 @@ class TestSimPrecisionCalc:
             },
             {
                 "scout_name": "KATHY LI",
-                "team_number": 4414,
+                "team_number": "4414",
                 "match_number": 2,
                 "alliance_color_is_red": False,
                 "auto_high_balls": 4,
@@ -137,7 +137,7 @@ class TestSimPrecisionCalc:
             },
             {
                 "scout_name": "KATE UNGER",
-                "team_number": 589,
+                "team_number": "589",
                 "match_number": 2,
                 "alliance_color_is_red": False,
                 "auto_high_balls": 0,
@@ -177,14 +177,14 @@ class TestSimPrecisionCalc:
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
         required = self.test_calc.sim_schema["calculations"]["sim_precision"]["requires"]
         assert self.test_calc.get_aim_scout_scores(1, True, required) == {
-            1678: {"ALISON LIN": 40, "NATHAN MILLS": 38},
-            4414: {"KATHY LI": 34},
-            589: {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
+            "1678": {"ALISON LIN": 40, "NATHAN MILLS": 38},
+            "4414": {"KATHY LI": 34},
+            "589": {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
         }
         assert self.test_calc.get_aim_scout_scores(2, False, required) == {
-            1678: {"NATHAN MILLS": 40},
-            4414: {"KATHY LI": 37},
-            589: {"KATE UNGER": 4},
+            "1678": {"NATHAN MILLS": 40},
+            "4414": {"KATHY LI": 37},
+            "589": {"KATE UNGER": 4},
         }
 
     def test_get_aim_scout_avg_errors(self):
@@ -192,8 +192,8 @@ class TestSimPrecisionCalc:
             assert (
                 self.test_calc.get_aim_scout_avg_errors(
                     {
-                        1678: {"KATHY LI": 9, "RAY FABIONAR": 7},
-                        589: {"NITHMI JAYASUNDARA": 17},
+                        "1678": {"KATHY LI": 9, "RAY FABIONAR": 7},
+                        "589": {"NITHMI JAYASUNDARA": 17},
                     },
                     100,
                     1,
@@ -203,9 +203,9 @@ class TestSimPrecisionCalc:
             )
         log_patch.assert_called_with("Missing scout data for Match 1, Alliance is Red: True")
         aim_scout_scores = {
-            1678: {"ALISON LIN": 40, "NATHAN MILLS": 38},
-            4414: {"KATHY LI": 34},
-            589: {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
+            "1678": {"ALISON LIN": 40, "NATHAN MILLS": 38},
+            "4414": {"KATHY LI": 34},
+            "589": {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
         }
         assert self.test_calc.get_aim_scout_avg_errors(aim_scout_scores, 105, 1, True) == {
             "ALISON LIN": 26.666666666666668,
@@ -236,7 +236,7 @@ class TestSimPrecisionCalc:
             {
                 "scout_name": "ALISON LIN",
                 "match_number": 1,
-                "team_number": 1678,
+                "team_number": "1678",
                 "sim_precision": 5,
             }
         ]
@@ -259,25 +259,25 @@ class TestSimPrecisionCalc:
             {
                 "scout_name": "ALISON LIN",
                 "match_number": 1,
-                "team_number": 1678,
+                "team_number": "1678",
                 "sim_precision": -8.222222222222221,
             },
             {
                 "scout_name": "NATHAN MILLS",
                 "match_number": 1,
-                "team_number": 1678,
+                "team_number": "1678",
                 "sim_precision": -10.222222222222221,
             },
             {
                 "scout_name": "KATHY LI",
                 "match_number": 1,
-                "team_number": 4414,
+                "team_number": "4414",
                 "sim_precision": -9.22222222222222,
             },
             {
                 "scout_name": "KATE UNGER",
                 "match_number": 1,
-                "team_number": 589,
+                "team_number": "589",
                 "sim_precision": -9.555555555555555,
             },
         ]
