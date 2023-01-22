@@ -202,6 +202,8 @@ class TestDecompressor:
                 "field_awareness_score": 2,
                 "scored_coop": True,
                 "auto_pieces_start_position": ["0", "0", "0", "0"],
+                "played_defense": False,
+                "defense_timestamp": 291,
             },
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -216,6 +218,8 @@ class TestDecompressor:
                 "field_awareness_score": 1,
                 "scored_coop": False,
                 "auto_pieces_start_position": ["0", "0", "0", "0"],
+                "played_defense": True,
+                "defense_timestamp": 826,
             },
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -230,6 +234,8 @@ class TestDecompressor:
                 "field_awareness_score": 1,
                 "scored_coop": True,
                 "auto_pieces_start_position": ["0", "0", "0", "0"],
+                "played_defense": False,
+                "defense_timestamp": 195,
             },
         ]
         # Test objective qr decompression
@@ -239,7 +245,7 @@ class TestDecompressor:
         )
         # Test subjective qr decompression
         assert expected_subjective == self.test_decompressor.decompress_single_qr(
-            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$ETRUE$B1$C2$DTRUE#A254$B2$C1$DFALSE$ETRUE#A1323$B3$C1$DTRUE$ETRUE^E0000",
+            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$FFALSE$B1$C2$DTRUE$G291#A254$B2$C1$DFALSE$FTRUE$G826#A1323$B3$C1$DTRUE$FFALSE$G195^E0000",
             decompressor.QRType.SUBJECTIVE,
         )
         # Test error raising for objective and subjective using incomplete qrs
@@ -306,6 +312,8 @@ class TestDecompressor:
                     "field_awareness_score": 2,
                     "scored_coop": False,
                     "auto_pieces_start_position": ["1", "1", "0", "0"],
+                    "played_defense": True,
+                    "defense_timestamp": 196,
                 },
                 {
                     "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -320,6 +328,8 @@ class TestDecompressor:
                     "field_awareness_score": 2,
                     "scored_coop": False,
                     "auto_pieces_start_position": ["1", "1", "0", "0"],
+                    "played_defense": False,
+                    "defense_timestamp": 373,
                 },
                 {
                     "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -334,6 +344,8 @@ class TestDecompressor:
                     "field_awareness_score": 3,
                     "scored_coop": True,
                     "auto_pieces_start_position": ["1", "1", "0", "0"],
+                    "played_defense": False,
+                    "defense_timestamp": 746,
                 },
             ],
         }
@@ -343,7 +355,7 @@ class TestDecompressor:
                     "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$X4$W060AD061AE$VNONE$UNONE$TNONE"
                 },
                 {
-                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE^E1100"
+                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$FTRUE$G196#A254$B2$C2$DFALSE$FFALSE$G373#A1323$B3$C3$DTRUE$FFALSE$G746^E1100"
                 },
             ]
         )
@@ -359,7 +371,7 @@ class TestDecompressor:
             "alliance_color_is_red": False,
             "team_number": "3603",
             "scout_id": 13,
-            "start_position": 1,
+            "start_position": "1",
             "timeline": [
                 {"time": 0, "action_type": "score_cone_high", "in_teleop": False},
                 {"time": 1, "action_type": "score_cone_mid", "in_teleop": False},
@@ -387,6 +399,8 @@ class TestDecompressor:
                 "field_awareness_score": 2,
                 "scored_coop": False,
                 "auto_pieces_start_position": ["1", "0", "1", "0"],
+                "played_defense": False,
+                "defense_timestamp": 277,
             },
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -401,6 +415,8 @@ class TestDecompressor:
                 "field_awareness_score": 2,
                 "scored_coop": False,
                 "auto_pieces_start_position": ["1", "0", "1", "0"],
+                "played_defense": False,
+                "defense_timestamp": 219,
             },
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -415,6 +431,8 @@ class TestDecompressor:
                 "field_awareness_score": 3,
                 "scored_coop": True,
                 "auto_pieces_start_position": ["1", "0", "1", "0"],
+                "played_defense": False,
+                "defense_timestamp": 420,
             },
         ]
         curr_time = datetime.datetime.utcnow()
@@ -435,7 +453,7 @@ class TestDecompressor:
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$ETRUE#A254$B2$C2$DFALSE$ETRUE#A1323$B3$C3$DTRUE$ETRUE^E1010",
+                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$FFALSE$G277#A254$B2$C2$DFALSE$FFALSE$G219#A1323$B3$C3$DTRUE$FFALSE$G420^E1010",
                     "blocklisted": False,
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),

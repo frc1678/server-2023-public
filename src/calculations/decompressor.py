@@ -219,14 +219,14 @@ class Decompressor(base_calculations.BaseCalculations):
                 )
                 decompressed_data.append(decompressed_document)
                 if set(decompressed_document.keys()) != self.SUBJECTIVE_QR_FIELDS:
-                    raise ValueError("QR missing data fields")
+                    raise ValueError("QR missing data fields", qr_type)
         elif qr_type == QRType.OBJECTIVE:  # Decompress objective QR
             objective_data = qr_data[1].split(self.SCHEMA["objective_tim"]["_separator"])
             decompressed_document = self.decompress_generic_qr(qr_data[0])
             decompressed_document.update(self.decompress_data(objective_data, "objective_tim"))
             decompressed_data.append(decompressed_document)
             if set(decompressed_document.keys()) != self.OBJECTIVE_QR_FIELDS:
-                raise ValueError("QR missing data fields")
+                raise ValueError("QR missing data fields", qr_type)
             utils.log_info(
                 f'Match: {decompressed_document["match_number"]} '
                 f'Team: {decompressed_document["team_number"]} '
