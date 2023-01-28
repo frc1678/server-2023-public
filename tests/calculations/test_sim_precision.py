@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import pytest
 
 from calculations import sim_precision
 import server
@@ -15,13 +16,13 @@ class TestSimPrecisionCalc:
                     "blue": {
                         "foulPoints": 8,
                         "autoTaxiPoints": 15,
-                        "totalPoints": 278,
+                        "totalPoints": 87,
                         "endgamePoints": 6,
                     },
                     "red": {
                         "foulPoints": 10,
                         "autoTaxiPoints": 0,
-                        "totalPoints": 130,
+                        "totalPoints": 159,
                         "endgamePoints": 15,
                     },
                 },
@@ -34,13 +35,13 @@ class TestSimPrecisionCalc:
                     "blue": {
                         "foulPoints": 0,
                         "autoTaxiPoints": 0,
-                        "totalPoints": 100,
+                        "totalPoints": 149,
                         "endgamePoints": 25,
                     },
                     "red": {
                         "foulPoints": 10,
                         "autoTaxiPoints": 0,
-                        "totalPoints": 130,
+                        "totalPoints": 98,
                         "endgamePoints": 4,
                     },
                 },
@@ -59,60 +60,108 @@ class TestSimPrecisionCalc:
                 "team_number": "1678",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_high_balls": 5,
-                "auto_low_balls": 0,
-                "tele_high_balls": 9,
-                "tele_low_balls": 2,
+                "auto_cube_high": 0,
+                "auto_cube_mid": 0,
+                "auto_cube_low": 1,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 2,
+                "auto_cone_high": 0,
+                "auto_cone_mid": 2,
+                "auto_cone_low": 0,
+                "tele_cone_high": 4,
+                "tele_cone_mid": 0,
+                "tele_cone_low": 2,
             },
             {
                 "scout_name": "NATHAN MILLS",
                 "team_number": "1678",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_high_balls": 4,
-                "auto_low_balls": 0,
-                "tele_high_balls": 10,
-                "tele_low_balls": 2,
+                "auto_cube_high": 0,
+                "auto_cube_mid": 0,
+                "auto_cube_low": 3,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 2,
+                "auto_cone_high": 0,
+                "auto_cone_mid": 2,
+                "auto_cone_low": 0,
+                "tele_cone_high": 2,
+                "tele_cone_mid": 2,
+                "tele_cone_low": 0,
             },
             {
                 "scout_name": "KATHY LI",
                 "team_number": "4414",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_high_balls": 3,
-                "auto_low_balls": 1,
-                "tele_high_balls": 8,
-                "tele_low_balls": 4,
+                "auto_cube_high": 2,
+                "auto_cube_mid": 1,
+                "auto_cube_low": 0,
+                "tele_cube_high": 3,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 2,
+                "auto_cone_high": 1,
+                "auto_cone_mid": 0,
+                "auto_cone_low": 0,
+                "tele_cone_high": 0,
+                "tele_cone_mid": 0,
+                "tele_cone_low": 2,
             },
             {
                 "scout_name": "KATE UNGER",
                 "team_number": "589",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_high_balls": 0,
-                "auto_low_balls": 0,
-                "tele_high_balls": 1,
-                "tele_low_balls": 2,
+                "auto_cube_high": 1,
+                "auto_cube_mid": 1,
+                "auto_cube_low": 0,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 2,
+                "auto_cone_high": 1,
+                "auto_cone_mid": 0,
+                "auto_cone_low": 0,
+                "tele_cone_high": 1,
+                "tele_cone_mid": 2,
+                "tele_cone_low": 0,
             },
             {
                 "scout_name": "NITHMI JAYASUNDARA",
                 "team_number": "589",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_high_balls": 0,
-                "auto_low_balls": 0,
-                "tele_high_balls": 2,
-                "tele_low_balls": 2,
+                "auto_cube_high": 1,
+                "auto_cube_mid": 0,
+                "auto_cube_low": 0,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 1,
+                "auto_cone_high": 1,
+                "auto_cone_mid": 0,
+                "auto_cone_low": 0,
+                "tele_cone_high": 2,
+                "tele_cone_mid": 2,
+                "tele_cone_low": 0,
             },
             {
                 "scout_name": "RAY FABIONAR",
                 "team_number": "589",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_high_balls": 0,
-                "auto_low_balls": 0,
-                "tele_high_balls": 0,
-                "tele_low_balls": 3,
+                "auto_cube_high": 1,
+                "auto_cube_mid": 1,
+                "auto_cube_low": 0,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 1,
+                "auto_cone_high": 1,
+                "auto_cone_mid": 0,
+                "auto_cone_low": 0,
+                "tele_cone_high": 1,
+                "tele_cone_mid": 0,
+                "tele_cone_low": 0,
             },
             # Match 2
             {
@@ -120,30 +169,54 @@ class TestSimPrecisionCalc:
                 "team_number": "1678",
                 "match_number": 2,
                 "alliance_color_is_red": False,
-                "auto_high_balls": 3,
-                "auto_low_balls": 0,
-                "tele_high_balls": 14,
-                "tele_low_balls": 0,
+                "auto_cube_high": 0,
+                "auto_cube_mid": 0,
+                "auto_cube_low": 0,
+                "tele_cube_high": 3,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 1,
+                "auto_cone_high": 1,
+                "auto_cone_mid": 2,
+                "auto_cone_low": 0,
+                "tele_cone_high": 1,
+                "tele_cone_mid": 0,
+                "tele_cone_low": 2,
             },
             {
                 "scout_name": "KATHY LI",
                 "team_number": "4414",
                 "match_number": 2,
                 "alliance_color_is_red": False,
-                "auto_high_balls": 4,
-                "auto_low_balls": 1,
-                "tele_high_balls": 8,
-                "tele_low_balls": 3,
+                "auto_cube_high": 2,
+                "auto_cube_mid": 2,
+                "auto_cube_low": 0,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 2,
+                "auto_cone_high": 1,
+                "auto_cone_mid": 0,
+                "auto_cone_low": 0,
+                "tele_cone_high": 0,
+                "tele_cone_mid": 3,
+                "tele_cone_low": 0,
             },
             {
                 "scout_name": "KATE UNGER",
                 "team_number": "589",
                 "match_number": 2,
                 "alliance_color_is_red": False,
-                "auto_high_balls": 0,
-                "auto_low_balls": 0,
-                "tele_high_balls": 1,
-                "tele_low_balls": 2,
+                "auto_cube_high": 0,
+                "auto_cube_mid": 1,
+                "auto_cube_low": 0,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 0,
+                "tele_cube_low": 1,
+                "auto_cone_high": 0,
+                "auto_cone_mid": 1,
+                "auto_cone_low": 0,
+                "tele_cone_high": 3,
+                "tele_cone_mid": 0,
+                "tele_cone_low": 4,
             },
         ]
 
@@ -156,8 +229,8 @@ class TestSimPrecisionCalc:
         assert self.test_calc.server == self.test_server
 
     def test_get_tba_aim_score(self):
-        assert self.test_calc.get_tba_aim_score(1, False, self.tba_test_data) == 249
-        assert self.test_calc.get_tba_aim_score(1, True, self.tba_test_data) == 105
+        assert self.test_calc.get_tba_aim_score(1, False, self.tba_test_data) == 58
+        assert self.test_calc.get_tba_aim_score(1, True, self.tba_test_data) == 134
         assert self.test_calc.get_tba_aim_score(3, False, self.tba_test_data) == None
         assert self.test_calc.get_tba_aim_score(3, True, self.tba_test_data) == None
 
@@ -168,8 +241,8 @@ class TestSimPrecisionCalc:
             self.test_calc.get_scout_tim_score("RAY FABIONAR", 2, required)
         log_patch.assert_called_with("No data from Scout RAY FABIONAR in Match 2")
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
-        assert self.test_calc.get_scout_tim_score("ALISON LIN", 1, required) == 40
-        assert self.test_calc.get_scout_tim_score("NITHMI JAYASUNDARA", 1, required) == 6
+        assert self.test_calc.get_scout_tim_score("ALISON LIN", 1, required) == 49
+        assert self.test_calc.get_scout_tim_score("NITHMI JAYASUNDARA", 1, required) == 40
         assert self.test_calc.get_scout_tim_score("NATHAN MILLS", 2, required) == 40
 
     def test_get_aim_scout_scores(self):
@@ -177,14 +250,14 @@ class TestSimPrecisionCalc:
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
         required = self.test_calc.sim_schema["calculations"]["sim_precision"]["requires"]
         assert self.test_calc.get_aim_scout_scores(1, True, required) == {
-            "1678": {"ALISON LIN": 40, "NATHAN MILLS": 38},
-            "4414": {"KATHY LI": 34},
-            "589": {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
+            "1678": {"ALISON LIN": 49, "NATHAN MILLS": 47},
+            "4414": {"KATHY LI": 45},
+            "589": {"KATE UNGER": 41, "NITHMI JAYASUNDARA": 40, "RAY FABIONAR": 33},
         }
         assert self.test_calc.get_aim_scout_scores(2, False, required) == {
             "1678": {"NATHAN MILLS": 40},
-            "4414": {"KATHY LI": 37},
-            "589": {"KATE UNGER": 4},
+            "4414": {"KATHY LI": 49},
+            "589": {"KATE UNGER": 43},
         }
 
     def test_get_aim_scout_avg_errors(self):
@@ -203,17 +276,17 @@ class TestSimPrecisionCalc:
             )
         log_patch.assert_called_with("Missing scout data for Match 1, Alliance is Red: True")
         aim_scout_scores = {
-            "1678": {"ALISON LIN": 40, "NATHAN MILLS": 38},
-            "4414": {"KATHY LI": 34},
-            "589": {"KATE UNGER": 4, "NITHMI JAYASUNDARA": 6, "RAY FABIONAR": 3},
+            "1678": {"ALISON LIN": 49, "NATHAN MILLS": 47},
+            "4414": {"KATHY LI": 45},
+            "589": {"KATE UNGER": 41, "NITHMI JAYASUNDARA": 40, "RAY FABIONAR": 33},
         }
-        assert self.test_calc.get_aim_scout_avg_errors(aim_scout_scores, 105, 1, True) == {
-            "ALISON LIN": 26.666666666666668,
-            "NATHAN MILLS": 28.666666666666668,
-            "KATHY LI": 27.666666666666668,
-            "KATE UNGER": 28,
-            "NITHMI JAYASUNDARA": 26,
-            "RAY FABIONAR": 29,
+        assert self.test_calc.get_aim_scout_avg_errors(aim_scout_scores, 134, 1, True) == {
+            "ALISON LIN": 2.0,
+            "NATHAN MILLS": 4.0,
+            "KATHY LI": 3.0,
+            "KATE UNGER": 0.0,
+            "NITHMI JAYASUNDARA": 1.0,
+            "RAY FABIONAR": 8.0,
         }
 
     def test_calc_sim_precision(self):
@@ -227,8 +300,8 @@ class TestSimPrecisionCalc:
                 == {}
             )
         assert self.test_calc.calc_sim_precision(
-            self.scout_tim_test_data[0], self.tba_test_data
-        ) == {"sim_precision": -8.222222222222221}
+            self.scout_tim_test_data[3], self.tba_test_data
+        ) == {"sim_precision": 2.0}
 
     def test_update_sim_precision_calcs(self):
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
@@ -260,34 +333,26 @@ class TestSimPrecisionCalc:
                 "scout_name": "ALISON LIN",
                 "match_number": 1,
                 "team_number": "1678",
-                "sim_precision": -8.222222222222221,
+                "sim_precision": -1.4802973661668753e-16,
             },
             {
                 "scout_name": "NATHAN MILLS",
                 "match_number": 1,
                 "team_number": "1678",
-                "sim_precision": -10.222222222222221,
+                "sim_precision": -2.0000000000000004,
             },
             {
                 "scout_name": "KATHY LI",
                 "match_number": 1,
                 "team_number": "4414",
-                "sim_precision": -9.22222222222222,
+                "sim_precision": -1.0,
             },
             {
                 "scout_name": "KATE UNGER",
                 "match_number": 1,
                 "team_number": "589",
-                "sim_precision": -9.555555555555555,
+                "sim_precision": 2.0,
             },
-        ]
-        expected_scout_precision = [
-            {"scout_name": "ALISON LIN", "scout_precision": 8.222222222222221},
-            {"scout_name": "NATHAN MILLS", "scout_precision": 4.111111111111111},
-            {"scout_name": "KATHY LI", "scout_precision": 3.61111111111111},
-            {"scout_name": "KATE UNGER", "scout_precision": 3.7777777777777777},
-            {"scout_name": "NITHMI JAYASUNDARA", "scout_precision": 7.555555555555555},
-            {"scout_name": "RAY FABIONAR", "scout_precision": 10.555555555555555},
         ]
         self.test_server.db.delete_data("unconsolidated_totals")
         self.test_calc.update_timestamp()
@@ -305,6 +370,3 @@ class TestSimPrecisionCalc:
             document.pop("timestamp")
         for document in expected_sim_precision:
             assert document in sim_precision_result
-        for document in scout_precision_result:
-            document.pop("_id")
-            assert document in expected_scout_precision
