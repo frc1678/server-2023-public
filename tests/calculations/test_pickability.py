@@ -9,20 +9,16 @@ import pytest
 FAKE_SCHEMA = {
     "calculations": {
         "first_pickability": {
-            "requires": [
-                "test.datapoint1",
-                "test.datapoint2",
-                "test2.datapoint1",
-            ],
-            "weights": [1, 1, 1],
+            "type": "float",
+            "test.datapoint1": 1,
+            "test.datapoint2": 1,
+            "test2.datapoint1": 1,
         },
         "second_pickability": {
-            "requires": [
-                "test.datapoint1",
-                "test.datapoint2",
-                "test2.datapoint1",
-            ],
-            "weights": [1, 1, {"obj_team.avg_climb_points": 4}],
+            "type": "float",
+            "test.datapoint1": 1,
+            "test.datapoint2": 1,
+            "test2.datapoint1": 4,
         },
     }
 }
@@ -38,18 +34,6 @@ class TestPickability:
             test_calc = pickability.PickabilityCalc(m_server)
         assert test_calc.server == m_server
         assert "test" in test_calc.watched_collections and "test2" in test_calc.watched_collections
-        assert {
-            "first_pickability": [
-                ("test", "datapoint1"),
-                ("test", "datapoint2"),
-                ("test2", "datapoint1"),
-            ],
-            "second_pickability": [
-                ("test", "datapoint1"),
-                ("test", "datapoint2"),
-                ("test2", "datapoint1"),
-            ],
-        } == test_calc.calcs
 
     @staticmethod
     @mock.patch("server.Server.ask_calc_all_data", return_value=False)
@@ -65,11 +49,9 @@ class TestPickability:
             },
             "test2": {"team_number": "0", "datapoint1": 3, "useless": None},
         }
-        weight_data = {"team_number": "0", "avg_climb_points": 5.82}
-        test_calc.server.db.insert_documents("obj_team", weight_data)
-        assert test_calc.calculate_pickability("0", "first_pickability", calc_data) == 6
-        assert test_calc.calculate_pickability("0", "second_pickability", calc_data) == 72.84
-        assert test_calc.calculate_pickability("0", "first_pickability", {}) is None
+        assert test_calc.calculate_pickability("first_pickability", calc_data) == 6
+        assert test_calc.calculate_pickability("second_pickability", calc_data) == 15
+        assert test_calc.calculate_pickability("first_pickability", {}) is None
         # Check that if the datapoint is missing that it correctly returns None
         calc_data = {
             "test": {
@@ -79,7 +61,7 @@ class TestPickability:
             },
             "test2": {"team_number": "0", "datapoint1": 3, "useless": None},
         }
-        assert test_calc.calculate_pickability(0, "first_pickability", calc_data) is None
+        assert test_calc.calculate_pickability("first_pickability", calc_data) is None
 
     @staticmethod
     @mock.patch("utils.read_schema", return_value=FAKE_SCHEMA)
