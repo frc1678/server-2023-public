@@ -4,7 +4,7 @@
 import utils
 from typing import List, Dict
 from calculations import base_calculations
-from statistics import pstdev, multimode
+import statistics
 
 
 class OBJTeamCalc(base_calculations.BaseCalculations):
@@ -35,6 +35,17 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             # Gets the total number of actions across all tims
             tim_action_counts[tim_field] = [tim[tim_field.split(".")[1]] for tim in tims]
         return tim_action_counts
+
+    def get_action_sum(self, tims: List[Dict]):
+        """Gets a list of times each team completed a certain action by tim for medians"""
+        tim_action_sum = {}
+        # Gathers all necessary schema fields
+        tim_fields = set()
+        for schema in {**self.SCHEMA["medians"]}.values():
+            tim_fields.add(schema["tim_fields"][0])
+        for tim_field in tim_fields:
+            tim_action_sum[tim_field] = [tim[tim_field.split(".")[1]] for tim in tims]
+        return tim_action_sum
 
     def get_action_categories(self, tims: List[Dict]):
         """Gets a list of times each team completed a certain categorical action for counts and modes."""
@@ -72,7 +83,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         for calculation, schema in self.SCHEMA["standard_deviations"].items():
             # Take the standard deviation for the tim_field
             tim_field = schema["tim_fields"][0]
-            standard_deviation = pstdev(tim_action_counts[tim_field])
+            standard_deviation = statistics.pstdev(tim_action_counts[tim_field])
             team_info[calculation] = standard_deviation
         return team_info
 
@@ -178,6 +189,21 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                         team_info[calculation] = min(tim_action_counts[tim_field])
         return team_info
 
+    def calculate_medians(self, tim_action_sum, lfm_tim_action_sum):
+        """Creates a dictionary of median actions, called team_info,
+        where the keys are the names of the calculations, and the values are the results
+        """
+        team_info = {}
+        for calculation, schema in self.SCHEMA["medians"].items():
+            median = 0
+            for tim_field in schema["tim_fields"]:
+                if "lfm" in calculation:
+                    median += statistics.median(lfm_tim_action_sum[tim_field])
+                else:
+                    median += statistics.median(tim_action_sum[tim_field])
+            team_info[calculation] = median
+        return team_info
+
     def calculate_modes(self, tim_action_categories, lfm_tim_action_categories):
         """Creates a dictionary of mode actions, called team_info,
         where the keys are the names of the calculations, and the values are the results
@@ -195,7 +221,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                 values_to_count = [
                     value for value in tim_action_categories[tim_field] if value != schema["ignore"]
                 ]
-            team_info[calculation] = multimode(values_to_count)
+            team_info[calculation] = statistics.multimode(values_to_count)
         return team_info
 
     def calculate_success_rates(self, team_counts: Dict):
