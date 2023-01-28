@@ -219,17 +219,38 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         return team_info
 
     def calculate_average_points(self, team_data):
+        """Creates a dictionary of average of weighted data, called team_info
+        where the keys are the names of the calculations, and the values are the results
+        """
         team_info = {}
         for calculation, schema in self.SCHEMA["average_points"].items():
             total_successes = 0
             total_points = 0
-            for field, value in zip(schema["point_fields"], schema["point_values"]):
+            for field, value in schema.items():
+                if field == "type":
+                    continue
                 total_successes += team_data[field]
                 total_points += team_data[field] * value
             if total_successes > 0:
                 team_info[calculation] = total_points / total_successes
             else:
                 team_info[calculation] = 0
+        return team_info
+
+    def calculate_sum_points(self, team_data):
+        """Creates a dictionary of sum of weighted data, called team_info
+        where the keys are the names of the calculations, and the values are the results
+        """
+        team_info = {}
+        for calculation, schema in self.SCHEMA["sum_points"].items():
+            total_points = 0
+            for field, value in schema.items():
+                if field == "type":
+                    continue
+                total_points += team_data[field] * (
+                    value if not isinstance(value, str) else team_data[value]
+                )
+            team_info[calculation] = total_points
         return team_info
 
     def update_team_calcs(self, teams: list) -> list:
@@ -264,6 +285,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_data.update(self.calculate_modes(tim_action_categories, lfm_tim_action_categories))
             team_data.update(self.calculate_success_rates(team_data))
             team_data.update(self.calculate_average_points(team_data))
+            team_data.update(self.calculate_sum_points(team_data))
             obj_team_updates[team] = team_data
         return list(obj_team_updates.values())
 

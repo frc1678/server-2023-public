@@ -776,6 +776,29 @@ class TestOBJTeamCalc:
             "avg_auto_charge_points": 8.8,
         }
 
+    def test_calculate_sum_points(self):
+        team_data = {
+            "auto_avg_cone_low": 1,
+            "tele_avg_cone_low": 2,
+            "auto_avg_cone_mid": 3,
+            "tele_avg_cone_mid": 1,
+            "auto_avg_cone_high": 2,
+            "tele_avg_cone_high": 3,
+            "auto_avg_cube_low": 1,
+            "tele_avg_cube_low": 2,
+            "auto_avg_cube_mid": 3,
+            "tele_avg_cube_mid": 1,
+            "auto_avg_cube_high": 2,
+            "tele_avg_cube_high": 3,
+            "auto_charge_percent_success": 1,
+            "tele_charge_percent_success": 2,
+            "avg_auto_charge_points": 3.5,
+            "avg_tele_charge_points": 1.5,
+        }
+        assert self.test_calc.calculate_sum_points(team_data) == {
+            "avg_total_points": 104.5,
+        }
+
     def test_run(self):
         """Tests run function from src/calculations/obj_team.py"""
         subj_tims = [
@@ -1260,6 +1283,8 @@ class TestOBJTeamCalc:
                 # Average Points
                 "avg_tele_charge_points": 10.0,
                 "avg_auto_charge_points": 10.666666666666666,
+                # Sum Points
+                "avg_total_points": 491.666666666666666,
             },
             {
                 "team_number": "1678",
@@ -1428,6 +1453,8 @@ class TestOBJTeamCalc:
                 # Average Points
                 "avg_tele_charge_points": 8.0,
                 "avg_auto_charge_points": 10.4,
+                # Sum Points
+                "avg_total_points": 348,
             },
         ]
         self.test_server.db.insert_documents("obj_tim", obj_tims)
