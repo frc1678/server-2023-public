@@ -26,6 +26,7 @@ def generate_timeline():
         # If there are no actions left, just return the timeline
         if len(times) == 0:
             return final_timeline
+    teleop_start = random.choice(times)
     # For all other times, fill in with normal scores
     for time in times:
         scores = [
@@ -34,8 +35,12 @@ def generate_timeline():
             if "score_cone" in action or "score_cube" in action
         ]
         score_choice = random.choice(scores)
-        final_timeline.append({"action_type": score_choice, "time": time})
-
+        if time < teleop_start:
+            final_timeline.append({"action_type": score_choice, "time": time, "in_teleop": False})
+        elif time == teleop_start:
+            final_timeline.append({"action_type": "to_teleop", "time": time, "in_teleop": True})
+        else:
+            final_timeline.append({"action_type": score_choice, "time": time, "in_teleop": True})
     return final_timeline
 
 
