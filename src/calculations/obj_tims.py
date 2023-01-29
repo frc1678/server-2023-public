@@ -160,42 +160,6 @@ class ObjTIMCalcs(BaseCalculations):
             calculated_tim[calculation] = self.consolidate_nums(unconsolidated_cycle_times)
         return calculated_tim
 
-    def calculate_unconsolidated_tims(self, unconsolidated_tims: List[Dict]):
-        """Given a list of unconsolidated TIMS, returns the unconsolidated calculated TIMs"""
-        if len(unconsolidated_tims) == 0:
-            utils.log_warning("calculate_tim: zero TIMs given")
-            return {}
-
-        unconsolidated_totals = []
-        # Calculates unconsolidated tim counts
-        for tim in unconsolidated_tims:
-            tim_totals = {}
-            tim_totals["scout_name"] = tim["scout_name"]
-            tim_totals["match_number"] = tim["match_number"]
-            tim_totals["team_number"] = tim["team_number"]
-            tim_totals["alliance_color_is_red"] = tim["alliance_color_is_red"]
-            # Calculate unconsolidated tim counts
-            for aggregate, filters in self.schema["aggregates"].items():
-                total_count = 0
-                aggregate_counts = filters["counts"]
-                for calculation, filters in self.schema["timeline_counts"].items():
-                    filters_ = copy.deepcopy(filters)
-                    expected_type = filters_.pop("type")
-                    new_count = self.count_timeline_actions(tim, **filters_)
-                    if not isinstance(new_count, self.type_check_dict[expected_type]):
-                        raise TypeError(f"Expected {new_count} calculation to be a {expected_type}")
-                    tim_totals[calculation] = new_count
-                    # Calculate unconsolidated aggregates
-                    for count in aggregate_counts:
-                        if calculation == count:
-                            total_count += new_count
-                    tim_totals[aggregate] = total_count
-            # Calculate unconsolidated categorical actions
-            for category in self.schema["categorical_actions"]:
-                tim_totals[category] = tim[category]
-            unconsolidated_totals.append(tim_totals)
-        return unconsolidated_totals
-
     def calculate_aggregates(self, calculated_tim: List[Dict]):
         """Given a list of consolidated tims by calculate_tim_counts, return consolidated aggregates"""
         final_aggregates = {}
@@ -237,14 +201,10 @@ class ObjTIMCalcs(BaseCalculations):
         """Calculate data for each of the given TIMs. Those TIMs are represented as dictionaries:
         {'team_number': '1678', 'match_number': 69}"""
         calculated_tims = []
-        unconsolidated_totals = []
         for tim in tims:
             unconsolidated_obj_tims = self.server.db.find("unconsolidated_obj_tim", tim)
             calculated_tims.append(self.calculate_tim(unconsolidated_obj_tims))
-            unconsolidated_totals.extend(
-                self.calculate_unconsolidated_tims(unconsolidated_obj_tims)
-            )
-        return calculated_tims, unconsolidated_totals
+        return calculated_tims
 
     def run(self):
         """Executes the OBJ TIM calculations"""
@@ -271,7 +231,7 @@ class ObjTIMCalcs(BaseCalculations):
             self.server.db.delete_data("obj_tim")
 
         updates = self.update_calcs(unique_tims)
-        for update in updates[0]:
+        for update in updates:
             if update != {}:
                 self.server.db.update_document(
                     "obj_tim",
@@ -279,16 +239,5 @@ class ObjTIMCalcs(BaseCalculations):
                     {
                         "team_number": update["team_number"],
                         "match_number": update["match_number"],
-                    },
-                )
-        if len(updates) > 1:
-            for document in updates[1]:
-                self.server.db.update_document(
-                    "unconsolidated_totals",
-                    document,
-                    {
-                        "team_number": document["team_number"],
-                        "match_number": document["match_number"],
-                        "scout_name": document["scout_name"],
                     },
                 )

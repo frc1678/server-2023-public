@@ -13,6 +13,9 @@
 - import_path: calculations.decompressor
   class_name: Decompressor
 
+- import_path: calculations.unconsolidated_totals
+  class_name: Unconsolidated_totals
+
 - import_path: calculations.obj_tims
   class_name: ObjTIMCalcs
 

@@ -3,13 +3,13 @@
 from unittest import mock
 
 from calculations import base_calculations
-from calculations import obj_tims
+from calculations import unconsolidated_totals
 from server import Server
 import pytest
 
 
 @pytest.mark.clouddb
-class TestObjTIMCalcs:
+class TestUnconsolidatedTotals:
     unconsolidated_tims = [
         {
             "schema_version": 6,
@@ -26,7 +26,6 @@ class TestObjTIMCalcs:
                 {"in_teleop": True, "time": 35, "action_type": "start_incap"},
                 {"in_teleop": True, "time": 51, "action_type": "score_cone_high"},
                 {"in_teleop": True, "time": 68, "action_type": "score_cone_low"},
-                {"in_teleop": True, "time": 70, "action_type": "failed_score"},
                 {"in_teleop": True, "time": 75, "action_type": "score_cube_mid"},
                 {"in_teleop": True, "time": 81, "action_type": "score_cube_low"},
                 {"in_teleop": True, "time": 94, "action_type": "score_cube_mid"},
@@ -64,7 +63,6 @@ class TestObjTIMCalcs:
                 {"in_teleop": True, "time": 2, "action_type": "end_incap"},
                 {"in_teleop": True, "time": 12, "action_type": "start_incap"},
                 {"in_teleop": True, "time": 68, "action_type": "score_cone_low"},
-                {"in_teleop": True, "time": 70, "action_type": "failed_score"},
                 {"in_teleop": True, "time": 75, "action_type": "score_cube_mid"},
                 {"in_teleop": True, "time": 81, "action_type": "score_cube_low"},
                 {"in_teleop": True, "time": 94, "action_type": "score_cube_mid"},
@@ -103,7 +101,6 @@ class TestObjTIMCalcs:
                 {"in_teleop": True, "time": 45, "action_type": "score_cube_low"},
                 {"in_teleop": True, "time": 51, "action_type": "score_cone_high"},
                 {"in_teleop": True, "time": 68, "action_type": "score_cone_low"},
-                {"in_teleop": True, "time": 70, "action_type": "failed_score"},
                 {"in_teleop": True, "time": 75, "action_type": "score_cube_mid"},
                 {"in_teleop": True, "time": 81, "action_type": "score_cube_low"},
                 {"in_teleop": True, "time": 94, "action_type": "score_cube_mid"},
@@ -132,28 +129,7 @@ class TestObjTIMCalcs:
     def setup_method(self, method, get_teams_list_dummy):
         with mock.patch("server.Server.ask_calc_all_data", return_value=False):
             self.test_server = Server()
-        self.test_calculator = obj_tims.ObjTIMCalcs(self.test_server)
-
-    def test_modes(self):
-        assert self.test_calculator.modes([3, 3, 3]) == [3]
-        assert self.test_calculator.modes([]) == []
-        assert self.test_calculator.modes([1, 1, 2, 2]) == [1, 2]
-        assert self.test_calculator.modes([1, 1, 2, 2, 3]) == [1, 2]
-        assert self.test_calculator.modes([1, 2, 3, 1]) == [1]
-        assert self.test_calculator.modes([1, 4, 3, 4]) == [4]
-        assert self.test_calculator.modes([9, 6, 3, 9]) == [9]
-
-    def test_consolidate_nums(self):
-        assert self.test_calculator.consolidate_nums([3, 3, 3]) == 3
-        assert self.test_calculator.consolidate_nums([4, 4, 4, 4, 1]) == 4
-        assert self.test_calculator.consolidate_nums([2, 2, 1]) == 2
-        assert self.test_calculator.consolidate_nums([]) == 0
-
-    def test_consolidate_bools(self):
-        assert self.test_calculator.consolidate_bools([True, True, True]) == True
-        assert self.test_calculator.consolidate_bools([False, True, True]) == True
-        assert self.test_calculator.consolidate_bools([False, False, True]) == False
-        assert self.test_calculator.consolidate_bools([False, False, False]) == False
+        self.test_calculator = unconsolidated_totals.UnconsolidatedTotals(self.test_server)
 
     def test_filter_timeline_actions(self):
         actions = self.test_calculator.filter_timeline_actions(self.unconsolidated_tims[0])
@@ -162,7 +138,6 @@ class TestObjTIMCalcs:
             {"in_teleop": True, "time": 35, "action_type": "start_incap"},
             {"in_teleop": True, "time": 51, "action_type": "score_cone_high"},
             {"in_teleop": True, "time": 68, "action_type": "score_cone_low"},
-            {"in_teleop": True, "time": 70, "action_type": "failed_score"},
             {"in_teleop": True, "time": 75, "action_type": "score_cube_mid"},
             {"in_teleop": True, "time": 81, "action_type": "score_cube_low"},
             {"in_teleop": True, "time": 94, "action_type": "score_cube_mid"},
@@ -184,37 +159,54 @@ class TestObjTIMCalcs:
 
     def test_count_timeline_actions(self):
         action_num = self.test_calculator.count_timeline_actions(self.unconsolidated_tims[0])
-        assert action_num == 22
+        assert action_num == 21
 
-    def test_total_time_between_actions(self):
-        total_time = self.test_calculator.total_time_between_actions
-        assert total_time(self.unconsolidated_tims[0], "start_incap", "end_incap", 8) == 33
-        assert total_time(self.unconsolidated_tims[2], "start_incap", "end_incap", 8) == 43
-
-    def test_run_consolidation(self):
+    def test_calculate_unconsolidated_tims(self):
         self.test_server.db.insert_documents("unconsolidated_obj_tim", self.unconsolidated_tims)
         self.test_calculator.run()
-        result = self.test_server.db.find("obj_tim")
-        assert len(result) == 1
+        result = self.test_server.db.find("unconsolidated_totals")
+        assert len(result) == 3
         calculated_tim = result[0]
-        assert calculated_tim["confidence_ranking"] == 3
-        assert calculated_tim["incap"] == 33
-        assert calculated_tim["match_number"] == 42
-        assert calculated_tim["team_number"] == "254"
-        assert calculated_tim["auto_total_cones"] == 4
-        assert calculated_tim["auto_total_cubes"] == 4
-        assert calculated_tim["auto_total_gamepieces"] == 8
-        assert calculated_tim["tele_total_cones"] == 5
-        assert calculated_tim["tele_total_cubes"] == 4
-        assert calculated_tim["tele_total_gamepieces"] == 9
-        assert calculated_tim["auto_charge_level"] == "DOCK"
-        assert calculated_tim["tele_charge_level"] == "PARK"
-        assert calculated_tim["start_position"] == "ONE"
-        assert calculated_tim["preloaded_gamepiece"] == "CUBE"
-        assert calculated_tim["failed_scores"] == 1
+        del calculated_tim["_id"]
+        assert calculated_tim == {
+            "match_number": 42,
+            "scout_name": "EDWIN",
+            "team_number": "254",
+            "alliance_color_is_red": True,
+            "auto_cube_low": 1,
+            "auto_cube_mid": 2,
+            "auto_cube_high": 1,
+            "auto_total_cubes": 4,
+            "auto_cone_low": 2,
+            "auto_cone_mid": 1,
+            "auto_cone_high": 1,
+            "auto_total_cones": 4,
+            "auto_total_gamepieces": 0,
+            "tele_cube_low": 1,
+            "tele_cube_mid": 2,
+            "tele_cube_high": 1,
+            "tele_total_cubes": 4,
+            "tele_cone_low": 2,
+            "tele_cone_mid": 1,
+            "tele_cone_high": 2,
+            "tele_total_cones": 5,
+            "tele_total_gamepieces": 0,
+            "intakes_low_row": 0,
+            "intakes_station": 0,
+            "intakes_ground": 0,
+            "total_intakes": 0,
+            "auto_charge_attempt": 0,
+            "tele_charge_attempt": 0,
+            "total_charge_attempts": 0,
+            "tele_total_gamepieces_low": 3,
+            "auto_charge_level": "D",
+            "tele_charge_level": "P",
+            "start_position": "1",
+            "preloaded_gamepiece": "B",
+        }
 
     @mock.patch.object(
-        obj_tims.ObjTIMCalcs,
+        unconsolidated_totals.UnconsolidatedTotals,
         "entries_since_last",
         return_value=[{"o": {"team_number": "1", "match_number": 2}}],
     )
@@ -224,11 +216,13 @@ class TestObjTIMCalcs:
             warning_check.assert_called()
 
     @mock.patch.object(
-        obj_tims.ObjTIMCalcs,
+        unconsolidated_totals.UnconsolidatedTotals,
         "entries_since_last",
         return_value=[{"o": {"team_number": "3", "match_number": 2}}],
     )
-    @mock.patch.object(obj_tims.ObjTIMCalcs, "update_calcs", return_value=[{}])
+    @mock.patch.object(
+        unconsolidated_totals.UnconsolidatedTotals, "update_calcs", return_value=[{}]
+    )
     def test_in_list_check2(self, entries_since_last_dummy, update_calcs_dummy):
         with mock.patch("utils.log_warning") as warning_check:
             self.test_calculator.run()
