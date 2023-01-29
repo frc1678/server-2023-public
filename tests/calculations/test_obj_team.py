@@ -48,6 +48,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 5,
                 "tele_total_gamepieces": 36,
                 "auto_total_gamepieces": 46,
+                "failed_scores": 5,
             },
             {
                 "match_number": 4,
@@ -75,6 +76,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 17,
                 "tele_total_gamepieces": 45,
                 "auto_total_gamepieces": 47,
+                "failed_scores": 10,
             },
             {
                 "match_number": 5,
@@ -102,6 +104,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 3,
                 "tele_total_gamepieces": 13,
                 "auto_total_gamepieces": 13,
+                "failed_scores": 15,
             },
             {
                 "match_number": 3,
@@ -129,6 +132,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 12,
                 "tele_total_gamepieces": 28,
                 "auto_total_gamepieces": 27,
+                "failed_scores": 15,
             },
             {
                 "match_number": 1,
@@ -156,6 +160,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 13,
                 "tele_total_gamepieces": 24,
                 "auto_total_gamepieces": 28,
+                "failed_scores": 5,
             },
         ]
 
@@ -184,6 +189,7 @@ class TestOBJTeamCalc:
             "tele_avg_gamepieces_low": 10,
             "auto_avg_gamepieces": 32.2,
             "tele_avg_gamepieces": 29.2,
+            "avg_failed_scores": 10,
             "lfm_auto_avg_cone_high": 3.75,
             "lfm_auto_avg_cone_mid": 3.5,
             "lfm_auto_avg_cone_low": 7,
@@ -208,6 +214,7 @@ class TestOBJTeamCalc:
             "lfm_avg_intakes_station": 10,
             "lfm_avg_intakes_low_row": 11,
             "lfm_avg_total_intakes": 37,
+            "lfm_avg_failed_scores": 11.25,
         }
         lfm_tims = [tim for tim in tims if tim["match_number"] > 1]
         action_counts = self.test_calc.get_action_counts(tims)
@@ -245,6 +252,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 5,
                 "tele_total_gamepieces": 36,
                 "auto_total_gamepieces": 46,
+                "failed_scores": 3,
             },
             {
                 "match_number": 2,
@@ -272,6 +280,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 17,
                 "tele_total_gamepieces": 45,
                 "auto_total_gamepieces": 47,
+                "failed_scores": 2,
             },
             {
                 "match_number": 3,
@@ -299,6 +308,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 13,
                 "tele_total_gamepieces": 24,
                 "auto_total_gamepieces": 28,
+                "failed_scores": 0,
             },
         ]
 
@@ -459,6 +469,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 13,
                 "tele_total_gamepieces": 51,
                 "auto_total_gamepieces": 1,
+                "failed_scores": 3,
             },
             {
                 "preloaded_gamepiece": "CONE",
@@ -490,6 +501,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 10,
                 "tele_total_gamepieces": 18,
                 "auto_total_gamepieces": 20,
+                "failed_scores": 4,
             },
             {
                 "preloaded_gamepiece": "CONE",
@@ -521,6 +533,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 7,
                 "tele_total_gamepieces": 31,
                 "auto_total_gamepieces": 63,
+                "failed_scores": 2,
             },
             {
                 "preloaded_gamepiece": "CONE",
@@ -552,6 +565,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 11,
                 "tele_total_gamepieces": 20,
                 "auto_total_gamepieces": 1,
+                "failed_scores": 4,
             },
             {
                 "preloaded_gamepiece": "CONE",
@@ -583,6 +597,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces_low": 16,
                 "tele_total_gamepieces": 34,
                 "auto_total_gamepieces": 4,
+                "failed_scores": 3,
             },
         ]
         lfm_tims = [tim for tim in tims if tim["match_number"] > 1]
@@ -785,6 +800,14 @@ class TestOBJTeamCalc:
             "lfm_auto_charge_percent_success": 0.3333333333333333,
             "tele_charge_percent_success": 0.5,
             "lfm_tele_charge_percent_success": 0.5,
+            "auto_dock_percent_success": 0.25,
+            "lfm_auto_dock_percent_success": 0.3333333333333333,
+            "auto_engage_percent_success": 0.75,
+            "lfm_auto_engage_percent_success": 0.0,
+            "tele_dock_percent_success": 0.25,
+            "lfm_tele_dock_percent_success": 0.25,
+            "tele_engage_percent_success": 0.25,
+            "lfm_tele_engage_percent_success": 0.25,
         }
 
     def test_calculate_average_points(self):
@@ -891,6 +914,7 @@ class TestOBJTeamCalc:
                 "auto_total_gamepieces": 40,
                 "preloaded_gamepiece": "CONE",
                 "start_position": "2",
+                "failed_scores": 4,
             },
             {
                 "match_number": 2,
@@ -926,6 +950,7 @@ class TestOBJTeamCalc:
                 "auto_total_gamepieces": 34,
                 "preloaded_gamepiece": "CONE",
                 "start_position": "1",
+                "failed_scores": 5,
             },
             {
                 "match_number": 3,
@@ -961,6 +986,7 @@ class TestOBJTeamCalc:
                 "auto_total_gamepieces": 12,
                 "preloaded_gamepiece": "CUBE",
                 "start_position": "1",
+                "failed_scores": 6,
             },
             # 1678
             {
@@ -997,6 +1023,7 @@ class TestOBJTeamCalc:
                 "auto_total_gamepieces": 20,
                 "preloaded_gamepiece": "CONE",
                 "start_position": "1",
+                "failed_scores": 6,
             },
             {
                 "match_number": 2,
@@ -1032,6 +1059,7 @@ class TestOBJTeamCalc:
                 "auto_total_gamepieces": 14,
                 "preloaded_gamepiece": "CUBE",
                 "start_position": "1",
+                "failed_scores": 7,
             },
             {
                 "match_number": 3,
@@ -1067,6 +1095,7 @@ class TestOBJTeamCalc:
                 "tele_total_gamepieces": 53,
                 "auto_total_gamepieces": 20,
                 "start_position": "1",
+                "failed_scores": 8,
             },
             {
                 "match_number": 4,
@@ -1102,6 +1131,7 @@ class TestOBJTeamCalc:
                 "auto_total_gamepieces": 40,
                 "preloaded_gamepiece": "CONE",
                 "start_position": "1",
+                "failed_scores": 6,
             },
             {
                 "match_number": 5,
@@ -1137,6 +1167,7 @@ class TestOBJTeamCalc:
                 "auto_total_gamepieces": 12,
                 "preloaded_gamepiece": "CUBE",
                 "start_position": "1",
+                "failed_scores": 8,
             },
         ]
         expected_results = [
@@ -1167,6 +1198,7 @@ class TestOBJTeamCalc:
                 "avg_total_intakes": 38.666666666666664,
                 "tele_avg_gamepieces_low": 25.666666666666668,
                 "auto_avg_gamepieces": 28.666666666666668,
+                "avg_failed_scores": 5.0,
                 # LFM Averages
                 "lfm_auto_avg_cone_high": 7.333333333333333,
                 "lfm_auto_avg_cone_mid": 12.666666666666666,
@@ -1192,6 +1224,7 @@ class TestOBJTeamCalc:
                 "lfm_avg_intakes_station": 13.333333333333334,
                 "lfm_avg_intakes_low_row": 8.333333333333334,
                 "lfm_avg_total_intakes": 38.666666666666664,
+                "lfm_avg_failed_scores": 5.0,
                 # Standard Deviations
                 "auto_sd_cone_high": 5.792715732327589,
                 "auto_sd_cone_mid": 6.599663291074443,
@@ -1300,6 +1333,14 @@ class TestOBJTeamCalc:
                 "charge_percent_success": 0.8333333333333334,
                 "auto_charge_percent_success": 1.0,
                 "tele_charge_percent_success": 0.6666666666666666,
+                "auto_dock_percent_success": 0.3333333333333333,
+                "auto_engage_percent_success": 0.6666666666666666,
+                "lfm_auto_dock_percent_success": 0.3333333333333333,
+                "lfm_auto_engage_percent_success": 0.6666666666666666,
+                "lfm_tele_dock_percent_success": 0,
+                "lfm_tele_engage_percent_success": 0.6666666666666666,
+                "tele_dock_percent_success": 0,
+                "tele_engage_percent_success": 0.6666666666666666,
                 # LFM Success Rates
                 "lfm_charge_percent_success": 0.8333333333333334,
                 "lfm_auto_charge_percent_success": 1.0,
@@ -1337,6 +1378,7 @@ class TestOBJTeamCalc:
                 "avg_intakes_station": 30.4,
                 "avg_intakes_low_row": 14.4,
                 "avg_total_intakes": 55.8,
+                "avg_failed_scores": 7.0,
                 # LFM Averages
                 "lfm_auto_avg_cone_high": 3.5,
                 "lfm_auto_avg_cone_mid": 6.0,
@@ -1362,6 +1404,7 @@ class TestOBJTeamCalc:
                 "lfm_avg_intakes_station": 29.25,
                 "lfm_avg_intakes_low_row": 15.0,
                 "lfm_avg_total_intakes": 52.0,
+                "lfm_avg_failed_scores": 7.25,
                 # Standard Deviations
                 "auto_sd_cone_high": 4.029888335921977,
                 "auto_sd_cone_mid": 5.748043145279966,
@@ -1470,6 +1513,14 @@ class TestOBJTeamCalc:
                 "charge_percent_success": 0.9,
                 "auto_charge_percent_success": 1.0,
                 "tele_charge_percent_success": 0.8,
+                "auto_dock_percent_success": 0.4,
+                "auto_engage_percent_success": 0.6,
+                "lfm_auto_dock_percent_success": 0.5,
+                "lfm_auto_engage_percent_success": 0.5,
+                "lfm_tele_dock_percent_success": 0.25,
+                "lfm_tele_engage_percent_success": 0.5,
+                "tele_dock_percent_success": 0.4,
+                "tele_engage_percent_success": 0.4,
                 # LFM Success Rates
                 "lfm_charge_percent_success": 0.875,
                 "lfm_auto_charge_percent_success": 1.0,

@@ -26,6 +26,7 @@ class TestObjTIMCalcs:
                 {"in_teleop": True, "time": 35, "action_type": "start_incap"},
                 {"in_teleop": True, "time": 51, "action_type": "score_cone_high"},
                 {"in_teleop": True, "time": 68, "action_type": "score_cone_low"},
+                {"in_teleop": True, "time": 70, "action_type": "failed_score"},
                 {"in_teleop": True, "time": 75, "action_type": "score_cube_mid"},
                 {"in_teleop": True, "time": 81, "action_type": "score_cube_low"},
                 {"in_teleop": True, "time": 94, "action_type": "score_cube_mid"},
@@ -63,6 +64,7 @@ class TestObjTIMCalcs:
                 {"in_teleop": True, "time": 2, "action_type": "end_incap"},
                 {"in_teleop": True, "time": 12, "action_type": "start_incap"},
                 {"in_teleop": True, "time": 68, "action_type": "score_cone_low"},
+                {"in_teleop": True, "time": 70, "action_type": "failed_score"},
                 {"in_teleop": True, "time": 75, "action_type": "score_cube_mid"},
                 {"in_teleop": True, "time": 81, "action_type": "score_cube_low"},
                 {"in_teleop": True, "time": 94, "action_type": "score_cube_mid"},
@@ -101,6 +103,7 @@ class TestObjTIMCalcs:
                 {"in_teleop": True, "time": 45, "action_type": "score_cube_low"},
                 {"in_teleop": True, "time": 51, "action_type": "score_cone_high"},
                 {"in_teleop": True, "time": 68, "action_type": "score_cone_low"},
+                {"in_teleop": True, "time": 70, "action_type": "failed_score"},
                 {"in_teleop": True, "time": 75, "action_type": "score_cube_mid"},
                 {"in_teleop": True, "time": 81, "action_type": "score_cube_low"},
                 {"in_teleop": True, "time": 94, "action_type": "score_cube_mid"},
@@ -159,6 +162,7 @@ class TestObjTIMCalcs:
             {"in_teleop": True, "time": 35, "action_type": "start_incap"},
             {"in_teleop": True, "time": 51, "action_type": "score_cone_high"},
             {"in_teleop": True, "time": 68, "action_type": "score_cone_low"},
+            {"in_teleop": True, "time": 70, "action_type": "failed_score"},
             {"in_teleop": True, "time": 75, "action_type": "score_cube_mid"},
             {"in_teleop": True, "time": 81, "action_type": "score_cube_low"},
             {"in_teleop": True, "time": 94, "action_type": "score_cube_mid"},
@@ -180,7 +184,7 @@ class TestObjTIMCalcs:
 
     def test_count_timeline_actions(self):
         action_num = self.test_calculator.count_timeline_actions(self.unconsolidated_tims[0])
-        assert action_num == 21
+        assert action_num == 22
 
     def test_total_time_between_actions(self):
         total_time = self.test_calculator.total_time_between_actions
@@ -207,6 +211,7 @@ class TestObjTIMCalcs:
         assert calculated_tim["tele_charge_level"] == "PARK"
         assert calculated_tim["start_position"] == "ONE"
         assert calculated_tim["preloaded_gamepiece"] == "CUBE"
+        assert calculated_tim["failed_scores"] == 1
 
     @mock.patch.object(
         obj_tims.ObjTIMCalcs,
