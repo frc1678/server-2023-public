@@ -16,6 +16,9 @@ from unittest.mock import patch
 
 @pytest.mark.clouddb
 class TestTBATeamCalc:
+    test_server: Server
+    test_calc: tba_team.TBATeamCalc
+
     def setup_method(self, method):
         with patch("server.Server.ask_calc_all_data", return_value=False):
             self.test_server = Server()
@@ -27,27 +30,51 @@ class TestTBATeamCalc:
         assert self.test_calc.server == self.test_server
 
     def test_run(self):
-        teams = {
-            "api_url": f"event/{Server.TBA_EVENT_KEY}/teams/simple",
-            "data": [
-                {
-                    "city": "Atascadero",
-                    "country": "USA",
-                    "key": "frc973",
-                    "nickname": "Greybots",
-                    "state_prov": "California",
-                    "team_number": "973",
-                },
-                {
-                    "city": "Davis",
-                    "country": "USA",
-                    "key": "frc1678",
-                    "nickname": "Citrus Circuits",
-                    "state_prov": "California",
-                    "team_number": "1678",
-                },
-            ],
-        }
+        tba_cache = [
+            {
+                "api_url": f"event/{Server.TBA_EVENT_KEY}/teams/simple",
+                "data": [
+                    {
+                        "city": "Atascadero",
+                        "country": "USA",
+                        "key": "frc973",
+                        "nickname": "Greybots",
+                        "state_prov": "California",
+                        "team_number": "973",
+                    },
+                    {
+                        "city": "Davis",
+                        "country": "USA",
+                        "key": "frc1678",
+                        "nickname": "Citrus Circuits",
+                        "state_prov": "California",
+                        "team_number": "1678",
+                    },
+                    {"team_number": "3478", "nickname": "LamBot"},
+                    {"team_number": "1577", "nickname": "Steampunk"},
+                ],
+            },
+            # Test data created from TBA blog https://blog.thebluealliance.com/2017/10/05/the-math-behind-opr-an-introduction/
+            {
+                "api_url": f"event/{Server.TBA_EVENT_KEY}/matches",
+                "data": [
+                    {
+                        "alliances": {
+                            "red": {"team_keys": ["frc973", "frc1678"]},
+                            "blue": {"team_keys": ["frc973", "frc3478"]},
+                        },
+                        "score_breakdown": {"red": {"foulPoints": 13}, "blue": {"foulPoints": 10}},
+                    },
+                    {
+                        "alliances": {
+                            "red": {"team_keys": ["frc1678", "frc3478"]},
+                            "blue": {"team_keys": ["frc973", "frc1577"]},
+                        },
+                        "score_breakdown": {"red": {"foulPoints": 15}, "blue": {"foulPoints": 7}},
+                    },
+                ],
+            },
+        ]
         obj_tims = [
             {
                 "auto_low_balls": 66,
@@ -109,6 +136,66 @@ class TestTBATeamCalc:
                 "team_number": "1678",
                 "match_number": 3,
             },
+            {
+                "auto_low_balls": 47,
+                "auto_high_balls": 76,
+                "tele_low_balls": 34,
+                "tele_high_balls": 81,
+                "incap": 17,
+                "confidence_rating": 31,
+                "team_number": "3478",
+                "match_number": 1,
+            },
+            {
+                "auto_low_balls": 25,
+                "auto_high_balls": 54,
+                "tele_low_balls": 81,
+                "tele_high_balls": 59,
+                "incap": 93,
+                "confidence_rating": 14,
+                "team_number": "3478",
+                "match_number": 2,
+            },
+            {
+                "auto_low_balls": 54,
+                "auto_high_balls": 49,
+                "tele_low_balls": 88,
+                "tele_high_balls": 74,
+                "incap": 15,
+                "confidence_rating": 77,
+                "team_number": "3478",
+                "match_number": 3,
+            },
+            {
+                "auto_low_balls": 47,
+                "auto_high_balls": 76,
+                "tele_low_balls": 34,
+                "tele_high_balls": 81,
+                "incap": 17,
+                "confidence_rating": 31,
+                "team_number": "1577",
+                "match_number": 1,
+            },
+            {
+                "auto_low_balls": 25,
+                "auto_high_balls": 54,
+                "tele_low_balls": 81,
+                "tele_high_balls": 59,
+                "incap": 93,
+                "confidence_rating": 14,
+                "team_number": "1577",
+                "match_number": 2,
+            },
+            {
+                "auto_low_balls": 54,
+                "auto_high_balls": 49,
+                "tele_low_balls": 88,
+                "tele_high_balls": 74,
+                "incap": 15,
+                "confidence_rating": 77,
+                "team_number": "1577",
+                "match_number": 3,
+            },
         ]
         tba_tims = [
             {
@@ -141,25 +228,63 @@ class TestTBATeamCalc:
                 "match_number": 3,
                 "team_number": "1678",
             },
+            {
+                "auto_line": True,
+                "match_number": 1,
+                "team_number": "3478",
+            },
+            {
+                "auto_line": False,
+                "match_number": 2,
+                "team_number": "3478",
+            },
+            {
+                "auto_line": True,
+                "match_number": 3,
+                "team_number": "3478",
+            },
+            {
+                "auto_line": True,
+                "match_number": 1,
+                "team_number": "1577",
+            },
+            {
+                "auto_line": False,
+                "match_number": 2,
+                "team_number": "1577",
+            },
+            {
+                "auto_line": True,
+                "match_number": 3,
+                "team_number": "1577",
+            },
         ]
         expected_results = [
-            {
-                "team_number": "973",
-                "auto_line_successes": 1,
-                "team_name": "Greybots",
-            },
+            # Team A
+            {"team_number": "973", "auto_line_successes": 1, "team_name": "Greybots", "foul_cc": 8},
+            # Team B
             {
                 "team_number": "1678",
                 "auto_line_successes": 2,
                 "team_name": "Citrus Circuits",
+                "foul_cc": 2,
+            },
+            # Team C
+            {"team_number": "3478", "auto_line_successes": 2, "team_name": "LamBot", "foul_cc": 5},
+            # Team D
+            {
+                "team_number": "1577",
+                "auto_line_successes": 2,
+                "team_name": "Steampunk",
+                "foul_cc": 7,
             },
         ]
-        self.test_server.db.insert_documents("tba_cache", teams)
+        self.test_server.db.insert_documents("tba_cache", tba_cache)
         self.test_server.db.insert_documents("obj_tim", obj_tims)
         self.test_server.db.insert_documents("tba_tim", tba_tims)
         self.test_calc.run()
         result = self.test_server.db.find("tba_team")
-        assert len(result) == 2
+        assert len(result) == 4
         for document in result:
             del document["_id"]
             assert document in expected_results

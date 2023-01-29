@@ -10,6 +10,7 @@ import subprocess
 import sys
 import traceback
 import csv
+from typing import Dict, Literal
 
 try:
     import yaml
@@ -231,6 +232,17 @@ def read_csv_file(file_path):
     with open(file_path, "r") as csv_file:
         csv_data = list(csv.reader(csv_file))
     return csv_data
+
+
+def strip_tba_team_key(team_key: str) -> str:
+    """Removes `frc` from the beginning of tba team keys"""
+    return team_key.replace("frc", "")
+
+
+def get_teams_in_match(match: dict, alliance_color: str):
+    if alliance_color not in ["red", "blue"]:
+        raise ValueError("Alliance color has to be 'red' or 'blue'")
+    return [strip_tba_team_key(key) for key in match["alliances"][alliance_color]["team_keys"]]
 
 
 _TBA_EVENT_KEY_FILE = "data/competition.txt"
