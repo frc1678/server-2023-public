@@ -133,7 +133,7 @@ class TestDecompressor:
     def test_decompress_generic_qr(self):
         # Test if the correct error is raised when the Schema version is incorrect
         with pytest.raises(LookupError) as version_error:
-            self.test_decompressor.decompress_generic_qr("A14$")
+            self.test_decompressor.decompress_generic_qr("A250$")
         assert "does not match Server version" in str(version_error)
         # What decompress_generic_qr() should return
         expected_decompressed_data = {
@@ -183,7 +183,7 @@ class TestDecompressor:
                     {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
                 ],
                 "tele_charge_level": "ENGAGE",
-                "preloaded_piece": "CONE",
+                "preloaded_gamepiece": "CONE",
                 "auto_charge_level": "NONE",
             }
         ]
@@ -295,7 +295,7 @@ class TestDecompressor:
                     ],
                     "auto_charge_level": "NONE",
                     "tele_charge_level": "NONE",
-                    "preloaded_piece": "NONE",
+                    "preloaded_gamepiece": "NONE",
                 }
             ],
             "subj_tim": [
@@ -383,7 +383,7 @@ class TestDecompressor:
             ],
             "auto_charge_level": "NONE",
             "tele_charge_level": "NONE",
-            "preloaded_piece": "NONE",
+            "preloaded_gamepiece": "NONE",
         }
         expected_sbj = [
             {

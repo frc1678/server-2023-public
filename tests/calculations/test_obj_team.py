@@ -834,8 +834,8 @@ class TestOBJTeamCalc:
             "tele_park_successes": 2,
         }
         assert self.test_calc.calculate_average_points(team_data) == {
-            "avg_tele_charge_points": 7.3333333333333333,
-            "avg_auto_charge_points": 8.8,
+            "tele_avg_charge_points": 7.3333333333333333,
+            "auto_avg_charge_points": 8.8,
         }
 
     def test_calculate_sum_points(self):
@@ -854,8 +854,8 @@ class TestOBJTeamCalc:
             "tele_avg_cube_high": 3,
             "auto_charge_percent_success": 1,
             "tele_charge_percent_success": 2,
-            "avg_auto_charge_points": 3.5,
-            "avg_tele_charge_points": 1.5,
+            "auto_avg_charge_points": 3.5,
+            "tele_avg_charge_points": 1.5,
         }
         assert self.test_calc.calculate_sum_points(team_data) == {
             "avg_total_points": 104.5,
@@ -1371,8 +1371,8 @@ class TestOBJTeamCalc:
                 "lfm_auto_charge_percent_success": 1.0,
                 "lfm_tele_charge_percent_success": 0.6666666666666666,
                 # Average Points
-                "avg_tele_charge_points": 10.0,
-                "avg_auto_charge_points": 10.666666666666666,
+                "tele_avg_charge_points": 10.0,
+                "auto_avg_charge_points": 10.666666666666666,
                 # Sum Points
                 "avg_total_points": 491.666666666666666,
             },
@@ -1553,8 +1553,8 @@ class TestOBJTeamCalc:
                 "lfm_auto_charge_percent_success": 1.0,
                 "lfm_tele_charge_percent_success": 0.75,
                 # Average Points
-                "avg_tele_charge_points": 8.0,
-                "avg_auto_charge_points": 10.4,
+                "tele_avg_charge_points": 8.0,
+                "auto_avg_charge_points": 10.4,
                 # Sum Points
                 "avg_total_points": 348.0,
             },
