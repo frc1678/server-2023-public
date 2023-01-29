@@ -2,29 +2,47 @@ import random
 import string
 
 
-def generate_random_value(value_type: str, seed=None):
-    """Given a name of a type, return random data in that type
+def generate_random_value(value_type: str, value_name: str = "", seed=None):
+    """Given a name of a type, return random data in that type.
 
-    The value_type is the name of the type as a string. The type will
+    value_type: the name of the type as a string. The type will
     will be checked and the appropriate value will be generated.
-    The seed is optional but will be used to set the random seed for tests.
+
+    value_name: the name of the value, eg. team_number, preloaded_gamepiece
+
+    seed: optional but will be used to set the random seed for tests.
     """
     if seed is not None:
         random.seed(seed)
 
+    if type(value_type) is str:
+        value_type = value_type.lower()
+    else:
+        raise TypeError('value_type must be a string (eg. "bool")')
+
     if value_type == "str":
         value = ""
-        # Get the maximum length that the ascii_letters has for use to index it later
-        max_length = len(string.ascii_letters) - 1
-        # Repeat for a random amount of characters in a reasonable range
-        for character in range(random.randint(10, 30)):
-            # Also adds the seed if its defined, the random seed resets after use
-            # this sets up the seed for each iteration
-            if seed is not None:
-                random.seed(seed)
-            # Get a random character from string.ascii_letters (a string of all ascii letters) and
-            # add the char to the value, the final string
-            value += string.ascii_letters[random.randint(0, max_length)]
+        # Generate specific random values relevant to the variable
+        if value_name == "team_number":
+            value = "".join([str(random.choice([j for j in range(10)])) for i in range(4)])
+        elif "charge_level" in value_name:
+            value = random.choice(["PARK", "DOCK", "ENGAGE"])
+        elif "preloaded_gamepiece" in value_name:
+            value = random.choice(["CUBE", "CONE"])
+        # if variable does not require a set of predefined constants, generate a random string
+        # used for variables such as scout_name or other forgotten variables
+        else:
+            # Get the maximum length that the ascii_letters has for use to index it later
+            max_length = len(string.ascii_letters) - 1
+            # Repeat for a random amount of characters in a reasonable range
+            for character in range(random.randint(5, 16)):
+                # Also adds the seed if its defined, the random seed resets after use
+                # this sets up the seed for each iteration
+                if seed is not None:
+                    random.seed(seed)
+                # Get a random character from string.ascii_letters (a string of all ascii letters) and
+                # add the char to the value, the final string
+                value += string.ascii_letters[random.randint(0, max_length)]
         return value
 
     elif value_type == "int":
@@ -36,3 +54,36 @@ def generate_random_value(value_type: str, seed=None):
     elif value_type == "bool":
         # Cast randint to bool
         return bool(random.randint(0, 1))
+
+    elif value_type == "list":
+        # For certain lists of strings, it is possible to generate a list of random specific enum values
+        # generate random data for auto_pieces_start_position in match_collection_qr_schema
+        if value_name == "auto_pieces_start_position":
+            return [random.choice([0, 1]) for i in range(4)]
+        # generate random data for modes (which are lists) in calc_obj_team_schema
+        elif "mode" in value_name:
+            if "start_position" in value_name:
+                return random.sample(["ONE", "TWO", "THREE", "FOUR"], random.randint(1, 3))
+            elif "preloaded_gamepiece" in value_name:
+                return random.sample(["CUBE", "CONE"], random.randint(1, 2))
+            elif "charge_level" in value_name:
+                return random.sample(["PARK", "DOCK", "ENGAGE"], random.randint(1, 3))
+        # other (unknown) lists
+        else:
+            return []
+
+    elif "enum" in value_type:
+        # for string Enums, generate more specific data relevant to that Enum
+        if value_type.lower() == "enum[str]":
+            if "charge_level" in value_name:
+                if "auto" in value_name:
+                    return random.choice(["NONE", "DOCK", "ENGAGE"])
+                elif "tele" in value_name:
+                    return random.choice(["NONE", "PARK", "DOCK", "ENGAGE"])
+            elif "start_position" in value_name:
+                return random.choice(["ZERO", "ONE", "TWO", "THREE", "FOUR"])
+            elif "preloaded_gamepiece" in value_name:
+                return random.choice(["CUBE", "CONE"])
+        # for other integer Enums, return an int
+        else:
+            return 1

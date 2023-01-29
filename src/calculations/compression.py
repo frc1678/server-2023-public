@@ -34,7 +34,7 @@ def compress_timeline(timeline_data):
 def compress_list(section, data):
     """Compresses a list given the section of schema"""
     string_data = (str(x) for x in data)
-    return SCHEMA[section]["_separator_internal"].join(string_data)
+    return SCHEMA[section]["_separator"].join(string_data)
 
 
 def compress_section(data, section):

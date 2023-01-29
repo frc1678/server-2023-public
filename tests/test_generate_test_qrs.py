@@ -14,15 +14,6 @@ with patch("server.Server.ask_calc_all_data", return_value=False):
     DECOMPRESSOR = decompressor.Decompressor(server.Server())
 
 
-def test_generate_type_data():
-    # Makes sure that when you pass in a specific type, it returns the correct type
-    assert isinstance(generate_test_qrs.generate_type_data("str"), str)
-    assert isinstance(generate_test_qrs.generate_type_data("int"), int)
-    assert isinstance(generate_test_qrs.generate_type_data("bool"), bool)
-    with pytest.raises(ValueError):
-        generate_test_qrs.generate_type_data("NA Type")
-
-
 def test_generate_timeline():
     # Generates a timeline using the function to do tests with
     timeline = generate_test_qrs.generate_timeline()
@@ -52,3 +43,8 @@ def test_generate_obj_tim():
         obj_tim_qr[1:], decompressor.QRType.OBJECTIVE
     )[0]
     assert compression.compress_obj_tim(decompressed_qr) == obj_tim_qr
+
+
+# NEED TEST
+def test_generate_subj_aim():
+    pass

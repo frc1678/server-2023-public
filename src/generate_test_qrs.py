@@ -5,20 +5,9 @@ import random
 
 from calculations import compression
 import utils
+from calculations.generate_random_value import generate_random_value
 
 SCHEMA = utils.read_schema("schema/match_collection_qr_schema.yml")
-
-
-def generate_type_data(data_type):
-    """Generates random data of the passed type"""
-    if data_type == "str":
-        return random.choice(["str1", "str2", "str3", "str4", "str5", "str6"])
-    elif data_type == "int":
-        return random.randint(1, 15)
-    elif data_type == "bool":
-        return bool(random.randint(0, 1))
-    else:
-        raise ValueError(f"Type {data_type} not recognized")
 
 
 def generate_timeline():
@@ -57,7 +46,7 @@ def generate_generic_data(match_number=0, scout_name=None):
     for data_field, info in SCHEMA["generic_data"].items():
         # If the data_field starts with an underscore, it is a metacharacter
         if not data_field.startswith("_"):
-            final_data[data_field] = generate_type_data(info[1])
+            final_data[data_field] = generate_random_value(info[1], data_field)
 
     # schema_version should not be random
     final_data["schema_version"] = SCHEMA["schema_file"]["version"]
@@ -76,7 +65,7 @@ def generate_obj_tim(team_number="0", scout_id=0, match_number=0, scout_name=Non
     # Fills the dictionary with random data based on type
     for data_field, info in SCHEMA["objective_tim"].items():
         if not data_field.startswith("_") and data_field != "timeline":
-            final_data[data_field] = generate_type_data(info[1])
+            final_data[data_field] = generate_random_value(info[1], data_field)
 
     # If data fields are passed in, make them not random
     if team_number != "0":
@@ -99,13 +88,13 @@ def generate_subj_aim(team_list=None, match_number=0, scout_name=None):
     final_data = []
     # If the team_list isn't pre-populated, generate random teams
     if team_list is None:
-        team_list = [generate_type_data("str") for x in range(3)]
+        team_list = [generate_random_value("str", "team_number") for x in range(3)]
     generic_data = generate_generic_data(match_number, scout_name)
     for team in team_list:
         team_data = {}
         for data_field, info in SCHEMA["subjective_aim"].items():
             if not data_field.startswith("_"):
-                team_data[data_field] = generate_type_data(info[1])
+                team_data[data_field] = generate_random_value(info[1], data_field)
         team_data["team_number"] = team
         # Generate generic data for the TIM
         team_data.update(generic_data)
