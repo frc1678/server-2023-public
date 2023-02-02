@@ -1,6 +1,7 @@
 from calculations import predicted_aim
 from unittest.mock import patch
 import server
+import pytest
 
 
 class TestPredictedAimCalc:
@@ -75,9 +76,9 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 1.0,
                 # "won_match": True,
-                "predicted_score": 613.4,
+                "predicted_score": 778.4,
                 "predicted_rp1": 1.0,
-                # "predicted_rp2": 1.0,
+                "predicted_rp2": 1.0,
             },
             {
                 "match_number": 1,
@@ -87,9 +88,9 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 1.0,
                 # "actual_rp2": 1.0,
                 # "won_match": False,
-                "predicted_score": 598.1,
+                "predicted_score": 763.1,
                 "predicted_rp1": 1.0,
-                # "predicted_rp2": 1.0,
+                "predicted_rp2": 1.0,
             },
             {
                 "match_number": 3,
@@ -99,9 +100,9 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 613.4,
+                "predicted_score": 778.4,
                 "predicted_rp1": 1.0,
-                # "predicted_rp2": 1.0,
+                "predicted_rp2": 1.0,
             },
             {
                 "match_number": 3,
@@ -111,9 +112,9 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 598.1,
+                "predicted_score": 763.1,
                 "predicted_rp1": 1.0,
-                # "predicted_rp2": 1.0,
+                "predicted_rp2": 1.0,
             },
         ]
         self.expected_results = [
@@ -125,9 +126,9 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 1.0,
                 # "won_match": True,
-                "predicted_score": 613.4,
+                "predicted_score": 778.4,
                 "predicted_rp1": 1.0,
-                # "predicted_rp2": 1.0,
+                "predicted_rp2": 1.0,
                 "win_chance": 0.84731,
             },
             {
@@ -138,9 +139,9 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 1.0,
                 # "actual_rp2": 1.0,
                 # "won_match": False,
-                "predicted_score": 598.1,
+                "predicted_score": 763.1,
                 "predicted_rp1": 1.0,
-                # "predicted_rp2": 1.0,
+                "predicted_rp2": 1.0,
                 "win_chance": 0.15269,
             },
             {
@@ -151,9 +152,9 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 613.4,
+                "predicted_score": 778.4,
                 "predicted_rp1": 1.0,
-                # "predicted_rp2": 1.0,
+                "predicted_rp2": 1.0,
                 "win_chance": 0.84731,
             },
             {
@@ -164,9 +165,9 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 598.1,
+                "predicted_score": 763.1,
                 "predicted_rp1": 1.0,
-                # "predicted_rp2": 1.0,
+                "predicted_rp2": 1.0,
                 "win_chance": 0.15269,
             },
         ]
@@ -175,6 +176,7 @@ class TestPredictedAimCalc:
             auto_engage=0.5,
             tele_engage=1.5,
             tele_dock=0.5,
+            link=5,
         )
         self.blank_predicted_values = predicted_aim.PredictedAimScores()
         self.obj_team = [
@@ -390,6 +392,13 @@ class TestPredictedAimCalc:
         assert self.test_calc.watched_collections == ["obj_team", "tba_team"]
         assert self.test_calc.server == self.test_server
 
+    def test_calculate_predicted_link_score(self):
+        self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[0])
+        self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[1])
+        self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[2])
+        self.test_calc.calculate_predicted_link_score(self.blank_predicted_values, self.obj_team)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.link, 33.0)
+
     def test_calculate_predicted_grid_score(self):
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[0])
         assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_low, 1.0)
@@ -449,7 +458,7 @@ class TestPredictedAimCalc:
                 self.tba_team,
                 ["1678", "1533", "7229"],
             ),
-            613.4,
+            778.4,
         )
 
         try:
@@ -462,11 +471,13 @@ class TestPredictedAimCalc:
         except ZeroDivisionError as exc:
             assert False, f"calculate_predicted_alliance_score has a {exc}"
 
+    def test_calculate_predicted_link_rp(self):
+        assert self.test_calc.calculate_predicted_link_rp(self.blank_predicted_values) == 0
+        assert self.test_calc.calculate_predicted_link_rp(self.full_predicted_values) == 1
+
     def test_calculate_predicted_charge_rp(self):
         assert self.test_calc.calculate_predicted_charge_rp(self.blank_predicted_values) == 0
         assert self.test_calc.calculate_predicted_charge_rp(self.full_predicted_values) == 1
-
-    # TO-DO: Test predicted link rp
 
     # def test_get_actual_values(self):
     #     assert self.test_calc.get_actual_values(

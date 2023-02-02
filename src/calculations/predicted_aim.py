@@ -28,6 +28,7 @@ class PredictedAimScores:
     tele_dock: float = 0.0
     tele_park: float = 0.0
     tele_engage: float = 0.0
+    link: float = 0.0
 
 
 class PredictedAimCalc(BaseCalculations):
@@ -50,14 +51,39 @@ class PredictedAimCalc(BaseCalculations):
         "tele_dock": 6,
         "tele_park": 2,
         "tele_engage": 10,
+        "link": 5,
     }
 
     def __init__(self, server):
         super().__init__(server)
         self.watched_collections = ["obj_team", "tba_team"]
 
-    # def calculate_predicted_sustainability_threshold(self, obj_team):
-    # TBA
+    def calculate_predicted_link_score(self, predicted_values, obj_team):
+        """Calculates the predicted link score
+
+        Predicted link score is calculated using the optimal number of links an
+        alliance can score."""
+        # low row links
+        predicted_values.link += (
+            sum(
+                [
+                    predicted_values.auto_cube_low,
+                    predicted_values.auto_cone_low,
+                    predicted_values.tele_cube_low,
+                    predicted_values.tele_cone_low,
+                ]
+            )
+            // 3
+        )
+        # for the high and mid rows 2 cones and 1 cube is necessary for a link
+        predicted_values.link += min(
+            (predicted_values.auto_cone_mid + predicted_values.tele_cone_mid) // 2,
+            (predicted_values.tele_cube_mid + predicted_values.auto_cube_mid) // 1,
+        )
+        predicted_values.link += min(
+            (predicted_values.auto_cone_high + predicted_values.tele_cone_high) // 2,
+            (predicted_values.tele_cube_high + predicted_values.auto_cube_high) // 1,
+        )
 
     def calculate_predicted_charge_success_rate(self, predicted_values, obj_team):
         predicted_values.auto_dock += (
@@ -81,8 +107,7 @@ class PredictedAimCalc(BaseCalculations):
 
         predicted_values is a dataclass which stores the predicted number of cones/cubes scored and success rates.
         obj_team is a list of dictionaries of objective team data.
-        tba_team is a list of dictionaries of tba team data.
-        The value of [stage]_balls_percent_inner is a decimal between 1 and 0."""
+        tba_team is a list of dictionaries of tba team data."""
         # Finds the predicted cubes scored in auto
         predicted_values.auto_cube_low += obj_team["auto_avg_cube_low"]
         predicted_values.auto_cube_mid += obj_team["auto_avg_cube_mid"]
@@ -115,22 +140,33 @@ class PredictedAimCalc(BaseCalculations):
         """
 
         total_score = 0
+        obj_team = [
+            team_data for team_data in obj_team_data if team_data["team_number"] in team_numbers
+        ]
 
-        for team in team_numbers:
-            obj_team = [
-                team_data for team_data in obj_team_data if team_data["team_number"] == team
-            ][0]
-            tba_team = [
-                team_data for team_data in tba_team_data if team_data["team_number"] == team
-            ][0]
+        # tba_team = [
+        #         team_data for team_data in tba_team_data if team_data["team_number"] == team
+        #     ][0]
 
-            self.calculate_predicted_grid_score(predicted_values, obj_team)
-            self.calculate_predicted_charge_success_rate(predicted_values, obj_team)
+        for team in obj_team:
+            self.calculate_predicted_grid_score(predicted_values, team)
+            self.calculate_predicted_charge_success_rate(predicted_values, team)
+
+        self.calculate_predicted_link_score(predicted_values, obj_team)
 
         for data_field in dataclasses.asdict(predicted_values).keys():
             total_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
 
         return round(total_score, 5)
+
+    def calculate_predicted_link_rp(self, predicted_values):
+        """Calculates whether an alliance is expected to earn the link RP
+
+        predicted_values is a dataclass which stores the predicted number of pieces scored and success rates.
+        """
+        if getattr(predicted_values, "link") >= 5:
+            return 1.0
+        return 0.0
 
     def calculate_predicted_charge_rp(self, predicted_values):
         """Calculates whether an alliance is expected to earn the endgame RP.
@@ -144,19 +180,6 @@ class PredictedAimCalc(BaseCalculations):
         if charge_score >= 26:
             return 1.0
         return 0.0
-
-        # def calculate_predicted_ball_rp(self, obj_team, predicted_values):
-        cargo_rp_threshold = self.calculate_predicted_quintet_success(obj_team)
-        balls_scored = (
-            predicted_values.auto_low_balls
-            + predicted_values.auto_high_balls
-            + predicted_values.tele_low_balls
-            + predicted_values.tele_high_balls
-        )
-        if balls_scored >= cargo_rp_threshold:
-            return 1.0
-        return 0.0
-        # TBA
 
         # def get_actual_values(self, aim, tba_match_data):
         """Pulls actual AIM data from TBA if it exists.
@@ -244,7 +267,7 @@ class PredictedAimCalc(BaseCalculations):
                 predicted_values, obj_team, tba_team, aim["team_list"]
             )
             update["predicted_rp1"] = self.calculate_predicted_charge_rp(predicted_values)
-            # update["predicted_rp2"] = self.calculate_predicted_link_rp(predicted_values)
+            update["predicted_rp2"] = self.calculate_predicted_link_rp(predicted_values)
             # update.update(self.get_actual_values(aim, tba_match_data))
             updates.append(update)
         return updates
