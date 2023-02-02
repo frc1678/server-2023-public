@@ -127,7 +127,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
         if team_request_output is None:
             team_request_output = {"data": tba_communicator.tba_request(teams_api_endpoint)}
         team_request_output = team_request_output.get("data", [])
-        team_names = {team["team_number"]: team["nickname"] for team in team_request_output}
+        team_names = {str(team["team_number"]): team["nickname"] for team in team_request_output}
 
         tba_team_updates = {}
 
