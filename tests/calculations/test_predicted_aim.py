@@ -89,7 +89,7 @@ class TestPredictedAimCalc:
                 # "actual_rp2": 1.0,
                 # "won_match": False,
                 "predicted_score": 763.1,
-                "predicted_rp1": 1.0,
+                "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
             },
             {
@@ -113,7 +113,7 @@ class TestPredictedAimCalc:
                 # "actual_rp2": 0.0,
                 # "won_match": False,
                 "predicted_score": 763.1,
-                "predicted_rp1": 1.0,
+                "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
             },
         ]
@@ -140,7 +140,7 @@ class TestPredictedAimCalc:
                 # "actual_rp2": 1.0,
                 # "won_match": False,
                 "predicted_score": 763.1,
-                "predicted_rp1": 1.0,
+                "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
                 "win_chance": 0.15269,
             },
@@ -166,7 +166,7 @@ class TestPredictedAimCalc:
                 # "actual_rp2": 0.0,
                 # "won_match": False,
                 "predicted_score": 763.1,
-                "predicted_rp1": 1.0,
+                "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
                 "win_chance": 0.15269,
             },
@@ -477,7 +477,7 @@ class TestPredictedAimCalc:
 
     def test_calculate_predicted_charge_rp(self):
         assert self.test_calc.calculate_predicted_charge_rp(self.blank_predicted_values) == 0
-        assert self.test_calc.calculate_predicted_charge_rp(self.full_predicted_values) == 1
+        assert self.test_calc.calculate_predicted_charge_rp(self.full_predicted_values) == 0
 
     # def test_get_actual_values(self):
     #     assert self.test_calc.get_actual_values(

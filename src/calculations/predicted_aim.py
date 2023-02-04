@@ -174,7 +174,11 @@ class PredictedAimCalc(BaseCalculations):
         predicted_values is a dataclass which stores the predicted number of balls scored and success rates.
         """
         charge_score = 0
-        for datapoint in ["auto_dock", "auto_engage", "tele_dock", "tele_engage"]:
+        auto_charge_score = []
+        for datapoint in ["auto_dock", "auto_engage"]:
+            auto_charge_score.append(getattr(predicted_values, datapoint) * self.POINTS[datapoint])
+        charge_score += max(auto_charge_score)
+        for datapoint in ["tele_dock", "tele_engage"]:
             charge_score += getattr(predicted_values, datapoint) * self.POINTS[datapoint]
 
         if charge_score >= 26:
@@ -183,7 +187,6 @@ class PredictedAimCalc(BaseCalculations):
 
         # def get_actual_values(self, aim, tba_match_data):
         """Pulls actual AIM data from TBA if it exists.
-
         Otherwise, returns dictionary with all values of 0 and has_actual_data of False.
         aim is the alliance in match to pull actual data for."""
         actual_match_dict = {
