@@ -47,12 +47,27 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             collection_name, _, ranking_name = calc_info["requires"][0].partition(".")
             # For calculations such as driver_field_awareness and driver_quickness,
             # we just pull the rankings from the database and average them
-            # Ethan and Nathan were here :)
-            team_rankings = [
-                tim[ranking_name]
-                for tim in self.server.db.find(collection_name, {"team_number": team})
-            ]
-            average_team_rankings = self.avg(team_rankings)
+            # Lists average each index, ex: [0, 3], [2, 1] -> [1, 2]
+            # If there is "ignore" in calc_info, ignore those values
+            team_rankings = []
+            ignore_filter = lambda data: not ("ignore" in calc_info and data in calc_info["ignore"])
+            is_list = calc_info["type"] == "List"
+            for tim in self.server.db.find(collection_name, {"team_number": team}):
+                tim_value = tim[ranking_name]
+                if is_list:
+                    team_rankings.append(tim_value)
+                elif ignore_filter(tim_value):
+                    team_rankings.append(tim_value)
+            average_team_rankings = (
+                self.avg(team_rankings)
+                if not is_list
+                else [  # Average each index
+                    self.avg(
+                        [value[index] for value in team_rankings if ignore_filter(value[index])]
+                    )
+                    for index in range(len(team_rankings[0]))
+                ]
+            )
             calculations[calc_name] = average_team_rankings
         return calculations
 
@@ -77,19 +92,47 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             # Now scale the scores so they range from 0 to 1, and use those scaled scores to
             # compensate for alliance partners
             # That way, teams that are always paired with good/bad teams won't have unfair rankings
-            worst = min(scores.values())
-            best = max(scores.values())
-            scaled_scores = {
-                team: (score - worst) / (best - worst) for team, score in scores.items()
-            }
-            for team, score in scores.items():
-                teammate_scaled_scores = [
-                    scaled_scores[partner] for partner in self.teams_played_with(team)
-                ]
-                calculations[team] = calculations.get(team, {})
-                # If teammates tend to rank low, the team's score is lowered more than if teammates tend to rank high
-                calculations[team][calc_name] = score * self.avg(teammate_scaled_scores)
+            if calc_info["type"] == "List":
+                # Calculate for each index, ex: [0, 1], [2, 3] calculates 0 & 2 together and 1 & 3 together
+                for index in range(len(list(scores.values())[0])):
+                    self.scale_scores(
+                        {
+                            team: score[index] for team, score in scores.items()
+                        },  # Only the scores at the index
+                        calculations,
+                        calc_name,
+                        index,
+                    )
+            else:
+                self.scale_scores(scores, calculations, calc_name)
         return calculations
+
+    def scale_scores(
+        self,
+        scores: Dict[str, float],
+        calculations: Dict[str, Dict[str, float]],
+        calc_name: str,
+        index: int = None,
+    ) -> None:
+        """Calculates scores adjusted for teammate score and scaled from 0 to 1"""
+        worst = min(scores.values())
+        best = max(scores.values())
+        scaled_scores = {
+            team: (((score - worst) / (best - worst)) if best - worst != 0 else 0)
+            for team, score in scores.items()
+        }
+        for team, score in scores.items():
+            teammate_scaled_scores = [
+                scaled_scores[partner] for partner in self.teams_played_with(team)
+            ]
+            calculations[team] = calculations.get(team, {})
+            # If teammates tend to rank low, the team's score is lowered more than if teammates tend to rank high
+            if index is None:
+                calculations[team][calc_name] = score * self.avg(teammate_scaled_scores)
+            elif index == 0:
+                calculations[team][calc_name] = [score * self.avg(teammate_scaled_scores)]
+            else:
+                calculations[team][calc_name].append(score * self.avg(teammate_scaled_scores))
 
     def calculate_driver_ability(self):
         """Takes a weighted average of all the adjusted component scores to calculate overall driver ability."""
