@@ -274,6 +274,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "test_driver_ability": 84.4422,
         "unadjusted_field_awareness": 84.4422,
         "unadjusted_quickness": 84.4422,
+        "auto_pieces_start_position": [1, 1, 0, 1],
     },
     # TBA Team
     {
