@@ -302,6 +302,64 @@ class ExportTeam(BaseExport):
         return column_headers, data_by_team_num
 
 
+class ExportScout(BaseExport):
+    db_data_paths = ["sim_precision"]
+
+    def __init__(self):
+        """Build the scout data from the database and format it as a directory
+        then write it as a csv
+        """
+        super().__init__()
+        self.name = self.create_name("scout_export")
+
+        self.column_headers, self.final_built_data = self.build_data()
+
+    def build_data(self) -> Tuple[List[str], Dict[Tuple[str, int], List[Dict[str, Any]]]]:
+        """Build the scout data into a dictionary format with the key as scout
+
+        Gets the scout data from the database and writes a dictionary where the
+        key is the scout name and the value is all the data corresponding to
+        that specific scout in a specific match
+        """
+        utils.log_info("Starting export of scout_data")
+        # Gets the lists of column headers and dictionaries to use in export
+        scout_data = self.get_data(ExportScout.db_data_paths)
+        column_headers: List[str] = []
+        data_by_scout_and_match: Dict[Tuple[str, int], List[Dict[str, Any]]] = {}
+
+        # Goes through all the collections that it got from scout data
+        for list_of_documents in scout_data.values():
+            # Goes through each document in the collection it on
+            for document in list_of_documents:
+                # Gets the scout name from the document
+                scout_name = document["scout_name"]
+                match_num = document["match_number"]
+                # Uses a tuple of the scout name and the match number as
+                # to not write over other data
+                scout_key = (scout_name, match_num)
+                # Check if data exists for scout and match combo
+                if not data_by_scout_and_match.get(scout_key):
+                    data_by_scout_and_match[scout_key] = {}
+
+                # Goes through each field in the current document
+                for key, value in document.items():
+                    # Filter out the "_id" field which is not needed for exports
+                    if key != "_id":
+                        # If the key is a new one, add it to column_headers
+                        if key not in column_headers:
+                            column_headers.append(key)
+                        # Add the key: value to the all the data under the key
+                        # (scout_name, match_num) like this
+                        # {
+                        #   ('person', 1): {"scout_name": 'person', ...},
+                        #   ('someone', 2): {"scout_name": 'someone', ...},
+                        # }
+                        data_by_scout_and_match[scout_key][key] = value
+
+        column_headers = self.order_headers(column_headers, ["match_number", "scout_name"])
+        return column_headers, data_by_scout_and_match
+
+
 class ExportImagePaths(BaseExport):
     PATH_PATTERN = re.compile(r"([0-9]+)_(full_robot|drivetrain|mechanism_[0-9]+)\.jpg")
 
@@ -370,7 +428,7 @@ def make_zip(directory_path: str):
     print("Zip archive complete!")
 
 
-def full_data_export(should_zip) -> None:
+def full_data_export(should_zip, should_return_scout_data) -> None:
     """Generate each of the types of data
 
     Instantiate each exporter class and write the csv to a directory shared by
@@ -379,17 +437,22 @@ def full_data_export(should_zip) -> None:
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     directory_path = utils.create_file_path(f"data/exports/export_{timestamp}")
 
-    # Generate and export Tim data
-    tim_exporter = ExportTIM()
-    tim_exporter.write_data(directory_path)
+    if not should_return_scout_data:
+        # Generate and export Tim data
+        tim_exporter = ExportTIM()
+        tim_exporter.write_data(directory_path)
 
-    # Generate and export Team data
-    team_exporter = ExportTeam()
-    team_exporter.write_data(directory_path)
+        # Generate and export Team data
+        team_exporter = ExportTeam()
+        team_exporter.write_data(directory_path)
 
-    # Generate and export TBA data
-    tba_exporter = ExportTBA()
-    tba_exporter.write_data(directory_path)
+        # Generate and export TBA data
+        tba_exporter = ExportTBA()
+        tba_exporter.write_data(directory_path)
+    else:
+        # Generate and export Scout data
+        scout_exporter = ExportScout()
+        scout_exporter.write_data(directory_path)
 
     # This is default to yes but is not necessary
     if should_zip:
@@ -401,9 +464,12 @@ def parser():
     parse.add_argument(
         "--dont_zip", help="Should create a zip archive", default=True, action="store_false"
     )
+    parse.add_argument(
+        "--scout_data", help="Should return scout data", default=False, action="store_true"
+    )
     return parse.parse_args()
 
 
 if __name__ == "__main__":
     args = parser()
-    full_data_export(args.dont_zip)
+    full_data_export(args.dont_zip, args.scout_data)

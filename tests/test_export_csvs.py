@@ -1,6 +1,6 @@
 from data_transfer import database
 import utils
-import export_picklist_editor_csvs
+import export_csvs
 import json
 
 from unittest import mock
@@ -351,14 +351,14 @@ TEST_TBA_DATA = [
 @pytest.fixture(autouse=True, scope="function")
 def mock_team_list():
     with mock.patch.object(
-        export_picklist_editor_csvs.BaseExport, "get_teams_list", return_value=[0, 1, 2, 3]
+        export_csvs.BaseExport, "get_teams_list", return_value=[0, 1, 2, 3]
     ) as teams_list_mock:
         yield teams_list_mock
 
 
 class TestBaseExport:
     def setup_method(self):
-        self.base_class = export_picklist_editor_csvs.BaseExport()
+        self.base_class = export_csvs.BaseExport()
         self.collections = self.base_class.collections
         self.teams_list = self.base_class.teams_list
 
@@ -390,14 +390,14 @@ class TestBaseExport:
 @pytest.fixture(autouse=True, scope="function")
 def mock_tba_data():
     with mock.patch.object(
-        export_picklist_editor_csvs.ExportTBA, "get_tba_data", return_value=TEST_TBA_DATA
+        export_csvs.ExportTBA, "get_tba_data", return_value=TEST_TBA_DATA
     ) as teams_list_mock:
         yield teams_list_mock
 
 
 class TestExportTBA:
     def setup_method(self):
-        self.export_tba = export_picklist_editor_csvs.ExportTBA()
+        self.export_tba = export_csvs.ExportTBA()
 
     def test_get_tba_data(self):
         result = self.export_tba.get_tba_data()
@@ -417,17 +417,17 @@ class TestExportTBA:
 
 class TestExportTIM:
     def setup_method(self):
-        self.export_tim = export_picklist_editor_csvs.ExportTIM()
+        self.export_tim = export_csvs.ExportTIM()
 
 
 class TestExportTeam:
     def setup_method(self):
-        self.export_team = export_picklist_editor_csvs.ExportTeam()
+        self.export_team = export_csvs.ExportTeam()
 
 
 class TestExportImagePaths:
     def setup_method(self):
-        self.export_image_paths = export_picklist_editor_csvs.ExportImagePaths()
+        self.export_image_paths = export_csvs.ExportImagePaths()
 
     def test_get_dict_for_teams(self):
         result = self.export_image_paths.get_dict_for_teams()
