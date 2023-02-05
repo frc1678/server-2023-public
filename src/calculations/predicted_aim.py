@@ -16,8 +16,8 @@ class PredictedAimScores:
     auto_cone_low: float = 0.0
     auto_cone_mid: float = 0.0
     auto_cone_high: float = 0.0
-    auto_dock: float = 0.0
-    auto_engage: float = 0.0
+    auto_dock_successes: float = 0.0
+    auto_engage_successes: float = 0.0
     mobility: float = 0.0
     tele_cube_low: float = 0.0
     tele_cube_mid: float = 0.0
@@ -25,9 +25,9 @@ class PredictedAimScores:
     tele_cone_low: float = 0.0
     tele_cone_mid: float = 0.0
     tele_cone_high: float = 0.0
-    tele_dock: float = 0.0
-    tele_park: float = 0.0
-    tele_engage: float = 0.0
+    tele_dock_successes: float = 0.0
+    tele_park_successes: float = 0.0
+    tele_engage_successes: float = 0.0
     link: float = 0.0
 
 
@@ -39,8 +39,8 @@ class PredictedAimCalc(BaseCalculations):
         "auto_cone_low": 3,
         "auto_cone_mid": 4,
         "auto_cone_high": 6,
-        "auto_dock": 8,
-        "auto_engage": 12,
+        "auto_dock_successes": 8,
+        "auto_engage_successes": 12,
         "mobility": 3,
         "tele_cube_low": 2,
         "tele_cube_mid": 3,
@@ -48,9 +48,9 @@ class PredictedAimCalc(BaseCalculations):
         "tele_cone_low": 2,
         "tele_cone_mid": 3,
         "tele_cone_high": 5,
-        "tele_dock": 6,
-        "tele_park": 2,
-        "tele_engage": 10,
+        "tele_dock_successes": 6,
+        "tele_park_successes": 2,
+        "tele_engage_successes": 10,
         "link": 5,
     }
 
@@ -86,20 +86,30 @@ class PredictedAimCalc(BaseCalculations):
         )
 
     def calculate_predicted_charge_success_rate(self, predicted_values, obj_team):
-        predicted_values.auto_dock += (
-            obj_team["auto_dock"] / a if (a := obj_team["auto_charge_attempts"]) > 0 else 0
+        predicted_values.auto_dock_successes += (
+            obj_team["auto_dock_successes"] / a
+            if (a := obj_team["auto_charge_attempts"]) > 0
+            else 0
         )
-        predicted_values.tele_dock += (
-            obj_team["tele_dock"] / a if (a := obj_team["tele_charge_attempts"]) > 0 else 0
+        predicted_values.tele_dock_successes += (
+            obj_team["tele_dock_successes"] / a
+            if (a := obj_team["tele_charge_attempts"]) > 0
+            else 0
         )
-        predicted_values.auto_engage += (
-            obj_team["auto_engage"] / a if (a := obj_team["auto_charge_attempts"]) > 0 else 0
+        predicted_values.auto_engage_successes += (
+            obj_team["auto_engage_successes"] / a
+            if (a := obj_team["auto_charge_attempts"]) > 0
+            else 0
         )
-        predicted_values.tele_engage += (
-            obj_team["tele_engage"] / a if (a := obj_team["tele_charge_attempts"]) > 0 else 0
+        predicted_values.tele_engage_successes += (
+            obj_team["tele_engage_successes"] / a
+            if (a := obj_team["tele_charge_attempts"]) > 0
+            else 0
         )
-        predicted_values.tele_park += (
-            obj_team["tele_park"] / a if (a := obj_team["tele_charge_attempts"]) > 0 else 0
+        predicted_values.tele_park_successes += (
+            obj_team["tele_park_successes"] / a
+            if (a := obj_team["tele_charge_attempts"]) > 0
+            else 0
         )
 
     def calculate_predicted_grid_score(self, predicted_values, obj_team):
@@ -175,10 +185,10 @@ class PredictedAimCalc(BaseCalculations):
         """
         charge_score = 0
         auto_charge_score = []
-        for datapoint in ["auto_dock", "auto_engage"]:
+        for datapoint in ["auto_dock_successes", "auto_engage_successes"]:
             auto_charge_score.append(getattr(predicted_values, datapoint) * self.POINTS[datapoint])
         charge_score += max(auto_charge_score)
-        for datapoint in ["tele_dock", "tele_engage"]:
+        for datapoint in ["tele_dock_successes", "tele_engage_successes"]:
             charge_score += getattr(predicted_values, datapoint) * self.POINTS[datapoint]
 
         if charge_score >= 26:
