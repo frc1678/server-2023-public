@@ -7,6 +7,8 @@ import datetime
 
 import termcolor
 
+import sys
+
 
 class QRInput(calculations.base_calculations.BaseCalculations):
     def __init__(self, server):
@@ -43,9 +45,21 @@ class QRInput(calculations.base_calculations.BaseCalculations):
             ]
             self.server.db.insert_documents("raw_qr", qr)
 
-    def run(self):
-        # Grabs QR codes from user, strips whitespace, split by tab
-        qr_codes = input(termcolor.colored("ENTER DATA: ", "green"))
+    def run(self, test_input=None):
+        """Grabs QR codes from user using stdin.read(), each qr is separated by a newline"""
+
+        # If test_input is assigned to a value (in tests), set qr_codes to test_input.
+        # Otherwise, get input from user.
+        # Used because there is no good way to test stdin.read()
+        if test_input:
+            qr_codes = test_input
+        else:
+            print(termcolor.colored("ENTER DATA: ", "green"))
+            qr_codes = (
+                sys.stdin.read()
+            )  # stdin.read() is used so that pressing enter does not end the input | Use CTRL+D instead
+
+        # Upload qr codes as list
         if qr_codes != "":
-            self.upload_qr_codes(qr_codes.strip().split("\t"))
+            self.upload_qr_codes(qr_codes.strip().split("\n"))
         adb_communicator.pull_device_data()

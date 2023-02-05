@@ -1,6 +1,5 @@
 import server
 
-import datetime
 from unittest import mock
 
 import pytest
@@ -25,17 +24,34 @@ class TestQRInput:
 
             self.test_calc = qr_input.QRInput(self.server)
         with mock.patch("data_transfer.adb_communicator.pull_device_data", return_value=[]):
-            with mock.patch("builtins.input", return_value="*test"):
-                self.test_calc.run()
-                assert (query := self.server.db.find("raw_qr")) != []
-                assert "data" in query[0].keys() and query[0]["data"] == "*test"
-                assert isinstance(query[0]["epoch_time"], float)
-                assert isinstance(query[0]["readable_time"], str)
-            with mock.patch("builtins.input", return_value="*test\ttest"):
-                self.test_calc.run()
-                reading = capsys.readouterr()
-                assert "WARNING: duplicate QR code not uploaded" in reading.out
-                assert "Invalid QR code not uploaded: " in reading.err
-            with mock.patch("builtins.input", return_value="*test2\t+test3\t*test4"):
-                self.test_calc.run()
-                assert (query := self.server.db.find("raw_qr")) != [] and len(query) == 4
+
+            self.test_calc.run("*test")
+            assert (query := self.server.db.find("raw_qr")) != []
+            assert "data" in query[0].keys() and query[0]["data"] == "*test"
+            assert isinstance(query[0]["epoch_time"], float)
+            assert isinstance(query[0]["readable_time"], str)
+
+            self.test_calc.run("*test\ntest")
+            reading = capsys.readouterr()
+            assert "WARNING: duplicate QR code not uploaded" in reading.out
+            assert "Invalid QR code not uploaded: " in reading.err
+
+            self.test_calc.run("*test2\n+test3\n*test4")
+            assert (query := self.server.db.find("raw_qr")) != [] and len(query) == 4
+
+            ## Mocks for when qr_input used input() instead of reading directly from stdin
+
+            # with mock.patch("builtins.input", return_value="*test"):
+            #     self.test_calc.run()
+            #     assert (query := self.server.db.find("raw_qr")) != []
+            #     assert "data" in query[0].keys() and query[0]["data"] == "*test"
+            #     assert isinstance(query[0]["epoch_time"], float)
+            #     assert isinstance(query[0]["readable_time"], str)
+            # with mock.patch("builtins.input", return_value="*test\ttest"):
+            #     self.test_calc.run()
+            #     reading = capsys.readouterr()
+            #     assert "WARNING: duplicate QR code not uploaded" in reading.out
+            #     assert "Invalid QR code not uploaded: " in reading.err
+            # with mock.patch("builtins.input", return_value="*test2\t+test3\t*test4"):
+            #     self.test_calc.run()
+            #     assert (query := self.server.db.find("raw_qr")) != [] and len(query) == 4
