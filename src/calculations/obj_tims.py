@@ -88,6 +88,9 @@ class ObjTIMCalcs(BaseCalculations):
                     lambda action: required_value[0] <= action["time"] <= required_value[1],
                     actions,
                 )
+            elif required_value == "score":
+                # Removes actions for which required_value is not contained within action[field] (eg score and score_cone_high)
+                actions = filter(lambda action: str(required_value) in str(action[field]), actions)
             else:
                 # Removes actions for which action[field] != required_value
                 actions = filter(lambda action: action[field] == required_value, actions)
@@ -108,16 +111,36 @@ class ObjTIMCalcs(BaseCalculations):
         such as start_incap and end_climb.
         min_time is the minimum number of seconds between the two types of actions that we want to count
         """
-        start_actions = self.filter_timeline_actions(tim, action_type=start_action)
-        end_actions = self.filter_timeline_actions(tim, action_type=end_action)
-        # Match scout app should automatically add an end action at the end of the match,
-        # if there isn't already an end action after the last start action. That way there are the
-        # same number of start actions and end actions.
-        total_time = 0
-        for start, end in zip(start_actions, end_actions):
-            if start["time"] - end["time"] >= min_time:
-                total_time += start["time"] - end["time"]
-        return total_time
+        # Separate calculation for scoring cycle times
+        if start_action == "score":
+            scoring_actions = self.filter_timeline_actions(tim, action_type=start_action)
+            cycle_times = []
+
+            # Calculates time difference between every pair of scoring actions
+            for i in range(1, len(scoring_actions)):
+                cycle_times.append(scoring_actions[i - 1]["time"] - scoring_actions[i]["time"])
+
+            # Calculate median cycle time (if cycle times is not an empty list)
+            if cycle_times:
+                median_cycle_time = statistics.median(cycle_times)
+            else:
+                median_cycle_time = 0
+
+            # Cycle time has to be an integer
+            return round(median_cycle_time)
+
+        # Other time calculations (incap)
+        else:
+            start_actions = self.filter_timeline_actions(tim, action_type=start_action)
+            end_actions = self.filter_timeline_actions(tim, action_type=end_action)
+            # Match scout app should automatically add an end action at the end of the match,
+            # if there isn't already an end action after the last start action. That way there are the
+            # same number of start actions and end actions.
+            total_time = 0
+            for start, end in zip(start_actions, end_actions):
+                if start["time"] - end["time"] >= min_time:
+                    total_time += start["time"] - end["time"]
+            return total_time
 
     def calculate_tim_counts(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns the calculated count based data fields"""

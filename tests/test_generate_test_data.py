@@ -210,6 +210,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "tele_total_gamepieces_low": 49,
         "failed_scores": 49,
         "incap": 49,
+        "median_cycle_time": 49,
         "auto_charge_level": "DOCK",
         "auto_charge_attempt": 49,
         "tele_charge_level": "ENGAGE",
