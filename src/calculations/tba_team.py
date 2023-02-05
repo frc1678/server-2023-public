@@ -2,13 +2,14 @@
 # Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 """Runs team calculations dependent on TBA data"""
 
-from typing import Dict
+from typing import Dict, List
 from calculations import base_calculations
 import utils
 from server import Server
 from data_transfer import tba_communicator
 import numpy as np
 import numpy.linalg as nl
+from cc import cc, CCEvent
 
 
 class TBATeamCalc(base_calculations.BaseCalculations):
@@ -78,7 +79,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
         if matches_resp is None:
             matches_resp = {"data": tba_communicator.tba_request(matches_endpoint)}
         tba_matches = matches_resp.get("data", [])
-        cc_aims = []
+        cc_aims: List[CCEvent] = []
         # For each AIM, add the foul points for the other alliance in a dictionary
         # with the team numbers and foul points contributed
         for match in tba_matches:
@@ -86,38 +87,18 @@ class TBATeamCalc(base_calculations.BaseCalculations):
                 continue
             cc_aims.append(
                 {
-                    "teams": utils.get_teams_in_match(match, "red"),
-                    "foul_points": match["score_breakdown"]["blue"]["foulPoints"],
+                    "parties": utils.get_teams_in_match(match, "red"),
+                    "value": match["score_breakdown"]["blue"]["foulPoints"],
                 }
             )
             cc_aims.append(
                 {
-                    "teams": utils.get_teams_in_match(match, "blue"),
-                    "foul_points": match["score_breakdown"]["red"]["foulPoints"],
+                    "parties": utils.get_teams_in_match(match, "blue"),
+                    "value": match["score_breakdown"]["red"]["foulPoints"],
                 }
             )
-        # Creates a list of every team that exists in the matches
-        team_numbers = set()
-        for aim in cc_aims:
-            for team in aim["teams"]:
-                team_numbers.add(team)
-        team_numbers = sorted(team_numbers)
-        # Creates empty matrices to populate with AIM data
-        team_matrix = np.zeros((len(team_numbers), len(cc_aims)))
-        score_matrix = np.zeros((1, len(cc_aims)))
-        # Iterate thru each AIM and populate the matrix in accordance the TBA Blog
-        for alliance_index, alliance in enumerate(cc_aims):
-            for team in alliance["teams"]:
-                team_matrix[team_numbers.index(team), alliance_index] = 1
-            score_matrix[0, alliance_index] = alliance["foul_points"]
-        # Transpose and multiply matrices as described in the TBA Blog
-        transposed_team_matrix = np.transpose(team_matrix)
-        left_side = np.matmul(team_matrix, transposed_team_matrix)
-        right_side = np.matmul(score_matrix, transposed_team_matrix)
-        # Calculates the least squares solution and return the solution matrix
-        solved = nl.lstsq(left_side, right_side.transpose(), rcond=None)[0]
-        # Turn the solution into a dictionary using the team matrix and return it
-        return {team_numbers[i]: round(cc[0], precision) for i, cc in enumerate(solved)}
+        solved = cc(cc_aims)
+        return solved
 
     def update_team_calcs(self, teams: list) -> list:
         """Returns updates to team calculations based on refs"""
