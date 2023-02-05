@@ -31,10 +31,10 @@ def compress_timeline(timeline_data):
     return "".join(compressed_actions)
 
 
-def compress_list(section, data):
+def compress_list(data):
     """Compresses a list given the section of schema"""
-    string_data = (str(x) for x in data)
-    return SCHEMA[section]["_separator"].join(string_data)
+    string_data = "".join([str(x) for x in data])
+    return string_data
 
 
 def compress_section(data, section):
@@ -48,7 +48,7 @@ def compress_section(data, section):
         if key == "timeline":
             compressed_value = compressed_key + compress_timeline(value)
         elif SCHEMA[section][key][1] == "list":
-            compressed_value = compressed_key + compress_list(section, value)
+            compressed_value = compressed_key + compress_list(value)
         else:
             compressed_value = f"{compressed_key}{str(value).upper()}"
         if key == "schema_version":
@@ -80,6 +80,7 @@ def compress_obj_tim(tim_data):
 def compress_subj_aim(aim_data: List[Dict]):
     """Compresses subjective QRs"""
     generic_points = {}
+    alliance_data = {}
     teams_data = []
     for team in aim_data:
         team_data = {}
@@ -89,6 +90,9 @@ def compress_subj_aim(aim_data: List[Dict]):
                 if generic_points.get(name) and generic_points.get(name) != data:
                     raise ValueError("Different generic data between documents in the same subj QR")
                 generic_points.update({name: data})
+            # whole-alliance data, auto_pieces_start_position
+            elif name == "auto_pieces_start_position":
+                alliance_data[name] = data
             elif name in SCHEMA["subjective_aim"]:
                 team_data.update({name: data})
         teams_data.append(team_data)
@@ -101,4 +105,9 @@ def compress_subj_aim(aim_data: List[Dict]):
     compressed_qr = SCHEMA["generic_data"]["_section_separator"].join(
         [compressed_generic, compressed_subj]
     )
+    # Add whole-alliance data
+    if len(alliance_data) != 0:
+        compressed_qr += SCHEMA["subjective_aim"]["_alliance_data_separator"] + compress_section(
+            alliance_data, "subjective_aim"
+        )
     return f'{SCHEMA["subjective_aim"]["_start_character"]}{compressed_qr}'

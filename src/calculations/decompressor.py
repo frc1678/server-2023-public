@@ -206,7 +206,9 @@ class Decompressor(base_calculations.BaseCalculations):
             teams_data = none_generic_data[0].split(
                 self.SCHEMA["subjective_aim"]["_team_separator"]
             )
-            alliance_data = none_generic_data[1].split(self.SCHEMA["subjective_aim"]["_separator"])
+            alliance_data = none_generic_data[1].split(
+                self.SCHEMA["subjective_aim"]["_alliance_data_separator"]
+            )
             if len(teams_data) != 3:
                 raise IndexError("Incorrect number of teams in Subjective QR")
             for team in teams_data:

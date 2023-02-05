@@ -290,8 +290,16 @@ class TestDecompressor:
                     "scout_id": 14,
                     "start_position": "4",
                     "timeline": [
-                        {"time": 60, "action_type": "score_cube_high", "in_teleop": False},
-                        {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
+                        {
+                            "time": 60,
+                            "action_type": "score_cube_high",
+                            "in_teleop": False,
+                        },
+                        {
+                            "time": 61,
+                            "action_type": "score_cube_mid",
+                            "in_teleop": False,
+                        },
                     ],
                     "auto_charge_level": "NONE",
                     "tele_charge_level": "NONE",
