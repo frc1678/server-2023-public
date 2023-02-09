@@ -185,11 +185,14 @@ class PredictedAimCalc(BaseCalculations):
         """
         charge_score = 0
         auto_charge_score = []
+        tele_charge_score = []
         for datapoint in ["auto_dock_successes", "auto_engage_successes"]:
             auto_charge_score.append(getattr(predicted_values, datapoint) * self.POINTS[datapoint])
         charge_score += max(auto_charge_score)
         for datapoint in ["tele_dock_successes", "tele_engage_successes"]:
-            charge_score += getattr(predicted_values, datapoint) * self.POINTS[datapoint]
+            tele_charge_score.append(getattr(predicted_values, datapoint) * self.POINTS[datapoint])
+        for value in sorted(tele_charge_score)[-2:]:
+            charge_score += value
 
         if charge_score >= 26:
             return 1.0
