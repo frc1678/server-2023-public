@@ -178,6 +178,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "position_four_starts": 49,
         "mode_preloaded_gamepiece": ["CONE", "CUBE"],
         "matches_scored_coop": 49,
+        "percent_matches_scored_coop": 84.4422,
         "matches_played_defense": 49,
     },
     # Obj TIM

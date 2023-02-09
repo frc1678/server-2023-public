@@ -793,6 +793,8 @@ class TestOBJTeamCalc:
 
     def test_success_rates(self):
         team_data = {
+            "matches_played": 5,
+            "matches_scored_coop": 2,
             "auto_charge_attempts": 4,
             "auto_dock_successes": 1,
             "auto_engage_successes": 3,
@@ -809,6 +811,7 @@ class TestOBJTeamCalc:
             "lfm_tele_park_successes": 1,
         }
         assert self.test_calc.calculate_success_rates(team_data) == {
+            "percent_matches_scored_coop": 0.4,
             "charge_percent_success": 0.6666666666666666,
             "lfm_charge_percent_success": 0.42857142857142855,
             "auto_charge_percent_success": 1,
@@ -1355,6 +1358,7 @@ class TestOBJTeamCalc:
                 "lfm_mode_auto_charge_level": ["ENGAGE"],
                 "lfm_mode_tele_charge_level": ["ENGAGE"],
                 # Success Rates
+                "percent_matches_scored_coop": 0.6666666666666666,
                 "charge_percent_success": 0.8333333333333334,
                 "auto_charge_percent_success": 1.0,
                 "tele_charge_percent_success": 0.6666666666666666,
@@ -1537,6 +1541,7 @@ class TestOBJTeamCalc:
                 "lfm_mode_auto_charge_level": ["ENGAGE", "DOCK"],
                 "lfm_mode_tele_charge_level": ["ENGAGE"],
                 # Success Rates
+                "percent_matches_scored_coop": 0.4,
                 "charge_percent_success": 0.9,
                 "auto_charge_percent_success": 1.0,
                 "tele_charge_percent_success": 0.8,

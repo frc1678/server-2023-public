@@ -209,7 +209,7 @@ class TestObjTIMCalcs:
         assert calculated_tim["tele_total_gamepieces"] == 9
         assert calculated_tim["auto_charge_level"] == "DOCK"
         assert calculated_tim["tele_charge_level"] == "PARK"
-        assert calculated_tim["start_position"] == "ONE"
+        assert calculated_tim["start_position"] == "1"
         assert calculated_tim["preloaded_gamepiece"] == "CUBE"
         assert calculated_tim["failed_scores"] == 1
 
