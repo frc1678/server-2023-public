@@ -13,6 +13,7 @@ import string
 import os
 from typing import List
 from server import Server
+from pymongo.errors import BulkWriteError
 import logging
 
 log = logging.getLogger(__name__)
@@ -41,8 +42,8 @@ def insert_fake_qr_data() -> List[str]:
     qr_codes = []
     for match in MATCHES:
         match_num = match["match_number"]
-        red = [team.split("frc")[1] for team in match["alliances"]["red"]["team_keys"]]
-        blue = [team.split("frc")[1] for team in match["alliances"]["blue"]["team_keys"]]
+        red = [utils.strip_tba_team_key(team) for team in match["alliances"]["red"]["team_keys"]]
+        blue = [utils.strip_tba_team_key(team) for team in match["alliances"]["blue"]["team_keys"]]
         obj_scouts_in_match = list(obj_scouts.items())
         subj_scouts_in_match = random.sample(list(subj_scouts), 2)
         for alliance in [red, blue]:
@@ -80,9 +81,11 @@ def insert_fake_non_qr_data() -> List:
 
     try:
         local_database.insert_documents("raw_obj_pit", obj)
-    except:
-        error_msg = "Cannot insert fake raw data without overwriting existing data"
-        print_bold_red(f"Error: {error_msg}")
+    except BulkWriteError as e:
+        if e.details["writeErrors"][0]["code"] == 11000:
+            print_bold_red(f"Error: there is already existing data")
+        else:
+            print_bold_red(f"Error inserting fake data: {e}")
     return obj
 
 
@@ -123,7 +126,7 @@ if __name__ == "__main__":
     from data_transfer import tba_communicator
 
     TEAMS = [
-        team["team_number"]
+        str(team["team_number"])
         for team in tba_communicator.tba_request(f"event/{Server.TBA_EVENT_KEY}/teams/simple")
     ]
     MATCHES = [
