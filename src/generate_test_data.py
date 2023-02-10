@@ -6,13 +6,17 @@ import argparse
 from calculations.generate_random_value import generate_random_value
 import json
 import utils
-import inquirer
 import json
 from dataclasses import dataclass
 from typing import List, Optional
 from os.path import exists
 from os import listdir
 from pprint import pprint
+import logging
+from console import console
+from rich.prompt import Prompt
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -273,29 +277,23 @@ def ask_input_filename():
         ]
 
         if len(schema_files) == 0:
-            utils.log_warning(
+            log.warning(
                 "There are no files in the schema directory that end with .yml\
                 make sure the directory is up to date with https://github.com/frc1678/schema"
             )
 
-        questions = [
-            inquirer.List(
-                "input_filename",
-                message="What schema data structure do you want? ",
-                choices=schema_files,
-            ),
-        ]
-
-        return "schema/" + inquirer.prompt(questions)["input_filename"]
+        return "schema/" + Prompt.ask(
+            "What schema data structure do you want?", console=console, choices=schema_files
+        )
     else:
 
-        utils.log_error(
+        log.error(
             "Make sure the schema dir exists.\n\
 You may need to clone it inside the 'server/' dir.\n\
 Repo: https://github.com/frc1678/schema\n\n"
         )
 
-        utils.log_error("Schema folder not found")
+        log.error("Schema folder not found")
         exit(1)
 
 

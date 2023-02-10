@@ -11,16 +11,14 @@ import sys
 import traceback
 import csv
 from typing import Dict, Literal
+import logging
+
+log = logging.getLogger(__name__)
 
 try:
     import yaml
 except ImportError:
     print("PyYaml not found, load schema is unavailable", file=sys.stderr)
-
-# Set the basic config for logging functions
-logging.basicConfig(
-    filename="server.log", level="NOTSET", filemode="a", format="%(asctime)s %(message)s"
-)
 
 
 def create_file_path(path_after_main, create_directories=True) -> str:
@@ -71,48 +69,10 @@ def catch_function_errors(fn, *args, **kwargs):
         raise
     # Notify user that error occurred
     except Exception as err:
-        logging.error(f'{err}\n{"".join(traceback.format_stack()[:-1])}')
+        log.error(f'{err}\n{"".join(traceback.format_stack()[:-1])}')
         print(f"Function {fn.__name__}: {err.__class__} - {err}")
         result = None
     return result
-
-
-def log_error(error):
-    """Logs `error` at log level 'Error' to server.log"""
-    traceback_msg = "".join(traceback.format_stack()[:-1])
-    # Logs error, also contains a traceback
-    logging.error(f"{error}\n{traceback_msg}")
-    # Prints error and traceback to console
-    print(f"ERROR: {error}\n{traceback_msg}", file=sys.stderr)
-
-
-def log_warning(warning: str):
-    """Logs warnings to server.log 'warning' is the warning message.
-
-    Logs to server.log in this directory.
-    """
-    # Logs warning
-    logging.warning(f"{warning}\n")
-    # Prints warning to console
-    print(f"WARNING: {warning}", file=sys.stderr)
-
-
-def log_info(info: str):
-    """Logs info to server.log.
-
-    'info' is the information being logged to server.log in this directory.
-    """
-    # Logs info
-    logging.info(f"{info}\n")
-
-
-def log_debug(debug: str):
-    """Logs debug to server.log.
-
-    'debug' is the message being logged to server.log in this directory.
-    """
-    # Logs debug
-    logging.debug(f"{debug}\n")
 
 
 def run_command(command, return_output=False):
@@ -196,7 +156,7 @@ def load_tba_event_key_file(file_path):
             # Many file editors will automatically add a newline at the end of files.
             return file.read().rstrip("\n")
     except FileNotFoundError:
-        log_warning(f"ERROR Loading TBA Key: File {file_path} NOT FOUND")
+        log.warning(f"ERROR Loading TBA Key: File {file_path} NOT FOUND")
         return None
 
 

@@ -3,6 +3,9 @@ from datetime import datetime
 from calculations.base_calculations import BaseCalculations
 from data_transfer import tba_communicator
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class SimPrecisionCalc(BaseCalculations):
@@ -43,7 +46,7 @@ class SimPrecisionCalc(BaseCalculations):
             "unconsolidated_totals", {"match_number": match_number, "scout_name": scout}
         )
         if scout_data == []:
-            utils.log_warning(f"No data from Scout {scout} in Match {match_number}")
+            log.warning(f"No data from Scout {scout} in Match {match_number}")
             return
         scout_document = scout_data[0]
         total_score = 0
@@ -82,7 +85,7 @@ class SimPrecisionCalc(BaseCalculations):
     ):
         """Gets the average error from TBA of each scout's linear combinations in an AIM."""
         if len(aim_scout_scores) < 3:
-            utils.log_warning(
+            log.warning(
                 f"Missing scout data for Match {match_number}, Alliance is Red: {alliance_color_is_red}"
             )
             return {}

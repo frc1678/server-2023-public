@@ -13,6 +13,9 @@ import string
 import os
 from typing import List
 from server import Server
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def print_bold_red(text: str) -> None:
@@ -86,7 +89,7 @@ def insert_fake_non_qr_data() -> List:
 def insert_all_data() -> None:
     insert_fake_qr_data()
     insert_fake_non_qr_data()
-    utils.log_info("Done inserting data. Please run server to calculate and upload to cloud")
+    log.info("Done inserting data. Please run server to calculate and upload to cloud")
 
 
 local_database = database.Database(port=1678)

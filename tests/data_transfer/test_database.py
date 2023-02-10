@@ -22,14 +22,12 @@ def test_schema():
     assert collections == database.COLLECTION_SCHEMA
 
 
-def test_check_col_name(capsys):
+def test_check_col_name(caplog):
     """Checks collection name checker"""
     database.check_collection_name(TEST_DATABASE_NAME)
-    captured = capsys.readouterr()
-    assert (
-        captured.err
-        == f'WARNING: database.py: Unexpected collection name: "{TEST_DATABASE_NAME}"\n'
-    )
+    assert [f'database.py: Unexpected collection name: "{TEST_DATABASE_NAME}"'] == [
+        rec.message for rec in caplog.records if rec.levelname == "WARNING"
+    ]
 
 
 class TestDatabase:

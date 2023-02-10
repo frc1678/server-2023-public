@@ -6,6 +6,9 @@ import dataclasses
 
 from calculations.base_calculations import BaseCalculations
 from data_transfer import tba_communicator
+import logging
+
+log = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -256,7 +259,7 @@ class PredictedAimCalc(BaseCalculations):
                 # has_data is False if any of the teams in the aim are missing obj_team or tba_team data
                 if team not in obj_team_numbers or team not in tba_team_numbers:
                     has_data = False
-                    utils.log_warning(
+                    log.warning(
                         f'Incomplete team data for Alliance {aim["alliance_color"]} in Match {aim["match_number"]}'
                     )
                     break

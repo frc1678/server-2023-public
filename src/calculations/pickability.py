@@ -1,5 +1,8 @@
 from calculations import base_calculations
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class PickabilityCalc(base_calculations.BaseCalculations):
@@ -53,7 +56,7 @@ class PickabilityCalc(base_calculations.BaseCalculations):
             for calc_name in self.pickability_schema:
                 value = self.calculate_pickability(calc_name, team_data)
                 if value is None:
-                    utils.log_error(f"{calc_name} could not be calculated for team: {team}")
+                    log.error(f"{calc_name} could not be calculated for team: {team}")
                     continue
                 update[calc_name] = value
                 updates.append(update)

@@ -10,6 +10,9 @@ import pymongo
 
 from data_transfer import database
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class CloudDBUpdater:
@@ -62,12 +65,12 @@ class CloudDBUpdater:
             try:
                 results[collection] = self.cloud_db.bulk_write(collection, bulk_ops)
             except pymongo.errors.BulkWriteError:
-                utils.log_error(f"Error Writing to {collection}.")
+                log.error(f"Error Writing to {collection}.")
                 current_documents = self.db.find(collection)
                 self.cloud_db.delete_data(collection)
                 self.cloud_db.insert_documents(collection, current_documents)
             except pymongo.errors.ServerSelectionTimeoutError:
-                utils.log_warning(f"Unable to write to {collection} due to poor internet")
+                log.warning(f"Unable to write to {collection} due to poor internet")
                 break  # Don't delay server cycle with more operations without internet
         # Update timestamp if loop exited properly
         else:
@@ -107,7 +110,7 @@ class CloudDBUpdater:
             return database.Database(connection=cls.get_connection_string())
         except pymongo.errors.ConfigurationError:
             # Raised when DNS operation times out, effectively means no internet
-            utils.log_warning("Cannot connect to Cloud DB")
+            log.warning("Cannot connect to Cloud DB")
             return None
 
     @classmethod

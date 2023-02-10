@@ -5,9 +5,12 @@ import utils
 
 import datetime
 
-import termcolor
+import logging
 
 import sys
+from console import console
+
+log = logging.getLogger(__name__)
 
 
 class QRInput(calculations.base_calculations.BaseCalculations):
@@ -23,7 +26,7 @@ class QRInput(calculations.base_calculations.BaseCalculations):
         for qr_code in qr_codes:
             # Check for duplicate QR codes
             if qr_code in qr_data:
-                termcolor.cprint(f"WARNING: duplicate QR code not uploaded\t{qr_code}", color="red")
+                log.warning(f"Duplicate QR code not uploaded\t{qr_code}")
                 continue
             # Checks to make sure the qr is valid by checking its starting character
             elif qr_code.startswith(
@@ -31,7 +34,7 @@ class QRInput(calculations.base_calculations.BaseCalculations):
             ) or qr_code.startswith(self.schema["objective_tim"]["_start_character"]):
                 qr.add(qr_code)
             else:
-                utils.log_warning(f'Invalid QR code not uploaded: "{qr_code}"')
+                log.warning(f'Invalid QR code not uploaded: "{qr_code}"')
         if qr != set():
             curr_time = datetime.datetime.now()
             qr = [
@@ -55,7 +58,7 @@ class QRInput(calculations.base_calculations.BaseCalculations):
         if test_input:
             qr_codes = test_input
         else:
-            print(termcolor.colored("ENTER DATA: ", "green"))
+            console.print("[green]ENTER DATA: ")
             qr_codes = (
                 sys.stdin.read()
             )  # stdin.read() is used so that pressing enter does not end the input | Use CTRL+D instead

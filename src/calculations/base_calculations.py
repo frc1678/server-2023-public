@@ -4,6 +4,9 @@ import pymongo
 import statistics
 
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class BaseCalculations:
@@ -112,9 +115,7 @@ class BaseCalculations:
 
                 return reader
         except FileNotFoundError:
-            utils.log_error(
-                f"base_calculations: data/{utils.TBA_EVENT_KEY}_team_list.json not found"
-            )
+            log.error(f"base_calculations: data/{utils.TBA_EVENT_KEY}_team_list.json not found")
             return []
 
     @staticmethod
@@ -128,7 +129,7 @@ class BaseCalculations:
             with open(f"data/{utils.TBA_EVENT_KEY}_match_schedule.json") as file:
                 reader = json.load(file)
         except FileNotFoundError:
-            utils.log_error(
+            log.error(
                 f"base_calculations: data/{utils.TBA_EVENT_KEY}_match_schedule.json not found"
             )
             return []

@@ -10,6 +10,9 @@ import requests
 
 from data_transfer import database
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def tba_request(api_url):
@@ -17,7 +20,7 @@ def tba_request(api_url):
 
     (the part after '/api/v3').
     """
-    utils.log_info(f"tba request from {api_url} started")
+    log.info(f"tba request from {api_url} started")
     full_url = f"https://www.thebluealliance.com/api/v3/{api_url}"
     request_headers = {"X-TBA-Auth-Key": get_api_key()}
     db = database.Database()
@@ -26,11 +29,11 @@ def tba_request(api_url):
     if cached:
         request_headers["If-None-Match"] = cached["etag"]
     print(f"Retrieving data from {full_url}")
-    utils.log_info(f"tba request from {api_url} finished")
+    log.info(f"tba request from {api_url} finished")
     try:
         request = requests.get(full_url, headers=request_headers)
     except requests.exceptions.ConnectionError:
-        utils.log_warning("Error: No internet connection.")
+        log.warning("Error: No internet connection.")
         return None
     # A 200 status code means the request was successful
     # 304 means that data was not modified since the last timestamp

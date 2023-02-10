@@ -15,6 +15,9 @@ import time
 from data_transfer import adb_communicator
 from data_transfer import tba_communicator
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def create_match_schedule_json(local_file_path, tba_request_url):
@@ -44,7 +47,7 @@ def create_match_schedule_json(local_file_path, tba_request_url):
     with open(local_file_path, "w") as json_file:
         json.dump(match_schedule_dict, json_file)
 
-    utils.log_info(f"Match schedule created at {local_file_path}, url is {tba_request_url}")
+    log.info(f"Match schedule created at {local_file_path}, url is {tba_request_url}")
 
 
 def get_team_list():
@@ -141,7 +144,7 @@ if __name__ == "__main__":
                     print(f"Loaded {MATCH_SCHEDULE_LOCAL_PATH} onto {device_name}")
                 else:
                     # Give both serial number and device name in warning
-                    utils.log_warning(
+                    log.warning(
                         f"FAILED sending {MATCH_SCHEDULE_LOCAL_PATH} to {device_name} ({device})"
                     )
 

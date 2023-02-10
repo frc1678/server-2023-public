@@ -11,6 +11,9 @@ from data_transfer import database
 import utils
 
 import datetime
+import logging
+
+log = logging.getLogger(__name__)
 
 local_database = database.Database(port=1678)
 
@@ -40,7 +43,7 @@ def upload_qr_codes(qr_codes):
             qr_code.startswith(schema["subjective_aim"]["_start_character"])
             or qr_code.startswith(schema["objective_tim"]["_start_character"])
         ):
-            utils.log_warning(f'Invalid QR code not uploaded: "{qr_code}"')
+            log.warning(f'Invalid QR code not uploaded: "{qr_code}"')
         else:
             qr.add(qr_code)
 

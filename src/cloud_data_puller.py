@@ -5,26 +5,25 @@
 import re
 import sys
 
-import termcolor
-
 from server import Server
 
-termcolor.cprint(
-    "WARNING: This script does not currently work on the new database structure",
-    color="yellow",
+import logging
+
+from rich.prompt import Confirm, Prompt
+
+log = logging.getLogger(__name__)
+
+log.warning(
+    "This script does not currently work on the new database structure",
 )
 
-CONFIRMATION = input(f"Confirm Overwrite of data in {Server.TBA_EVENT_KEY}? (y/N): ")
-if CONFIRMATION.lower() not in ["y", "yes"]:
-    print("Aborting...", file=sys.stderr)
+if not Confirm.ask(f"Confirm Overwrite of data in {Server.TBA_EVENT_KEY}?", default=False):
+    log.fatal("Aborting...")
     sys.exit(1)
 
-EVENT = input(f"Enter event code to pull data from. Leave blank to use {Server.TBA_EVENT_KEY}: ")
+EVENT = Prompt.ask(f"Enter event code to pull data from", default=Server.TBA_EVENT_KEY)
 
-if EVENT == "":
-    EVENT = Server.TBA_EVENT_KEY
-    print(f"Using event code {EVENT}")
-elif not re.fullmatch("[0-9]{4}[a-z0-9]+", EVENT):
+if not re.fullmatch("[0-9]{4}[a-z0-9]+", EVENT):
     raise ValueError(f"Invalid event code {EVENT}")
 # TODO Update this for new db structure
 # CLOUD_DATA = cloud_db_updater.CLOUD_DB.competitions.find_one({'tba_event_key': EVENT}, {'_id': 0})
@@ -33,5 +32,5 @@ elif not re.fullmatch("[0-9]{4}[a-z0-9]+", EVENT):
 #     sys.exit(1)
 # TODO: don't use ldc
 # ldc.DB.competitions.update_one({'tba_event_key': EVENT}, {'$set': CLOUD_DATA}, upsert=True)
-# utils.log_info(f'Pulled data from {EVENT} to {Server.TBA_EVENT_KEY}')
+# log.info(f'Pulled data from {EVENT} to {Server.TBA_EVENT_KEY}')
 # print('Data fetch successful')

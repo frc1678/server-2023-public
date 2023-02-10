@@ -11,6 +11,9 @@ import utils
 from calculations import base_calculations
 from calculations import qr_state
 from calculations.qr_state import QRState
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class QRType(enum.Enum):
@@ -229,7 +232,7 @@ class Decompressor(base_calculations.BaseCalculations):
             decompressed_data.append(decompressed_document)
             if set(decompressed_document.keys()) != self.OBJECTIVE_QR_FIELDS:
                 raise ValueError("QR missing data fields", qr_type)
-            utils.log_info(
+            log.info(
                 f'Match: {decompressed_document["match_number"]} '
                 f'Team: {decompressed_document["team_number"]} '
                 f'Scout_ID: {decompressed_document["scout_id"]}'
@@ -239,7 +242,7 @@ class Decompressor(base_calculations.BaseCalculations):
     def decompress_qrs(self, split_qrs):
         """Decompresses a list of QRs. Returns dict of decompressed QRs split by type."""
         output = {"unconsolidated_obj_tim": [], "subj_tim": []}
-        utils.log_info(f"Started decompression on qr batch")
+        log.info(f"Started decompression on qr batch")
         for qr in split_qrs:
             qr_type = utils.catch_function_errors(self.get_qr_type, qr["data"][0])
             if qr_type is None:
@@ -267,7 +270,7 @@ class Decompressor(base_calculations.BaseCalculations):
                 if not_overriden != {}:
                     utils.log_error(f"Couldn't override {not_overriden}")
                 output["subj_tim"].extend(decompressed_qr)
-        utils.log_info(f"Finished decompression on qr batch")
+        log.info(f"Finished decompression on qr batch")
         return output
 
     def check_scout_ids(self):
@@ -275,7 +278,7 @@ class Decompressor(base_calculations.BaseCalculations):
 
         This operation is done by `scout_id` -- if a match is missing data, then the scout_id will not
         have sent data for the match.
-        returns None -- warnings are issued directly through `utils.log_warning`.
+        returns None -- warnings are issued directly through `log.warning`.
         """
         # Load matches or matches and ids to ignore from ignore file
         if os.path.exists(self.MISSING_TIM_IGNORE_FILE_PATH):
@@ -297,14 +300,14 @@ class Decompressor(base_calculations.BaseCalculations):
             for id_ in scout_ids:
                 if id_ in unique_scout_ids:
                     if {"match_number": match, "scout_id": id_} not in items_to_ignore:
-                        utils.log_warning(f"Duplicate Scout ID {id_} for Match {match}")
+                        log.warning(f"Duplicate Scout ID {id_} for Match {match}")
                 else:
                     unique_scout_ids.append(id_)
             # Scout IDs are from 1-18 inclusive
             for id_ in range(1, 19):
                 if id_ not in unique_scout_ids:
                     if {"match_number": match, "scout_id": id_} not in items_to_ignore:
-                        utils.log_warning(f"Scout ID {id_} missing from Match {match}")
+                        log.warning(f"Scout ID {id_} missing from Match {match}")
 
     def run(self):
         new_qrs = [

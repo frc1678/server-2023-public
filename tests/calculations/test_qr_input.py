@@ -16,7 +16,7 @@ class TestQRInput:
         with mock.patch("server.Server.ask_calc_all_data", return_value=False):
             self.server = server.Server()
 
-    def test_run(self, capsys):
+    def test_run(self, caplog):
         with mock.patch("utils.read_schema", return_value=FAKE_SCHEMA), mock.patch(
             "builtins.open", mock.mock_open(read_data="1,1,1")
         ), mock.patch("json.load", return_value={}):
@@ -32,9 +32,10 @@ class TestQRInput:
             assert isinstance(query[0]["readable_time"], str)
 
             self.test_calc.run("*test\ntest")
-            reading = capsys.readouterr()
-            assert "WARNING: duplicate QR code not uploaded" in reading.out
-            assert "Invalid QR code not uploaded: " in reading.err
+            assert [
+                "Duplicate QR code not uploaded\t*test",
+                'Invalid QR code not uploaded: "test"',
+            ] == [rec.message for rec in caplog.records if rec.levelname == "WARNING"]
 
             self.test_calc.run("*test2\n+test3\n*test4")
             assert (query := self.server.db.find("raw_qr")) != [] and len(query) == 4

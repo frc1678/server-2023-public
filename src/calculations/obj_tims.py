@@ -7,6 +7,9 @@ import statistics
 import utils
 from calculations.base_calculations import BaseCalculations
 from typing import List, Union, Dict
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class ObjTIMCalcs(BaseCalculations):
@@ -205,7 +208,7 @@ class ObjTIMCalcs(BaseCalculations):
     def calculate_tim(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns a calculated TIM"""
         if len(unconsolidated_tims) == 0:
-            utils.log_warning("calculate_tim: zero TIMs given")
+            log.warning("calculate_tim: zero TIMs given")
             return {}
         calculated_tim = {}
         calculated_tim.update(self.calculate_tim_counts(unconsolidated_tims))
@@ -248,7 +251,7 @@ class ObjTIMCalcs(BaseCalculations):
             for entry in entries:
                 team_num = entry["o"]["team_number"]
                 if team_num not in self.teams_list:
-                    utils.log_warning(f"obj_tims: team number {team_num} is not in teams list")
+                    log.warning(f"obj_tims: team number {team_num} is not in teams list")
                 tims.append(
                     {
                         "team_number": team_num,

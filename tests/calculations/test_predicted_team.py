@@ -265,12 +265,13 @@ class TestPredictedTeamCalc:
         assert current_values["current_rps"] == 26
         assert current_values["current_avg_rps"] == 26 / 11
 
-    def test_calculate_predicted_alliance_rps(self):
-        with mock.patch("utils.log_warning") as log_mock:
-            predicted_alliance_rps = self.test_calc.calculate_predicted_alliance_rps(
-                self.predicted_aim
-            )
-            log_mock.assert_called_with("Incomplete AIM data for Match 4")
+    def test_calculate_predicted_alliance_rps(self, caplog):
+        predicted_alliance_rps = self.test_calc.calculate_predicted_alliance_rps(self.predicted_aim)
+
+        assert ["Incomplete AIM data for Match 4"] == [
+            rec.message for rec in caplog.records if rec.levelname == "WARNING"
+        ]
+
         assert predicted_alliance_rps[1]["R"] == 4
         assert predicted_alliance_rps[1]["B"] == 0
         assert predicted_alliance_rps[2]["R"] == 3
@@ -278,7 +279,7 @@ class TestPredictedTeamCalc:
         assert predicted_alliance_rps[3]["R"] == 2
         assert predicted_alliance_rps[3]["B"] == 3
 
-    def test_predicted_team_rps(self):
+    def test_predicted_team_rps(self, caplog):
         assert (
             self.test_calc.calculate_predicted_team_rps(
                 "1678", self.aim_list, self.predicted_alliance_rps
@@ -334,11 +335,12 @@ class TestPredictedTeamCalc:
             == 6
         )
 
-        with mock.patch("utils.log_warning") as log_mock:
-            self.test_calc.calculate_predicted_team_rps(
-                "4414", self.aim_list, self.predicted_alliance_rps
-            )
-            log_mock.assert_called_with("Missing predicted RPs for Match 4")
+        self.test_calc.calculate_predicted_team_rps(
+            "4414", self.aim_list, self.predicted_alliance_rps
+        )
+        assert ["Missing predicted RPs for Match 4"] == [
+            rec.message for rec in caplog.records if rec.levelname == "WARNING"
+        ]
 
     def test_calculate_predicted_ranks(self):
         updates = self.test_calc.calculate_predicted_ranks(self.updates, self.aim_list)

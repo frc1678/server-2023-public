@@ -212,10 +212,9 @@ class TestUnconsolidatedTotals:
         "entries_since_last",
         return_value=[{"o": {"team_number": "1", "match_number": 2}}],
     )
-    def test_in_list_check1(self, entries_since_last_dummy):
-        with mock.patch("utils.log_warning") as warning_check:
-            self.test_calculator.run()
-            warning_check.assert_called()
+    def test_in_list_check1(self, entries_since_last_dummy, caplog):
+        self.test_calculator.run()
+        assert len([rec.message for rec in caplog.records if rec.levelname == "WARNING"]) > 0
 
     @mock.patch.object(
         unconsolidated_totals.UnconsolidatedTotals,
@@ -225,7 +224,6 @@ class TestUnconsolidatedTotals:
     @mock.patch.object(
         unconsolidated_totals.UnconsolidatedTotals, "update_calcs", return_value=[{}]
     )
-    def test_in_list_check2(self, entries_since_last_dummy, update_calcs_dummy):
-        with mock.patch("utils.log_warning") as warning_check:
-            self.test_calculator.run()
-            warning_check.assert_not_called()
+    def test_in_list_check2(self, entries_since_last_dummy, update_calcs_dummy, caplog):
+        self.test_calculator.run()
+        assert len([rec.message for rec in caplog.records if rec.levelname == "WARNING"]) == 0

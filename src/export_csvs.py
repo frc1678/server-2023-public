@@ -18,6 +18,9 @@ import json
 
 import utils
 from server import Server
+import logging
+
+log = logging.getLogger(__name__)
 
 DATABASE = database.Database()
 SCHEMA = utils.read_schema("schema/collection_schema.yml")
@@ -102,7 +105,7 @@ class BaseExport:
             # For each item, write the data as a dictionary
             for single_data in final_built_data.values():
                 csv_writer.writerow(single_data)
-        utils.log_info(f"Finished export of {self.name}")
+        log.info(f"Finished export of {self.name}")
 
     def __repr__(self):
         """Give representation of the attributes this abstract class has"""
@@ -154,7 +157,7 @@ class ExportTBA(BaseExport):
 
     def write_data(self, directory_path: str):
         """Writes the data from return_tba_data to a csv file"""
-        utils.log_info("Starting export of tba_data")
+        log.info("Starting export of tba_data")
         # Get the path for tba export
         tba_file_path = os.path.join(directory_path, self.name)
         # Get the tba data from this instance
@@ -162,7 +165,7 @@ class ExportTBA(BaseExport):
         # If it can't find data, let the user know because that might be because a mongodb issue or
         # more likely an Internet issue
         if not data:
-            utils.log_error("No TBA Data to export")
+            log.error("No TBA Data to export")
         # Get all the field_names from the data
         field_names = data[0].keys()
         with open(tba_file_path, "w") as file:
@@ -172,7 +175,7 @@ class ExportTBA(BaseExport):
             # Write each row of tba data
             for row in data:
                 writer.writerow(row)
-        utils.log_info("Finished export of tba_data")
+        log.info("Finished export of tba_data")
 
 
 class ExportTIM(BaseExport):
@@ -194,7 +197,7 @@ class ExportTIM(BaseExport):
         key is the team number and the value is all the data corresponding to
         that specific team in a specific match
         """
-        utils.log_info("Starting export of tim_data")
+        log.info("Starting export of tim_data")
         # Gets the lists of column headers and dictionaries to use in export
         tim_data = self.get_data(ExportTIM.db_data_paths)
         column_headers: List[str] = []
@@ -260,7 +263,7 @@ class ExportTeam(BaseExport):
         Puts team export files into their own directory
         to separate them from team in match export files.
         """
-        utils.log_info("Starting export of team_data")
+        log.info("Starting export of team_data")
         # Get the lists of column headers and dictionaries to use in export
         team_data = self.get_data(ExportTeam.db_data_paths)
 
@@ -321,7 +324,7 @@ class ExportScout(BaseExport):
         key is the scout name and the value is all the data corresponding to
         that specific scout in a specific match
         """
-        utils.log_info("Starting export of scout_data")
+        log.info("Starting export of scout_data")
         # Gets the lists of column headers and dictionaries to use in export
         scout_data = self.get_data(ExportScout.db_data_paths)
         column_headers: List[str] = []

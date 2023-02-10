@@ -6,6 +6,9 @@ from data_transfer import adb_communicator
 import os
 import utils
 import shutil
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class TabletClean:
@@ -26,7 +29,7 @@ class TabletClean:
         if os.path.isdir(self.tablet_data_path):
             # Deletes the directory
             shutil.rmtree(self.tablet_data_path)
-            utils.log_info(f"Deleted all files in {self.tablet_data_path}")
+            log.info(f"Deleted all files in {self.tablet_data_path}")
         # Creates the tablet directory again
         utils.create_file_path(self.tablet_data_path, True)
 

@@ -4,6 +4,9 @@ import copy
 import utils
 from calculations.base_calculations import BaseCalculations
 from typing import List, Union, Dict
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class UnconsolidatedTotals(BaseCalculations):
@@ -38,7 +41,7 @@ class UnconsolidatedTotals(BaseCalculations):
     def calculate_unconsolidated_tims(self, unconsolidated_tims: List[Dict]):
         """Given a list of unconsolidated TIMS, returns the unconsolidated calculated TIMs"""
         if len(unconsolidated_tims) == 0:
-            utils.log_warning("calculate_tim: zero TIMs given")
+            log.warning("calculate_tim: zero TIMs given")
             return {}
 
         unconsolidated_totals = []
@@ -91,7 +94,7 @@ class UnconsolidatedTotals(BaseCalculations):
             for entry in entries:
                 team_num = entry["o"]["team_number"]
                 if team_num not in self.teams_list:
-                    utils.log_warning(f"obj_tims: team number {team_num} is not in teams list")
+                    log.warning(f"obj_tims: team number {team_num} is not in teams list")
                 tims.append(
                     {
                         "team_number": team_num,

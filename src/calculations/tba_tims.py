@@ -9,6 +9,9 @@ from calculations import base_calculations
 from data_transfer import tba_communicator
 import utils
 from server import Server
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class TBATIMCalc(base_calculations.BaseCalculations):
@@ -83,7 +86,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
 
         # Check if an important thing like score_breakdown is in the match data
         if match["score_breakdown"] is None:
-            utils.log_warning(f"TBA TIM Calculation on {match_number} missing match data")
+            log.warning(f"TBA TIM Calculation on {match_number} missing match data")
 
         robot_number, alliance = self.get_robot_number_and_alliance(team_number, match)
 
@@ -94,7 +97,7 @@ class TBATIMCalc(base_calculations.BaseCalculations):
             tim_requirements_copy = copy.deepcopy(tim_requirements)
 
             if tim_requirements["type"] != "bool":
-                utils.log_warning(f"Tried to calc bool on {calculation}")
+                log.warning(f"Tried to calc bool on {calculation}")
                 continue
 
             # type does not need to be in the final data, so we remove it

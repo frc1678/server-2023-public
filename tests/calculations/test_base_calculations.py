@@ -124,8 +124,7 @@ class TestBaseCalculations:
         with patch("calculations.base_calculations.open", mock_open(read_data=test_json)):
             assert BaseCalculations.get_aim_list() == expected_aim_list
 
-    @patch("utils.log_error")
-    def test_get_teams_list(self, log_error_mock):
+    def test_get_teams_list(self, caplog):
         with patch("calculations.base_calculations.open", mock_open(read_data="[1,2,3]")) as _:
             assert BaseCalculations.get_teams_list() == [1, 2, 3]
 
@@ -135,4 +134,4 @@ class TestBaseCalculations:
         with patch("calculations.base_calculations.open", Mock(side_effect=f)):
             assert BaseCalculations.get_teams_list() == []
             # Assert that the FileNotFoundError was logged
-            log_error_mock.assert_called_once()
+            assert len([rec.message for rec in caplog.records if rec.levelname == "ERROR"]) == 1

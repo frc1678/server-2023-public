@@ -8,8 +8,11 @@ import base64
 import requests
 import glob
 import csv
+import logging
 
-from utils import TBA_EVENT_KEY, log_info
+log = logging.getLogger(__name__)
+
+from utils import TBA_EVENT_KEY
 
 # Create OAUTH2 application at https://api.imgur.com/oauth2/addclient
 # Make sure to set the "Callback URL" to "http://localhost:8678"
@@ -289,9 +292,8 @@ def run(creds):
                     continue
                 # Upload image to imgur
                 resp = imgur.upload_img_filename(img_path, title)
-                log = f"Response success: {resp['success']}    Title: {title}    Link: {resp['data']['link']}"
-                print(log)
-                log_info(log)
+                log_string = f"Response success: {resp['success']}    Title: {title}    Link: {resp['data']['link']}"
+                log.info(log_string)
         if prompt == "2":
             # print(images)
 

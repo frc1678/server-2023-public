@@ -2,9 +2,9 @@
 # Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 """Elegantly displays attached and missing devices."""
 
-from termcolor import colored
-
 from data_transfer import adb_communicator
+
+from console import console
 
 
 def missing_devices():
@@ -12,8 +12,8 @@ def missing_devices():
 
     prints in color based on missing status.
     """
-    print(colored("Normally Pixel 3a #1-3 and Lenovo Tab E7 #1-28 should be here.", "yellow"))
-    print(
+    console.print("[yellow]Normally Pixel 3a #1-3 and Lenovo Tab E7 #1-28 should be here.")
+    console.print(
         "Lenovo Tab E7 #29-33 are not included in the tablet cases unless tablets have been switched out."
     )
     devices = adb_communicator.get_attached_devices()
@@ -21,9 +21,9 @@ def missing_devices():
     for device in adb_communicator.DEVICE_SERIAL_NUMBERS:
         # Checks if device is connected
         if device not in devices:
-            print(colored(adb_communicator.DEVICE_SERIAL_NUMBERS[device], "red"))
+            console.print(f"[red]{adb_communicator.DEVICE_SERIAL_NUMBERS[device]}")
         else:
-            print(colored(adb_communicator.DEVICE_SERIAL_NUMBERS[device], "green"))
+            console.print(f"[green]{adb_communicator.DEVICE_SERIAL_NUMBERS[device]}")
 
 
 if __name__ == "__main__":

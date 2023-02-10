@@ -4,6 +4,9 @@
 import utils
 from data_transfer import tba_communicator
 from calculations.base_calculations import BaseCalculations
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class PredictedTeamCalc(BaseCalculations):
@@ -33,7 +36,7 @@ class PredictedTeamCalc(BaseCalculations):
             aims_in_match = [aim for aim in predicted_aims if aim["match_number"] == match]
             predicted_alliance_rps[match] = {}
             if len(aims_in_match) < 2:
-                utils.log_warning(f"Incomplete AIM data for Match {match}")
+                log.warning(f"Incomplete AIM data for Match {match}")
                 break
             for aim in range(2):
                 rps = aims_in_match[aim]["predicted_rp1"] + aims_in_match[aim]["predicted_rp2"]
@@ -59,10 +62,10 @@ class PredictedTeamCalc(BaseCalculations):
         for aim in aim_list:
             if team_number in aim["team_list"]:
                 if aim["match_number"] not in predicted_alliance_rps.keys():
-                    utils.log_warning(f'Missing predicted RPs for Match {aim["match_number"]}')
+                    log.warning(f'Missing predicted RPs for Match {aim["match_number"]}')
                     break
                 if aim["alliance_color"] not in predicted_alliance_rps[aim["match_number"]].keys():
-                    utils.log_warning(
+                    log.warning(
                         f'Missing predicted RPs for Alliance {aim["alliance_color"]} in Match {aim["match_number"]}'
                     )
                     break

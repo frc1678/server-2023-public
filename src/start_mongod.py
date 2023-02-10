@@ -3,6 +3,9 @@
 """Starts the mongod instance used by database.py, including handling the replica set"""
 import subprocess
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 # Replica Set constants
 PORT = 1678
@@ -36,9 +39,9 @@ def start_mongod():
     )
 
     if start_mongod_result.returncode == 48:
-        utils.log_info("Custom mongod process already started")
+        log.info("Custom mongod process already started")
     elif start_mongod_result.returncode > 0:
-        utils.log_error("Error starting mongod. Check data/mongod.log for more details")
+        log.error("Error starting mongod. Check data/mongod.log for more details")
 
     init_repl_set_result = subprocess.run(
         ["mongosh", "--eval", "rs.initiate()", "--port", str(PORT)],
@@ -47,17 +50,17 @@ def start_mongod():
     )
     output = init_repl_set_result.stdout.decode("utf-8")
     if init_repl_set_result.returncode != 0:
-        utils.log_error(f"Error initiating Replica Set.\n{output}")
+        log.error(f"Error initiating Replica Set.\n{output}")
         return
 
     if '"codeName" : "AlreadyInitialized"' in output:
-        utils.log_info("Replica Set already started")
+        log.info("Replica Set already started")
     elif '"codeName" : "NoReplicationEnabled"' in output:
-        utils.log_error(f"Replication not enabled on mongod running on localhost:{PORT}")
+        log.error(f"Replication not enabled on mongod running on localhost:{PORT}")
     elif '"ok" : 0' in output:
-        utils.log_warning(f"Unknown problem initializing replica set\n{output}")
+        log.warning(f"Unknown problem initializing replica set\n{output}")
     else:
-        utils.log_info("Replica set started successfully")
+        log.info("Replica set started successfully")
 
 
 if __name__ == "__main__":

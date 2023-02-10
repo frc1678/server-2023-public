@@ -11,6 +11,9 @@ import time
 from data_transfer import database
 import qr_code_uploader
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def delete_tablet_downloads():
@@ -22,11 +25,9 @@ def delete_tablet_downloads():
     for device in devices:
         try:
             utils.run_command(f"adb -s {device} shell rm -r {directory}")
-            utils.log_info(f"Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]} ({device})")
+            log.info(f"Removed Downloads on {DEVICE_SERIAL_NUMBERS[device]} ({device})")
         except:
-            utils.log_info(
-                f"Found no files to delete on {DEVICE_SERIAL_NUMBERS[device]} ({device})"
-            )
+            log.info(f"Found no files to delete on {DEVICE_SERIAL_NUMBERS[device]} ({device})")
 
 
 def get_attached_devices():
@@ -72,11 +73,9 @@ def uninstall_app(device, app_name="com.frc1678.match_collection"):
     uninstall_command = f"adb -s {device} uninstall {app_name}"
     if app_name in installed_apps:
         utils.run_command(uninstall_command)
-        utils.log_info(
-            f"Uninstalled app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device})"
-        )
+        log.info(f"Uninstalled app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device})")
     else:
-        utils.log_info(
+        log.info(
             f"Tried to to uninstall app {app_name} from {DEVICE_SERIAL_NUMBERS[device]}, ({device}) but it was not in list of installed apps."
         )
 
@@ -132,7 +131,7 @@ def adb_remove_files(tablet_file_path):
         # Bridge (ADB) to copy the match schedule file to the tablet
         # The -s flag specifies the devices by their serial numbers
         utils.run_command(f"adb -s {device} shell rm -r {tablet_file_path}")
-        utils.log_info(f"removed {tablet_file_path} on {DEVICE_SERIAL_NUMBERS[device]}, ({device})")
+        log.info(f"removed {tablet_file_path} on {DEVICE_SERIAL_NUMBERS[device]}, ({device})")
 
 
 def pull_device_data():
@@ -179,7 +178,7 @@ def pull_device_data():
             # Specify query to ensure that each team only has one entry
             db.update_document(dataset, document, {"team_number": document["team_number"]})
             modified_data.append({"team_number": document["team_number"]})
-        utils.log_info(f"{len(modified_data)} items uploaded to {dataset}")
+        log.info(f"{len(modified_data)} items uploaded to {dataset}")
         data[dataset] = modified_data
     return data
 

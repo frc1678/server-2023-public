@@ -28,9 +28,8 @@ class TestServer:
         assert calcs == [mock_import.return_value.test()]
 
     @mock.patch("server.Server.ask_calc_all_data", return_value=False)
-    @mock.patch("server.utils.log_error")
     @mock.patch("server.yaml.load", return_value=[{"import_path": "a.b", "class_name": "test"}])
-    def test_load_calculations_import_error(self, mock_calc_dict, mock_log, mock_calc_all_data):
+    def test_load_calculations_import_error(self, mock_calc_dict, mock_calc_all_data, caplog):
         def f(path):
             raise SyntaxError(f"Error in {path}")
 
@@ -38,12 +37,13 @@ class TestServer:
             s = server.Server()
             assert s.calculations == []
 
-        mock_log.assert_called_with("SyntaxError importing a.b: Error in a.b")
+        assert ["SyntaxError importing a.b: Error in a.b"] == [
+            rec.message for rec in caplog.records if rec.levelname == "ERROR"
+        ]
 
     @mock.patch("server.Server.ask_calc_all_data", return_value=False)
-    @mock.patch("server.utils.log_error")
     @mock.patch("server.yaml.load", return_value=[{"import_path": "a.b", "class_name": "test"}])
-    def test_load_calculations_calc_init_error(self, mock_calc_dict, mock_log, mock_calc_all_data):
+    def test_load_calculations_calc_init_error(self, mock_calc_dict, mock_calc_all_data, caplog):
         def f(server):
             raise ValueError("Error in calculation")
 
@@ -54,7 +54,9 @@ class TestServer:
             s = server.Server()
             assert s.calculations == []
 
-        mock_log.assert_called_with("ValueError instantiating a.b.test: Error in calculation")
+        ["ValueError instantiating a.b.test: Error in calculation"] == [
+            rec.message for rec in caplog.records if rec.levelname == "ERROR"
+        ]
 
     @mock.patch("server.Server.ask_calc_all_data", return_value=False)
     def test_run_calculations(self, mock_calc_all_data):

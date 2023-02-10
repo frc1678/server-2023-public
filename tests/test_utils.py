@@ -10,7 +10,7 @@ import utils
 def test_constants():
     # Check main directory
     assert __file__.startswith(str(utils.MAIN_DIRECTORY))
-    assert re.search(r"server(-2020)?[/\\]?$", str(utils.MAIN_DIRECTORY))
+    assert re.search(r"server(-\d+)?[/\\]?$", str(utils.MAIN_DIRECTORY))
     assert os.path.exists(utils.MAIN_DIRECTORY)
 
 
@@ -45,29 +45,6 @@ def test_catch_function_errors(capsys, caplog):
         assert record.levelname == "ERROR"
     assert utils.catch_function_errors(int, "1") == 1
     assert utils.catch_function_errors(int, "a") is None
-
-
-def test_log_warning(capsys, caplog):
-    utils.log_warning("warning")
-    captured = capsys.readouterr()
-    assert captured.err == "WARNING: warning\n"
-    for record in caplog.records:
-        assert record.levelname == "WARNING"
-
-
-def test_log_info(caplog):
-    utils.log_info("info")
-    for record in caplog.records:
-        assert record.levelname == "INFO"
-
-
-def test_log_debug(caplog):
-    utils.log_debug("debug")
-    for record in caplog.records:
-        assert record.levelname == "DEBUG"
-
-
-# End test of logging
 
 
 def test_load_tba_event_key_file():

@@ -10,6 +10,9 @@ from data_transfer import tba_communicator
 import numpy as np
 import numpy.linalg as nl
 from cc import cc, CCEvent
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class TBATeamCalc(base_calculations.BaseCalculations):
@@ -134,7 +137,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
                     team_data["team_name"] = "UNKNOWN NAME"
                 # Warn that the team is not in the team list for event if there is team data
                 if team_names:
-                    utils.log_warning(f"Team {team} not found in team list from TBA")
+                    log.warning(f"Team {team} not found in team list from TBA")
 
             tba_team_updates[team] = team_data
         # Add remaining regression results as regression can change for every team, so data must be

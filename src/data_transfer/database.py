@@ -12,6 +12,9 @@ import pymongo
 
 import start_mongod
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 # Load collection names
 COLLECTION_SCHEMA = utils.read_schema("schema/collection_schema.yml")
@@ -37,7 +40,7 @@ start_mongod.start_mongod()
 def check_collection_name(collection_name: str) -> None:
     """Checks if a collection name exists, prints a warning if it doesn't"""
     if collection_name not in COLLECTION_NAMES:
-        utils.log_warning(f'database.py: Unexpected collection name: "{collection_name}"')
+        log.warning(f'database.py: Unexpected collection name: "{collection_name}"')
 
 
 class Database:
@@ -94,7 +97,7 @@ class Database:
         """Deletes data in 'collection' according to 'filters'"""
         check_collection_name(collection)
         if "raw" in collection:
-            utils.log_warning(f"Attempted to delete raw data from collection {collection}")
+            log.warning(f"Attempted to delete raw data from collection {collection}")
             return
         self.db[collection].delete_many(query)
 
@@ -106,7 +109,7 @@ class Database:
         elif data != {} and isinstance(data, dict):
             self.db[collection].insert_one(data)
         else:
-            utils.log_warning(
+            log.warning(
                 f'database.py: data for insertion to "{collection}" is not a list or dictionary, or is empty'
             )
 
@@ -119,7 +122,7 @@ class Database:
         """Updates one document that matches 'query' with 'new_data', uses upsert"""
         check_collection_name(collection)
         if collection == "raw_qr":
-            utils.log_warning(f"Attempted to modify raw qr data")
+            log.warning(f"Attempted to modify raw qr data")
             return
         self.db[collection].update_one(query, {"$set": new_data}, upsert=True)
 
@@ -159,7 +162,7 @@ class Database:
         if collection in VALID_COLLECTIONS:
             return self.db[collection].bulk_write(actions)
         else:
-            utils.log_info(f'database.py: Invalid collection name: "{collection}"')
+            log.info(f'database.py: Invalid collection name: "{collection}"')
 
 
 def mongo_convert(sch):

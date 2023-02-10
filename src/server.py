@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 # Copyright (c) 2022 FRC Team 1678: Citrus Circuits
 """Contains the server class."""
+import console  # DON'T DELETE THIS LINE. This initializes the logging system
 import importlib
 from typing import List
 
@@ -9,6 +10,9 @@ import yaml
 from calculations.base_calculations import BaseCalculations
 from data_transfer import database, cloud_db_updater
 import utils
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class Server:
@@ -45,7 +49,7 @@ class Server:
             try:
                 module = importlib.import_module(calc["import_path"])
             except Exception as e:
-                utils.log_error(f'{e.__class__.__name__} importing {calc["import_path"]}: {e}')
+                log.error(f'{e.__class__.__name__} importing {calc["import_path"]}: {e}')
                 continue
             # Get calculation class from module
             try:
@@ -56,7 +60,7 @@ class Server:
                 # oplog or the database
                 loaded_calcs.append(cls(self))
             except Exception as e:
-                utils.log_error(
+                log.error(
                     f'{e.__class__.__name__} instantiating {calc["import_path"]}.{calc["class_name"]}: {e}'
                 )
         return loaded_calcs

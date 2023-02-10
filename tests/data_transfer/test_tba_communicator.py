@@ -13,13 +13,13 @@ test_json = {"teams": ["frc1678", "frc4414", "frc1671"]}
 
 
 @patch("requests.get")
-def test_connection_error(get_mock):
+def test_connection_error(get_mock, caplog):
     get_mock.side_effect = requests.exceptions.ConnectionError()
-    with patch("utils.log_warning") as log_mock, patch(
-        "data_transfer.tba_communicator.get_api_key", return_value="api_key"
-    ):
+    with patch("data_transfer.tba_communicator.get_api_key", return_value="api_key"):
         tba_communicator.tba_request("events/2020caln/matches")
-        log_mock.assert_called_with("Error: No internet connection.")
+    assert ["Error: No internet connection."] == [
+        rec.message for rec in caplog.records if rec.levelname == "WARNING"
+    ]
 
 
 @patch("requests.get")

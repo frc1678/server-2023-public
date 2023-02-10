@@ -234,12 +234,13 @@ class TestSimPrecisionCalc:
         assert self.test_calc.get_tba_aim_score(3, False, self.tba_test_data) == None
         assert self.test_calc.get_tba_aim_score(3, True, self.tba_test_data) == None
 
-    def test_get_scout_tim_score(self):
+    def test_get_scout_tim_score(self, caplog):
         required = self.test_calc.sim_schema["calculations"]["sim_precision"]["requires"]
         self.test_server.db.delete_data("unconsolidated_totals")
-        with patch("utils.log_warning") as log_patch:
-            self.test_calc.get_scout_tim_score("RAY FABIONAR", 2, required)
-        log_patch.assert_called_with("No data from Scout RAY FABIONAR in Match 2")
+        self.test_calc.get_scout_tim_score("RAY FABIONAR", 2, required)
+        assert ["No data from Scout RAY FABIONAR in Match 2"] == [
+            rec.message for rec in caplog.records if rec.levelname == "WARNING"
+        ]
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
         assert self.test_calc.get_scout_tim_score("ALISON LIN", 1, required) == 49
         assert self.test_calc.get_scout_tim_score("NITHMI JAYASUNDARA", 1, required) == 40
@@ -260,21 +261,22 @@ class TestSimPrecisionCalc:
             "589": {"KATE UNGER": 43},
         }
 
-    def test_get_aim_scout_avg_errors(self):
-        with patch("utils.log_warning") as log_patch:
-            assert (
-                self.test_calc.get_aim_scout_avg_errors(
-                    {
-                        "1678": {"KATHY LI": 9, "RAY FABIONAR": 7},
-                        "589": {"NITHMI JAYASUNDARA": 17},
-                    },
-                    100,
-                    1,
-                    True,
-                )
-                == {}
+    def test_get_aim_scout_avg_errors(self, caplog):
+        assert (
+            self.test_calc.get_aim_scout_avg_errors(
+                {
+                    "1678": {"KATHY LI": 9, "RAY FABIONAR": 7},
+                    "589": {"NITHMI JAYASUNDARA": 17},
+                },
+                100,
+                1,
+                True,
             )
-        log_patch.assert_called_with("Missing scout data for Match 1, Alliance is Red: True")
+            == {}
+        )
+        assert ["Missing scout data for Match 1, Alliance is Red: True"] == [
+            rec.message for rec in caplog.records if rec.levelname == "WARNING"
+        ]
         aim_scout_scores = {
             "1678": {"ALISON LIN": 49, "NATHAN MILLS": 47},
             "4414": {"KATHY LI": 45},
