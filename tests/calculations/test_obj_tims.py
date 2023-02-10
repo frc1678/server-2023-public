@@ -49,6 +49,7 @@ class TestObjTIMCalcs:
             "tele_charge_level": "P",
             "start_position": "1",
             "preloaded_gamepiece": "B",
+            "override": {"failed_scores": 0},
         },
         {
             "schema_version": 6,
@@ -86,6 +87,7 @@ class TestObjTIMCalcs:
             "tele_charge_level": "N",
             "start_position": "3",
             "preloaded_gamepiece": "B",
+            "override": {"failed_scores": 0},
         },
         {
             "schema_version": 6,
@@ -125,6 +127,7 @@ class TestObjTIMCalcs:
             "tele_charge_level": "D",
             "start_position": "1",
             "preloaded_gamepiece": "N",
+            "override": {"failed_scores": 0},
         },
     ]
 
@@ -211,7 +214,7 @@ class TestObjTIMCalcs:
         assert calculated_tim["tele_charge_level"] == "PARK"
         assert calculated_tim["start_position"] == "1"
         assert calculated_tim["preloaded_gamepiece"] == "CUBE"
-        assert calculated_tim["failed_scores"] == 1
+        assert calculated_tim["failed_scores"] == 0
 
     @mock.patch.object(
         obj_tims.ObjTIMCalcs,

@@ -51,6 +51,7 @@ def upload_qr_codes(qr_codes):
             {
                 "data": qr_code,
                 "blocklisted": False,
+                "override": {},
                 "epoch_time": curr_time.timestamp(),
                 "readable_time": curr_time.strftime("%D - %H:%M:%S"),
             }

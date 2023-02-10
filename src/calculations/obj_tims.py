@@ -226,7 +226,17 @@ class ObjTIMCalcs(BaseCalculations):
         calculated_tims = []
         for tim in tims:
             unconsolidated_obj_tims = self.server.db.find("unconsolidated_obj_tim", tim)
-            calculated_tims.append(self.calculate_tim(unconsolidated_obj_tims))
+            # Check for overriding datapoints
+            override = {}
+            for t in unconsolidated_obj_tims:
+                if "override" in t:
+                    override.update(t.pop("override"))
+            calculated_tim = self.calculate_tim(unconsolidated_obj_tims)
+            if override != {}:
+                for edited_datapoint in override:
+                    if edited_datapoint in calculated_tim:
+                        calculated_tim[edited_datapoint] = override[edited_datapoint]
+            calculated_tims.append(calculated_tim)
         return calculated_tims
 
     def run(self):

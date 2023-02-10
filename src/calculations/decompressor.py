@@ -244,14 +244,28 @@ class Decompressor(base_calculations.BaseCalculations):
             qr_type = utils.catch_function_errors(self.get_qr_type, qr["data"][0])
             if qr_type is None:
                 continue
-            # Remove identification character
-            qr = qr["data"][1:]
-            decompressed_qr = utils.catch_function_errors(self.decompress_single_qr, qr, qr_type)
+            decompressed_qr = utils.catch_function_errors(
+                self.decompress_single_qr, qr["data"][1:], qr_type
+            )
             if decompressed_qr is None:
                 continue
+            # Check for overrides
+            for decompressed in decompressed_qr:
+                not_overriden = {}
+                for edited_datapoint in qr["override"]:
+                    if edited_datapoint in decompressed:
+                        decompressed[edited_datapoint] = qr["override"][edited_datapoint]
+                    else:
+                        not_overriden[edited_datapoint] = qr["override"][edited_datapoint]
+                # If there were datapoints in override that weren't in decompressed data,
+                # add override to data for obj_tim calcs to handle
+                if qr_type == QRType.OBJECTIVE and not_overriden != {}:
+                    decompressed["override"] = not_overriden
             if qr_type == QRType.OBJECTIVE:
                 output["unconsolidated_obj_tim"].extend(decompressed_qr)
             elif qr_type == QRType.SUBJECTIVE:
+                if not_overriden != {}:
+                    utils.log_error(f"Couldn't override {not_overriden}")
                 output["subj_tim"].extend(decompressed_qr)
         utils.log_info(f"Finished decompression on qr batch")
         return output

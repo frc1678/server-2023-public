@@ -128,6 +128,11 @@ class Database:
         Lowers risk of data loss from using normal update."""
         self.db["raw_qr"].update_one(query, {"$set": {"blocklisted": True}})
 
+    def update_qr_data_override(self, query, datapoint, new_value) -> None:
+        """Changes the override of a datapoint of a raw qr matching 'query' to new_value
+        Lowers risk of data loss from using normal update."""
+        self.db["raw_qr"].update_one(query, {"$set": {f"override.{datapoint}": new_value}})
+
     def _enable_validation(self, collection: str, file: str):
         sch = utils.read_schema("schema/" + file)
         sch = mongo_convert(sch)

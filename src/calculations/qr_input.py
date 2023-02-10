@@ -38,6 +38,7 @@ class QRInput(calculations.base_calculations.BaseCalculations):
                 {
                     "data": qr_code,
                     "blocklisted": False,
+                    "override": {},
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 }

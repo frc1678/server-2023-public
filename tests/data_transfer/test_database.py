@@ -113,6 +113,7 @@ class TestDatabase:
             {
                 "data": "test_qr_string",
                 "blocklisted": False,
+                "override": {},
                 "epoch_time": 1641525570,
                 "readable_time": "Thursday, January 6, 2022 7:19:30 PM",
             }
@@ -120,6 +121,23 @@ class TestDatabase:
         TEST_DB_ACTUAL.update_qr_blocklist_status({"data": "test_qr_string"})
         test_qr = TEST_DB_HELPER.raw_qr.find_one({})
         assert test_qr["blocklisted"] == True
+
+    def test_update_qr_data_override(self):
+        """Tests data override of qrs"""
+        TEST_DB_HELPER.raw_qr.insert_one(
+            {
+                "data": "test_override_qr_string",
+                "blocklisted": False,
+                "override": {},
+                "epoch_time": 1641525570,
+                "readable_time": "Sunday, February 5, 2023 4:31:13 PM",
+            }
+        )
+        TEST_DB_ACTUAL.update_qr_data_override(
+            {"data": "test_override_qr_string"}, "test", "something"
+        )
+        test_qr = TEST_DB_HELPER.raw_qr.find_one({})
+        assert test_qr["override"] == {"test": "something"}
 
     def test_bulk_write(self):
         operations = [

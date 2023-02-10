@@ -360,10 +360,12 @@ class TestDecompressor:
         assert expected_output == self.test_decompressor.decompress_qrs(
             [
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$X4$W060AD061AE$VNONE$UNONE$TNONE"
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$X4$W060AD061AE$VNONE$UNONE$TNONE",
+                    "override": {},
                 },
                 {
-                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$FTRUE$G196#A254$B2$C2$DFALSE$FFALSE$G373#A1323$B3$C3$DTRUE$FFALSE$G746^E1100"
+                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$FTRUE$G196#A254$B2$C2$DFALSE$FFALSE$G373#A1323$B3$C3$DTRUE$FFALSE$G746^E1100",
+                    "override": {},
                 },
             ]
         )
@@ -372,6 +374,7 @@ class TestDecompressor:
         expected_obj = {
             "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
             "serial_number": "gCbtwqZ",
+            "override": {"doesnt_exist": 5},
             "match_number": 51,
             "timestamp": 9321,
             "match_collection_version_number": "v1.3",
@@ -449,20 +452,23 @@ class TestDecompressor:
             "raw_qr",
             [
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X1$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
                     "blocklisted": False,
+                    "override": {"start_position": "1", "doesnt_exist": 5},
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X1$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
                     "blocklisted": True,
+                    "override": {"start_position": "1", "doesnt_exist": 5},
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
                     "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B1$C2$DFALSE$FFALSE$G277#A254$B2$C2$DFALSE$FFALSE$G219#A1323$B3$C3$DTRUE$FFALSE$G420^E1010",
                     "blocklisted": False,
+                    "override": {},
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
