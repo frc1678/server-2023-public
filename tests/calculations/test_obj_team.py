@@ -676,19 +676,23 @@ class TestOBJTeamCalc:
 
     def test_medians(self):
         tims = [
-            {"match_number": 1, "incap": 30},
-            {"match_number": 2, "incap": 49},
-            {"match_number": 3, "incap": 60},
-            {"match_number": 4, "incap": 120},
-            {"match_number": 5, "incap": 130},
+            {"match_number": 1, "incap": 0},
+            {"match_number": 2, "incap": 0},
+            {"match_number": 3, "incap": 30},
+            {"match_number": 4, "incap": 49},
+            {"match_number": 5, "incap": 80},
+            {"match_number": 6, "incap": 120},
+            {"match_number": 7, "incap": 130},
         ]
 
         expected_output = {
-            "median_incap": 60,
-            "lfm_median_incap": 90,
+            "median_incap": 49,
+            "lfm_median_incap": 100,
+            "median_zero_incap": 80,
+            "lfm_median_zero_incap": 100,
         }
 
-        lfm_tims = [tim for tim in tims if tim["match_number"] > 1]
+        lfm_tims = [tim for tim in tims if tim["match_number"] > (len(tims) - 4)]
         action_sum = self.test_calc.get_action_sum(tims)
         lfm_action_sum = self.test_calc.get_action_sum(lfm_tims)
         assert (
