@@ -233,7 +233,16 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             num_attempts = 0
             num_successes = 0
             for attempt_datapoint in schema["team_attempts"]:
-                num_attempts += team_counts[attempt_datapoint]
+                if "lfm_tele" in attempt_datapoint:
+                    num_attempts += (
+                        team_counts[attempt_datapoint] - team_counts["lfm_tele_park_successes"]
+                    )
+                elif "tele" in attempt_datapoint:
+                    num_attempts += (
+                        team_counts[attempt_datapoint] - team_counts["tele_park_successes"]
+                    )
+                else:
+                    num_attempts += team_counts[attempt_datapoint]
             for success_datapoint in schema["team_successes"]:
                 num_successes += team_counts[success_datapoint]
             if num_attempts != 0:
