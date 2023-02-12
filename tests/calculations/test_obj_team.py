@@ -1373,6 +1373,12 @@ class TestOBJTeamCalc:
                 "lfm_mode_start_position": ["1"],
                 "lfm_mode_auto_charge_level": ["ENGAGE"],
                 "lfm_mode_tele_charge_level": ["ENGAGE"],
+                # Medians
+                "median_incap": 20,
+                "median_zero_incap": 20,
+                # LFM Medians
+                "lfm_median_incap": 20,
+                "lfm_median_zero_incap": 20,
                 # Success Rates
                 "charge_percent_success": 1.0,
                 "percent_matches_scored_coop": 0.6666666666666666,
@@ -1557,6 +1563,12 @@ class TestOBJTeamCalc:
                 "lfm_mode_start_position": ["1"],
                 "lfm_mode_auto_charge_level": ["ENGAGE", "DOCK"],
                 "lfm_mode_tele_charge_level": ["ENGAGE"],
+                # Medians
+                "median_incap": 21,
+                "median_zero_incap": 21,
+                # LFM Medians
+                "lfm_median_incap": 17.5,
+                "lfm_median_zero_incap": 17.5,
                 # Success Rates
                 "charge_percent_success": 1.0,
                 "percent_matches_scored_coop": 0.4,

@@ -322,6 +322,8 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             lfm_tim_action_counts = self.get_action_counts(lfm_tims)
             tim_action_categories = self.get_action_categories(obj_tims)
             lfm_tim_action_categories = self.get_action_categories(lfm_tims)
+            tim_action_sum = self.get_action_sum(obj_tims)
+            lfm_tim_action_sum = self.get_action_sum(lfm_tims)
 
             team_data = self.calculate_averages(tim_action_counts, lfm_tim_action_counts)
             team_data["team_number"] = team
@@ -337,6 +339,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                 )
             )
             team_data.update(self.calculate_modes(tim_action_categories, lfm_tim_action_categories))
+            team_data.update(self.calculate_medians(tim_action_sum, lfm_tim_action_sum))
             team_data.update(self.calculate_success_rates(team_data))
             team_data.update(self.calculate_average_points(team_data))
             team_data.update(self.calculate_sums(team_data, obj_tims))
