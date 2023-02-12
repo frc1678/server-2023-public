@@ -5,6 +5,8 @@ import pytest
 from unittest.mock import patch
 from calculations import obj_team
 from server import Server
+from console import console
+from rich.pretty import pprint
 
 
 @pytest.mark.clouddb
@@ -845,7 +847,7 @@ class TestOBJTeamCalc:
             "auto_avg_charge_points": 8.8,
         }
 
-    def test_calculate_sum_points(self):
+    def test_calculate_sums(self):
         team_data = {
             "auto_avg_cone_low": 1,
             "tele_avg_cone_low": 2,
@@ -863,9 +865,19 @@ class TestOBJTeamCalc:
             "tele_charge_percent_success": 2,
             "auto_avg_charge_points": 3.5,
             "tele_avg_charge_points": 1.5,
+            "total_incap": 63,
         }
-        assert self.test_calc.calculate_sum_points(team_data) == {
+        obj_tims = [
+            {
+                "incap": 5,
+            },
+            {
+                "incap": 4,
+            },
+        ]
+        assert self.test_calc.calculate_sums(team_data, obj_tims) == {
             "avg_total_points": 104.5,
+            "total_incap": 72,
         }
 
     def test_run(self):
@@ -1381,8 +1393,9 @@ class TestOBJTeamCalc:
                 # Average Points
                 "tele_avg_charge_points": 10.0,
                 "auto_avg_charge_points": 10.666666666666666,
-                # Sum Points
-                "avg_total_points": 495.0,
+                # Sums
+                "avg_total_points": 495,
+                "total_incap": 47,
             },
             {
                 "team_number": "1678",
@@ -1564,8 +1577,9 @@ class TestOBJTeamCalc:
                 # Average Points
                 "tele_avg_charge_points": 8.0,
                 "auto_avg_charge_points": 10.4,
-                # Sum Points
+                # Sums
                 "avg_total_points": 349.6,
+                "total_incap": 172,
             },
         ]
         self.test_server.db.insert_documents("obj_tim", obj_tims)
@@ -1575,6 +1589,7 @@ class TestOBJTeamCalc:
         assert len(result) == 2
         for document in result:
             del document["_id"]
+            pprint(document)
             assert document in expected_results
             # Removes the matching expected result to protect against duplicates from the calculation
             expected_results.remove(document)

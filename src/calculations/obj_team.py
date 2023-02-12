@@ -280,20 +280,31 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                 team_info[calculation] = 0
         return team_info
 
-    def calculate_sum_points(self, team_data):
+    def calculate_sums(self, team_data, tims: List[Dict]):
         """Creates a dictionary of sum of weighted data, called team_info
         where the keys are the names of the calculations, and the values are the results
         """
         team_info = {}
-        for calculation, schema in self.SCHEMA["sum_points"].items():
-            total_points = 0
-            for field, value in schema.items():
-                if field == "type":
-                    continue
-                total_points += team_data[field] * (
-                    value if not isinstance(value, str) else team_data[value]
-                )
-            team_info[calculation] = total_points
+        for calculation, schema in self.SCHEMA["sums"].items():
+            if calculation == "total_incap":
+                # try/except incase total_incap has not been calculated for team yet
+                try:  # If total_incap already exists, add total of incaps in tims to total_incaps
+                    team_info[calculation] = team_data["total_incap"]
+                    for time in [tim["incap"] for tim in tims]:
+                        team_info[calculation] += time
+                except KeyError:  # If total_incap does not exist, set team's total_incap to total of all incap times from tims
+                    team_info[calculation] = 0
+                    for time in [tim["incap"] for tim in tims]:
+                        team_info[calculation] += time
+            else:
+                total_points = 0
+                for field, value in schema.items():
+                    if field == "type":
+                        continue
+                    total_points += team_data[field] * (
+                        value if not isinstance(value, str) else team_data[value]
+                    )
+                team_info[calculation] = total_points
         return team_info
 
     def update_team_calcs(self, teams: list) -> list:
@@ -328,7 +339,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_data.update(self.calculate_modes(tim_action_categories, lfm_tim_action_categories))
             team_data.update(self.calculate_success_rates(team_data))
             team_data.update(self.calculate_average_points(team_data))
-            team_data.update(self.calculate_sum_points(team_data))
+            team_data.update(self.calculate_sums(team_data, obj_tims))
             obj_team_updates[team] = team_data
         return list(obj_team_updates.values())
 

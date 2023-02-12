@@ -183,6 +183,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "matches_scored_coop": 49,
         "percent_matches_scored_coop": 84.4422,
         "matches_played_defense": 49,
+        "total_incap": 49,
     },
     # Obj TIM
     {
