@@ -13,19 +13,17 @@ log = logging.getLogger(__name__)
 
 @dataclasses.dataclass
 class PredictedAimScores:
-    auto_cube_low: float = 0.0
+    auto_gamepieces_low: float = 0.0
     auto_cube_mid: float = 0.0
     auto_cube_high: float = 0.0
-    auto_cone_low: float = 0.0
     auto_cone_mid: float = 0.0
     auto_cone_high: float = 0.0
     auto_dock_successes: float = 0.0
     auto_engage_successes: float = 0.0
     mobility: float = 0.0
-    tele_cube_low: float = 0.0
+    tele_gamepieces_low: float = 0.0
     tele_cube_mid: float = 0.0
     tele_cube_high: float = 0.0
-    tele_cone_low: float = 0.0
     tele_cone_mid: float = 0.0
     tele_cone_high: float = 0.0
     tele_dock_successes: float = 0.0
@@ -36,19 +34,17 @@ class PredictedAimScores:
 
 class PredictedAimCalc(BaseCalculations):
     POINTS = {
-        "auto_cube_low": 3,
+        "auto_gamepieces_low": 3,
         "auto_cube_mid": 4,
         "auto_cube_high": 6,
-        "auto_cone_low": 3,
         "auto_cone_mid": 4,
         "auto_cone_high": 6,
         "auto_dock_successes": 8,
         "auto_engage_successes": 12,
         "mobility": 3,
-        "tele_cube_low": 2,
+        "tele_gamepieces_low": 2,
         "tele_cube_mid": 3,
         "tele_cube_high": 5,
-        "tele_cone_low": 2,
         "tele_cone_mid": 3,
         "tele_cone_high": 5,
         "tele_dock_successes": 6,
@@ -70,10 +66,8 @@ class PredictedAimCalc(BaseCalculations):
         predicted_values.link += (
             sum(
                 [
-                    predicted_values.auto_cube_low,
-                    predicted_values.auto_cone_low,
-                    predicted_values.tele_cube_low,
-                    predicted_values.tele_cone_low,
+                    predicted_values.auto_gamepieces_low,
+                    predicted_values.tele_gamepieces_low,
                 ]
             )
             // 3
@@ -122,24 +116,46 @@ class PredictedAimCalc(BaseCalculations):
         obj_team is a list of dictionaries of objective team data.
         tba_team is a list of dictionaries of tba team data."""
         # Finds the predicted cubes scored in auto
-        predicted_values.auto_cube_low += obj_team["auto_avg_cube_low"]
+        predicted_values.auto_gamepieces_low += obj_team["auto_avg_cube_low"]
         predicted_values.auto_cube_mid += obj_team["auto_avg_cube_mid"]
         predicted_values.auto_cube_high += obj_team["auto_avg_cube_high"]
 
         # Finds the predicted cones scored in auto
-        predicted_values.auto_cone_low += obj_team["auto_avg_cone_low"]
+        predicted_values.auto_gamepieces_low += obj_team["auto_avg_cone_low"]
         predicted_values.auto_cone_mid += obj_team["auto_avg_cone_mid"]
         predicted_values.auto_cone_high += obj_team["auto_avg_cone_high"]
 
         # Finds the predicted cubes scored in tele
-        predicted_values.tele_cube_low += obj_team["tele_avg_cube_low"]
+        predicted_values.tele_gamepieces_low += obj_team["tele_avg_cube_low"]
         predicted_values.tele_cube_mid += obj_team["tele_avg_cube_mid"]
         predicted_values.tele_cube_high += obj_team["tele_avg_cube_high"]
 
         # Finds the predicted cones score in tele
-        predicted_values.tele_cone_low += obj_team["tele_avg_cone_low"]
+        predicted_values.tele_gamepieces_low += obj_team["tele_avg_cone_low"]
         predicted_values.tele_cone_mid += obj_team["tele_avg_cone_mid"]
         predicted_values.tele_cone_high += obj_team["tele_avg_cone_high"]
+
+        # Check each predicted value isn't greater than the maximum possible value. If it is, set it to the maximum
+        if predicted_values.auto_gamepieces_low > 9:
+            predicted_values.auto_gamepieces_low = 9
+        if predicted_values.auto_cube_mid > 3:
+            predicted_values.auto_cube_mid = 3
+        if predicted_values.auto_cube_high > 3:
+            predicted_values.auto_cube_high = 3
+        if predicted_values.auto_cone_mid > 6:
+            predicted_values.auto_cone_mid = 6
+        if predicted_values.auto_cone_high > 6:
+            predicted_values.auto_cone_high = 6
+        if predicted_values.tele_gamepieces_low > 9:
+            predicted_values.tele_gamepieces_low = 9
+        if predicted_values.tele_cube_mid > 3:
+            predicted_values.tele_cube_mid = 3
+        if predicted_values.tele_cube_high > 3:
+            predicted_values.tele_cube_high = 3
+        if predicted_values.tele_cone_mid > 6:
+            predicted_values.tele_cone_mid = 6
+        if predicted_values.tele_cone_high > 6:
+            predicted_values.tele_cone_high = 6
 
     def calculate_predicted_alliance_score(
         self, predicted_values, obj_team_data, tba_team_data, team_numbers

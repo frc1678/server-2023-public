@@ -76,7 +76,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 1.0,
                 # "won_match": True,
-                "predicted_score": 778.4,
+                "predicted_score": 341.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
             },
@@ -88,7 +88,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 1.0,
                 # "actual_rp2": 1.0,
                 # "won_match": False,
-                "predicted_score": 763.1,
+                "predicted_score": 328.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
             },
@@ -100,7 +100,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 778.4,
+                "predicted_score": 341.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
             },
@@ -112,7 +112,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 763.1,
+                "predicted_score": 328.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
             },
@@ -126,10 +126,10 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 1.0,
                 # "won_match": True,
-                "predicted_score": 778.4,
+                "predicted_score": 341.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.84731,
+                "win_chance": 0.7951,
             },
             {
                 "match_number": 1,
@@ -139,10 +139,10 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 1.0,
                 # "actual_rp2": 1.0,
                 # "won_match": False,
-                "predicted_score": 763.1,
+                "predicted_score": 328.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.15269,
+                "win_chance": 0.2049,
             },
             {
                 "match_number": 3,
@@ -152,10 +152,10 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 778.4,
+                "predicted_score": 341.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.84731,
+                "win_chance": 0.7951,
             },
             {
                 "match_number": 3,
@@ -165,10 +165,10 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 763.1,
+                "predicted_score": 328.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.15269,
+                "win_chance": 0.2049,
             },
         ]
         self.full_predicted_values = predicted_aim.PredictedAimScores(
@@ -397,58 +397,46 @@ class TestPredictedAimCalc:
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[1])
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[2])
         self.test_calc.calculate_predicted_link_score(self.blank_predicted_values, self.obj_team)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.link, 33.0)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.link, 18)
 
     def test_calculate_predicted_grid_score(self):
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[0])
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_low, 1.0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_low, 2.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 4.5)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_gamepieces_low, 3.5)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 3)
         assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_mid, 3.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_high, 7.5)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_high, 3)
         assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_high, 6.0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_low, 3.3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_low, 2.3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 3.5)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_gamepieces_low, 5.6)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 3)
         assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_mid, 2.5)
         assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_high, 2.2)
         assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_high, 4.3)
 
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[1])
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_low, 1.1 + 1.0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_low, 2.6 + 2.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 4.6 + 4.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_mid, 3.6 + 3.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_high, 7.6 + 7.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_high, 6.1 + 6.0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_low, 3.4 + 3.3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_low, 2.4 + 2.3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 3.6 + 3.5)
+        assert TestPredictedAimCalc.near(
+            self.blank_predicted_values.auto_gamepieces_low, 1.0 + 2.5 + 1.1 + 2.6
+        )
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 3)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_mid, 6)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_high, 3)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_high, 6)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_gamepieces_low, 9)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 3)
         assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_mid, 2.6 + 2.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_high, 2.3 + 2.2)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_high, 4.4 + 4.3)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_high, 3)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_high, 6)
 
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[2])
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_low, 1.2 + 1.1 + 1.0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_low, 2.7 + 2.6 + 2.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 4.7 + 4.6 + 4.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_mid, 3.7 + 3.6 + 3.5)
-        assert TestPredictedAimCalc.near(
-            self.blank_predicted_values.auto_cube_high, 7.7 + 7.6 + 7.5
-        )
-        assert TestPredictedAimCalc.near(
-            self.blank_predicted_values.auto_cone_high, 6.2 + 6.1 + 6.0
-        )
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_low, 3.5 + 3.4 + 3.3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_low, 2.5 + 2.4 + 2.3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 3.7 + 3.6 + 3.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_mid, 2.7 + 2.6 + 2.5)
-        assert TestPredictedAimCalc.near(
-            self.blank_predicted_values.tele_cube_high, 2.4 + 2.3 + 2.2
-        )
-        assert TestPredictedAimCalc.near(
-            self.blank_predicted_values.tele_cone_high, 4.5 + 4.4 + 4.3
-        )
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_gamepieces_low, 9)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 3)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_mid, 6)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_high, 3)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_high, 6)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_gamepieces_low, 9)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 3)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_mid, 6)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_high, 3)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_high, 6)
 
     def test_calculate_predicted_alliance_score(self):
         assert TestPredictedAimCalc.near(
@@ -458,7 +446,7 @@ class TestPredictedAimCalc:
                 self.tba_team,
                 ["1678", "1533", "7229"],
             ),
-            778.4,
+            341.0,
         )
 
         try:
