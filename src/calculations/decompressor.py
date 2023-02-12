@@ -165,8 +165,8 @@ class Decompressor(base_calculations.BaseCalculations):
         for action in timeline_actions:
             decompressed_action = dict()
             current_position = 0
-            # check if current action is to_teleop (AM)
-            if "AM" in action:
+            # check if current action is to_teleop
+            if self.SCHEMA["action_type"]["to_teleop"] in action:
                 teleop_index = timeline_actions.index(action)
             for entry in self.TIMELINE_FIELDS:
                 # Get untyped value by slicing action string from current position to next position

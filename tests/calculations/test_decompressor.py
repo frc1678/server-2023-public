@@ -30,10 +30,17 @@ class TestDecompressor:
             "intake_ground": "AG",
             "intake_station": "AH",
             "intake_low_row": "AI",
-            "start_incap": "AJ",
-            "end_incap": "AK",
-            "charge_attempt": "AL",
-            "to_teleop": "AM",
+            "intake_mid_row": "AJ",
+            "intake_high_row": "AK",
+            "start_incap": "AL",
+            "end_incap": "AM",
+            "charge_attempt": "AN",
+            "to_teleop": "AO",
+            "auto_intake_one": "AP",
+            "auto_intake_two": "AQ",
+            "auto_intake_three": "AR",
+            "auto_intake_four": "AS",
+            "score_fail": "AT",
         }
         # Test a few values for each type to make sure they make sense
         assert 5 == self.test_decompressor.convert_data_type("5", "int")
@@ -160,7 +167,7 @@ class TestDecompressor:
             {"time": 59, "action_type": "score_cube_high", "in_teleop": False},
             {"time": 60, "action_type": "to_teleop", "in_teleop": True},
             {"time": 61, "action_type": "score_cube_mid", "in_teleop": True},
-        ] == self.test_decompressor.decompress_timeline("059AD060AM061AE")
+        ] == self.test_decompressor.decompress_timeline("059AD060AO061AE")
         # Should return empty list if passed an empty string
         assert [] == self.test_decompressor.decompress_timeline("")
 
@@ -452,14 +459,14 @@ class TestDecompressor:
             "raw_qr",
             [
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AO006AB007AD008AE$VNONE$UNONE$TNONE",
                     "blocklisted": False,
                     "override": {"start_position": "1", "doesnt_exist": 5},
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AM006AB007AD008AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AO006AB007AD008AE$VNONE$UNONE$TNONE",
                     "blocklisted": True,
                     "override": {"start_position": "1", "doesnt_exist": 5},
                     "epoch_time": curr_time.timestamp(),
