@@ -82,6 +82,10 @@ class PredictedAimCalc(BaseCalculations):
             (predicted_values.tele_cube_high + predicted_values.auto_cube_high) // 1,
         )
 
+        # Maximum number of links possible is 9
+        if predicted_values.link > 9:
+            predicted_values.link = 9
+
     def calculate_predicted_charge_success_rate(self, predicted_values, obj_team):
         predicted_values.auto_dock_successes += (
             obj_team["auto_dock_successes"] / a

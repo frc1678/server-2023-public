@@ -76,7 +76,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 1.0,
                 # "won_match": True,
-                "predicted_score": 341.0,
+                "predicted_score": 296.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
             },
@@ -88,7 +88,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 1.0,
                 # "actual_rp2": 1.0,
                 # "won_match": False,
-                "predicted_score": 328.0,
+                "predicted_score": 283.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
             },
@@ -100,7 +100,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 341.0,
+                "predicted_score": 296.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
             },
@@ -112,7 +112,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 328.0,
+                "predicted_score": 283.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
             },
@@ -126,7 +126,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 1.0,
                 # "won_match": True,
-                "predicted_score": 341.0,
+                "predicted_score": 296.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
                 "win_chance": 0.7951,
@@ -139,7 +139,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 1.0,
                 # "actual_rp2": 1.0,
                 # "won_match": False,
-                "predicted_score": 328.0,
+                "predicted_score": 283.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
                 "win_chance": 0.2049,
@@ -152,7 +152,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 341.0,
+                "predicted_score": 296.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
                 "win_chance": 0.7951,
@@ -165,7 +165,7 @@ class TestPredictedAimCalc:
                 # "actual_rp1": 0.0,
                 # "actual_rp2": 0.0,
                 # "won_match": False,
-                "predicted_score": 328.0,
+                "predicted_score": 283.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
                 "win_chance": 0.2049,
@@ -397,7 +397,7 @@ class TestPredictedAimCalc:
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[1])
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[2])
         self.test_calc.calculate_predicted_link_score(self.blank_predicted_values, self.obj_team)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.link, 18)
+        assert TestPredictedAimCalc.near(self.blank_predicted_values.link, 9)
 
     def test_calculate_predicted_grid_score(self):
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[0])
@@ -446,7 +446,7 @@ class TestPredictedAimCalc:
                 self.tba_team,
                 ["1678", "1533", "7229"],
             ),
-            341.0,
+            296.0,
         )
 
         try:
