@@ -194,6 +194,8 @@ class TestUnconsolidatedTotals:
             "tele_total_gamepieces": 0,
             "failed_scores": 0,
             "intakes_low_row": 0,
+            "intakes_mid_row": 0,
+            "intakes_high_row": 0,
             "intakes_station": 0,
             "intakes_ground": 0,
             "total_intakes": 0,
