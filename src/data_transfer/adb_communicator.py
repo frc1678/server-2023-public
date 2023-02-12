@@ -64,7 +64,7 @@ def uninstall_app(device, app_name="com.frc1678.match_collection"):
 
     Match Collection is com.frc1678.match_collection
     Pit Collection is com.frc1678.pit_collection
-    Viewer is com.example.viewer_2020
+    Viewer is org.citruscircuits.viewer
     """
     # Gets list of all installed apps. -3 returns only 3rd party apps.
     installed_apps = utils.run_command(
