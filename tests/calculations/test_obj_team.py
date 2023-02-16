@@ -817,8 +817,8 @@ class TestOBJTeamCalc:
         lfm_action_categories = self.test_calc.get_action_categories(lfm_tims)
         assert self.test_calc.calculate_modes(action_categories, lfm_action_categories) == {
             "mode_preloaded_gamepiece": ["CONE"],
-            "mode_start_position": ["0"],
-            "lfm_mode_start_position": ["0"],
+            "mode_start_position": ["1", "2", "3"],
+            "lfm_mode_start_position": ["3"],
             "mode_auto_charge_level": ["DOCK"],
             "lfm_mode_auto_charge_level": ["DOCK"],
             "mode_tele_charge_level": ["DOCK"],

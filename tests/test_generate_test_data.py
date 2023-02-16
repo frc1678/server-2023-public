@@ -308,7 +308,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "drivetrain_motors": 49,
         "has_vision": True,
         "has_communication_device": True,
-        "weight": 49,
+        "weight": 84.4422,
         "length": 84.4422,
         "width": 84.4422,
     },
