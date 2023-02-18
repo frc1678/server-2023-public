@@ -34,31 +34,52 @@ class PredictedTeamCalc(BaseCalculations):
         match_list = set([aim["match_number"] for aim in predicted_aims])
         for match in match_list:
             aims_in_match = [aim for aim in predicted_aims if aim["match_number"] == match]
+            # set match to empty dict to avoid key error
             predicted_alliance_rps[match] = {}
             if len(aims_in_match) < 2:
                 log.warning(f"Incomplete AIM data for Match {match}")
                 break
             for aim in range(2):
-                rps = aims_in_match[aim]["predicted_rp1"] + aims_in_match[aim]["predicted_rp2"]
-                # (aim + 1) % 2 alternates between 0 and 1 to represent opposing alliance
-                if (
-                    aims_in_match[aim]["predicted_score"]
-                    > aims_in_match[(aim + 1) % 2]["predicted_score"]
-                ):
-                    rps += 2
-                elif (
-                    aims_in_match[aim]["predicted_score"]
-                    == aims_in_match[(aim + 1) % 2]["predicted_score"]
-                ):
-                    rps += 1
+                # if match has data use actual rps from match, else use predicted rps
+                if aims_in_match[aim]["has_actual_data"]:
+                    rps = aims_in_match[aim]["actual_rp1"] + aims_in_match[aim]["actual_rp2"]
+                    # (aim + 1) % 2 alternates between 0 and 1 to represent opposing alliance
+                    if (
+                        aims_in_match[aim]["actual_score"]
+                        > aims_in_match[(aim + 1) % 2]["actual_score"]
+                    ):
+                        rps += 2
+                    elif (
+                        aims_in_match[aim]["actual_score"]
+                        == aims_in_match[(aim + 1) % 2]["actual_score"]
+                    ):
+                        rps += 1
+                    else:
+                        rps += 0
+                    alliance_color = "R" if aims_in_match[aim]["alliance_color_is_red"] else "B"
+                    predicted_alliance_rps[match][alliance_color] = rps
                 else:
-                    rps += 0
-                alliance_color = "R" if aims_in_match[aim]["alliance_color_is_red"] else "B"
-                predicted_alliance_rps[match][alliance_color] = rps
+                    rps = aims_in_match[aim]["predicted_rp1"] + aims_in_match[aim]["predicted_rp2"]
+                    # (aim + 1) % 2 alternates between 0 and 1 to represent opposing alliance
+                    if (
+                        aims_in_match[aim]["predicted_score"]
+                        > aims_in_match[(aim + 1) % 2]["predicted_score"]
+                    ):
+                        rps += 2
+                    elif (
+                        aims_in_match[aim]["predicted_score"]
+                        == aims_in_match[(aim + 1) % 2]["predicted_score"]
+                    ):
+                        rps += 1
+                    else:
+                        rps += 0
+                    alliance_color = "R" if aims_in_match[aim]["alliance_color_is_red"] else "B"
+                    predicted_alliance_rps[match][alliance_color] = rps
+
         return predicted_alliance_rps
 
     def calculate_predicted_team_rps(self, team_number, aim_list, predicted_alliance_rps):
-        rps = 0
+        predicted_rps = 0
         for aim in aim_list:
             if team_number in aim["team_list"]:
                 if aim["match_number"] not in predicted_alliance_rps.keys():
@@ -69,8 +90,8 @@ class PredictedTeamCalc(BaseCalculations):
                         f'Missing predicted RPs for Alliance {aim["alliance_color"]} in Match {aim["match_number"]}'
                     )
                     break
-                rps += predicted_alliance_rps[aim["match_number"]][aim["alliance_color"]]
-        return rps
+                predicted_rps += predicted_alliance_rps[aim["match_number"]][aim["alliance_color"]]
+        return predicted_rps
 
     def calculate_predicted_ranks(self, updates, aim_list):
         predicted_rps = {update["team_number"]: update["predicted_rps"] for update in updates}
@@ -97,6 +118,7 @@ class PredictedTeamCalc(BaseCalculations):
         predicted_alliance_rps = self.calculate_predicted_alliance_rps(predicted_aim)
         teams = self.get_teams_list()
         aim_list = self.get_aim_list()
+
         for team in teams:
             update = {"team_number": team}
             current_values = self.calculate_current_values(ranking_data, team)
