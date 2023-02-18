@@ -26,6 +26,11 @@ FAKE_SCHEMA = {
             "test.datapoint2": 1,
             "test2.datapoint1": 2,
         },
+        "overall_second_pickability": {
+            "type": "float",
+            "test3.datapoint1": 0.5,
+            "test3.datapoint2": 0.5,
+        },
     }
 }
 
@@ -54,10 +59,12 @@ class TestPickability:
                 "useless": None,
             },
             "test2": {"team_number": "0", "datapoint1": 3, "useless": None},
+            "test3": {"team_number": "0", "datapoint1": 15, "datapoint2": 17},
         }
         assert test_calc.calculate_pickability("first_pickability", calc_data) == 6
         assert test_calc.calculate_pickability("offensive_second_pickability", calc_data) == 15
         assert test_calc.calculate_pickability("defensive_second_pickability", calc_data) == 17
+        assert test_calc.calculate_pickability("overall_second_pickability", calc_data) == 16
         assert test_calc.calculate_pickability("first_pickability", {}) is None
         # Check that if the datapoint is missing that it correctly returns None
         calc_data = {
