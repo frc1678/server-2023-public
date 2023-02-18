@@ -71,11 +71,11 @@ class TestPredictedAimCalc:
             {
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                # "has_actual_data": True,
-                # "actual_score": 320,
-                # "actual_rp1": 0.0,
-                # "actual_rp2": 1.0,
-                # "won_match": True,
+                "has_actual_data": True,
+                "actual_score": 320,
+                "actual_rp1": 0.0,
+                "actual_rp2": 1.0,
+                "won_match": True,
                 "predicted_score": 296.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
@@ -83,11 +83,11 @@ class TestPredictedAimCalc:
             {
                 "match_number": 1,
                 "alliance_color_is_red": False,
-                # "has_actual_data": True,
-                # "actual_score": 278,
-                # "actual_rp1": 1.0,
-                # "actual_rp2": 1.0,
-                # "won_match": False,
+                "has_actual_data": True,
+                "actual_score": 278,
+                "actual_rp1": 1.0,
+                "actual_rp2": 1.0,
+                "won_match": False,
                 "predicted_score": 283.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
@@ -95,11 +95,11 @@ class TestPredictedAimCalc:
             {
                 "match_number": 3,
                 "alliance_color_is_red": True,
-                # "has_actual_data": False,
-                # "actual_score": 0,
-                # "actual_rp1": 0.0,
-                # "actual_rp2": 0.0,
-                # "won_match": False,
+                "has_actual_data": False,
+                "actual_score": 0,
+                "actual_rp1": 0.0,
+                "actual_rp2": 0.0,
+                "won_match": False,
                 "predicted_score": 296.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
@@ -107,11 +107,11 @@ class TestPredictedAimCalc:
             {
                 "match_number": 3,
                 "alliance_color_is_red": False,
-                # "has_actual_data": False,
-                # "actual_score": 0,
-                # "actual_rp1": 0.0,
-                # "actual_rp2": 0.0,
-                # "won_match": False,
+                "has_actual_data": False,
+                "actual_score": 0,
+                "actual_rp1": 0.0,
+                "actual_rp2": 0.0,
+                "won_match": False,
                 "predicted_score": 283.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
@@ -121,11 +121,11 @@ class TestPredictedAimCalc:
             {
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                # "has_actual_data": True,
-                # "actual_score": 320,
-                # "actual_rp1": 0.0,
-                # "actual_rp2": 1.0,
-                # "won_match": True,
+                "has_actual_data": True,
+                "actual_score": 320,
+                "actual_rp1": 0.0,
+                "actual_rp2": 1.0,
+                "won_match": True,
                 "predicted_score": 296.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
@@ -134,11 +134,11 @@ class TestPredictedAimCalc:
             {
                 "match_number": 1,
                 "alliance_color_is_red": False,
-                # "has_actual_data": True,
-                # "actual_score": 278,
-                # "actual_rp1": 1.0,
-                # "actual_rp2": 1.0,
-                # "won_match": False,
+                "has_actual_data": True,
+                "actual_score": 278,
+                "actual_rp1": 1.0,
+                "actual_rp2": 1.0,
+                "won_match": False,
                 "predicted_score": 283.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
@@ -147,11 +147,11 @@ class TestPredictedAimCalc:
             {
                 "match_number": 3,
                 "alliance_color_is_red": True,
-                # "has_actual_data": False,
-                # "actual_score": 0,
-                # "actual_rp1": 0.0,
-                # "actual_rp2": 0.0,
-                # "won_match": False,
+                "has_actual_data": False,
+                "actual_score": 0,
+                "actual_rp1": 0.0,
+                "actual_rp2": 0.0,
+                "won_match": False,
                 "predicted_score": 296.0,
                 "predicted_rp1": 1.0,
                 "predicted_rp2": 1.0,
@@ -160,11 +160,11 @@ class TestPredictedAimCalc:
             {
                 "match_number": 3,
                 "alliance_color_is_red": False,
-                # "has_actual_data": False,
-                # "actual_score": 0,
-                # "actual_rp1": 0.0,
-                # "actual_rp2": 0.0,
-                # "won_match": False,
+                "has_actual_data": False,
+                "actual_score": 0,
+                "actual_rp1": 0.0,
+                "actual_rp2": 0.0,
+                "won_match": False,
                 "predicted_score": 283.0,
                 "predicted_rp1": 0.0,
                 "predicted_rp2": 1.0,
@@ -334,13 +334,13 @@ class TestPredictedAimCalc:
                 "comp_level": "qm",
                 "score_breakdown": {
                     "blue": {
-                        "cargoBonusRankingPoint": True,
-                        "hangarBonusRankingPoint": True,
+                        "activationBonusAchieved": True,
+                        "sustainabilityBonusAchieved": True,
                         "totalPoints": 278,
                     },
                     "red": {
-                        "cargoBonusRankingPoint": False,
-                        "hangarBonusRankingPoint": True,
+                        "activationBonusAchieved": False,
+                        "sustainabilityBonusAchieved": True,
                         "totalPoints": 320,
                     },
                 },
@@ -352,13 +352,13 @@ class TestPredictedAimCalc:
                 "comp_level": "qf",
                 "score_breakdown": {
                     "blue": {
-                        "cargoBonusRankingPoint": True,
-                        "hangarBonusRankingPoint": True,
+                        "activationBonusAchieved": True,
+                        "sustainabilityBonusAchieved": True,
                         "totalPoints": 300,
                     },
                     "red": {
-                        "cargoBonusRankingPoint": True,
-                        "hangarBonusRankingPoint": True,
+                        "activationBonusAchieved": True,
+                        "sustainabilityBonusAchieved": True,
                         "totalPoints": 400,
                     },
                 },
@@ -370,14 +370,14 @@ class TestPredictedAimCalc:
                 "comp_level": "qm",
                 "score_breakdown": {
                     "blue": {
-                        "cargoBonusRankingPoint": None,
-                        "hangarBonusRankingPoint": None,
-                        "totalPoints": None,
+                        "activationBonusAchieved": None,
+                        "sustainabilityBonusAchieved": None,
+                        "totalPoints": 0,
                     },
                     "red": {
-                        "cargoBonusRankingPoint": None,
-                        "hangarBonusRankingPoint": None,
-                        "totalPoints": None,
+                        "activationBonusAchieved": None,
+                        "sustainabilityBonusAchieved": None,
+                        "totalPoints": 0,
                     },
                 },
                 "post_result_time": None,
@@ -385,7 +385,7 @@ class TestPredictedAimCalc:
             },
         ]
         self.test_server.db.insert_documents("obj_team", self.obj_team)
-        # self.test_server.db.insert_documents("tba_team", self.tba_team)
+        self.test_server.db.insert_documents("tba_team", self.tba_team)
 
     def test___init__(self):
         """Test if attributes are set correctly"""
@@ -467,63 +467,63 @@ class TestPredictedAimCalc:
         assert self.test_calc.calculate_predicted_charge_rp(self.blank_predicted_values) == 0
         assert self.test_calc.calculate_predicted_charge_rp(self.full_predicted_values) == 0
 
-    # def test_get_actual_values(self):
-    #     assert self.test_calc.get_actual_values(
-    #         {
-    #             "match_number": 1,
-    #             "alliance_color": "R",
-    #             "team_list": ["1678", "1533", "7229"],
-    #         },
-    #         self.tba_match_data,
-    #     ) == {
-    #         "has_actual_data": True,
-    #         "actual_score": 320,
-    #         "actual_rp1": 0.0,
-    #         "actual_rp2": 1.0,
-    #         "won_match": True,
-    #     }
-    #     assert self.test_calc.get_actual_values(
-    #         {
-    #             "match_number": 1,
-    #             "alliance_color": "B",
-    #             "team_list": ["1678", "1533", "2468"],
-    #         },
-    #         self.tba_match_data,
-    #     ) == {
-    #         "has_actual_data": True,
-    #         "actual_score": 278,
-    #         "actual_rp1": 1.0,
-    #         "actual_rp2": 1.0,
-    #         "won_match": False,
-    #     }
-    #     assert self.test_calc.get_actual_values(
-    #         {
-    #             "match_number": 3,
-    #             "alliance_color": "R",
-    #             "team_list": ["1678", "1533", "7229"],
-    #         },
-    #         self.tba_match_data,
-    #     ) == {
-    #         "has_actual_data": False,
-    #         "actual_score": 0,
-    #         "actual_rp1": 0.0,
-    #         "actual_rp2": 0.0,
-    #         "won_match": False,
-    #     }
-    #     assert self.test_calc.get_actual_values(
-    #         {
-    #             "match_number": 3,
-    #             "alliance_color": "B",
-    #             "team_list": ["1678", "1533", "2468"],
-    #         },
-    #         self.tba_match_data,
-    #     ) == {
-    #         "has_actual_data": False,
-    #         "actual_score": 0,
-    #         "actual_rp1": 0.0,
-    #         "actual_rp2": 0.0,
-    #         "won_match": False,
-    #     }
+    def test_get_actual_values(self):
+        assert self.test_calc.get_actual_values(
+            {
+                "match_number": 1,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
+            self.tba_match_data,
+        ) == {
+            "has_actual_data": True,
+            "actual_score": 320,
+            "actual_rp1": 0.0,
+            "actual_rp2": 1.0,
+            "won_match": True,
+        }
+        assert self.test_calc.get_actual_values(
+            {
+                "match_number": 1,
+                "alliance_color": "B",
+                "team_list": ["1678", "1533", "2468"],
+            },
+            self.tba_match_data,
+        ) == {
+            "has_actual_data": True,
+            "actual_score": 278,
+            "actual_rp1": 1.0,
+            "actual_rp2": 1.0,
+            "won_match": False,
+        }
+        assert self.test_calc.get_actual_values(
+            {
+                "match_number": 3,
+                "alliance_color": "R",
+                "team_list": ["1678", "1533", "7229"],
+            },
+            self.tba_match_data,
+        ) == {
+            "has_actual_data": False,
+            "actual_score": 0,
+            "actual_rp1": 0.0,
+            "actual_rp2": 0.0,
+            "won_match": False,
+        }
+        assert self.test_calc.get_actual_values(
+            {
+                "match_number": 3,
+                "alliance_color": "B",
+                "team_list": ["1678", "1533", "2468"],
+            },
+            self.tba_match_data,
+        ) == {
+            "has_actual_data": False,
+            "actual_score": 0,
+            "actual_rp1": 0.0,
+            "actual_rp2": 0.0,
+            "won_match": False,
+        }
 
     def test_filter_aims_list(self):
         assert (
@@ -531,13 +531,13 @@ class TestPredictedAimCalc:
             == self.filtered_aims_list
         )
 
-    # def test_update_predicted_aim(self):
-    #     self.test_server.db.delete_data("predicted_aim")
-    #     with patch(
-    #         "data_transfer.tba_communicator.tba_request",
-    #         return_value=self.tba_match_data,
-    #     ):
-    #         assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_updates
+    def test_update_predicted_aim(self):
+        self.test_server.db.delete_data("predicted_aim")
+        with patch(
+            "data_transfer.tba_communicator.tba_request",
+            return_value=self.tba_match_data,
+        ):
+            assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_updates
 
     def test_calculate_predicted_win_chance(self):
         with patch("data_transfer.database.Database.find", return_value=self.expected_updates):

@@ -235,6 +235,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "first_pickability": 84.4422,
         "offensive_second_pickability": 84.4422,
         "defensive_second_pickability": 84.4422,
+        "overall_second_pickability": 84.4422,
         "team_number": "6604",
     },
     # Predicted AIM
@@ -245,7 +246,6 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "actual_score": 49,
         "actual_rp1": 84.4422,
         "actual_rp2": 84.4422,
-        "has_final_scores": True,
         "final_predicted_score": 84.4422,
         "final_predicted_rp1": 84.4422,
         "final_predicted_rp2": 84.4422,
@@ -291,13 +291,13 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     # TBA Team
     {
         "team_name": "yyyyyyyyyyy",
-        "auto_line_successes": 49,
+        "mobility_successes": 49,
         "team_number": "6604",
         "foul_cc": 84.4422,
     },
     # TBA TIM
     {
-        "auto_line": True,
+        "mobility": True,
         "match_number": 49,
         "team_number": "6604",
     },

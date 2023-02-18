@@ -221,7 +221,7 @@ class PredictedAimCalc(BaseCalculations):
             return 1.0
         return 0.0
 
-        # def get_actual_values(self, aim, tba_match_data):
+    def get_actual_values(self, aim, tba_match_data):
         """Pulls actual AIM data from TBA if it exists.
         Otherwise, returns dictionary with all values of 0 and has_actual_data of False.
         aim is the alliance in match to pull actual data for."""
@@ -249,9 +249,9 @@ class PredictedAimCalc(BaseCalculations):
                     alliance_color = "blue"
                 actual_match_dict["actual_score"] = actual_aim[alliance_color]["totalPoints"]
                 # TBA stores RPs as booleans. If the RP is true, they get 1 RP, otherwise they get 0.
-                if actual_aim[alliance_color]["cargoBonusRankingPoint"]:
+                if actual_aim[alliance_color]["activationBonusAchieved"]:
                     actual_match_dict["actual_rp1"] = 1.0
-                if actual_aim[alliance_color]["hangarBonusRankingPoint"]:
+                if actual_aim[alliance_color]["sustainabilityBonusAchieved"]:
                     actual_match_dict["actual_rp2"] = 1.0
                 # Gets whether the alliance won the match by checking the winning alliance against the alliance color/
                 actual_match_dict["won_match"] = match["winning_alliance"] == alliance_color
@@ -307,7 +307,7 @@ class PredictedAimCalc(BaseCalculations):
             )
             update["predicted_rp1"] = self.calculate_predicted_charge_rp(predicted_values)
             update["predicted_rp2"] = self.calculate_predicted_link_rp(predicted_values)
-            # update.update(self.get_actual_values(aim, tba_match_data))
+            update.update(self.get_actual_values(aim, tba_match_data))
             updates.append(update)
         return updates
 
