@@ -12,6 +12,7 @@ from data_transfer import database
 import qr_code_uploader
 import utils
 import logging
+from calculations import decompressor
 
 log = logging.getLogger(__name__)
 
@@ -173,6 +174,10 @@ def pull_device_data():
         current_data = [document.pop("_id") for document in db.find(dataset)]
         modified_data = []
         for document in data[dataset]:
+            # Decompress pit data before uploading
+            document = decompressor.Decompressor.decompress_pit_data(
+                decompressor.Decompressor, document, dataset
+            )
             if document in current_data:
                 continue
             # Specify query to ensure that each team only has one entry

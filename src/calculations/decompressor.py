@@ -27,6 +27,8 @@ class Decompressor(base_calculations.BaseCalculations):
 
     # Load latest match collection compression QR code schema
     SCHEMA = qr_state.SCHEMA
+    OBJ_PIT_SCHEMA = utils.read_schema("schema/obj_pit_collection_schema.yml")
+    SUBJ_PIT_SCHEMA = utils.read_schema("schema/subj_pit_collection_schema.yml")
     _GENERIC_DATA_FIELDS = QRState._get_data_fields("generic_data")
     OBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(QRState._get_data_fields("objective_tim"))
     SUBJECTIVE_QR_FIELDS = _GENERIC_DATA_FIELDS.union(QRState._get_data_fields("subjective_aim"))
@@ -272,6 +274,29 @@ class Decompressor(base_calculations.BaseCalculations):
                 output["subj_tim"].extend(decompressed_qr)
         log.info(f"Finished decompression on qr batch")
         return output
+
+    def decompress_pit_data(self, pit_data, pit_type):
+        """Decompresses obj and subj pit data
+        pit_data: a dict of raw pit data
+        pit_type: \"raw_obj_pit\" or \"raw_subj_pit\" """
+        # Get pit schema file
+        if pit_type == "raw_obj_pit":
+            pit_schema = self.OBJ_PIT_SCHEMA
+        elif pit_type == "raw_subj_pit":
+            pit_schema = self.SUBJ_PIT_SCHEMA
+
+        decompressed_data = {}
+
+        for name, value in pit_data.items():
+            # if variable is an Enum, decompress it
+            if "Enum" in pit_schema["schema"][name]["type"]:
+                for enum_name, enum_value in pit_schema["enums"][name].items():
+                    if enum_value == value:
+                        decompressed_data[name] = enum_name
+                        break
+            else:
+                decompressed_data[name] = value
+        return decompressed_data
 
     def check_scout_ids(self):
         """Checks unconsolidated TIMs in `tim_queue` to see which scouts have not sent data.

@@ -377,6 +377,34 @@ class TestDecompressor:
             ]
         )
 
+    def test_decompress_pit_data(self):
+        raw_obj_pit = {
+            "team_number": "3448",
+            "drivetrain": 2,
+            "drivetrain_motors": 4,
+            "drivetrain_motor_type": 3,
+            "has_vision": False,
+            "has_communication_device": True,
+            "weight": 3.9524,
+            "length": 3.9524,
+            "width": 3.2931,
+        }
+        expected_obj_pit = {
+            "team_number": "3448",
+            "drivetrain": "swerve",
+            "drivetrain_motors": 4,
+            "drivetrain_motor_type": "falcon",
+            "has_vision": False,
+            "has_communication_device": True,
+            "weight": 3.9524,
+            "length": 3.9524,
+            "width": 3.2931,
+        }
+        assert (
+            self.test_decompressor.decompress_pit_data(raw_obj_pit, "raw_obj_pit")
+            == expected_obj_pit
+        )
+
     def test_run(self):
         expected_obj = {
             "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
