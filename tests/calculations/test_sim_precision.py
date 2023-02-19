@@ -15,15 +15,15 @@ class TestSimPrecisionCalc:
                 "score_breakdown": {
                     "blue": {
                         "foulPoints": 8,
-                        "autoTaxiPoints": 15,
-                        "totalPoints": 87,
-                        "endgamePoints": 6,
+                        "autoMobilityPoints": 15,
+                        "autoGamePiecePoints": 12,
+                        "teleopGamePiecePoints": 40,
                     },
                     "red": {
                         "foulPoints": 10,
-                        "autoTaxiPoints": 0,
-                        "totalPoints": 159,
-                        "endgamePoints": 15,
+                        "autoMobilityPoints": 0,
+                        "autoGamePiecePoints": 6,
+                        "teleopGamePiecePoints": 30,
                     },
                 },
             },
@@ -34,15 +34,15 @@ class TestSimPrecisionCalc:
                 "score_breakdown": {
                     "blue": {
                         "foulPoints": 0,
-                        "autoTaxiPoints": 0,
-                        "totalPoints": 149,
-                        "endgamePoints": 25,
+                        "autoMobilityPoints": 0,
+                        "autoGamePiecePoints": 4,
+                        "teleopGamePiecePoints": 40,
                     },
                     "red": {
                         "foulPoints": 10,
-                        "autoTaxiPoints": 0,
-                        "totalPoints": 98,
-                        "endgamePoints": 4,
+                        "autoMobilityPoints": 0,
+                        "autoGamePiecePoints": 4,
+                        "teleopGamePiecePoints": 20,
                     },
                 },
             },
@@ -63,13 +63,13 @@ class TestSimPrecisionCalc:
                 "auto_cube_high": 0,
                 "auto_cube_mid": 0,
                 "auto_cube_low": 1,
-                "tele_cube_high": 2,
+                "tele_cube_high": 0,
                 "tele_cube_mid": 0,
                 "tele_cube_low": 2,
                 "auto_cone_high": 0,
                 "auto_cone_mid": 2,
                 "auto_cone_low": 0,
-                "tele_cone_high": 4,
+                "tele_cone_high": 1,
                 "tele_cone_mid": 0,
                 "tele_cone_low": 2,
             },
@@ -80,15 +80,15 @@ class TestSimPrecisionCalc:
                 "alliance_color_is_red": True,
                 "auto_cube_high": 0,
                 "auto_cube_mid": 0,
-                "auto_cube_low": 3,
-                "tele_cube_high": 2,
+                "auto_cube_low": 1,
+                "tele_cube_high": 0,
                 "tele_cube_mid": 0,
                 "tele_cube_low": 2,
                 "auto_cone_high": 0,
-                "auto_cone_mid": 2,
+                "auto_cone_mid": 0,
                 "auto_cone_low": 0,
-                "tele_cone_high": 2,
-                "tele_cone_mid": 2,
+                "tele_cone_high": 3,
+                "tele_cone_mid": 1,
                 "tele_cone_low": 0,
             },
             {
@@ -96,7 +96,7 @@ class TestSimPrecisionCalc:
                 "team_number": "4414",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_cube_high": 2,
+                "auto_cube_high": 0,
                 "auto_cube_mid": 1,
                 "auto_cube_low": 0,
                 "tele_cube_high": 3,
@@ -107,24 +107,24 @@ class TestSimPrecisionCalc:
                 "auto_cone_low": 0,
                 "tele_cone_high": 0,
                 "tele_cone_mid": 0,
-                "tele_cone_low": 2,
+                "tele_cone_low": 0,
             },
             {
                 "scout_name": "KATE UNGER",
                 "team_number": "589",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_cube_high": 1,
+                "auto_cube_high": 0,
                 "auto_cube_mid": 1,
                 "auto_cube_low": 0,
-                "tele_cube_high": 2,
+                "tele_cube_high": 1,
                 "tele_cube_mid": 0,
                 "tele_cube_low": 2,
-                "auto_cone_high": 1,
+                "auto_cone_high": 0,
                 "auto_cone_mid": 0,
                 "auto_cone_low": 0,
                 "tele_cone_high": 1,
-                "tele_cone_mid": 2,
+                "tele_cone_mid": 1,
                 "tele_cone_low": 0,
             },
             {
@@ -132,7 +132,7 @@ class TestSimPrecisionCalc:
                 "team_number": "589",
                 "match_number": 1,
                 "alliance_color_is_red": True,
-                "auto_cube_high": 1,
+                "auto_cube_high": 0,
                 "auto_cube_mid": 0,
                 "auto_cube_low": 0,
                 "tele_cube_high": 2,
@@ -141,8 +141,8 @@ class TestSimPrecisionCalc:
                 "auto_cone_high": 1,
                 "auto_cone_mid": 0,
                 "auto_cone_low": 0,
-                "tele_cone_high": 2,
-                "tele_cone_mid": 2,
+                "tele_cone_high": 0,
+                "tele_cone_mid": 1,
                 "tele_cone_low": 0,
             },
             {
@@ -153,13 +153,13 @@ class TestSimPrecisionCalc:
                 "auto_cube_high": 1,
                 "auto_cube_mid": 1,
                 "auto_cube_low": 0,
-                "tele_cube_high": 2,
+                "tele_cube_high": 0,
                 "tele_cube_mid": 0,
-                "tele_cube_low": 1,
+                "tele_cube_low": 2,
                 "auto_cone_high": 1,
                 "auto_cone_mid": 0,
                 "auto_cone_low": 0,
-                "tele_cone_high": 1,
+                "tele_cone_high": 0,
                 "tele_cone_mid": 0,
                 "tele_cone_low": 0,
             },
@@ -172,33 +172,33 @@ class TestSimPrecisionCalc:
                 "auto_cube_high": 0,
                 "auto_cube_mid": 0,
                 "auto_cube_low": 0,
-                "tele_cube_high": 3,
+                "tele_cube_high": 2,
                 "tele_cube_mid": 0,
                 "tele_cube_low": 1,
-                "auto_cone_high": 1,
-                "auto_cone_mid": 2,
+                "auto_cone_high": 0,
+                "auto_cone_mid": 1,
                 "auto_cone_low": 0,
                 "tele_cone_high": 1,
                 "tele_cone_mid": 0,
-                "tele_cone_low": 2,
+                "tele_cone_low": 4,
             },
             {
                 "scout_name": "KATHY LI",
                 "team_number": "4414",
                 "match_number": 2,
                 "alliance_color_is_red": False,
-                "auto_cube_high": 2,
-                "auto_cube_mid": 2,
+                "auto_cube_high": 0,
+                "auto_cube_mid": 0,
                 "auto_cube_low": 0,
-                "tele_cube_high": 2,
+                "tele_cube_high": 1,
                 "tele_cube_mid": 0,
-                "tele_cube_low": 2,
+                "tele_cube_low": 4,
                 "auto_cone_high": 1,
                 "auto_cone_mid": 0,
                 "auto_cone_low": 0,
                 "tele_cone_high": 0,
-                "tele_cone_mid": 3,
-                "tele_cone_low": 0,
+                "tele_cone_mid": 2,
+                "tele_cone_low": 1,
             },
             {
                 "scout_name": "KATE UNGER",
@@ -206,7 +206,7 @@ class TestSimPrecisionCalc:
                 "match_number": 2,
                 "alliance_color_is_red": False,
                 "auto_cube_high": 0,
-                "auto_cube_mid": 1,
+                "auto_cube_mid": 0,
                 "auto_cube_low": 0,
                 "tele_cube_high": 2,
                 "tele_cube_mid": 0,
@@ -214,9 +214,9 @@ class TestSimPrecisionCalc:
                 "auto_cone_high": 0,
                 "auto_cone_mid": 1,
                 "auto_cone_low": 0,
-                "tele_cone_high": 3,
-                "tele_cone_mid": 0,
-                "tele_cone_low": 4,
+                "tele_cone_high": 0,
+                "tele_cone_mid": 2,
+                "tele_cone_low": 5,
             },
         ]
 
@@ -229,8 +229,8 @@ class TestSimPrecisionCalc:
         assert self.test_calc.server == self.test_server
 
     def test_get_tba_aim_score(self):
-        assert self.test_calc.get_tba_aim_score(1, False, self.tba_test_data) == 58
-        assert self.test_calc.get_tba_aim_score(1, True, self.tba_test_data) == 134
+        assert self.test_calc.get_tba_aim_score(1, False, self.tba_test_data) == 52
+        assert self.test_calc.get_tba_aim_score(1, True, self.tba_test_data) == 36
         assert self.test_calc.get_tba_aim_score(3, False, self.tba_test_data) == None
         assert self.test_calc.get_tba_aim_score(3, True, self.tba_test_data) == None
 
@@ -242,23 +242,23 @@ class TestSimPrecisionCalc:
             rec.message for rec in caplog.records if rec.levelname == "WARNING"
         ]
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
-        assert self.test_calc.get_scout_tim_score("ALISON LIN", 1, required) == 49
-        assert self.test_calc.get_scout_tim_score("NITHMI JAYASUNDARA", 1, required) == 40
-        assert self.test_calc.get_scout_tim_score("NATHAN MILLS", 2, required) == 40
+        assert self.test_calc.get_scout_tim_score("ALISON LIN", 1, required) == 24
+        assert self.test_calc.get_scout_tim_score("NITHMI JAYASUNDARA", 1, required) == 21
+        assert self.test_calc.get_scout_tim_score("NATHAN MILLS", 2, required) == 29
 
     def test_get_aim_scout_scores(self):
         self.test_server.db.delete_data("unconsolidated_totals")
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
         required = self.test_calc.sim_schema["calculations"]["sim_precision"]["requires"]
         assert self.test_calc.get_aim_scout_scores(1, True, required) == {
-            "1678": {"ALISON LIN": 49, "NATHAN MILLS": 47},
-            "4414": {"KATHY LI": 45},
-            "589": {"KATE UNGER": 41, "NITHMI JAYASUNDARA": 40, "RAY FABIONAR": 33},
+            "1678": {"ALISON LIN": 24, "NATHAN MILLS": 25},
+            "4414": {"KATHY LI": 29},
+            "589": {"KATE UNGER": 21, "NITHMI JAYASUNDARA": 21, "RAY FABIONAR": 20},
         }
         assert self.test_calc.get_aim_scout_scores(2, False, required) == {
-            "1678": {"NATHAN MILLS": 40},
-            "4414": {"KATHY LI": 49},
-            "589": {"KATE UNGER": 43},
+            "1678": {"NATHAN MILLS": 29},
+            "4414": {"KATHY LI": 27},
+            "589": {"KATE UNGER": 32},
         }
 
     def test_get_aim_scout_avg_errors(self, caplog):
@@ -303,7 +303,7 @@ class TestSimPrecisionCalc:
             )
         assert self.test_calc.calc_sim_precision(
             self.scout_tim_test_data[3], self.tba_test_data
-        ) == {"sim_precision": 2.0}
+        ) == {"sim_precision": 13.055555555555557}
 
     def test_update_sim_precision_calcs(self):
         self.test_server.db.insert_documents("unconsolidated_totals", self.scout_tim_test_data)
@@ -335,25 +335,25 @@ class TestSimPrecisionCalc:
                 "scout_name": "ALISON LIN",
                 "match_number": 1,
                 "team_number": "1678",
-                "sim_precision": -1.4802973661668753e-16,
+                "sim_precision": 12.222222222222223,
             },
             {
                 "scout_name": "NATHAN MILLS",
                 "match_number": 1,
                 "team_number": "1678",
-                "sim_precision": -2.0000000000000004,
+                "sim_precision": 13.222222222222223,
             },
             {
                 "scout_name": "KATHY LI",
                 "match_number": 1,
                 "team_number": "4414",
-                "sim_precision": -1.0,
+                "sim_precision": 12.722222222222227,
             },
             {
                 "scout_name": "KATE UNGER",
                 "match_number": 1,
                 "team_number": "589",
-                "sim_precision": 2.0,
+                "sim_precision": 13.055555555555557,
             },
         ]
         self.test_server.db.delete_data("unconsolidated_totals")

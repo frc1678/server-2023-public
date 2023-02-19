@@ -15,7 +15,7 @@ class SimPrecisionCalc(BaseCalculations):
         self.sim_schema = utils.read_schema("schema/calc_sim_precision_schema.yml")
 
     def get_tba_aim_score(self, match_number, alliance_color_is_red, tba_match_data):
-        """Gets the total cargo and climb score for an alliance in match from TBA.
+        """Gets the total grid score for an alliance in match from TBA.
         aim is a dictionary with a match number and alliance color.
         tba_match_data is the result of a TBA request for matches.
         """
@@ -29,12 +29,9 @@ class SimPrecisionCalc(BaseCalculations):
                 and match["comp_level"] == "qm"
                 and match["score_breakdown"] != None
             ):
-                score = match["score_breakdown"][alliance_color]["totalPoints"]
-                # Subtract foul and auto line points, which scouts don't collect
-                # Also subtract climb points which may be inaccurate on TBA
-                score -= match["score_breakdown"][alliance_color]["foulPoints"]
-                score -= match["score_breakdown"][alliance_color]["autoTaxiPoints"]
-                score -= match["score_breakdown"][alliance_color]["endgamePoints"]
+                # only use the grid score from the gamepieces to check the accuracy of scouts
+                score = match["score_breakdown"][alliance_color]["autoGamePiecePoints"]
+                score += match["score_breakdown"][alliance_color]["teleopGamePiecePoints"]
                 return score
         return
 
@@ -51,6 +48,7 @@ class SimPrecisionCalc(BaseCalculations):
         scout_document = scout_data[0]
         total_score = 0
         for datapoint, point_value in required.items():
+            # split using . to get rid of collection name
             datapoint = datapoint.split(".")[1]
             total_score += scout_document[datapoint] * point_value
         return total_score
