@@ -8,7 +8,7 @@ from typing import Dict
 import utils
 from data_transfer import adb_communicator
 
-IMAGE_PATH_PATTERN = re.compile(r"([0-9]+)_(full_robot_[1-2]+|drivetrain|mechanism_[0-9]+)\.jpg")
+IMAGE_PATH_PATTERN = re.compile(r"([0-9]+)_(full_robot|side|front|mechanism_[0-9]+)\.jpg")
 
 
 def find_robot_images() -> Dict[str, str]:
@@ -36,7 +36,11 @@ def send_images() -> None:
             continue
         images_sent = 0
         for filename, full_path in find_robot_images().items():
-            adb_communicator.push_file(device, full_path, f"storage/emulated/0/Download/{filename}")
+            adb_communicator.push_file(
+                device,
+                full_path,
+                f"/sdcard/Android/Data/org.citruscircuits.viewer/files/{filename}",
+            )
             images_sent += 1
         print(f"Sent {images_sent} photos to {adb_communicator.DEVICE_SERIAL_NUMBERS[device]}")
 
