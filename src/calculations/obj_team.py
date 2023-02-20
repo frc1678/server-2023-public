@@ -89,24 +89,34 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
 
     def filter_tims_for_counts(self, tims: List[Dict], schema):
         """Filters tims based on schema for count calculations"""
-        tims_that_meet_filter = tims
-        for key, value in schema["tim_fields"].items():
-            if key != "not":
-                # Checks that the TIMs in their given field meet the filter
-                tims_that_meet_filter = list(
-                    filter(lambda tim: tim[key] == value, tims_that_meet_filter)
-                )
+        tims_that_meet_filter = 0
+        for field in schema["tim_fields"]:
+            if type(field) == dict:
+                for key, value in field.items():
+                    key = key.split(".")[1]
+                    # Checks that the TIMs in their given field meet the filter
+                    tims_that_meet_filter += len(list(filter(lambda tim: tim[key] == value, tims)))
             else:
-                # not_field expects the output to be anything but the given filter
-                # not_value is the filter that not_field shouldn't have
-                for not_field, not_value in value.items():
-                    # Checks that the TIMs in the 'not' field are anything other than the filter
-                    tims_that_meet_filter = list(
-                        filter(
-                            lambda tim: tim.get(not_field, not_value) != not_value,
-                            tims_that_meet_filter,
+                for key, value in schema["tim_fields"].items():
+                    if key != "not":
+                        # Checks that the TIMs in their given field meet the filter
+                        tims_that_meet_filter += len(
+                            list(filter(lambda tim: tim[key] == value, tims))
                         )
-                    )
+                    else:
+                        # not_field expects the output to be anything but the given filter
+                        # not_value is the filter that not_field shouldn't have
+                        for not_field, not_value in value.items():
+                            # Checks that the TIMs in the 'not' field are anything other than the filter
+                            tims_that_meet_filter += len(
+                                list(
+                                    filter(
+                                        lambda tim: tim.get(not_field, not_value) != not_value,
+                                        tims,
+                                    )
+                                )
+                            )
+
         return tims_that_meet_filter
 
     def calculate_counts(self, tims: List[Dict], lfm_tims: List[Dict]):
@@ -119,7 +129,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                 tims_that_meet_filter = self.filter_tims_for_counts(lfm_tims, schema)
             else:
                 tims_that_meet_filter = self.filter_tims_for_counts(tims, schema)
-            team_info[calculation] = len(tims_that_meet_filter)
+            team_info[calculation] = tims_that_meet_filter
         return team_info
 
     def calculate_super_counts(self, tims):
