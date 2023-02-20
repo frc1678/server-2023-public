@@ -213,11 +213,15 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                         for value in lfm_tim_action_sum[tim_field]
                         if value != schema["ignore"]
                     ]
+                    if values_to_count == []:
+                        continue
                     median += statistics.median(values_to_count)
                 else:
                     values_to_count = [
                         value for value in tim_action_sum[tim_field] if value != schema["ignore"]
                     ]
+                    if values_to_count == []:
+                        continue
                     median += statistics.median(values_to_count)
             team_info[calculation] = median
         return team_info
