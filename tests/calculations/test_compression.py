@@ -67,11 +67,9 @@ def test_compress_obj_tim():
             {"time": 45, "action_type": "start_incap"},
             {"time": 7, "action_type": "end_incap"},
         ],
-        "auto_charge_level": "NONE",
+        "auto_charge_level": "N",
     }
-    compressed_data = (
-        "+A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEI R%Z9999$Y2$XFOUR$W045AL007AM$VNONE"
-    )
+    compressed_data = "+A1$BHASAMPLENUM$C1$D1582994470$E1.0.2$FKEI R%Z9999$Y2$XFOUR$W045AL007AM$VN"
     assert compression.compress_obj_tim(data) == compressed_data
 
 

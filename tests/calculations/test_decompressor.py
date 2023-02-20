@@ -189,9 +189,9 @@ class TestDecompressor:
                     {"time": 60, "action_type": "score_cube_high", "in_teleop": False},
                     {"time": 61, "action_type": "score_cube_mid", "in_teleop": False},
                 ],
-                "tele_charge_level": "ENGAGE",
-                "preloaded_gamepiece": "CONE",
-                "auto_charge_level": "NONE",
+                "tele_charge_level": "E",
+                "preloaded_gamepiece": "O",
+                "auto_charge_level": "N",
             }
         ]
         # Expected decompressed subjective qr
@@ -247,7 +247,7 @@ class TestDecompressor:
         ]
         # Test objective qr decompression
         assert expected_objective == self.test_decompressor.decompress_single_qr(
-            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$X3$UENGAGE$TCONE$W060AD061AE$VNONE",
+            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%Z1678$Y14$X3$UE$TO$W060AD061AE$VN",
             decompressor.QRType.OBJECTIVE,
         )
         # Test subjective qr decompression
@@ -308,9 +308,9 @@ class TestDecompressor:
                             "in_teleop": False,
                         },
                     ],
-                    "auto_charge_level": "NONE",
-                    "tele_charge_level": "NONE",
-                    "preloaded_gamepiece": "NONE",
+                    "auto_charge_level": "N",
+                    "tele_charge_level": "N",
+                    "preloaded_gamepiece": "N",
                 }
             ],
             "subj_tim": [
@@ -367,7 +367,7 @@ class TestDecompressor:
         assert expected_output == self.test_decompressor.decompress_qrs(
             [
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$X4$W060AD061AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%Z1678$Y14$X4$W060AD061AE$VN$UN$TN",
                     "override": {},
                 },
                 {
@@ -427,9 +427,9 @@ class TestDecompressor:
                 {"time": 7, "action_type": "score_cube_high", "in_teleop": True},
                 {"time": 8, "action_type": "score_cube_mid", "in_teleop": True},
             ],
-            "auto_charge_level": "NONE",
-            "tele_charge_level": "NONE",
-            "preloaded_gamepiece": "NONE",
+            "auto_charge_level": "N",
+            "tele_charge_level": "N",
+            "preloaded_gamepiece": "N",
         }
         expected_sbj = [
             {
@@ -487,14 +487,14 @@ class TestDecompressor:
             "raw_qr",
             [
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AO006AB007AD008AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AO006AB007AD008AE$VN$UN$TN",
                     "blocklisted": False,
                     "override": {"start_position": "1", "doesnt_exist": 5},
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
                 {
-                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AO006AB007AD008AE$VNONE$UNONE$TNONE",
+                    "data": f"+A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$BgCbtwqZ$C51$D9321$Ev1.3$FXvfaPcSrgJw25VKrcsphdbyEVjmHrH1V$GFALSE%Z3603$Y13$X2$W000AA001AB002AC005AO006AB007AD008AE$VN$UN$TN",
                     "blocklisted": True,
                     "override": {"start_position": "1", "doesnt_exist": 5},
                     "epoch_time": curr_time.timestamp(),

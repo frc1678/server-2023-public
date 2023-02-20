@@ -154,7 +154,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                     and categorical_action[1] in self.TIM_SCHEMA["categorical_actions"]
                 ):
                     categorical_actions = list(
-                        self.TIM_SCHEMA["enums"][categorical_action[1]].keys()
+                        self.TIM_SCHEMA["categorical_actions"][categorical_action[1]]["list"]
                     )
                     # Translates categorical action as strings into a list as ints
                     # Only uses latest 4 matches if it's an lfm datapoint

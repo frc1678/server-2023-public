@@ -60,13 +60,13 @@ class ObjTIMCalcs(BaseCalculations):
         for category in self.schema["categorical_actions"]:
             scout_categorical_actions = [scout[category] for scout in unconsolidated_tims]
             # Enums for associated category actions and shortened representation
-            actions = self.schema["enums"][category]
+            actions = self.schema["categorical_actions"][category]["list"]
             # Turn the shortened categorical actions from the scout into full strings
             categorical_actions = []
             for action in scout_categorical_actions:
-                for key, value in actions.items():
+                for value in actions:
                     if value == action:
-                        categorical_actions.append(key)
+                        categorical_actions.append(value)
                         break
             # If at least 2 scouts agree, take their answer
             if len(self.modes(categorical_actions)) == 1:
@@ -74,11 +74,9 @@ class ObjTIMCalcs(BaseCalculations):
                 continue
 
             # Add up the indexes of the scout responses
-            category_avg = self.avg(
-                [list(actions.keys()).index(value) for value in categorical_actions]
-            )
+            category_avg = self.avg([list(actions).index(value) for value in categorical_actions])
             # Round the average and append the correct action to the final dict
-            final_categorical_actions[category] = list(actions.keys())[round(category_avg)]
+            final_categorical_actions[category] = list(actions)[round(category_avg)]
         return final_categorical_actions
 
     def filter_timeline_actions(self, tim: dict, **filters) -> list:

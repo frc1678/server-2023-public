@@ -12,11 +12,10 @@ def test_generate_random_value():
     assert generate_random_value.generate_random_value("str", "team_number", seed=254) == "5846"
     assert (
         generate_random_value.generate_random_value("str", "lfm_max_auto_charge_level", seed=254)
-        == "DOCK"
+        == "D"
     )
     assert (
-        generate_random_value.generate_random_value("str", "preloaded_gamepiece", seed=254)
-        == "CONE"
+        generate_random_value.generate_random_value("str", "preloaded_gamepiece", seed=254) == "O"
     )
 
     # test int, float, bool
@@ -33,29 +32,28 @@ def test_generate_random_value():
     ) == [1, 1, 1, 1]
     assert generate_random_value.generate_random_value(
         "list", "lfm_mode_start_position", seed=254
-    ) == ["THREE", "TWO"]
+    ) == ["4", "2"]
     assert generate_random_value.generate_random_value(
         "list", "lfm_mode_preloaded_gamepiece", seed=254
-    ) == ["CONE", "CUBE"]
+    ) == ["O", "U"]
     assert generate_random_value.generate_random_value(
         "list", "lfm_mode_charge_level", seed=254
-    ) == ["ENGAGE", "DOCK"]
+    ) == ["E", "D"]
 
     # test enum[int] and all enum[str]
     assert generate_random_value.generate_random_value("enum[int]", "drivetrain", seed=254) == 1
     assert (
         generate_random_value.generate_random_value("enum[str]", "auto_charge_level", seed=254)
-        == "DOCK"
+        == "D"
     )
     assert (
         generate_random_value.generate_random_value("enum[str]", "tele_charge_level", seed=254)
-        == "DOCK"
+        == "D"
     )
     assert (
-        generate_random_value.generate_random_value("enum[str]", "start_position", seed=254)
-        == "TWO"
+        generate_random_value.generate_random_value("enum[str]", "start_position", seed=254) == "2"
     )
     assert (
         generate_random_value.generate_random_value("enum[str]", "preloaded_gamepiece", seed=254)
-        == "CONE"
+        == "O"
     )

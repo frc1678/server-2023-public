@@ -22,13 +22,15 @@ def generate_random_value(value_type: str, value_name: str = "", seed=None):
 
     if value_type == "str":
         value = ""
+        if "start_position" in value_name:
+            return random.sample(["0", "1", "2", "3", "4"], random.randint(1, 3))
         # Generate specific random values relevant to the variable
         if value_name == "team_number":
             value = "".join([str(random.choice([j for j in range(10)])) for i in range(4)])
         elif "charge_level" in value_name:
-            value = random.choice(["PARK", "DOCK", "ENGAGE"])
+            value = random.choice(["P", "D", "E"])
         elif "preloaded_gamepiece" in value_name:
-            value = random.choice(["CUBE", "CONE"])
+            value = random.choice(["U", "O"])
         # if variable does not require a set of predefined constants, generate a random string
         # used for variables such as scout_name or other forgotten variables
         else:
@@ -63,11 +65,11 @@ def generate_random_value(value_type: str, value_name: str = "", seed=None):
         # generate random data for modes (which are lists) in calc_obj_team_schema
         elif "mode" in value_name:
             if "start_position" in value_name:
-                return random.sample(["ONE", "TWO", "THREE", "FOUR"], random.randint(1, 3))
+                return random.sample(["0", "1", "2", "3", "4"], random.randint(1, 3))
             elif "preloaded_gamepiece" in value_name:
-                return random.sample(["CUBE", "CONE"], random.randint(1, 2))
+                return random.sample(["U", "O"], random.randint(1, 2))
             elif "charge_level" in value_name:
-                return random.sample(["PARK", "DOCK", "ENGAGE"], random.randint(1, 3))
+                return random.sample(["P", "D", "E"], random.randint(1, 3))
         # other (unknown) lists
         else:
             return []
@@ -77,13 +79,13 @@ def generate_random_value(value_type: str, value_name: str = "", seed=None):
         if value_type.lower() == "enum[str]":
             if "charge_level" in value_name:
                 if "auto" in value_name:
-                    return random.choice(["NONE", "DOCK", "ENGAGE"])
+                    return random.choice(["N", "D", "E"])
                 elif "tele" in value_name:
-                    return random.choice(["NONE", "PARK", "DOCK", "ENGAGE"])
+                    return random.choice(["N", "P", "D", "E"])
             elif "start_position" in value_name:
-                return random.choice(["ZERO", "ONE", "TWO", "THREE", "FOUR"])
+                return random.choice(["0", "1", "2", "3", "4"])
             elif "preloaded_gamepiece" in value_name:
-                return random.choice(["CUBE", "CONE"])
+                return random.choice(["U", "O"])
         # for other integer Enums, return an int
         else:
             return 1
