@@ -893,6 +893,9 @@ class TestOBJTeamCalc:
             "tele_avg_cube_mid": 1,
             "auto_avg_cube_high": 2,
             "tele_avg_cube_high": 3,
+            "avg_intakes_low_row": 1,
+            "avg_intakes_mid_row": 0,
+            "avg_intakes_high_row": 1,
             "auto_dock_percent_success": 1,
             "tele_dock_percent_success": 2,
             "auto_avg_charge_points": 3.5,
@@ -908,7 +911,9 @@ class TestOBJTeamCalc:
             },
         ]
         assert self.test_calc.calculate_sums(team_data, obj_tims) == {
-            "avg_total_points": 104.5,
+            "auto_avg_total_points": 57.5,
+            "tele_avg_total_points": 40.0,
+            "avg_total_points": 97.5,
             "total_incap": 72,
         }
 
@@ -1450,7 +1455,9 @@ class TestOBJTeamCalc:
                 "tele_avg_charge_points": 7.333333333333333,
                 "auto_avg_charge_points": 10.666666666666666,
                 # Sums
-                "avg_total_points": 492.3333333333333,
+                "auto_avg_total_points": 278.3333333333333,
+                "tele_avg_total_points": 165.33333333333334,
+                "avg_total_points": 443.66666666666663,
                 "total_incap": 47,
             },
             {
@@ -1642,7 +1649,9 @@ class TestOBJTeamCalc:
                 "tele_avg_charge_points": 6.8,
                 "auto_avg_charge_points": 10.4,
                 # Sums
-                "avg_total_points": 348.40000000000003,
+                "auto_avg_total_points": 198.20000000000002,
+                "tele_avg_total_points": 118.8,
+                "avg_total_points": 317,
                 "total_incap": 172,
             },
         ]
@@ -1654,7 +1663,6 @@ class TestOBJTeamCalc:
         assert len(result) == 2
         for document in result:
             del document["_id"]
-            pprint(document)
             assert document in expected_results
             # Removes the matching expected result to protect against duplicates from the calculation
             expected_results.remove(document)

@@ -111,6 +111,8 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "tele_sd_cube_total": 84.4422,
         "tele_sd_gamepieces": 84.4422,
         "auto_avg_gamepieces_low": 84.4422,
+        "auto_avg_total_points": 84.4422,
+        "tele_avg_total_points": 84.4422,
         "auto_charge_attempts": 49,
         "auto_dock_only_successes": 49,
         "auto_dock_successes": 49,
