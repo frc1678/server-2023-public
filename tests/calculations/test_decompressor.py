@@ -507,6 +507,13 @@ class TestDecompressor:
                     "epoch_time": curr_time.timestamp(),
                     "readable_time": curr_time.strftime("%D - %H:%M:%S"),
                 },
+                {
+                    "data": f"*A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GFALSE%A1678$B2$C2$DFALSE$FFALSE$G277#A254$B3$C2$DFALSE$FFALSE$G219#A1323$B1$C3$DTRUE$FFALSE$G420^E1110",
+                    "blocklisted": False,
+                    "override": {},
+                    "epoch_time": curr_time.timestamp(),
+                    "readable_time": curr_time.strftime("%D - %H:%M:%S"),
+                },
             ],
         )
         self.test_decompressor.run()

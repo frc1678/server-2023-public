@@ -339,6 +339,20 @@ class Decompressor(base_calculations.BaseCalculations):
             entry["o"] for entry in self.entries_since_last() if not entry["o"]["blocklisted"]
         ]
         decompressed_qrs = self.decompress_qrs(new_qrs)
+
+        # Checks if two subjective scouts scouted the same alliance in a match
+        # If so, delete one of the qrs
+        unique_combinations = set()
+        filtered_qrs = []
+        for qr in decompressed_qrs["subj_tim"]:
+            match_number = qr["match_number"]
+            alliance_color = qr["alliance_color_is_red"]
+            team_number = qr["team_number"]
+            if (match_number, alliance_color, team_number) not in unique_combinations:
+                unique_combinations.add((match_number, alliance_color, team_number))
+                filtered_qrs.append(qr)
+        decompressed_qrs["subj_tim"] = filtered_qrs
+
         for collection in ["unconsolidated_obj_tim", "subj_tim"]:
             if self.calc_all_data:
                 # Prevent duplicates when calculating all data by deleting data before inserting
