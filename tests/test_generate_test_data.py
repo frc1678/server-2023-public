@@ -123,6 +123,8 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "tele_dock_only_successes": 49,
         "tele_dock_successes": 49,
         "tele_engage_percent_success": 84.4422,
+        "lfm_tele_park_percent_success": 84.4422,
+        "tele_park_percent_success": 84.4422,
         "tele_engage_successes": 49,
         "tele_park_successes": 49,
         "matches_incap": 49,
@@ -263,7 +265,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "current_rank": 49,
         "current_rps": 49,
         "predicted_rank": 49,
-        "predicted_rps": 49,
+        "predicted_rps": 84.4422,
         "team_number": "6604",
     },
     # Scout Precision
@@ -296,6 +298,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
         "mobility_successes": 49,
         "team_number": "6604",
         "foul_cc": 84.4422,
+        "link_cc": 84.4422,
     },
     # TBA TIM
     {
@@ -306,8 +309,8 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     # Obj Pit
     {
         "team_number": "6604",
-        "drivetrain": 1,
-        "drivetrain_motor_type": 1,
+        "drivetrain": None,
+        "drivetrain_motor_type": None,
         "drivetrain_motors": 49,
         "has_vision": True,
         "has_communication_device": True,

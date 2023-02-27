@@ -848,22 +848,28 @@ class TestOBJTeamCalc:
             "lfm_auto_engage_successes": 0,
             "lfm_tele_charge_attempts": 4,
             "lfm_tele_dock_only_successes": 2,
-            "lfm_tele_dock_successes": 3,
+            "lfm_tele_dock_successes": 2,
             "lfm_tele_engage_successes": 1,
             "lfm_tele_park_successes": 1,
         }
         assert self.test_calc.calculate_success_rates(team_data) == {
             "percent_matches_scored_coop": 0.4,
             "charge_percent_success": 0.8666666666666667,
-            "lfm_charge_percent_success": 0.6666666666666666,
+            "lfm_charge_percent_success": 0.5,
             "auto_dock_percent_success": 1.0,
             "lfm_auto_dock_percent_success": 0.3333333333333333,
             "auto_engage_percent_success": 0.42857142857142855,
             "lfm_auto_engage_percent_success": 0.0,
             "tele_dock_percent_success": 0.75,
-            "lfm_tele_dock_percent_success": 1.0,
+            "lfm_tele_dock_percent_success": 0.6666666666666666,
             "tele_engage_percent_success": 0.25,
             "lfm_tele_engage_percent_success": 0.3333333333333333,
+            "tele_park_percent_success": 0.0,
+            "lfm_tele_park_percent_success": 0.5,
+            "auto_dock_only_percent_success": 0.5714285714285714,
+            "lfm_auto_dock_only_percent_success": 0.3333333333333333,
+            "tele_dock_only_percent_success": 0.5,
+            "lfm_tele_dock_only_percent_success": 0.6666666666666666,
         }
 
     def test_calculate_average_points(self):
@@ -1449,6 +1455,12 @@ class TestOBJTeamCalc:
                 "lfm_tele_engage_percent_success": 1.0,
                 "tele_dock_percent_success": 1.0,
                 "tele_engage_percent_success": 1.0,
+                "tele_park_percent_success": 1.0,
+                "lfm_tele_park_percent_success": 0.5,
+                "auto_dock_only_percent_success": 1 / 3,
+                "lfm_auto_dock_only_percent_success": 1 / 3,
+                "tele_dock_only_percent_success": 0.0,
+                "lfm_tele_dock_only_percent_success": 0.0,
                 # LFM Success Rates
                 "lfm_charge_percent_success": 1.0,
                 # Average Points
@@ -1643,6 +1655,12 @@ class TestOBJTeamCalc:
                 "lfm_tele_engage_percent_success": 0.6666666666666666,
                 "tele_dock_percent_success": 1.0,
                 "tele_engage_percent_success": 0.5,
+                "tele_park_percent_success": 1.0,
+                "lfm_tele_park_percent_success": 1.0,
+                "auto_dock_only_percent_success": 0.4,
+                "lfm_auto_dock_only_percent_success": 0.5,
+                "tele_dock_only_percent_success": 0.5,
+                "lfm_tele_dock_only_percent_success": 1 / 3,
                 # LFM Success Rates
                 "lfm_charge_percent_success": 1.0,
                 # Average Points
