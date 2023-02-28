@@ -177,16 +177,32 @@ class PredictedAimCalc(BaseCalculations):
         predicted_values.tele_cone_high += obj_team["tele_avg_cone_high"]
 
         # Check each predicted value isn't greater than the maximum possible value. If it is, set it to the maximum
-        predicted_values.auto_gamepieces_low = min(9, predicted_values.auto_gamepieces_low)
-        predicted_values.auto_cube_mid = min(3, predicted_values.auto_cube_mid)
-        predicted_values.auto_cube_high = min(3, predicted_values.auto_cube_high)
-        predicted_values.auto_cone_mid = min(6, predicted_values.auto_cone_mid)
-        predicted_values.auto_cone_high = min(6, predicted_values.auto_cone_high)
-        predicted_values.tele_gamepieces_low = min(9, predicted_values.tele_gamepieces_low)
-        predicted_values.tele_cube_mid = min(3, predicted_values.tele_cube_mid)
-        predicted_values.tele_cube_high = min(3, predicted_values.tele_cube_high)
-        predicted_values.tele_cone_mid = min(6, predicted_values.tele_cone_mid)
-        predicted_values.tele_cone_high = min(6, predicted_values.tele_cone_high)
+        # If auto pieces + tele pieces are more than what is allowed for that piece in that row, take away the tele pieces first
+        if predicted_values.auto_gamepieces_low > 9:
+            predicted_values.tele_gamepieces_low = 0
+            predicted_values.auto_gamepieces_low = 9
+        if predicted_values.auto_gamepieces_low + predicted_values.tele_gamepieces_low > 9:
+            predicted_values.tele_gamepieces_low = 9 - predicted_values.auto_gamepieces_low
+        if predicted_values.auto_cube_mid > 3:
+            predicted_values.tele_cube_mid = 0
+            predicted_values.auto_cube_mid = 3
+        if predicted_values.auto_cube_mid + predicted_values.tele_cube_mid > 3:
+            predicted_values.tele_cube_mid = 3 - predicted_values.auto_cube_mid
+        if predicted_values.auto_cone_mid > 6:
+            predicted_values.tele_cone_mid = 0
+            predicted_values.auto_cone_mid = 6
+        if predicted_values.auto_cone_mid + predicted_values.tele_cone_mid > 6:
+            predicted_values.tele_cone_mid = 6 - predicted_values.auto_cone_mid
+        if predicted_values.auto_cube_high > 3:
+            predicted_values.tele_cube_high = 0
+            predicted_values.auto_cube_high = 3
+        if predicted_values.auto_cube_high + predicted_values.tele_cube_high > 3:
+            predicted_values.tele_cube_high = 3 - predicted_values.auto_cube_high
+        if predicted_values.auto_cone_high > 6:
+            predicted_values.tele_cone_high = 0
+            predicted_values.auto_cone_high = 6
+        if predicted_values.auto_cone_high + predicted_values.tele_cone_high > 6:
+            predicted_values.tele_cone_high = 6 - predicted_values.auto_cone_high
 
     def calculate_predicted_alliance_score(
         self, predicted_values, obj_team_data, tba_team_data, team_numbers
@@ -203,14 +219,18 @@ class PredictedAimCalc(BaseCalculations):
         obj_team = [
             team_data for team_data in obj_team_data if team_data["team_number"] in team_numbers
         ]
-
-        # tba_team = [
-        #         team_data for team_data in tba_team_data if team_data["team_number"] == team
-        #     ][0]
-
         for team in obj_team:
+
+            tba_team = [
+                team_data
+                for team_data in tba_team_data
+                if team_data["team_number"] == team["team_number"]
+            ][0]
+
             self.calculate_predicted_grid_score(predicted_values, team)
             self.calculate_predicted_charge_success_rate(predicted_values, team)
+
+            predicted_values.mobility += tba_team["mobility_successes"] / team["matches_played"]
 
         self.calculate_predicted_link_score(predicted_values, obj_team)
 
