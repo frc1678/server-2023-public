@@ -10,16 +10,14 @@ class PickabilityCalc(base_calculations.BaseCalculations):
 
     def __init__(self, server):
         super().__init__(server)
-        self.pickability_schema = utils.read_schema("schema/calc_pickability_schema.yml")[
-            "calculations"
-        ]
+        self.pickability_schema = utils.read_schema("schema/calc_pickability_schema.yml")
         self.get_watched_collections()
 
     def get_watched_collections(self):
         """Reads from the schema file to generate the correct watched collections"""
         self.watched_collections = set()
-        for calc in self.pickability_schema:
-            for sub_calc in self.pickability_schema[calc]:
+        for calc in self.pickability_schema["calculations"]:
+            for sub_calc in self.pickability_schema["calculations"][calc]:
                 if "." in sub_calc:
                     self.watched_collections.add(sub_calc.split(".")[0])
 
@@ -31,7 +29,7 @@ class PickabilityCalc(base_calculations.BaseCalculations):
         returns the weighted sum
         """
         weighted_sum = 0
-        for calc, weighted_value in self.pickability_schema[
+        for calc, weighted_value in self.pickability_schema["calculations"][
             calc_name
         ].items():  # Datapoints of first or second pickability
             if "." not in calc:  # Ignore 'type' in schema
@@ -41,6 +39,21 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                 return  # Can't calculate this pickability
             weighted_sum += team_data[collection][datapoint] * weighted_value
         return weighted_sum
+
+    def calculate_max_pickability(self, calc_name, updates):
+        """Returns the max between offensive and defensive second pickability
+        //TODO Remove unnecessary variables and make the code cleaner"""
+        # Only used for overall_second_pickability
+        offensive_second_pickability = None
+        defensive_second_pickability = None
+        for update in updates:
+            if "offensive_second_pickability" in update:
+                offensive_second_pickability = update["offensive_second_pickability"]
+            if "defensive_second_pickability" in update:
+                defensive_second_pickability = update["defensive_second_pickability"]
+        if not offensive_second_pickability or not defensive_second_pickability:
+            return  # Can't calculate pickability without both
+        return max(offensive_second_pickability, defensive_second_pickability)
 
     def update_pickability(self):
         """Creates updated pickability documents"""
@@ -53,8 +66,15 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                 if (query := self.server.db.find(collection, {"team_number": team})) != []:
                     team_data[collection] = query[0]
             update = {"team_number": team}
-            for calc_name in self.pickability_schema:
+            for calc_name in self.pickability_schema["calculations"]:
                 value = self.calculate_pickability(calc_name, team_data)
+                if value is None:
+                    log.error(f"{calc_name} could not be calculated for team: {team}")
+                    continue
+                update[calc_name] = value
+                updates.append(update)
+            for calc_name in self.pickability_schema["max_calculations"]:
+                value = self.calculate_max_pickability(calc_name, updates)
                 if value is None:
                     log.error(f"{calc_name} could not be calculated for team: {team}")
                     continue
@@ -64,6 +84,7 @@ class PickabilityCalc(base_calculations.BaseCalculations):
 
     def run(self) -> None:
         """Detects when and for which teams to calculate pickabilty"""
+
         # Finds oplog entries in the watched collections
         entries = self.entries_since_last()
         if entries == []:
