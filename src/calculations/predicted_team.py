@@ -38,7 +38,7 @@ class PredictedTeamCalc(BaseCalculations):
             predicted_alliance_rps[match] = {}
             if len(aims_in_match) < 2:
                 log.warning(f"Incomplete AIM data for Match {match}")
-                break
+                continue
             for aim in range(2):
                 # if match has data use actual rps from match, else use predicted rps
                 if aims_in_match[aim]["has_actual_data"]:
@@ -84,12 +84,12 @@ class PredictedTeamCalc(BaseCalculations):
             if team_number in aim["team_list"]:
                 if aim["match_number"] not in predicted_alliance_rps.keys():
                     log.warning(f'Missing predicted RPs for Match {aim["match_number"]}')
-                    break
+                    continue
                 if aim["alliance_color"] not in predicted_alliance_rps[aim["match_number"]].keys():
                     log.warning(
                         f'Missing predicted RPs for Alliance {aim["alliance_color"]} in Match {aim["match_number"]}'
                     )
-                    break
+                    continue
                 predicted_rps += predicted_alliance_rps[aim["match_number"]][aim["alliance_color"]]
         return predicted_rps
 
