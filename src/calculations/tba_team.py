@@ -100,6 +100,46 @@ class TBATeamCalc(base_calculations.BaseCalculations):
                     "value": match["score_breakdown"]["red"]["foulPoints"],
                 }
             )
+
+        solved = cc(cc_aims)
+        return solved
+
+    def calculate_link_cc(self, precision: int = 2) -> Dict[str, float]:
+        """
+        Calculates the amount of foul points each team contributes.
+
+        Calculated contribution (a.k.a. OPR) is a method of estimating the amount of something a team contributes to an alliance.
+
+        It uses a numpy matrix and calculates a least squares solution for each team.
+
+        See Also
+        ---------
+        TBA Blog post discussing OPR https://blog.thebluealliance.com/2017/10/05/the-math-behind-opr-an-introduction/
+        """
+        matches_endpoint = f"event/{Server.TBA_EVENT_KEY}/matches"
+        matches_resp = self.server.db.get_tba_cache(matches_endpoint)
+        if matches_resp is None:
+            matches_resp = {"data": tba_communicator.tba_request(matches_endpoint)}
+        tba_matches = matches_resp.get("data", [])
+        cc_aims: List[CCEvent] = []
+        # For each AIM, add the foul points for the other alliance in a dictionary
+        # with the team numbers and foul points contributed
+        for match in tba_matches:
+            if match.get("score_breakdown", None) is None:
+                continue
+            cc_aims.append(
+                {
+                    "parties": utils.get_teams_in_match(match, "red"),
+                    "value": match["score_breakdown"]["blue"]["linkPoints"],
+                }
+            )
+            cc_aims.append(
+                {
+                    "parties": utils.get_teams_in_match(match, "blue"),
+                    "value": match["score_breakdown"]["red"]["linkPoints"],
+                }
+            )
+
         solved = cc(cc_aims)
         return solved
 
@@ -116,7 +156,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
         tba_team_updates = {}
 
         foul_ccs = self.calculate_foul_cc()
-
+        link_ccs = self.calculate_link_cc()
         for team in teams:
             # Load team data from database
             obj_tims = self.server.db.find("obj_tim", {"team_number": team})
@@ -124,9 +164,11 @@ class TBATeamCalc(base_calculations.BaseCalculations):
             # Because of database structure, returns as a list
             team_data = self.tim_counts(obj_tims, tba_tims)
             team_data["team_number"] = team
-            # Add foul_cc
+            # Add foul_cc and link cc
             if team in foul_ccs:
                 team_data["foul_cc"] = foul_ccs[team]
+            if team in link_ccs:
+                team_data["link_cc"] = link_ccs[team]
             # Load team names
             if team in team_names:
                 team_data["team_name"] = team_names[team]

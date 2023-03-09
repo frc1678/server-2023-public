@@ -9,7 +9,6 @@ from calculations import tba_team
 from data_transfer import database
 import utils
 from server import Server
-
 import pytest
 from unittest.mock import patch
 
@@ -63,14 +62,20 @@ class TestTBATeamCalc:
                             "red": {"team_keys": ["frc973", "frc1678"]},
                             "blue": {"team_keys": ["frc973", "frc3478"]},
                         },
-                        "score_breakdown": {"red": {"foulPoints": 13}, "blue": {"foulPoints": 10}},
+                        "score_breakdown": {
+                            "red": {"foulPoints": 13, "linkPoints": 10},
+                            "blue": {"foulPoints": 10, "linkPoints": 15},
+                        },
                     },
                     {
                         "alliances": {
                             "red": {"team_keys": ["frc1678", "frc3478"]},
                             "blue": {"team_keys": ["frc973", "frc1577"]},
                         },
-                        "score_breakdown": {"red": {"foulPoints": 15}, "blue": {"foulPoints": 7}},
+                        "score_breakdown": {
+                            "red": {"foulPoints": 15, "linkPoints": 5},
+                            "blue": {"foulPoints": 7, "linkPoints": 20},
+                        },
                     },
                 ],
             },
@@ -261,22 +266,36 @@ class TestTBATeamCalc:
         ]
         expected_results = [
             # Team A
-            {"team_number": "973", "mobility_successes": 1, "team_name": "Greybots", "foul_cc": 8},
+            {
+                "team_number": "973",
+                "mobility_successes": 1,
+                "team_name": "Greybots",
+                "foul_cc": 8.0,
+                "link_cc": 2.5,
+            },
             # Team B
             {
                 "team_number": "1678",
                 "mobility_successes": 2,
                 "team_name": "Citrus Circuits",
-                "foul_cc": 2,
+                "foul_cc": 2.0,
+                "link_cc": 12.5,
             },
             # Team C
-            {"team_number": "3478", "mobility_successes": 2, "team_name": "LamBot", "foul_cc": 5},
+            {
+                "team_number": "3478",
+                "mobility_successes": 2,
+                "team_name": "LamBot",
+                "foul_cc": 5.0,
+                "link_cc": 7.5,
+            },
             # Team D
             {
                 "team_number": "1577",
                 "mobility_successes": 2,
                 "team_name": "Steampunk",
-                "foul_cc": 7,
+                "foul_cc": 7.0,
+                "link_cc": 2.5,
             },
         ]
         self.test_server.db.insert_documents("tba_cache", tba_cache)
