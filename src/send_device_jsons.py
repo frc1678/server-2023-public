@@ -56,7 +56,7 @@ def get_team_list():
     if not SEND_MATCH_SCHEDULE:
         teams = tba_communicator.tba_request(f"event/{utils.TBA_EVENT_KEY}/teams/simple")
         # TBA returns a dictionary of information about teams at the event, so extract team numbers
-        team_numbers = [team["team_number"] for team in teams]
+        team_numbers = [str(team["team_number"]) for team in teams]
         return sorted(team_numbers)
     with open(MATCH_SCHEDULE_LOCAL_PATH) as file:
         match_schedule_reader = json.load(file)

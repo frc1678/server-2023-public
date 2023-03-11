@@ -160,7 +160,7 @@ class SimPrecisionCalc(BaseCalculations):
         empty_auto_nodes,
     ):
         """Gets the average error from TBA of each scout's linear combinations in an AIM."""
-        if len(aim_scout_scores) < 3:
+        if len(aim_scout_scores) != 3:
             log.warning(
                 f"Missing scout data for Match {match_number}, Alliance is Red: {alliance_color_is_red}"
             )

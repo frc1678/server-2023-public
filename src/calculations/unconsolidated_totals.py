@@ -107,7 +107,7 @@ class UnconsolidatedTotals(BaseCalculations):
                 unique_tims.append(tim)
         # Delete and re-insert if updating all data
         if self.calc_all_data:
-            self.server.db.delete_data("obj_tim")
+            self.server.db.delete_data("unconsolidated_totals")
 
         updates = self.update_calcs(unique_tims)
         if len(updates) > 1:
