@@ -187,6 +187,7 @@ class ExportTIM(BaseExport):
         """
         super().__init__()
         self.name = self.create_name("tim_export")
+        self.teams_list = self.get_teams_list()
 
         self.column_headers, self.final_built_data = self.build_data()
 
@@ -209,6 +210,10 @@ class ExportTIM(BaseExport):
             for document in list_of_documents:
                 # Gets the team num from the document
                 team_num = str(document["team_number"])
+                # Ignore teams not in the teams list
+                if team_num not in self.teams_list:
+                    continue
+
                 match_num = document["match_number"]
                 # Uses a tuple of the team number and the match number as
                 # to not write over other data
@@ -253,6 +258,7 @@ class ExportTeam(BaseExport):
         """
         super().__init__()
         self.name = self.create_name("team_export")
+        self.teams_list = self.get_teams_list()
 
         self.column_headers, self.final_built_data = self.build_data()
 
@@ -276,6 +282,10 @@ class ExportTeam(BaseExport):
             for document in list_of_documents:
                 # Gets the team num from the document
                 team_num = str(document["team_number"])
+
+                # Filter out teams not in teams list
+                if team_num not in self.teams_list:
+                    continue
 
                 # Check if data exists for team_num
                 if not data_by_team_num.get(team_num):
