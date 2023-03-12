@@ -45,3 +45,6 @@
 
 - import_path: calculations.scout_precision
   class_name: ScoutPrecisionCalc
+
+- import_path: calculations.auto_paths
+  class_name: AutoPathCalc

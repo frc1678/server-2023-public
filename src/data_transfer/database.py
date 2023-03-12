@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 COLLECTION_SCHEMA = utils.read_schema("schema/collection_schema.yml")
 COLLECTION_NAMES = [collection for collection in COLLECTION_SCHEMA["collections"].keys()]
 VALID_COLLECTIONS = [
+    "auto_paths",
     "obj_team",
     "obj_tim",
     "subj_team",
