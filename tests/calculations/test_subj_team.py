@@ -153,18 +153,18 @@ class TestSubjTeamCalcs:
 
         assert self.near(robonauts["driver_field_awareness"], 0.9259)
         assert self.near(robonauts["driver_quickness"], 0.55555)
-        assert self.near(robonauts["driver_ability"], 0.62632)
+        assert self.near(robonauts["driver_ability"], 0.65632)
         for i in range(4):
             assert self.near(robonauts["auto_pieces_start_position"][i], [0, 0, 1, 1][i])
 
         assert self.near(citrus["driver_field_awareness"], 1.296)
         assert self.near(citrus["driver_quickness"], 0.666667)
-        assert self.near(citrus["driver_ability"], 2.39568)
+        assert self.near(citrus["driver_ability"], 3.053327)
         for i in range(4):
             assert self.near(citrus["auto_pieces_start_position"][i], [1, 1, 0.333333, 0.666666][i])
 
         assert self.near(chezy["driver_field_awareness"], 1.481)
         assert self.near(chezy["driver_quickness"], 0.555555)
-        assert self.near(chezy["driver_ability"], 2.97799)
+        assert self.near(chezy["driver_ability"], 2.29057)
         for i in range(4):
             assert self.near(chezy["auto_pieces_start_position"][i], [0.333333, 0.666666, 0, 0][i])

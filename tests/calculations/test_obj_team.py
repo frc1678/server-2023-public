@@ -342,30 +342,102 @@ class TestOBJTeamCalc:
                 "auto_total_gamepieces": 28,
                 "failed_scores": 0,
             },
+            {
+                "match_number": 4,
+                "auto_cone_high": 8,
+                "auto_cone_mid": 3,
+                "auto_cone_low": 4,
+                "auto_total_cones": 15,
+                "auto_cube_high": 1,
+                "auto_cube_mid": 8,
+                "auto_cube_low": 4,
+                "auto_total_cubes": 13,
+                "tele_cone_high": 4,
+                "tele_cone_mid": 2,
+                "tele_cone_low": 8,
+                "tele_total_cones": 14,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 3,
+                "tele_cube_low": 5,
+                "tele_total_cubes": 10,
+                "incap": 32,
+                "intakes_ground": 10,
+                "intakes_station": 4,
+                "intakes_low_row": 5,
+                "intakes_mid_row": 0,
+                "intakes_high_row": 1,
+                "total_intakes": 19,
+                "tele_total_gamepieces_low": 13,
+                "tele_total_gamepieces": 24,
+                "auto_total_gamepieces_low": 8,
+                "auto_total_gamepieces": 28,
+                "failed_scores": 0,
+            },
+            {
+                "match_number": 5,
+                "auto_cone_high": 8,
+                "auto_cone_mid": 3,
+                "auto_cone_low": 4,
+                "auto_total_cones": 15,
+                "auto_cube_high": 1,
+                "auto_cube_mid": 8,
+                "auto_cube_low": 4,
+                "auto_total_cubes": 13,
+                "tele_cone_high": 4,
+                "tele_cone_mid": 2,
+                "tele_cone_low": 8,
+                "tele_total_cones": 14,
+                "tele_cube_high": 2,
+                "tele_cube_mid": 3,
+                "tele_cube_low": 5,
+                "tele_total_cubes": 10,
+                "incap": 32,
+                "intakes_ground": 10,
+                "intakes_station": 4,
+                "intakes_low_row": 5,
+                "intakes_mid_row": 0,
+                "intakes_high_row": 1,
+                "total_intakes": 19,
+                "tele_total_gamepieces_low": 13,
+                "tele_total_gamepieces": 24,
+                "auto_total_gamepieces_low": 8,
+                "auto_total_gamepieces": 28,
+                "failed_scores": 0,
+            },
         ]
 
         expected_output = {
-            "auto_sd_cone_high": 2.494438257849294,
-            "auto_sd_cone_mid": 2.943920288775949,
-            "auto_sd_cone_low": 4.109609335312651,
-            "auto_sd_cone_total": 3.858612300930075,
-            "auto_sd_cube_high": 3.681787005729087,
-            "auto_sd_cube_mid": 1.247219128924647,
-            "auto_sd_cube_low": 6.599663291074443,
-            "auto_sd_cube_total": 6.599663291074443,
-            "tele_sd_cone_high": 0.816496580927726,
-            "tele_sd_cone_mid": 3.39934634239519,
-            "tele_sd_cone_low": 5.312459150169742,
-            "tele_sd_cone_total": 6.182412330330469,
-            "tele_sd_cube_high": 3.7712361663282534,
-            "tele_sd_cube_mid": 1.247219128924647,
-            "tele_sd_cube_low": 0.816496580927726,
-            "tele_sd_cube_total": 4.189935029992179,
-            "auto_sd_gamepieces": 8.73053390247253,
-            "tele_sd_gamepieces": 8.602325267042627,
+            "auto_sd_cone_high": 2.3323807579381204,
+            "auto_sd_cone_mid": 2.3323807579381204,
+            "auto_sd_cone_low": 4.1182520563948,
+            "auto_sd_cone_total": 3.4871191548325386,
+            "auto_sd_cube_high": 3.5552777669262356,
+            "auto_sd_cube_mid": 0.9797958971132712,
+            "auto_sd_cube_low": 5.6,
+            "auto_sd_cube_total": 6.6452990903344595,
+            "tele_sd_cone_high": 0.8,
+            "tele_sd_cone_mid": 3.4871191548325386,
+            "tele_sd_cone_low": 4.1182520563948,
+            "tele_sd_cone_total": 5.455272678794342,
+            "tele_sd_cube_high": 3.919183588453085,
+            "tele_sd_cube_mid": 1.1661903789690602,
+            "tele_sd_cube_low": 0.8,
+            "tele_sd_cube_total": 4.2708313008125245,
+            "auto_sd_gamepieces": 9.068627239003707,
+            "tele_sd_gamepieces": 8.56971411425142,
+            "lfm_auto_sd_gamepieces": 8.227241335952167,
+            "lfm_tele_sd_gamepieces": 9.093266739736606,
         }
         action_counts = self.test_calc.get_action_counts(tims)
-        assert self.test_calc.calculate_standard_deviations(action_counts) == expected_output
+        lfm_action_counts = self.test_calc.get_action_counts(
+            [tim for tim in tims if tim["match_number"] > 1]
+        )
+        assert (
+            pytest.approx(
+                self.test_calc.calculate_standard_deviations(action_counts, lfm_action_counts)
+            )
+            == expected_output
+        )
 
     def test_counts(self):
         """Tests calculate_counts function from src/calculations/obj_team.py"""
@@ -469,9 +541,27 @@ class TestOBJTeamCalc:
                 "scored_coop": True,
                 "played_defense": False,
             },
+            {
+                "match_number": 4,
+                "team_number": "1678",
+                "scored_coop": True,
+                "played_defense": False,
+            },
+            {
+                "match_number": 5,
+                "team_number": "1678",
+                "scored_coop": True,
+                "played_defense": True,
+            },
         ]
-        expected_output = {"matches_scored_coop": 2, "matches_played_defense": 2}
-        assert self.test_calc.calculate_super_counts(tims) == expected_output
+        expected_output = {
+            "matches_scored_coop": 4,
+            "matches_played_defense": 3,
+            "lfm_matches_scored_coop": 3,
+            "lfm_matches_played_defense": 2,
+        }
+        lfm_tims = [tim for tim in tims if tim["match_number"] > 1]
+        assert self.test_calc.calculate_super_counts(tims, lfm_tims) == expected_output
 
     def test_extrema(self):
         tims = [
@@ -879,10 +969,17 @@ class TestOBJTeamCalc:
             "tele_dock_only_successes": 3,
             "tele_engage_successes": 1,
             "tele_park_successes": 2,
+            "lfm_auto_dock_only_successes": 3,
+            "lfm_auto_engage_successes": 2,
+            "lfm_tele_dock_only_successes": 1,
+            "lfm_tele_engage_successes": 1,
+            "lfm_tele_park_successes": 2,
         }
         assert self.test_calc.calculate_average_points(team_data) == {
             "tele_avg_charge_points": 5.3333333333333333,
             "auto_avg_charge_points": 8.6666666666666666,
+            "lfm_tele_avg_charge_points": 5,
+            "lfm_auto_avg_charge_points": 9.6,
         }
 
     def test_calculate_sums(self):
@@ -906,7 +1003,7 @@ class TestOBJTeamCalc:
             "tele_dock_percent_success": 2,
             "auto_avg_charge_points": 3.5,
             "tele_avg_charge_points": 1.5,
-            "total_incap": 63,
+            "total_incap": 9,
         }
         obj_tims = [
             {
@@ -915,12 +1012,26 @@ class TestOBJTeamCalc:
             {
                 "incap": 4,
             },
+            {
+                "incap": 5,
+            },
+            {
+                "incap": 7,
+            },
+            {
+                "incap": 3,
+            },
+            {
+                "incap": 2,
+            },
         ]
-        assert self.test_calc.calculate_sums(team_data, obj_tims) == {
+        obj_lfm_tims = obj_tims[-4:]
+        assert self.test_calc.calculate_sums(team_data, obj_tims, obj_lfm_tims) == {
             "auto_avg_total_points": 57.5,
             "tele_avg_total_points": 40.0,
             "avg_total_points": 97.5,
-            "total_incap": 72,
+            "total_incap": 26,
+            "lfm_total_incap": 17,
         }
 
     def test_run(self):
@@ -1351,6 +1462,9 @@ class TestOBJTeamCalc:
                 "tele_sd_cube_low": 6.683312551921141,
                 "tele_sd_cube_total": 13.490737563232042,
                 "tele_sd_gamepieces": 32.25936556516056,
+                # LFM Standard Deviations
+                "lfm_auto_sd_gamepieces": 12.036980056845191,
+                "lfm_tele_sd_gamepieces": 32.25936556516056,
                 # Counts
                 "auto_charge_attempts": 3,
                 "auto_dock_only_successes": 1,
@@ -1387,6 +1501,9 @@ class TestOBJTeamCalc:
                 # Super Counts
                 "matches_scored_coop": 2,
                 "matches_played_defense": 2,
+                # LFM Super Counts
+                "lfm_matches_scored_coop": 2,
+                "lfm_matches_played_defense": 2,
                 # Extrema
                 "auto_max_cone_high": 15,
                 "auto_max_cone_mid": 20,
@@ -1466,11 +1583,16 @@ class TestOBJTeamCalc:
                 # Average Points
                 "tele_avg_charge_points": 7.333333333333333,
                 "auto_avg_charge_points": 10.666666666666666,
+                # LFM Average Points
+                "lfm_tele_avg_charge_points": 7.333333333333333,
+                "lfm_auto_avg_charge_points": 10.666666666666666,
                 # Sums
                 "auto_avg_total_points": 278.3333333333333,
                 "tele_avg_total_points": 165.33333333333334,
                 "avg_total_points": 443.66666666666663,
                 "total_incap": 47,
+                # LFM Sums
+                "lfm_total_incap": 47,
             },
             {
                 "team_number": "1678",
@@ -1551,6 +1673,9 @@ class TestOBJTeamCalc:
                 "tele_sd_cube_low": 2.756809750418044,
                 "tele_sd_cube_total": 7.833262411026456,
                 "tele_sd_gamepieces": 7.194442299441979,
+                # LFM Standard Deviations
+                "lfm_tele_sd_gamepieces": 6.96419413859206,
+                "lfm_auto_sd_gamepieces": 11.07925990308017,
                 # Counts
                 "auto_charge_attempts": 5,
                 "auto_dock_only_successes": 2,
@@ -1587,6 +1712,9 @@ class TestOBJTeamCalc:
                 # Super Counts
                 "matches_scored_coop": 2,
                 "matches_played_defense": 3,
+                # LFM Super Counts
+                "lfm_matches_scored_coop": 2,
+                "lfm_matches_played_defense": 2,
                 # Extrema
                 "auto_max_cone_high": 13,
                 "auto_max_cone_mid": 18,
@@ -1666,11 +1794,16 @@ class TestOBJTeamCalc:
                 # Average Points
                 "tele_avg_charge_points": 6.8,
                 "auto_avg_charge_points": 10.4,
+                # LFM Average Points
+                "lfm_tele_avg_charge_points": 7.0,
+                "lfm_auto_avg_charge_points": 10.0,
                 # Sums
                 "auto_avg_total_points": 198.20000000000002,
                 "tele_avg_total_points": 118.8,
                 "avg_total_points": 317,
                 "total_incap": 172,
+                # LFM Sums
+                "lfm_total_incap": 81,
             },
         ]
 

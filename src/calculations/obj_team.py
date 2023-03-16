@@ -75,7 +75,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_info[calculation] = average
         return team_info
 
-    def calculate_standard_deviations(self, tim_action_counts):
+    def calculate_standard_deviations(self, tim_action_counts, lfm_tim_action_counts):
         """Creates a dictionary of calculated standard deviations, called team_info,
         where the keys are the names of the calculation, and the values are the results
         """
@@ -83,7 +83,10 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
         for calculation, schema in self.SCHEMA["standard_deviations"].items():
             # Take the standard deviation for the tim_field
             tim_field = schema["tim_fields"][0]
-            standard_deviation = statistics.pstdev(tim_action_counts[tim_field])
+            if "lfm" in calculation:
+                standard_deviation = statistics.pstdev(lfm_tim_action_counts[tim_field])
+            else:
+                standard_deviation = statistics.pstdev(tim_action_counts[tim_field])
             team_info[calculation] = standard_deviation
         return team_info
 
@@ -132,15 +135,20 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_info[calculation] = tims_that_meet_filter
         return team_info
 
-    def calculate_super_counts(self, tims):
+    def calculate_super_counts(self, tims, lfm_tims):
         """Calculates counts of datapoints collected by Super Scouts."""
         team_info = {}
         for calculation, schema in self.SCHEMA["super_counts"].items():
             total = 0
             tim_field = schema["tim_fields"][0].split(".")[1]
-            for tim in tims:
-                if tim[tim_field]:
-                    total += 1
+            if "lfm" in calculation:
+                for tim in lfm_tims:
+                    if tim[tim_field]:
+                        total += 1
+            else:
+                for tim in tims:
+                    if tim[tim_field]:
+                        total += 1
             team_info[calculation] = total
         return team_info
 
@@ -290,22 +298,18 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                 team_info[calculation] = 0
         return team_info
 
-    def calculate_sums(self, team_data, tims: List[Dict]):
+    def calculate_sums(self, team_data, tims: List[Dict], lfm_tims: List[Dict]):
         """Creates a dictionary of sum of weighted data, called team_info
         where the keys are the names of the calculations, and the values are the results
         """
         team_info = {}
         for calculation, schema in self.SCHEMA["sums"].items():
+            # incap has no point values
             if calculation == "total_incap":
-                # try/except incase total_incap has not been calculated for team yet
-                try:  # If total_incap already exists, add total of incaps in tims to total_incaps
-                    team_info[calculation] = team_data["total_incap"]
-                    for time in [tim["incap"] for tim in tims]:
-                        team_info[calculation] += time
-                except KeyError:  # If total_incap does not exist, set team's total_incap to total of all incap times from tims
-                    team_info[calculation] = 0
-                    for time in [tim["incap"] for tim in tims]:
-                        team_info[calculation] += time
+                team_info[calculation] = sum(tim["incap"] for tim in tims)
+            elif calculation == "lfm_total_incap":
+                # Use lfm_tims instead of tims, also this is the only lfm sum
+                team_info[calculation] = sum([tim["incap"] for tim in lfm_tims])
             else:
                 total_points = 0
                 for field, value in schema.items():
@@ -326,20 +330,23 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             obj_tims = self.server.db.find("obj_tim", {"team_number": team})
             subj_tims = self.server.db.find("subj_tim", {"team_number": team})
             # Last 4 tims to calculate last 4 matches
-            lfm_tims = sorted(obj_tims, key=lambda tim: tim["match_number"])[-4:]
+            obj_lfm_tims = sorted(obj_tims, key=lambda tim: tim["match_number"])[-4:]
+            subj_lfm_tims = sorted(subj_tims, key=lambda tim: tim["match_number"])[-4:]
 
             tim_action_counts = self.get_action_counts(obj_tims)
-            lfm_tim_action_counts = self.get_action_counts(lfm_tims)
+            lfm_tim_action_counts = self.get_action_counts(obj_lfm_tims)
             tim_action_categories = self.get_action_categories(obj_tims)
-            lfm_tim_action_categories = self.get_action_categories(lfm_tims)
+            lfm_tim_action_categories = self.get_action_categories(obj_lfm_tims)
             tim_action_sum = self.get_action_sum(obj_tims)
-            lfm_tim_action_sum = self.get_action_sum(lfm_tims)
+            lfm_tim_action_sum = self.get_action_sum(obj_lfm_tims)
 
             team_data = self.calculate_averages(tim_action_counts, lfm_tim_action_counts)
             team_data["team_number"] = team
-            team_data.update(self.calculate_counts(obj_tims, lfm_tims))
-            team_data.update(self.calculate_super_counts(subj_tims))
-            team_data.update(self.calculate_standard_deviations(tim_action_counts))
+            team_data.update(self.calculate_counts(obj_tims, obj_lfm_tims))
+            team_data.update(self.calculate_super_counts(subj_tims, subj_lfm_tims))
+            team_data.update(
+                self.calculate_standard_deviations(tim_action_counts, lfm_tim_action_counts)
+            )
             team_data.update(
                 self.calculate_extrema(
                     tim_action_counts,
@@ -352,7 +359,7 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
             team_data.update(self.calculate_medians(tim_action_sum, lfm_tim_action_sum))
             team_data.update(self.calculate_success_rates(team_data))
             team_data.update(self.calculate_average_points(team_data))
-            team_data.update(self.calculate_sums(team_data, obj_tims))
+            team_data.update(self.calculate_sums(team_data, obj_tims, obj_lfm_tims))
             obj_team_updates[team] = team_data
         return list(obj_team_updates.values())
 
