@@ -6,6 +6,7 @@ from calculations import base_calculations
 from calculations import obj_tims
 from server import Server
 import pytest
+from unittest.mock import patch
 
 
 @pytest.mark.clouddb
@@ -131,7 +132,9 @@ class TestObjTIMCalcs:
         },
     ]
 
-    @mock.patch.object(base_calculations.BaseCalculations, "get_teams_list", return_value=["3"])
+    @mock.patch.object(
+        base_calculations.BaseCalculations, "get_teams_list", return_value=["3", "254", "1"]
+    )
     def setup_method(self, method, get_teams_list_dummy):
         with mock.patch("server.Server.ask_calc_all_data", return_value=False):
             self.test_server = Server()

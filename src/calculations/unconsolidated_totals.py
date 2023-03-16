@@ -95,6 +95,7 @@ class UnconsolidatedTotals(BaseCalculations):
                 team_num = entry["o"]["team_number"]
                 if team_num not in self.teams_list:
                     log.warning(f"obj_tims: team number {team_num} is not in teams list")
+                    continue
                 tims.append(
                     {
                         "team_number": team_num,
