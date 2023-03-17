@@ -147,10 +147,11 @@ class AutoPathCalc(BaseCalculations):
                 if "timeline" not in entry["o"].keys() or "team_number" not in entry["o"].keys():
                     continue
 
-                # Check that the team is in the team list
+                # Check that the team is in the team list, ignore team if not in teams list
                 team_num = entry["o"]["team_number"]
                 if team_num not in self.teams_list:
                     log.warning(f"auto_paths: team number {team_num} is not in teams list")
+                    continue
 
                 # Make tims list
                 tims.append(
