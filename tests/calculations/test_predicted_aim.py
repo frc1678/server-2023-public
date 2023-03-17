@@ -76,7 +76,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 1.0,
                 "won_match": True,
-                "predicted_score": 188.53333,
+                "predicted_score": 192.53333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -88,7 +88,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 1.0,
                 "actual_rp2": 1.0,
                 "won_match": False,
-                "predicted_score": 185.26667,
+                "predicted_score": 191.93333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -100,7 +100,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 188.53333,
+                "predicted_score": 192.53333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -112,10 +112,21 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 185.26667,
+                "predicted_score": 191.93333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
+        ]
+        self.expected_playoffs_updates = [
+            {
+                "alliance_num": "Alliance 1",
+                "picks": ["1678", "1533", "7229"],
+                "predicted_score": 192.53333,
+                "predicted_auto_score": 136.2,
+                "predicted_tele_score": 56.33333,
+                "predicted_grid_score": 162.0,
+                "predicted_charge_score": 22.0,
+            }
         ]
         self.expected_results = [
             {
@@ -126,10 +137,10 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 1.0,
                 "won_match": True,
-                "predicted_score": 188.53333,
+                "predicted_score": 192.53333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.99124,
+                "win_chance": 0.92377,
             },
             {
                 "match_number": 1,
@@ -139,10 +150,10 @@ class TestPredictedAimCalc:
                 "actual_rp1": 1.0,
                 "actual_rp2": 1.0,
                 "won_match": False,
-                "predicted_score": 185.26667,
+                "predicted_score": 191.93333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 1 - 0.99124,
+                "win_chance": 1 - 0.92377,
             },
             {
                 "match_number": 3,
@@ -152,10 +163,10 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 188.53333,
+                "predicted_score": 192.53333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.99124,
+                "win_chance": 0.92377,
             },
             {
                 "match_number": 3,
@@ -165,11 +176,14 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 185.26667,
+                "predicted_score": 191.93333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 1 - 0.99124,
+                "win_chance": 1 - 0.92377,
             },
+        ]
+        self.expected_playoffs_alliances = [
+            {"alliance_num": "Alliance 1", "picks": ["1678", "1533", "7229"]}
         ]
         self.full_predicted_values = predicted_aim.PredictedAimScores(
             auto_dock_successes=0.5,
@@ -429,6 +443,19 @@ class TestPredictedAimCalc:
                 "winning_alliance": "",
             },
         ]
+        self.tba_playoffs_data = [
+            {
+                "name": "Alliance 1",
+                "decines": [],
+                "picks": ["frc1678", "frc1533", "frc7229"],
+                "status": {
+                    "playoff_average": None,
+                    "level": "f",
+                    "record": {"losses": 2, "wins": 6, "ties": 1},
+                    "status": "won",
+                },
+            }
+        ]
         self.test_server.db.insert_documents("obj_team", self.obj_team)
         self.test_server.db.insert_documents("tba_team", self.tba_team)
 
@@ -489,7 +516,7 @@ class TestPredictedAimCalc:
                 self.tba_team,
                 ["1678", "1533", "7229"],
             ),
-            188.53333,
+            192.53333,
         )
 
         try:
@@ -501,6 +528,12 @@ class TestPredictedAimCalc:
             )
         except ZeroDivisionError as exc:
             assert False, f"calculate_predicted_alliance_score has a {exc}"
+
+    def test_get_playoffs_alliances(self):
+        with patch(
+            "data_transfer.tba_communicator.tba_request", return_value=self.tba_playoffs_data
+        ):
+            assert self.test_calc.get_playoffs_alliances() == self.expected_playoffs_alliances
 
     def test_calculate_predicted_link_rp(self):
         assert self.test_calc.calculate_predicted_link_rp(self.blank_predicted_values) == 0
@@ -592,6 +625,14 @@ class TestPredictedAimCalc:
         ):
             assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_updates
 
+    def test_update_playoffs_alliances(self):
+        self.test_server.db.delete_data("predicted_aim")
+        with patch(
+            "calculations.predicted_aim.PredictedAimCalc.get_playoffs_alliances",
+            return_value=self.expected_playoffs_alliances,
+        ):
+            assert self.test_calc.update_playoffs_alliances() == self.expected_playoffs_updates
+
     def test_calculate_predicted_win_chance(self):
         with patch("data_transfer.database.Database.find", return_value=self.expected_updates):
             assert self.test_calc.calculate_predicted_win_chance() == self.expected_results
@@ -675,7 +716,7 @@ class TestPredictedAimCalc:
             return_value=self.aims_list,
         ), patch(
             "data_transfer.tba_communicator.tba_request",
-            return_value=self.tba_match_data,
+            side_effect=[self.tba_match_data, self.tba_playoffs_data],
         ):
             self.test_calc.run()
         result = self.test_server.db.find("predicted_aim")
@@ -685,3 +726,9 @@ class TestPredictedAimCalc:
             assert document in self.expected_results
             # Removes the matching expected result to protect against duplicates from the calculation
             self.expected_results.remove(document)
+        result2 = self.test_server.db.find("predicted_alliances")
+        assert len(result2) == 1
+        for document in result2:
+            del document["_id"]
+            assert document in self.expected_playoffs_updates
+            self.expected_playoffs_updates.remove(document)

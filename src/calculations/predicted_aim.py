@@ -204,6 +204,122 @@ class PredictedAimCalc(BaseCalculations):
         if predicted_values.auto_cone_high + predicted_values.tele_cone_high > 6:
             predicted_values.tele_cone_high = 6 - predicted_values.auto_cone_high
 
+    def calculate_predicted_alliance_auto_score(self, predicted_values):
+        """Calculates the predicted auto score for an alliance.
+
+        predicted_values is a dataclass which stores the predicted number of cones/cubes scored and success rates.
+        calculate_predicted_alliance_auto_score must be run after predicted_values is populated.
+        """
+        auto_score = 0
+        # Uses dataclasses.asdict to create key: value pairs for predicted datapoints
+        for data_field in dataclasses.asdict(predicted_values).keys():
+            # Filters tele grid scores and climbs
+            if data_field not in [
+                "tele_dock_successes",
+                "tele_engage_successes",
+                "tele_park_successes",
+                "tele_gamepieces_low",
+                "tele_cube_mid",
+                "tele_cube_high",
+                "tele_cone_mid",
+                "tele_cone_high",
+                "link",
+            ]:
+                # Adds auto grid score to auto_score
+                auto_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
+        return round(auto_score, 5)
+
+    def calculate_predicted_alliance_tele_score(self, predicted_values):
+        """Calculates the predicted tele score for an alliance.
+
+        predicted_values is a dataclass which stores the predicted number of cones/cubes scored and success rates.
+        calculate_predicted_alliance_tele_score must be run after predicted_values is populated.
+        """
+        tele_score = 0
+        # Uses dataclasses.asdict to create key: value pairs for predicted datapoints
+        for data_field in dataclasses.asdict(predicted_values).keys():
+            # Filters auto grid scores and climbs
+            if data_field not in [
+                "tele_dock_successes",
+                "tele_engage_successes",
+                "tele_park_successes",
+                "auto_gamepieces_low",
+                "auto_cube_mid",
+                "auto_cube_high",
+                "auto_cone_mid",
+                "auto_cone_high",
+                "auto_dock_successes",
+                "auto_engage_successes",
+                "mobility",
+            ]:
+                # Adds tele grid score to tele_score
+                tele_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
+        # Can only engage or dock, so assume the alliance does the one with the highest expected score
+        # Finds which charging probability is higher, then adds the score to tele_score
+        dock_score, engage_score = [
+            getattr(predicted_values, field) * self.POINTS[field]
+            for field in ["tele_dock_successes", "tele_engage_successes"]
+        ]
+        larger_score = ["tele_dock_successes", "tele_engage_successes"][
+            int(engage_score > dock_score)
+        ]
+        dock_or_engage_probability = getattr(predicted_values, larger_score)
+        tele_score += dock_or_engage_probability * self.POINTS[larger_score]
+        # If a robot doesn't dock/engage, assume it tries to park (/3 to get avg park success chance of alliance)
+        tele_score += (
+            (3 - dock_or_engage_probability)
+            * predicted_values.tele_park_successes
+            / 3
+            * self.POINTS["tele_park_successes"]
+        )
+        return round(tele_score, 5)
+
+    def calculate_predicted_alliance_grid_score(self, predicted_values):
+        """Calculates the predicted charge score for an alliance
+
+        predicted_values is a dataclass which stores the predicted number of cones/cubes scored and success rates.
+        calculate_predicted_alliance_grid_score must be run after predicted_values is populated.
+        """
+        grid_score = 0
+        for data_field in dataclasses.asdict(predicted_values).keys():
+            # Filters all climbs
+            if data_field not in [
+                "tele_dock_successes",
+                "tele_engage_successes",
+                "tele_park_successes",
+                "auto_dock_successes",
+                "auto_engage_successes",
+                "mobility",
+            ]:
+                grid_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
+        return round(grid_score, 5)
+
+    def calculate_predicted_alliance_charge_score(self, predicted_values):
+        """Calculates the predicted charge score for an alliance
+
+        predicted_values is a dataclass which stores the predicted number of cones/cubes scored and success rates.
+        calculate_predicted_alliance_charge_score must be run after predicted_values is populated.
+        """
+        charge_score = 0
+        for data_field in dataclasses.asdict(predicted_values).keys():
+            if data_field in [
+                "auto_dock_successes",
+                "auto_engage_successes",
+            ]:
+                charge_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
+            # Can only engage or dock, so assume the alliance does the one with the highest expected score
+            # Finds which charging probability is higher, then adds the score to tele_score
+        dock_score, engage_score = [
+            getattr(predicted_values, field) * self.POINTS[field]
+            for field in ["tele_dock_successes", "tele_engage_successes"]
+        ]
+        larger_score = ["tele_dock_successes", "tele_engage_successes"][
+            int(engage_score > dock_score)
+        ]
+        dock_or_engage_probability = getattr(predicted_values, larger_score)
+        charge_score += dock_or_engage_probability * self.POINTS[larger_score]
+        return round(charge_score, 5)
+
     def calculate_predicted_alliance_score(
         self, predicted_values, obj_team_data, tba_team_data, team_numbers
     ):
@@ -216,11 +332,12 @@ class PredictedAimCalc(BaseCalculations):
         """
 
         total_score = 0
+        # Gets obj_team data for teams in team_numbers
         obj_team = [
             team_data for team_data in obj_team_data if team_data["team_number"] in team_numbers
         ]
+        # Gets tba_team data for teams in team_numbers
         for team in obj_team:
-
             tba_team = [
                 team_data
                 for team_data in tba_team_data
@@ -242,7 +359,7 @@ class PredictedAimCalc(BaseCalculations):
             ]:
                 total_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
         # Can only engage or dock, so assume the alliance does the one with the highest expected score
-        engage_score, dock_score = [
+        dock_score, engage_score = [
             getattr(predicted_values, field) * self.POINTS[field]
             for field in ["tele_dock_successes", "tele_engage_successes"]
         ]
@@ -259,6 +376,24 @@ class PredictedAimCalc(BaseCalculations):
             * self.POINTS["tele_park_successes"]
         )
         return round(total_score, 5)
+
+    def get_playoffs_alliances(self):
+        """Gets the
+        obj_team is all the obj_team data in the database. tba_team is all the tba_team data in the database.
+        """
+        tba_playoffs_data = tba_communicator.tba_request(
+            f"event/{self.server.TBA_EVENT_KEY}/alliances"
+        )
+        playoffs_alliances = []
+
+        for alliance in tba_playoffs_data:
+            team_data = {
+                "alliance_num": alliance["name"],
+                "picks": [team[3:] for team in alliance["picks"]],
+            }
+            playoffs_alliances.append(team_data)
+
+        return playoffs_alliances
 
     def calculate_predicted_link_rp(self, predicted_values):
         """Calculates whether an alliance is expected to earn the link RP
@@ -359,7 +494,6 @@ class PredictedAimCalc(BaseCalculations):
         obj_team = self.server.db.find("obj_team")
         tba_team = self.server.db.find("tba_team")
         tba_match_data = tba_communicator.tba_request(f"event/{self.server.TBA_EVENT_KEY}/matches")
-
         filtered_aims_list = self.filter_aims_list(obj_team, tba_team, aims_list)
 
         for aim in filtered_aims_list:
@@ -376,6 +510,37 @@ class PredictedAimCalc(BaseCalculations):
             )
             update["predicted_rp2"] = self.calculate_predicted_link_rp(predicted_values)
             update.update(self.get_actual_values(aim, tba_match_data))
+            updates.append(update)
+        return updates
+
+    def update_playoffs_alliances(self):
+        """Runs the calculations for predicted values in playoffs matches
+        obj_team is all the obj_team data in the database. tba_team is all the tba_team data in the database.
+        playoffs_alliances is a list of alliances with team numbers
+        """
+        updates = []
+        obj_team = self.server.db.find("obj_team")
+        tba_team = self.server.db.find("tba_team")
+        playoffs_alliances = self.get_playoffs_alliances()
+
+        for alliance in playoffs_alliances:
+            predicted_values = PredictedAimScores()
+            update = alliance
+            update["predicted_score"] = self.calculate_predicted_alliance_score(
+                predicted_values, obj_team, tba_team, alliance["picks"]
+            )
+            update["predicted_auto_score"] = self.calculate_predicted_alliance_auto_score(
+                predicted_values
+            )
+            update["predicted_tele_score"] = self.calculate_predicted_alliance_tele_score(
+                predicted_values
+            )
+            update["predicted_grid_score"] = self.calculate_predicted_alliance_grid_score(
+                predicted_values
+            )
+            update["predicted_charge_score"] = self.calculate_predicted_alliance_charge_score(
+                predicted_values
+            )
             updates.append(update)
         return updates
 
@@ -454,4 +619,9 @@ class PredictedAimCalc(BaseCalculations):
                     "match_number": update["match_number"],
                     "alliance_color_is_red": update["alliance_color_is_red"],
                 },
+            )
+
+        for update in self.update_playoffs_alliances():
+            self.server.db.update_document(
+                "predicted_alliances", update, {"alliance_num": update["alliance_num"]}
             )

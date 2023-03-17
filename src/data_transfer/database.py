@@ -29,6 +29,7 @@ VALID_COLLECTIONS = [
     "tba_tim",
     "raw_qr",
     "predicted_aim",
+    "predicted_alliances",
     "predicted_team",
     "pickability",
     "raw_obj_pit",
