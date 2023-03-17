@@ -220,6 +220,16 @@ class TestTBATeamCalc:
             },
             {
                 "mobility": True,
+                "match_number": 4,
+                "team_number": "973",
+            },
+            {
+                "mobility": True,
+                "match_number": 5,
+                "team_number": "973",
+            },
+            {
+                "mobility": True,
                 "match_number": 1,
                 "team_number": "1678",
             },
@@ -235,6 +245,16 @@ class TestTBATeamCalc:
             },
             {
                 "mobility": True,
+                "match_number": 4,
+                "team_number": "1678",
+            },
+            {
+                "mobility": True,
+                "match_number": 5,
+                "team_number": "1678",
+            },
+            {
+                "mobility": True,
                 "match_number": 1,
                 "team_number": "3478",
             },
@@ -246,6 +266,16 @@ class TestTBATeamCalc:
             {
                 "mobility": True,
                 "match_number": 3,
+                "team_number": "3478",
+            },
+            {
+                "mobility": True,
+                "match_number": 4,
+                "team_number": "3478",
+            },
+            {
+                "mobility": True,
+                "match_number": 5,
                 "team_number": "3478",
             },
             {
@@ -261,6 +291,16 @@ class TestTBATeamCalc:
             {
                 "mobility": True,
                 "match_number": 3,
+                "team_number": "1577",
+            },
+            {
+                "mobility": True,
+                "match_number": 4,
+                "team_number": "1577",
+            },
+            {
+                "mobility": True,
+                "match_number": 5,
                 "team_number": "1577",
             },
         ]
@@ -268,7 +308,8 @@ class TestTBATeamCalc:
             # Team A
             {
                 "team_number": "973",
-                "mobility_successes": 1,
+                "mobility_successes": 3,
+                "lfm_mobility_successes": 3,
                 "team_name": "Greybots",
                 "foul_cc": 8.0,
                 "link_cc": 2.5,
@@ -276,7 +317,8 @@ class TestTBATeamCalc:
             # Team B
             {
                 "team_number": "1678",
-                "mobility_successes": 2,
+                "mobility_successes": 4,
+                "lfm_mobility_successes": 3,
                 "team_name": "Citrus Circuits",
                 "foul_cc": 2.0,
                 "link_cc": 12.5,
@@ -284,7 +326,8 @@ class TestTBATeamCalc:
             # Team C
             {
                 "team_number": "3478",
-                "mobility_successes": 2,
+                "mobility_successes": 4,
+                "lfm_mobility_successes": 3,
                 "team_name": "LamBot",
                 "foul_cc": 5.0,
                 "link_cc": 7.5,
@@ -292,7 +335,8 @@ class TestTBATeamCalc:
             # Team D
             {
                 "team_number": "1577",
-                "mobility_successes": 2,
+                "mobility_successes": 4,
+                "lfm_mobility_successes": 3,
                 "team_name": "Steampunk",
                 "foul_cc": 7.0,
                 "link_cc": 2.5,

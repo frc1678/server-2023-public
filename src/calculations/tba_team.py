@@ -35,6 +35,7 @@ class TBATeamCalc(base_calculations.BaseCalculations):
                 matches[tim["match_number"]].update(tim)
             else:
                 matches[tim["match_number"]] = tim
+        lfm = sorted(matches, key=lambda tim: matches[tim]["match_number"])[-4:]
         out = {}
         for name, keys in self.SCHEMA["counts"].items():
             count = 0
@@ -61,7 +62,14 @@ class TBATeamCalc(base_calculations.BaseCalculations):
                 else:
                     # `for` loop exited normally, so all values matched what they are supposed to, so
                     # the `count` should be incremented
-                    count += 1
+
+                    # For lfms, check if the match is in the last four matches
+                    if "lfm" in name:
+                        if match["match_number"] in lfm:
+                            count += 1
+                    else:
+                        count += 1
+
             out[name] = count
         return out
 

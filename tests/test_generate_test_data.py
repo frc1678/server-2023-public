@@ -306,6 +306,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     {
         "team_name": "yyyyyyyyyyy",
         "mobility_successes": 49,
+        "lfm_mobility_successes": 49,
         "team_number": "6604",
         "foul_cc": 84.4422,
         "link_cc": 84.4422,
