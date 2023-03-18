@@ -277,6 +277,16 @@ class TestAutoPathCalc:
                 {"in_teleop": False, "time": 148, "action_type": "score_cone_mid"},
                 {"in_teleop": False, "time": 150, "action_type": "score_cone_high"},
             ],
+            "score_1": "cone_low",
+            "score_2": "cube_mid",
+            "intake_1": None,
+            "intake_2": None,
+            "score_3": "cube_low",
+            "score_4": "cube_mid",
+            "score_5": "cube_high",
+            "score_6": "cone_low",
+            "score_7": "cone_mid",
+            "score_8": "cone_high",
         },
     ]
 
@@ -316,6 +326,45 @@ class TestAutoPathCalc:
             self.calculated_obj_tims[0]
         )
         assert auto_variables == self.expected_auto_variables
+
+    def test_create_auto_fields(self):
+        assert self.test_calculator.create_auto_fields(
+            [
+                {"in_teleop": False, "time": 138, "action_type": "score_cone_low"},
+                {"in_teleop": False, "time": 139, "action_type": "auto_intake_four"},
+                {"in_teleop": False, "time": 140, "action_type": "score_cube_mid"},
+            ]
+        ) == {
+            "score_1": "cone_low",
+            "intake_1": "four",
+            "score_2": "cube_mid",
+            "intake_2": None,
+            "score_3": None,
+        }
+
+        assert self.test_calculator.create_auto_fields(
+            [
+                {"in_teleop": False, "time": 138, "action_type": "score_cone_low"},
+                {"in_teleop": False, "time": 139, "action_type": "score_cube_mid"},
+                {"in_teleop": False, "time": 138, "action_type": "score_cone_low"},
+                {"in_teleop": False, "time": 139, "action_type": "score_cube_high"},
+            ]
+        ) == {
+            "score_1": "cone_low",
+            "intake_1": None,
+            "score_2": "cube_mid",
+            "intake_2": None,
+            "score_3": "cone_low",
+            "score_4": "cube_high",
+        }
+
+        assert self.test_calculator.create_auto_fields([]) == {
+            "score_1": None,
+            "score_2": None,
+            "score_3": None,
+            "intake_1": None,
+            "intake_2": None,
+        }
 
     def test_calculate_auto_paths(self):
         calculated_auto_paths = self.test_calculator.calculate_auto_paths(

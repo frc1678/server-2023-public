@@ -114,6 +114,36 @@ class AutoPathCalc(BaseCalculations):
 
         return tim_auto_values
 
+    def create_auto_fields(self, auto_timeline: List[Dict]) -> Dict:
+        """Creates auto fields such as score_1, intake_1, etc using the consolidated_timeline"""
+        # TODO: USE A SCHEMA FOR THIS FUNCTION (very hardcoded rn ur welcome)
+        # counters to cycle through scores and intakes
+        intake_count = 1
+        score_count = 1
+        # set scores and intakes to None (in order to not break exports)
+        update = {
+            "score_1": None,
+            "score_2": None,
+            "intake_1": None,
+            "intake_2": None,
+            "score_3": None,
+        }
+        # For each action in the consolidated timeline, add it to one of the new fields (if it applies)
+        for action in auto_timeline:
+            # BUG: action_type can sometimes be null, need better tests in auto_paths, more edge cases
+            if action["action_type"] is None:
+                log.warning("auto_paths: action_type is null")
+                continue
+            if "score" in action["action_type"]:
+                # split action type to only include piece and position (example: "score_cone_high" to just "cone_high")
+                update[f"score_{score_count}"] = action["action_type"].split("_", 1)[1]
+                score_count += 1
+            elif "intake" in action["action_type"]:
+                # split action type to only include position (example: "auto_intake_four" to just "four")
+                update[f"intake_{intake_count}"] = action["action_type"].split("_")[-1]
+                intake_count += 1
+        return update
+
     def calculate_auto_paths(self, tims: List[Dict]) -> List[Dict]:
         """Calculates auto data for the given tims, which looks like
         [{"team_number": 1678, "match_number": 42}, {"team_number": 1706, "match_number": 56}, ...]"""
@@ -132,6 +162,9 @@ class AutoPathCalc(BaseCalculations):
                         self.get_unconsolidated_auto_timelines(unconsolidated_obj_tims)
                     )
                 }
+            )
+            calculated_tims[tims.index(tim)].update(
+                self.create_auto_fields(calculated_tims[tims.index(tim)]["auto_timeline"])
             )
         return calculated_tims
 
