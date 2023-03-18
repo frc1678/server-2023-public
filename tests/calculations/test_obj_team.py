@@ -528,36 +528,36 @@ class TestOBJTeamCalc:
     def test_super_counts(self):
         """Tests calculate_super_counts function from src/calculations.obj_team.py"""
         tims = [
-            {"match_number": 1, "team_number": "1678", "scored_coop": True, "played_defense": True},
+            {"match_number": 1, "team_number": "1678", "was_tippy": True, "played_defense": True},
             {
                 "match_number": 2,
                 "team_number": "1678",
-                "scored_coop": False,
+                "was_tippy": False,
                 "played_defense": True,
             },
             {
                 "match_number": 3,
                 "team_number": "1678",
-                "scored_coop": True,
+                "was_tippy": True,
                 "played_defense": False,
             },
             {
                 "match_number": 4,
                 "team_number": "1678",
-                "scored_coop": True,
+                "was_tippy": True,
                 "played_defense": False,
             },
             {
                 "match_number": 5,
                 "team_number": "1678",
-                "scored_coop": True,
+                "was_tippy": True,
                 "played_defense": True,
             },
         ]
         expected_output = {
-            "matches_scored_coop": 4,
+            "matches_tippy": 4,
             "matches_played_defense": 3,
-            "lfm_matches_scored_coop": 3,
+            "lfm_matches_tippy": 3,
             "lfm_matches_played_defense": 2,
         }
         lfm_tims = [tim for tim in tims if tim["match_number"] > 1]
@@ -922,7 +922,7 @@ class TestOBJTeamCalc:
     def test_success_rates(self):
         team_data = {
             "matches_played": 5,
-            "matches_scored_coop": 2,
+            "matches_tippy": 2,
             "auto_charge_attempts": 7,
             "auto_dock_only_successes": 4,
             "auto_dock_successes": 7,
@@ -943,7 +943,6 @@ class TestOBJTeamCalc:
             "lfm_tele_park_successes": 1,
         }
         assert self.test_calc.calculate_success_rates(team_data) == {
-            "percent_matches_scored_coop": 0.4,
             "charge_percent_success": 0.8666666666666667,
             "lfm_charge_percent_success": 0.5,
             "auto_dock_percent_success": 1.0,
@@ -1037,32 +1036,32 @@ class TestOBJTeamCalc:
     def test_run(self):
         """Tests run function from src/calculations/obj_team.py"""
         subj_tims = [
-            {"match_number": 1, "team_number": "973", "scored_coop": True, "played_defense": True},
-            {"match_number": 2, "team_number": "973", "scored_coop": True, "played_defense": True},
+            {"match_number": 1, "team_number": "973", "was_tippy": True, "played_defense": True},
+            {"match_number": 2, "team_number": "973", "was_tippy": True, "played_defense": True},
             {
                 "match_number": 3,
                 "team_number": "973",
-                "scored_coop": False,
+                "was_tippy": False,
                 "played_defense": False,
             },
             {
                 "match_number": 1,
                 "team_number": "1678",
-                "scored_coop": False,
+                "was_tippy": False,
                 "played_defense": True,
             },
-            {"match_number": 2, "team_number": "1678", "scored_coop": True, "played_defense": True},
+            {"match_number": 2, "team_number": "1678", "was_tippy": True, "played_defense": True},
             {
                 "match_number": 3,
                 "team_number": "1678",
-                "scored_coop": False,
+                "was_tippy": False,
                 "played_defense": False,
             },
-            {"match_number": 4, "team_number": "1678", "scored_coop": True, "played_defense": True},
+            {"match_number": 4, "team_number": "1678", "was_tippy": True, "played_defense": True},
             {
                 "match_number": 5,
                 "team_number": "1678",
-                "scored_coop": False,
+                "was_tippy": False,
                 "played_defense": False,
             },
         ]
@@ -1499,10 +1498,10 @@ class TestOBJTeamCalc:
                 "lfm_tele_park_successes": 1,
                 "lfm_matches_incap": 3,
                 # Super Counts
-                "matches_scored_coop": 2,
+                "matches_tippy": 2,
                 "matches_played_defense": 2,
                 # LFM Super Counts
-                "lfm_matches_scored_coop": 2,
+                "lfm_matches_tippy": 2,
                 "lfm_matches_played_defense": 2,
                 # Extrema
                 "auto_max_cone_high": 15,
@@ -1563,7 +1562,6 @@ class TestOBJTeamCalc:
                 "lfm_median_nonzero_incap": 20,
                 # Success Rates
                 "charge_percent_success": 1.0,
-                "percent_matches_scored_coop": 0.6666666666666666,
                 "auto_dock_percent_success": 1.0,
                 "auto_engage_percent_success": 0.6666666666666666,
                 "lfm_auto_dock_percent_success": 1.0,
@@ -1710,10 +1708,10 @@ class TestOBJTeamCalc:
                 "lfm_position_four_starts": 0,
                 "lfm_matches_incap": 4,
                 # Super Counts
-                "matches_scored_coop": 2,
+                "matches_tippy": 2,
                 "matches_played_defense": 3,
                 # LFM Super Counts
-                "lfm_matches_scored_coop": 2,
+                "lfm_matches_tippy": 2,
                 "lfm_matches_played_defense": 2,
                 # Extrema
                 "auto_max_cone_high": 13,
@@ -1774,7 +1772,6 @@ class TestOBJTeamCalc:
                 "lfm_median_nonzero_incap": 17.5,
                 # Success Rates
                 "charge_percent_success": 1.0,
-                "percent_matches_scored_coop": 0.4,
                 "auto_dock_percent_success": 1.0,
                 "auto_engage_percent_success": 0.6,
                 "lfm_auto_dock_percent_success": 1.0,
