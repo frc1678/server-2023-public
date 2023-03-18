@@ -388,7 +388,7 @@ class PredictedAimCalc(BaseCalculations):
 
         for alliance in tba_playoffs_data:
             team_data = {
-                "alliance_num": alliance["name"],
+                "alliance_num": int(alliance["name"][-1]),
                 "picks": [team[3:] for team in alliance["picks"]],
             }
             playoffs_alliances.append(team_data)
