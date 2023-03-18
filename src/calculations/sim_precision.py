@@ -4,6 +4,7 @@ from calculations.base_calculations import BaseCalculations
 from data_transfer import tba_communicator
 import utils
 import logging
+from typing import List, Dict, Union
 
 log = logging.getLogger(__name__)
 
@@ -14,52 +15,11 @@ class SimPrecisionCalc(BaseCalculations):
         self.watched_collections = ["unconsolidated_totals"]
         self.sim_schema = utils.read_schema("schema/calc_sim_precision_schema.yml")
 
-    def get_tba_aim_score(self, match_number, alliance_color_is_red, tba_match_data):
-        """Gets the total grid score for an alliance in match from TBA.
-        aim is a dictionary with a match number and alliance color.
-        tba_match_data is the result of a TBA request for matches.
-        """
-        if alliance_color_is_red:
-            alliance_color = "red"
-        else:
-            alliance_color = "blue"
-        for match in tba_match_data:
-            if (
-                match["match_number"] == match_number
-                and match["comp_level"] == "qm"
-                and match["score_breakdown"] != None
-            ):
-                # only use the grid score from the gamepieces to check the accuracy of scouts
-                score = match["score_breakdown"][alliance_color]["autoGamePiecePoints"]
-                score += match["score_breakdown"][alliance_color]["teleopGamePiecePoints"]
-                # gets all the auto nodes that are empty, if there are none, it returns None (used for adjusting auto intakes from nodes)
-                tba_grids = self.get_empty_auto_nodes(match["score_breakdown"][alliance_color])
-                return score, tba_grids
-        return None, {}
-
-    def get_empty_auto_nodes(self, score_breakdown):
-        """Returns the number of empty auto nodes in each row"""
-        # Get grids in auto and teleop
-        autoCommunity = score_breakdown["autoCommunity"]
-        teleopCommunity = score_breakdown["teleopCommunity"]
-
-        # Dictionary to translate rows to intakes for comparisons in get_adjusted_tba_score()
-        rows_to_intakes = {"B": "intakes_low_row", "M": "intakes_mid_row", "T": "intkes_high_row"}
-
-        empty_nodes = {}
-        for row in autoCommunity:
-            for index, piece in enumerate(autoCommunity[row]):
-                # Check for if there is a piece in the autoCommunity grid that is empty in the teleopCommunity grid
-                if piece != "None":
-                    if teleopCommunity[row][index] == "None":
-                        empty_nodes[rows_to_intakes[row]] = (
-                            empty_nodes.get(rows_to_intakes[row], 0) + 1
-                        )
-        return empty_nodes
-
-    def get_scout_tim_score(self, scout, match_number, required):
+    def get_scout_tim_score(
+        self, scout: str, match_number: int, required: Dict[str, Dict[str, Union[int, List[str]]]]
+    ) -> Union[int, None]:
         """Gets the score for a team in a match reported by a scout.
-        required is the dictionary of required datapoints: point values from schema
+        required is the dictionary of required datapoints: {weight: value, calculation: [calculations]} from schema
         """
         scout_data = self.server.db.find(
             "unconsolidated_totals", {"match_number": match_number, "scout_name": scout}
@@ -71,36 +31,29 @@ class SimPrecisionCalc(BaseCalculations):
 
         scout_document = scout_data[0]
         total_score = 0
-        for datapoint, point_value in required.items():
+        for datapoint, schema in required.items():
             # split using . to get rid of collection name
-            datapoint = datapoint.split(".")[1]
-            total_score += scout_document[datapoint] * point_value
+            collection, datapoint = datapoint.split(".")
+            # Check if the collection is valid
+            if collection != "unconsolidated_totals":
+                log.fatal(
+                    f"Getting data from {collection} is not implemented. Only uncosolidated_totals."
+                )
+                raise NotImplementedError
+            total_score += scout_document[datapoint] * schema["weight"]
         return total_score
 
-    def get_scout_intake_row(self, scout, match_number, intakes):
-        """Gets the intakes from the row for each scout.
-        intakes is each intake field that is collected"""
-        scout_data = self.server.db.find(
-            "unconsolidated_totals", {"match_number": match_number, "scout_name": scout}
-        )
-        if scout_data == []:
-            log.warning(f"No data from Scout {scout} in Match {match_number}")
-            return
-        scout_document = scout_data[0]
-        total_intakes = {}
-        for intake in intakes:
-            # split using . to get rid of collection name
-            intake = intake.split(".")[1]
-            total_intakes[intake] = scout_document[intake]
-        return total_intakes
-
-    def get_aim_scout_scores(self, match_number, alliance_color_is_red, required, intakes):
+    def get_aim_scout_scores(
+        self,
+        match_number: int,
+        alliance_color_is_red: bool,
+        required: Dict[str, Dict[str, Union[int, List[str]]]],
+    ) -> Dict[str, Dict[str, int]]:
         """Gets the individual TIM scores reported by each scout for an alliance in a match.
-        required is the dictionary of required datapoints: point values from schema.
+        required is the dictionary of required datapoints: {weight: value, calculation: [calculations]} from schema.
         Returns a dictionary where keys are team numbers and values are dictionaries of scout name: tim score.
         """
         scores_per_team = {}
-        intakes_per_team = {}
         scout_data = self.server.db.find(
             "unconsolidated_totals",
             {
@@ -112,7 +65,6 @@ class SimPrecisionCalc(BaseCalculations):
         # Populate dictionary with teams in alliance
         for team in teams:
             scores_per_team[team] = {}
-            intakes_per_team[team] = {}
         for document in scout_data:
             scout_tim_score = self.get_scout_tim_score(
                 document["scout_name"], match_number, required
@@ -120,44 +72,15 @@ class SimPrecisionCalc(BaseCalculations):
             scores_per_team[document["team_number"]].update(
                 {document["scout_name"]: scout_tim_score}
             )
-            scout_intakes = self.get_scout_intake_row(document["scout_name"], match_number, intakes)
-            intakes_per_team[document["team_number"]].update(
-                {document["scout_name"]: scout_intakes}
-            )
 
-        return scores_per_team, intakes_per_team
-
-    def get_adjusted_tba_score(self, tba_aim_score, aim_intakes, empty_auto_nodes):
-        """Using all of the intakes from the grid that each scout reports, returns the adjusted tba score.
-        Uses empty auto nodes to figure out if auto points need to be added instead of teleop points."""
-
-        # Point values of each row for teleop and auto
-        tele_intake_values = {"intakes_high_row": 5, "intakes_mid_row": 3, "intakes_low_row": 2}
-        auto_intake_values = {"intakes_high_row": 6, "intakes_mid_row": 4, "intakes_low_row": 3}
-
-        # Add the number of points the scouts should be over by to tba
-        for intake_type, intake_count in aim_intakes.items():
-            # Check if there are any empty auto nodes in that row
-            if empty_auto_nodes.get(intake_type) is not None:
-                # If empty auto nodes is greater than or equal to intakes counted, just add from the auto values
-                if intake_count - empty_auto_nodes[intake_type] > 0:
-                    tba_aim_score += tele_intake_values[intake_type] * (
-                        intake_count - empty_auto_nodes[intake_type]
-                    )
-                tba_aim_score += auto_intake_values[intake_type] * (empty_auto_nodes[intake_type])
-            else:
-                tba_aim_score += tele_intake_values[intake_type] * intake_count
-
-        return tba_aim_score
+        return scores_per_team
 
     def get_aim_scout_avg_errors(
         self,
-        aim_scout_scores,
-        tba_aim_score,
-        match_number,
-        alliance_color_is_red,
-        aim_scout_intakes,
-        empty_auto_nodes,
+        aim_scout_scores: Dict[str, Dict[str, int]],
+        tba_aim_score: int,
+        match_number: int,
+        alliance_color_is_red: bool,
     ):
         """Gets the average error from TBA of each scout's linear combinations in an AIM."""
         if len(aim_scout_scores) != 3:
@@ -166,117 +89,134 @@ class SimPrecisionCalc(BaseCalculations):
             )
             return {}
 
-        # Get the scores and intakes for each scout
+        # Get the reported values for each scout
         team1_scouts, team2_scouts, team3_scouts = aim_scout_scores.values()
-        intake_team1_scouts, intake_team2_scouts, intake_team3_scouts = aim_scout_intakes.values()
 
         all_scout_errors = {}
         for scout1, score1 in team1_scouts.items():
-            aim_intakes = {}
             scout1_errors = all_scout_errors.get(scout1, [])
-            aim_intakes.update(intake_team1_scouts[scout1])
             for scout2, score2 in team2_scouts.items():
-                # Make a copy of the aim_intakes so that each scout2's intakes gets removed before the next scout (so intakes don't stack up)
-                aim_intakes_2 = aim_intakes.copy()
                 scout2_errors = all_scout_errors.get(scout2, [])
-                aim_intakes.update(
-                    (intake_type, aim_intakes.get(intake_type, 0) + intakes)
-                    for intake_type, intakes in intake_team2_scouts[scout2].items()
-                )
                 for scout3, score3 in team3_scouts.items():
-                    # Make a copy of the aim_intakes so that each scout3's intakes gets removed before the next scout (so intakes don't stack up)
-                    aim_intakes_3 = aim_intakes.copy()
                     scout3_errors = all_scout_errors.get(scout3, [])
-                    aim_intakes.update(
-                        (intake_type, aim_intakes.get(intake_type, 0) + intakes)
-                        for intake_type, intakes in intake_team3_scouts[scout3].items()
-                    )
-                    adjusted_tba_aim_score = self.get_adjusted_tba_score(
-                        tba_aim_score, aim_intakes, empty_auto_nodes
-                    )
-                    error = adjusted_tba_aim_score - (score1 + score2 + score3)
+                    error = tba_aim_score - (score1 + score2 + score3)
                     scout1_errors.append(error)
                     scout2_errors.append(error)
                     scout3_errors.append(error)
                     all_scout_errors[scout3] = scout3_errors
-                    # reset aim_intakes to what it was before the 3rd scout's updated intakes
-                    aim_intakes = aim_intakes_3
                 all_scout_errors[scout2] = scout2_errors
-                # reset aim_intakes to what it was before the 2nd scout's updated intakes
-                aim_intakes = aim_intakes_2
             all_scout_errors[scout1] = scout1_errors
         scout_avg_errors = {scout: self.avg(errors) for scout, errors in all_scout_errors.items()}
         return scout_avg_errors
 
-    def calc_sim_precision(self, sim, tba_match_data):
+    def get_tba_value(
+        self,
+        tba_match_data: List[dict],
+        required: Dict[str, Dict[str, Union[int, List[str]]]],
+        match_number: int,
+        alliance_color_is_red: bool,
+    ) -> int:
+        """Get the total value for the required datapoints caclculated using tba match data"""
+
+        alliance_color = ["blue", "red"][int(alliance_color_is_red)]
+
+        for match in tba_match_data:
+            if match["match_number"] == match_number:
+                tba_match_data = match["score_breakdown"][alliance_color]
+
+        total = 0
+        for datapoint in required.values():
+            calculation = datapoint["calculation"]
+            total += self.get_tba_datapoint_value(tba_match_data, calculation)
+        return total
+
+    def calc_sim_precision(self, sim, tba_match_data: List[dict]):
         """Calculates the average difference between errors where the scout was part of the combination, and errors where the scout wasn't.
         sim is a scout-in-match document."""
         calculations = {}
-        tba_aim_score, empty_auto_nodes = self.get_tba_aim_score(
-            sim["match_number"], sim["alliance_color_is_red"], tba_match_data
-        )
         for calculation, schema in self.sim_schema["calculations"].items():
             required = schema["requires"]
-            intakes = schema["intakes"]
-            # Score reported by a specific scout for a robot in a match
-            scout_tim_score = self.get_scout_tim_score(
+
+            tba_aim_score = self.get_tba_value(
+                tba_match_data, required, sim["match_number"], sim["alliance_color_is_red"]
+            )
+
+            # Value reported for datapoint by a specific scout for a robot in a match
+            scout_reported_value = self.get_scout_tim_score(
                 sim["scout_name"], sim["match_number"], required
             )
             # Get the average errors of all scouts in a match
-            aim_scout_scores, aim_scout_intakes = self.get_aim_scout_scores(
-                sim["match_number"], sim["alliance_color_is_red"], required, intakes
+            aim_scouts_reported_values = self.get_aim_scout_scores(
+                sim["match_number"], sim["alliance_color_is_red"], required
             )
             aim_scout_errors = self.get_aim_scout_avg_errors(
-                aim_scout_scores,
+                aim_scouts_reported_values,
                 tba_aim_score,
                 sim["match_number"],
                 sim["alliance_color_is_red"],
-                aim_scout_intakes,
-                empty_auto_nodes,
             )
             if aim_scout_errors == {}:
-                continue
-
-            aim_intakes = {}
-            # Find the scout's, whose sim precision we are calculating, number of intakes from grid
-            aim_intakes.update(aim_scout_intakes[sim["team_number"]][sim["scout_name"]])
+                return {}
 
             # Remove the team scouted by the scout, only consider alliance partners
-            aim_scout_scores.pop(sim["team_number"])
-            aim_scout_intakes.pop(sim["team_number"])
+            aim_scouts_reported_values.pop(sim["team_number"])
 
-            ally1_scouts = list(aim_scout_scores.values())[0]
-            ally2_scouts = list(aim_scout_scores.values())[1]
-            intake1_scouts = list(aim_scout_intakes.values())[0]
-            intake2_scouts = list(aim_scout_intakes.values())[1]
+            ally1_scouts = list(aim_scouts_reported_values.values())[0]
+            ally2_scouts = list(aim_scouts_reported_values.values())[1]
 
             # Calculate the sim precision using the avg errors of the scout vs the avg error of each scout
             sim_errors = []
             for scout1, ally1_score in ally1_scouts.items():
-                aim_intakes_1 = aim_intakes.copy()
-                aim_intakes.update(
-                    (intake_type, aim_intakes.get(intake_type, 0) + intakes)
-                    for intake_type, intakes in intake1_scouts[scout1].items()
-                )
                 for scout2, ally2_score in ally2_scouts.items():
-                    aim_intakes_2 = aim_intakes.copy()
-                    aim_intakes.update(
-                        (intake_type, aim_intakes.get(intake_type, 0) + intakes)
-                        for intake_type, intakes in intake2_scouts[scout2].items()
+                    current_combo_error = tba_aim_score - (
+                        scout_reported_value + ally1_score + ally2_score
                     )
-                    current_combo_error = self.get_adjusted_tba_score(
-                        tba_aim_score, aim_intakes, empty_auto_nodes
-                    ) - (scout_tim_score + ally1_score + ally2_score)
                     # Each aim_scout_error value represents the average error of 3 scouts, so divide by 3
                     average_partner_error = (
                         aim_scout_errors[scout1] + aim_scout_errors[scout2]
                     ) / 3
                     error_difference = average_partner_error - current_combo_error
                     sim_errors.append(error_difference)
-                    aim_intakes = aim_intakes_2
-                aim_intakes = aim_intakes_1
             calculations[calculation] = self.avg(sim_errors)
         return calculations
+
+    def get_tba_datapoint_value(self, data, calculation: List[str]) -> int:
+        """Given a schema calculation of how to get a datapoint from tba data, return that calculated datapoint.
+        This is a recursive function. Each list in the calculation list is a different value to be summed.
+        Each part in the item is the next step to execute. Parts that don't start with +/- are
+        used as the next key in the dictionary. Parts with +/- are an added/subtracted calculation.
+        +%weight%*count=%value% returns the +/-%weight% times the amount of items matching %value%.
+        +%weight%*value returns the +/-%weight%*value. +%weight%*constant returns the +/-%weight%"""
+        # If the calculation is a list, assume all calculations are a list and split up and sum values of each list
+        # Ex: [["a", "+1*value"], ["b", "c", "+2*value"]] will return data["a"] + 2*data["b"]["c"]
+        if isinstance(calculation[0], list):
+            value = 0
+            for calc in calculation:
+                value += self.get_tba_datapoint_value(data, calc)
+            return value
+        else:
+            # Go to the next step, ex: ["a", "b", "+1*value"] will become data["a"]["b"]
+            if calculation[0][0] not in ["+", "-"]:
+                return self.get_tba_datapoint_value(data[calculation[0]], calculation[1:])
+            else:
+                # Get the weight and calculation to be done, ex: "-2*value" -> weight = "-2", command = "value"
+                weight, command = calculation[0].split("*")
+                weight = int(weight)
+                if command == "value":
+                    # Return the actual value of data, should be an int
+                    if not isinstance(data, int):
+                        log.fatal(f"{data} is not an int")
+                        raise ValueError
+                    return weight * data
+                elif command == "constant":
+                    return weight
+                elif "=" in command and (s := command.split("="))[0] == "count":
+                    # Count the amount of items matching the count in the data, should be list
+                    if not isinstance(data, list):
+                        log.fatal(f"{data} is not a list")
+                        raise ValueError
+                    match_value = s[1]
+                    return weight * sum([int(item == match_value) for item in data])
 
     def update_sim_precision_calcs(self, unconsolidated_sims):
         """Creates scout-in-match precision updates"""

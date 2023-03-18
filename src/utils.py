@@ -10,7 +10,8 @@ import subprocess
 import sys
 import traceback
 import csv
-from typing import Dict, Literal
+from math import isclose
+from typing import Dict, Literal, List
 import logging
 
 log = logging.getLogger(__name__)
@@ -203,6 +204,44 @@ def get_teams_in_match(match: dict, alliance_color: str):
     if alliance_color not in ["red", "blue"]:
         raise ValueError("Alliance color has to be 'red' or 'blue'")
     return [strip_tba_team_key(key) for key in match["alliances"][alliance_color]["team_keys"]]
+
+
+def near(float1: float, float2: float) -> bool:
+    return isclose(float1, float2, abs_tol=1e-9)
+
+
+def dict_near(dict1: dict, dict2: dict) -> bool:
+    if len(dict1) != len(dict2):
+        return False
+    for field in dict1:
+        if field not in dict2:
+            return False
+        if not (isinstance(dict1[field], float) and isinstance(dict2[field], float)):
+            if not dict1[field] == dict2[field]:
+                return False
+        elif not near(dict1[field], dict2[field]):
+            return False
+    return True
+
+
+def dict_near_in(dict1: dict, list_of_dicts: List[dict]) -> bool:
+    """Find if dict1 is close to a dict inside list_of_dicts"""
+    for dict2 in list_of_dicts:
+        if dict_near(dict1, dict2):
+            return True
+    return False
+
+
+def near_in(float1: float, list_of_floats: list) -> bool:
+    """Find if float1 is close to a float in list_of_floats"""
+    for float2 in list_of_floats:
+        if not (isinstance(float2, float) or isinstance(float2, int)):
+            continue
+        if near(float1, float2):
+            break
+    else:
+        return False
+    return True
 
 
 _TBA_EVENT_KEY_FILE = "data/competition.txt"

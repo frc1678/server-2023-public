@@ -77,3 +77,41 @@ def test_unprefix_schema_dict():
     assert utils.unprefix_schema_dict({"a.b": {"c.d": "e", "f.g": {"h.i": "j"}}}) == {
         "b": {"d": "e", "g": {"i": "j"}}
     }
+
+
+def test_near():
+    assert utils.near(1e-13, 5e-14)
+    assert not utils.near(0.000005, 0.0)
+
+
+def test_dict_near():
+    dict1 = {"a": 1e-13, "b": "Something"}
+    dict2 = {"a": 1e-14, "b": "Something"}
+    dict3 = {"a": 1e-13, "c": "Something"}
+    dict4 = {"a": 1e-13, "b": "Something", "c": "Something Else"}
+    assert utils.dict_near(dict1, dict2)
+    assert not utils.dict_near(dict1, dict3)
+    assert not utils.dict_near(dict1, dict4)
+
+
+def test_dict_near_in():
+    dict1 = {"a": 1e-13, "b": "Something"}
+    list_of_dicts1 = [
+        {"a": 1e-14, "b": "Something"},
+        {"a": 1e-13, "c": "Something"},
+        {"a": 1e-13, "b": "Something", "c": "Something Else"},
+    ]
+    list_of_dicts2 = [
+        {"a": 1e-13, "c": "Something"},
+        {"a": 1e-13, "b": "Something", "c": "Something Else"},
+    ]
+    assert utils.dict_near_in(dict1, list_of_dicts1)
+    assert not utils.dict_near_in(dict1, list_of_dicts2)
+
+
+def test_near_in():
+    float1 = 1e-10
+    list_of_floats1 = [1234, 31, 1e-11, 1, "something"]
+    list_of_floats2 = [1234, 31, 1e-8, 1, "something"]
+    assert utils.near_in(float1, list_of_floats1)
+    assert not utils.near_in(float1, list_of_floats2)
