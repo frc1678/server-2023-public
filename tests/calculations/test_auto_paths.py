@@ -260,6 +260,24 @@ class TestAutoPathCalc:
         "preloaded_gamepiece": "U",
         "auto_charge_level": "D",
     }
+    subj_tims = [
+        {
+            "match_number": 42,
+            "team_number": "254",
+            "quickness_score": 3,
+            "field_awareness_score": 3,
+            "alliance_color_is_red": True,
+            "auto_pieces_start_position": [1, 1, 1, 1],
+        },
+        {
+            "match_number": 49,
+            "team_number": "4414",
+            "quickness_score": 3,
+            "field_awareness_score": 3,
+            "alliance_color_is_red": True,
+            "auto_pieces_start_position": [1, 1, 1, 1],
+        },
+    ]
     expected_auto_paths = [
         {
             "match_number": 42,
@@ -277,16 +295,26 @@ class TestAutoPathCalc:
                 {"in_teleop": False, "time": 148, "action_type": "score_cone_mid"},
                 {"in_teleop": False, "time": 150, "action_type": "score_cone_high"},
             ],
-            "score_1": "cone_low",
-            "score_2": "cube_mid",
-            "intake_1": None,
-            "intake_2": None,
-            "score_3": "cube_low",
-            "score_4": "cube_mid",
-            "score_5": "cube_high",
-            "score_6": "cone_low",
-            "score_7": "cone_mid",
-            "score_8": "cone_high",
+            "score_1_piece": "cone",
+            "score_1_position": "low",
+            "score_2_piece": "cube",
+            "score_2_position": "mid",
+            "intake_1_piece": None,
+            "intake_1_position": None,
+            "intake_2_piece": None,
+            "intake_2_position": None,
+            "score_3_piece": "cube",
+            "score_3_position": "low",
+            "score_4_piece": "cube",
+            "score_4_position": "mid",
+            "score_5_piece": "cube",
+            "score_5_position": "high",
+            "score_6_piece": "cone",
+            "score_6_position": "low",
+            "score_7_piece": "cone",
+            "score_7_position": "mid",
+            "score_8_piece": "cone",
+            "score_8_position": "high",
         },
     ]
 
@@ -300,13 +328,12 @@ class TestAutoPathCalc:
         # Insert test data into database for testing
         self.test_server.db.insert_documents("obj_tim", self.calculated_obj_tims)
         self.test_server.db.insert_documents("unconsolidated_obj_tim", self.unconsolidated_obj_tims)
+        self.test_server.db.insert_documents("subj_tim", self.subj_tims)
 
     def test___init__(self):
         assert self.test_calculator.server == self.test_server
         assert self.test_calculator.watched_collections == [
-            "auto_paths",
             "unconsolidated_obj_tim",
-            "obj_tim",
         ]
 
     def test_get_unconsolidated_auto_timelines(self):
@@ -333,13 +360,26 @@ class TestAutoPathCalc:
                 {"in_teleop": False, "time": 138, "action_type": "score_cone_low"},
                 {"in_teleop": False, "time": 139, "action_type": "auto_intake_four"},
                 {"in_teleop": False, "time": 140, "action_type": "score_cube_mid"},
-            ]
+            ],
+            {
+                "match_number": 1,
+                "team_number": "1678",
+                "quickness_score": 1,
+                "field_awareness_score": 2,
+                "alliance_color_is_red": True,
+                "auto_pieces_start_position": [1, 1, 0, 1],
+            },
         ) == {
-            "score_1": "cone_low",
-            "intake_1": "four",
-            "score_2": "cube_mid",
-            "intake_2": None,
-            "score_3": None,
+            "score_1_piece": "cone",
+            "score_1_position": "low",
+            "intake_1_piece": "cube",
+            "intake_1_position": "four",
+            "score_2_piece": "cube",
+            "score_2_position": "mid",
+            "intake_2_piece": None,
+            "intake_2_position": None,
+            "score_3_piece": None,
+            "score_3_position": None,
         }
 
         assert self.test_calculator.create_auto_fields(
@@ -348,22 +388,41 @@ class TestAutoPathCalc:
                 {"in_teleop": False, "time": 139, "action_type": "score_cube_mid"},
                 {"in_teleop": False, "time": 138, "action_type": "score_cone_low"},
                 {"in_teleop": False, "time": 139, "action_type": "score_cube_high"},
-            ]
+            ],
+            {
+                "match_number": 2,
+                "team_number": "1678",
+                "quickness_score": 3,
+                "field_awareness_score": 3,
+                "alliance_color_is_red": True,
+                "auto_pieces_start_position": [1, 1, 1, 1],
+            },
         ) == {
-            "score_1": "cone_low",
-            "intake_1": None,
-            "score_2": "cube_mid",
-            "intake_2": None,
-            "score_3": "cone_low",
-            "score_4": "cube_high",
+            "score_1_piece": "cone",
+            "score_1_position": "low",
+            "intake_1_piece": None,
+            "intake_1_position": None,
+            "score_2_piece": "cube",
+            "score_2_position": "mid",
+            "intake_2_piece": None,
+            "intake_2_position": None,
+            "score_3_piece": "cone",
+            "score_3_position": "low",
+            "score_4_piece": "cube",
+            "score_4_position": "high",
         }
 
-        assert self.test_calculator.create_auto_fields([]) == {
-            "score_1": None,
-            "score_2": None,
-            "score_3": None,
-            "intake_1": None,
-            "intake_2": None,
+        assert self.test_calculator.create_auto_fields([], {}) == {
+            "score_1_piece": None,
+            "score_1_position": None,
+            "score_2_piece": None,
+            "score_2_position": None,
+            "intake_1_piece": None,
+            "intake_1_position": None,
+            "intake_2_piece": None,
+            "intake_2_position": None,
+            "score_3_piece": None,
+            "score_3_position": None,
         }
 
     def test_calculate_auto_paths(self):
@@ -377,9 +436,11 @@ class TestAutoPathCalc:
         self.test_server.db.delete_data("auto_paths")
         self.test_server.db.delete_data("unconsolidated_obj_tim")
         self.test_server.db.delete_data("obj_tim")
+        self.test_server.db.delete_data("subj_tim")
         # Insert test data for the run function
         self.test_server.db.insert_documents("unconsolidated_obj_tim", self.unconsolidated_obj_tims)
         self.test_server.db.insert_documents("obj_tim", self.calculated_obj_tims)
+        self.test_server.db.insert_documents("subj_tim", self.subj_tims)
 
         self.test_calculator.run()
         result = self.test_server.db.find("auto_paths")

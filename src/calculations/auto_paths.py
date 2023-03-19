@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 class AutoPathCalc(BaseCalculations):
     def __init__(self, server):
         super().__init__(server)
-        self.watched_collections = ["auto_paths", "unconsolidated_obj_tim", "obj_tim"]
+        self.watched_collections = ["unconsolidated_obj_tim"]
 
     def get_unconsolidated_auto_timelines(
         self, unconsolidated_obj_tims: List[Dict]
@@ -114,19 +114,30 @@ class AutoPathCalc(BaseCalculations):
 
         return tim_auto_values
 
-    def create_auto_fields(self, auto_timeline: List[Dict]) -> Dict:
-        """Creates auto fields such as score_1, intake_1, etc using the consolidated_timeline"""
+    def create_auto_fields(self, auto_timeline: List[Dict], subj_tim: Dict) -> Dict:
+        """Creates auto fields for one tim such as score_1, intake_1, etc using the consolidated_timeline"""
         # TODO: USE A SCHEMA FOR THIS FUNCTION (very hardcoded rn ur welcome)
         # counters to cycle through scores and intakes
         intake_count = 1
         score_count = 1
+        if subj_tim != {}:
+            num_enum = {"one": 1, "two": 2, "three": 3, "four": 4}
+            piece_enum = {0: "cone", 1: "cube", 2: "none"}
+            auto_pieces_start_position = [
+                piece_enum[piece] for piece in subj_tim["auto_pieces_start_position"]
+            ]
         # set scores and intakes to None (in order to not break exports)
         update = {
-            "score_1": None,
-            "score_2": None,
-            "intake_1": None,
-            "intake_2": None,
-            "score_3": None,
+            "score_1_piece": None,
+            "score_1_position": None,
+            "score_2_piece": None,
+            "score_2_position": None,
+            "intake_1_piece": None,
+            "intake_1_position": None,
+            "intake_2_piece": None,
+            "intake_2_position": None,
+            "score_3_piece": None,
+            "score_3_position": None,
         }
         # For each action in the consolidated timeline, add it to one of the new fields (if it applies)
         for action in auto_timeline:
@@ -136,11 +147,20 @@ class AutoPathCalc(BaseCalculations):
                 continue
             if "score" in action["action_type"]:
                 # split action type to only include piece and position (example: "score_cone_high" to just "cone_high")
-                update[f"score_{score_count}"] = action["action_type"].split("_", 1)[1]
+                if "fail" not in action["action_type"]:
+                    update[f"score_{score_count}_piece"] = action["action_type"].split("_")[1]
+                    update[f"score_{score_count}_position"] = action["action_type"].split("_")[2]
+                else:
+                    update[f"score_{score_count}_piece"] = "fail"
+                    update[f"score_{score_count}_position"] = "fail"
                 score_count += 1
             elif "intake" in action["action_type"]:
                 # split action type to only include position (example: "auto_intake_four" to just "four")
-                update[f"intake_{intake_count}"] = action["action_type"].split("_")[-1]
+                if subj_tim != {}:
+                    update[f"intake_{intake_count}_piece"] = auto_pieces_start_position[
+                        num_enum[action["action_type"].split("_")[-1]] - 1
+                    ]
+                update[f"intake_{intake_count}_position"] = action["action_type"].split("_")[-1]
                 intake_count += 1
         return update
 
@@ -153,6 +173,10 @@ class AutoPathCalc(BaseCalculations):
             # Get data for the tim from MongoDB
             unconsolidated_obj_tims = self.server.db.find("unconsolidated_obj_tim", tim)
             obj_tim = self.server.db.find("obj_tim", tim)[0]
+            if (subj_tim := self.server.db.find("subj_tim", tim)) == []:
+                subj_tim = {}
+            else:
+                subj_tim = subj_tim[0]
 
             # Run calculations on the team in match
             calculated_tims[tims.index(tim)].update(self.get_consolidated_auto_variables(obj_tim))
@@ -164,7 +188,7 @@ class AutoPathCalc(BaseCalculations):
                 }
             )
             calculated_tims[tims.index(tim)].update(
-                self.create_auto_fields(calculated_tims[tims.index(tim)]["auto_timeline"])
+                self.create_auto_fields(calculated_tims[tims.index(tim)]["auto_timeline"], subj_tim)
             )
         return calculated_tims
 
