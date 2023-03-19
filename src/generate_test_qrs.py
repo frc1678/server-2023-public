@@ -99,7 +99,11 @@ def generate_subj_aim(team_list=None, match_number=0, scout_name=None):
         team_data = {}
         for data_field, info in SCHEMA["subjective_aim"].items():
             if not data_field.startswith("_"):
-                team_data[data_field] = generate_random_value(info[1], data_field)
+                # Generate an integer in range for specified datapoints, else generate any random integer
+                if data_field == "quickness_score" or data_field == "field_awareness_score":
+                    team_data[data_field] = random.randrange(1, 3)
+                else:
+                    team_data[data_field] = generate_random_value(info[1], data_field)
         team_data["team_number"] = team
         # Generate generic data for the TIM
         team_data.update(generic_data)

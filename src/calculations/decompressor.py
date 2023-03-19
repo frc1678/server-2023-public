@@ -4,6 +4,7 @@
 
 import enum
 import os
+import re
 
 import yaml
 
@@ -217,6 +218,16 @@ class Decompressor(base_calculations.BaseCalculations):
             if len(teams_data) != 3:
                 raise IndexError("Incorrect number of teams in Subjective QR")
             for team in teams_data:
+                # Regular expression that finds all occurences of an integer occuring after "B" and "C" and returns the matches as a list of strings
+                scores = re.findall(r"(?<=[BC])\d+", team)
+                invalid = False
+                for score in scores:
+                    if score not in ["1", "2", "3"]:
+                        invalid = True
+
+                if invalid:
+                    continue
+
                 decompressed_document = self.decompress_generic_qr(qr_data[0])
                 subjective_data = team.split(self.SCHEMA["subjective_aim"]["_separator"]) + (
                     alliance_data if alliance_data != [""] else []

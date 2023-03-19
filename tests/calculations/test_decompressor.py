@@ -195,6 +195,7 @@ class TestDecompressor:
             }
         ]
         # Expected decompressed subjective qr
+        # Only 2 teams should be returned, 254 should be cut due to an invalid quickness score
         expected_subjective = [
             {
                 "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
@@ -220,22 +221,6 @@ class TestDecompressor:
                 "match_collection_version_number": "v1.3",
                 "scout_name": "Name",
                 "alliance_color_is_red": True,
-                "team_number": "254",
-                "quickness_score": 2,
-                "field_awareness_score": 1,
-                "was_tippy": False,
-                "auto_pieces_start_position": [0, 0, 0, 0],
-                "played_defense": True,
-                "defense_timestamp": 826,
-            },
-            {
-                "schema_version": decompressor.Decompressor.SCHEMA["schema_file"]["version"],
-                "serial_number": "s1234",
-                "match_number": 34,
-                "timestamp": 1230,
-                "match_collection_version_number": "v1.3",
-                "scout_name": "Name",
-                "alliance_color_is_red": True,
                 "team_number": "1323",
                 "quickness_score": 3,
                 "field_awareness_score": 1,
@@ -252,7 +237,7 @@ class TestDecompressor:
         )
         # Test subjective qr decompression
         assert expected_subjective == self.test_decompressor.decompress_single_qr(
-            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$FFALSE$B1$C2$DTRUE$G291#A254$B2$C1$DFALSE$FTRUE$G826#A1323$B3$C1$DTRUE$FFALSE$G195^E0000",
+            f"A{decompressor.Decompressor.SCHEMA['schema_file']['version']}$Bs1234$C34$D1230$Ev1.3$FName$GTRUE%A1678$FFALSE$B1$C2$DTRUE$G291#A254$B4$C1$DFALSE$FTRUE$G826#A1323$B3$C1$DTRUE$FFALSE$G195^E0000",
             decompressor.QRType.SUBJECTIVE,
         )
         # Test error raising for objective and subjective using incomplete qrs
