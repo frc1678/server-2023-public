@@ -115,3 +115,22 @@ def test_near_in():
     list_of_floats2 = [1234, 31, 1e-8, 1, "something"]
     assert utils.near_in(float1, list_of_floats1)
     assert not utils.near_in(float1, list_of_floats2)
+
+
+def test_find_dict_near_index():
+    dict1 = {"a": 1e-13, "b": "Something"}
+    list_of_dicts1 = [
+        {"a": 1e-13, "c": "Something"},
+        {"a": 1e-14, "b": "Something"},
+        {"a": 1e-13, "b": "Something", "c": "Something Else"},
+    ]
+    list_of_dicts2 = [
+        {"a": 1e-13, "c": "Something"},
+        {"a": 1e-13, "b": "Something", "c": "Something Else"},
+    ]
+    assert utils.find_dict_near_index(dict1, list_of_dicts1) == 1
+    try:
+        utils.find_dict_near_index(dict1, list_of_dicts2)
+        assert False
+    except ValueError:
+        assert True

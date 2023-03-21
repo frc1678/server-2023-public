@@ -32,12 +32,26 @@ class PickabilityCalc(base_calculations.BaseCalculations):
         for calc, weighted_value in self.pickability_schema["calculations"][
             calc_name
         ].items():  # Datapoints of first or second pickability
-            if "." not in calc:  # Ignore 'type' in schema
-                continue
-            collection, datapoint = calc.split(".")
-            if not (collection in team_data and datapoint in team_data[collection]):
-                return  # Can't calculate this pickability
-            weighted_sum += team_data[collection][datapoint] * weighted_value
+            # Turn the key and weights into a list to take the product of
+            if isinstance(weighted_value, list):
+                calcs = [calc] + weighted_value
+            else:
+                calcs = [calc, weighted_value]
+            for c in calcs:
+                if isinstance(c, str) and "." not in calc:  # Ignore 'type' in schema
+                    break
+            else:
+                # Find the product of the key and weights
+                product = 1
+                for c in calcs:
+                    if not isinstance(c, str):
+                        product *= c
+                        continue
+                    collection, datapoint = c.split(".")
+                    if not (collection in team_data and datapoint in team_data[collection]):
+                        return  # Can't calculate this pickability
+                    product *= team_data[collection][datapoint]
+                weighted_sum += product
         return weighted_sum
 
     def calculate_max_pickability(self, calc_name, updates):
@@ -73,13 +87,14 @@ class PickabilityCalc(base_calculations.BaseCalculations):
                     continue
                 update[calc_name] = value
                 updates.append(update)
-            for calc_name in self.pickability_schema["max_calculations"]:
-                value = self.calculate_max_pickability(calc_name, updates)
-                if value is None:
-                    log.error(f"{calc_name} could not be calculated for team: {team}")
-                    continue
-                update[calc_name] = value
-                updates.append(update)
+            if "max_calculations" in self.pickability_schema:
+                for calc_name in self.pickability_schema["max_calculations"]:
+                    value = self.calculate_max_pickability(calc_name, updates)
+                    if value is None:
+                        log.error(f"{calc_name} could not be calculated for team: {team}")
+                        continue
+                    update[calc_name] = value
+                    updates.append(update)
         return updates
 
     def run(self) -> None:

@@ -10,7 +10,7 @@ FAKE_SCHEMA = {
     "calculations": {
         "first_pickability": {
             "type": "float",
-            "test.datapoint1": 1,
+            "test.datapoint1": [1, "test.datapoint1"],
             "test.datapoint2": 1,
             "test2.datapoint1": 1,
         },
@@ -22,7 +22,7 @@ FAKE_SCHEMA = {
         },
         "defensive_second_pickability": {
             "type": "float",
-            "test.datapoint1": 5,
+            "test.datapoint1": [2.5, 2],
             "test.datapoint2": 1,
             "test2.datapoint1": 2,
         },
@@ -61,7 +61,7 @@ class TestPickability:
             },
             "test2": {"team_number": "0", "datapoint1": 3, "useless": None},
         }
-        assert test_calc.calculate_pickability("first_pickability", calc_data) == 6
+        assert test_calc.calculate_pickability("first_pickability", calc_data) == 8
         assert test_calc.calculate_pickability("offensive_second_pickability", calc_data) == 15
         assert test_calc.calculate_pickability("defensive_second_pickability", calc_data) == 17
         assert test_calc.calculate_pickability("first_pickability", {}) is None

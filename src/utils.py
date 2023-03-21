@@ -232,16 +232,22 @@ def dict_near_in(dict1: dict, list_of_dicts: List[dict]) -> bool:
     return False
 
 
+def find_dict_near_index(dict1: dict, list_of_dicts: List[dict]) -> int:
+    """Find the index of a dict close to dict1 in list_of_dicts"""
+    for index, dict2 in enumerate(list_of_dicts):
+        if dict_near(dict1, dict2):
+            return index
+    raise ValueError
+
+
 def near_in(float1: float, list_of_floats: list) -> bool:
     """Find if float1 is close to a float in list_of_floats"""
     for float2 in list_of_floats:
         if not (isinstance(float2, float) or isinstance(float2, int)):
             continue
         if near(float1, float2):
-            break
-    else:
-        return False
-    return True
+            return True
+    return False
 
 
 _TBA_EVENT_KEY_FILE = "data/competition.txt"

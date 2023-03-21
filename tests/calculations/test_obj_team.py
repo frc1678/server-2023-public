@@ -7,6 +7,7 @@ from calculations import obj_team
 from server import Server
 from console import console
 from rich.pretty import pprint
+from utils import dict_near_in, find_dict_near_index
 
 
 @pytest.mark.clouddb
@@ -975,9 +976,9 @@ class TestOBJTeamCalc:
             "lfm_tele_park_successes": 2,
         }
         assert self.test_calc.calculate_average_points(team_data) == {
-            "tele_avg_charge_points": 5.3333333333333333,
+            "tele_avg_charge_points": 7,
             "auto_avg_charge_points": 8.6666666666666666,
-            "lfm_tele_avg_charge_points": 5,
+            "lfm_tele_avg_charge_points": 8,
             "lfm_auto_avg_charge_points": 9.6,
         }
 
@@ -1000,6 +1001,7 @@ class TestOBJTeamCalc:
             "avg_intakes_high_row": 1,
             "auto_dock_percent_success": 1,
             "tele_dock_percent_success": 2,
+            "tele_park_percent_success": 1,
             "auto_avg_charge_points": 3.5,
             "tele_avg_charge_points": 1.5,
             "total_incap": 9,
@@ -1579,15 +1581,15 @@ class TestOBJTeamCalc:
                 # LFM Success Rates
                 "lfm_charge_percent_success": 1.0,
                 # Average Points
-                "tele_avg_charge_points": 7.333333333333333,
+                "tele_avg_charge_points": 10.0,
                 "auto_avg_charge_points": 10.666666666666666,
                 # LFM Average Points
-                "lfm_tele_avg_charge_points": 7.333333333333333,
+                "lfm_tele_avg_charge_points": 10.0,
                 "lfm_auto_avg_charge_points": 10.666666666666666,
                 # Sums
                 "auto_avg_total_points": 278.3333333333333,
-                "tele_avg_total_points": 165.33333333333334,
-                "avg_total_points": 443.66666666666663,
+                "tele_avg_total_points": 168,
+                "avg_total_points": 446.333333333333333,
                 "total_incap": 47,
                 # LFM Sums
                 "lfm_total_incap": 47,
@@ -1786,18 +1788,20 @@ class TestOBJTeamCalc:
                 "lfm_auto_dock_only_percent_success": 0.5,
                 "tele_dock_only_percent_success": 0.5,
                 "lfm_tele_dock_only_percent_success": 1 / 3,
+                "tele_park_percent_success": 1.0,
+                "lfm_tele_park_percent_success": 1,
                 # LFM Success Rates
                 "lfm_charge_percent_success": 1.0,
                 # Average Points
-                "tele_avg_charge_points": 6.8,
+                "tele_avg_charge_points": 8.0,
                 "auto_avg_charge_points": 10.4,
                 # LFM Average Points
-                "lfm_tele_avg_charge_points": 7.0,
+                "lfm_tele_avg_charge_points": 8.666666666666666,
                 "lfm_auto_avg_charge_points": 10.0,
                 # Sums
-                "auto_avg_total_points": 198.20000000000002,
-                "tele_avg_total_points": 118.8,
-                "avg_total_points": 317,
+                "auto_avg_total_points": 198.2,
+                "tele_avg_total_points": 120.0,
+                "avg_total_points": 318.2,
                 "total_incap": 172,
                 # LFM Sums
                 "lfm_total_incap": 81,
@@ -1811,6 +1815,6 @@ class TestOBJTeamCalc:
         assert len(result) == 2
         for document in result:
             del document["_id"]
-            assert document in expected_results
+            assert dict_near_in(document, expected_results)
             # Removes the matching expected result to protect against duplicates from the calculation
-            expected_results.remove(document)
+            expected_results.pop(find_dict_near_index(document, expected_results))

@@ -315,9 +315,15 @@ class OBJTeamCalc(base_calculations.BaseCalculations):
                 for field, value in schema.items():
                     if field == "type":
                         continue
+                    if isinstance(value, list):
+                        weight = 1
+                        for v in value:
+                            weight *= v if not isinstance(v, str) else team_data[v]
+                    else:
+                        weight = value if not isinstance(value, str) else team_data[value]
                     total_points += (
                         team_data[field] if field in team_data else team_info[field]
-                    ) * (value if not isinstance(value, str) else team_data[value])
+                    ) * weight
                 team_info[calculation] = total_points
         return team_info
 
