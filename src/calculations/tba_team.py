@@ -138,13 +138,13 @@ class TBATeamCalc(base_calculations.BaseCalculations):
             cc_aims.append(
                 {
                     "parties": utils.get_teams_in_match(match, "red"),
-                    "value": match["score_breakdown"]["blue"]["linkPoints"],
+                    "value": match["score_breakdown"]["red"]["linkPoints"],
                 }
             )
             cc_aims.append(
                 {
                     "parties": utils.get_teams_in_match(match, "blue"),
-                    "value": match["score_breakdown"]["red"]["linkPoints"],
+                    "value": match["score_breakdown"]["blue"]["linkPoints"],
                 }
             )
 

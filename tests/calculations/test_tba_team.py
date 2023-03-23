@@ -312,7 +312,7 @@ class TestTBATeamCalc:
                 "lfm_mobility_successes": 3,
                 "team_name": "Greybots",
                 "foul_cc": 8.0,
-                "link_cc": 2.5,
+                "link_cc": 10.0,
             },
             # Team B
             {
@@ -321,7 +321,7 @@ class TestTBATeamCalc:
                 "lfm_mobility_successes": 3,
                 "team_name": "Citrus Circuits",
                 "foul_cc": 2.0,
-                "link_cc": 12.5,
+                "link_cc": 0.0,
             },
             # Team C
             {
@@ -330,7 +330,7 @@ class TestTBATeamCalc:
                 "lfm_mobility_successes": 3,
                 "team_name": "LamBot",
                 "foul_cc": 5.0,
-                "link_cc": 7.5,
+                "link_cc": 5.0,
             },
             # Team D
             {
@@ -339,7 +339,7 @@ class TestTBATeamCalc:
                 "lfm_mobility_successes": 3,
                 "team_name": "Steampunk",
                 "foul_cc": 7.0,
-                "link_cc": 2.5,
+                "link_cc": 10.0,
             },
         ]
         self.test_server.db.insert_documents("tba_cache", tba_cache)
