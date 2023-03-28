@@ -2,13 +2,10 @@ from calculations import predicted_aim
 from unittest.mock import patch
 import server
 import pytest
+from utils import near
 
 
 class TestPredictedAimCalc:
-    @staticmethod
-    def near(num1, num2, max_diff=0.01) -> bool:
-        return abs(num1 - num2) <= max_diff
-
     def setup_method(self, method):
         with patch("server.Server.ask_calc_all_data", return_value=False):
             self.test_server = server.Server()
@@ -467,47 +464,47 @@ class TestPredictedAimCalc:
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[1])
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[2])
         self.test_calc.calculate_predicted_link_score(self.blank_predicted_values, self.obj_team)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.link, 9)
+        assert near(self.blank_predicted_values.link, 9)
 
     def test_calculate_predicted_grid_score(self):
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[0])
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_gamepieces_low, 3.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_mid, 3.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_high, 3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_high, 6.0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_gamepieces_low, 5.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_mid, 2.5)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_high, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_high, 0)
+        assert near(self.blank_predicted_values.auto_gamepieces_low, 3.5)
+        assert near(self.blank_predicted_values.auto_cube_mid, 3)
+        assert near(self.blank_predicted_values.auto_cone_mid, 3.5)
+        assert near(self.blank_predicted_values.auto_cube_high, 3)
+        assert near(self.blank_predicted_values.auto_cone_high, 6.0)
+        assert near(self.blank_predicted_values.tele_gamepieces_low, 5.5)
+        assert near(self.blank_predicted_values.tele_cube_mid, 0)
+        assert near(self.blank_predicted_values.tele_cone_mid, 2.5)
+        assert near(self.blank_predicted_values.tele_cube_high, 0)
+        assert near(self.blank_predicted_values.tele_cone_high, 0)
 
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[1])
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_gamepieces_low, 7.2)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_mid, 6)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_high, 3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_high, 6)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_gamepieces_low, 1.8)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_mid, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_high, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_high, 0)
+        assert near(self.blank_predicted_values.auto_gamepieces_low, 7.2)
+        assert near(self.blank_predicted_values.auto_cube_mid, 3)
+        assert near(self.blank_predicted_values.auto_cone_mid, 6)
+        assert near(self.blank_predicted_values.auto_cube_high, 3)
+        assert near(self.blank_predicted_values.auto_cone_high, 6)
+        assert near(self.blank_predicted_values.tele_gamepieces_low, 1.8)
+        assert near(self.blank_predicted_values.tele_cube_mid, 0)
+        assert near(self.blank_predicted_values.tele_cone_mid, 0)
+        assert near(self.blank_predicted_values.tele_cube_high, 0)
+        assert near(self.blank_predicted_values.tele_cone_high, 0)
 
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[2])
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_gamepieces_low, 9)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_mid, 3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_mid, 6)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cube_high, 3)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.auto_cone_high, 6)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_gamepieces_low, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_mid, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_mid, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cube_high, 0)
-        assert TestPredictedAimCalc.near(self.blank_predicted_values.tele_cone_high, 0)
+        assert near(self.blank_predicted_values.auto_gamepieces_low, 9)
+        assert near(self.blank_predicted_values.auto_cube_mid, 3)
+        assert near(self.blank_predicted_values.auto_cone_mid, 6)
+        assert near(self.blank_predicted_values.auto_cube_high, 3)
+        assert near(self.blank_predicted_values.auto_cone_high, 6)
+        assert near(self.blank_predicted_values.tele_gamepieces_low, 0)
+        assert near(self.blank_predicted_values.tele_cube_mid, 0)
+        assert near(self.blank_predicted_values.tele_cone_mid, 0)
+        assert near(self.blank_predicted_values.tele_cube_high, 0)
+        assert near(self.blank_predicted_values.tele_cone_high, 0)
 
     def test_calculate_predicted_alliance_score(self):
-        assert TestPredictedAimCalc.near(
+        assert near(
             self.test_calc.calculate_predicted_alliance_score(
                 self.blank_predicted_values,
                 self.obj_team,

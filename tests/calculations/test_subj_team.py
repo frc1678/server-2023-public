@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch
 from calculations import subj_team
 from server import Server
+from utils import dict_near
 
 
 @pytest.mark.clouddb
@@ -17,10 +18,6 @@ class TestSubjTeamCalcs:
         """Test if attributes are set correctly"""
         assert self.test_calcs.watched_collections == ["subj_tim"]
         assert self.test_calcs.server == self.test_server
-
-    @staticmethod
-    def near(num1, num2, max_diff=0.01) -> bool:
-        return abs(num1 - num2) <= max_diff
 
     def test_teams_played_with(self):
         tims = [
@@ -151,20 +148,36 @@ class TestSubjTeamCalcs:
         citrus = self.test_server.db.find("subj_team", {"team_number": "1678"})[0]
         chezy = self.test_server.db.find("subj_team", {"team_number": "254"})[0]
 
-        assert self.near(robonauts["driver_field_awareness"], 0.9259)
-        assert self.near(robonauts["driver_quickness"], 0.55555)
-        assert self.near(robonauts["driver_ability"], 0.65632)
-        for i in range(4):
-            assert self.near(robonauts["auto_pieces_start_position"][i], [0, 0, 1, 1][i])
+        for team in [robonauts, citrus, chezy]:
+            for datapoint in [
+                "_id",
+                "unadjusted_field_awareness",
+                "unadjusted_quickness",
+                "test_driver_ability",
+            ]:
+                team.pop(datapoint)
 
-        assert self.near(citrus["driver_field_awareness"], 1.296)
-        assert self.near(citrus["driver_quickness"], 0.666667)
-        assert self.near(citrus["driver_ability"], 3.053327)
-        for i in range(4):
-            assert self.near(citrus["auto_pieces_start_position"][i], [1, 1, 0.333333, 0.666666][i])
-
-        assert self.near(chezy["driver_field_awareness"], 1.481)
-        assert self.near(chezy["driver_quickness"], 0.555555)
-        assert self.near(chezy["driver_ability"], 2.29057)
-        for i in range(4):
-            assert self.near(chezy["auto_pieces_start_position"][i], [0.333333, 0.666666, 0, 0][i])
+        expected_robonauts = {
+            "team_number": "118",
+            "driver_field_awareness": 0.9259,
+            "driver_quickness": 0.55555,
+            "driver_ability": 0.65632,
+            "auto_pieces_start_position": [0, 0, 1, 1],
+        }
+        assert dict_near(expected_robonauts, robonauts, 0.01)
+        expected_citrus = {
+            "team_number": "1678",
+            "driver_field_awareness": 1.296,
+            "driver_quickness": 0.666667,
+            "driver_ability": 3.053327,
+            "auto_pieces_start_position": [1, 1, 0.333333, 0.66],
+        }
+        assert dict_near(expected_citrus, citrus, 0.01)
+        expected_chezy = {
+            "team_number": "254",
+            "driver_field_awareness": 1.481,
+            "driver_quickness": 0.555555,
+            "driver_ability": 2.29057,
+            "auto_pieces_start_position": [0.333333, 0.666666, 0, 0],
+        }
+        assert dict_near(expected_chezy, chezy, 0.01)

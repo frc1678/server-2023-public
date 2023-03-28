@@ -7,25 +7,6 @@ import server
 
 
 class TestSimPrecisionCalc:
-    @staticmethod
-    def near(num1, num2, max_diff=0.01) -> bool:
-        return abs(num1 - num2) <= max_diff
-
-    @staticmethod
-    def dict_near(dict1, dict2, max_diff=0.01) -> bool:
-        if len(dict1) != len(dict2):
-            return False
-        for field in dict1:
-            if field not in dict2:
-                return False
-            if not (isinstance(dict1[field], float) and isinstance(dict2[field], float)):
-                if not dict1[field] == dict2[field]:
-                    return False
-            else:
-                if not TestSimPrecisionCalc.near(dict1[field], dict2[field], max_diff):
-                    return False
-        return True
-
     def setup_method(self):
         self.tba_test_data = [
             {

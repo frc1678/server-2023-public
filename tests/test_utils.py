@@ -85,10 +85,10 @@ def test_near():
 
 
 def test_dict_near():
-    dict1 = {"a": 1e-13, "b": "Something"}
-    dict2 = {"a": 1e-14, "b": "Something"}
-    dict3 = {"a": 1e-13, "c": "Something"}
-    dict4 = {"a": 1e-13, "b": "Something", "c": "Something Else"}
+    dict1 = {"a": 1e-13, "b": "Something", "d": [1e-13, 2e-13]}
+    dict2 = {"a": 1e-14, "b": "Something", "d": [1e-14, 2e-14]}
+    dict3 = {"a": 1e-13, "c": "Something", "d": [1e-13, 2e-13]}
+    dict4 = {"a": 1e-13, "b": "Something", "c": "Something Else", "d": [1e-13, 2e-13]}
     assert utils.dict_near(dict1, dict2)
     assert not utils.dict_near(dict1, dict3)
     assert not utils.dict_near(dict1, dict4)

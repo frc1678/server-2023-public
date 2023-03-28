@@ -206,46 +206,64 @@ def get_teams_in_match(match: dict, alliance_color: str):
     return [strip_tba_team_key(key) for key in match["alliances"][alliance_color]["team_keys"]]
 
 
-def near(float1: float, float2: float) -> bool:
-    return isclose(float1, float2, abs_tol=1e-9)
+def near(float1: float, float2: float, dif=1e-9) -> bool:
+    """Find if float1 is close to float2"""
+    return isclose(float1, float2, rel_tol=dif, abs_tol=dif)
 
 
-def dict_near(dict1: dict, dict2: dict) -> bool:
+def dict_near(dict1: dict, dict2: dict, dif=1e-9) -> bool:
+    """Find if dict1 is near to dict2, using the near function for floats and list_near for lists"""
     if len(dict1) != len(dict2):
         return False
     for field in dict1:
         if field not in dict2:
             return False
         if not (isinstance(dict1[field], float) and isinstance(dict2[field], float)):
-            if not dict1[field] == dict2[field]:
+            if isinstance(dict1[field], list):
+                if not list_near(dict1[field], dict2[field], dif):
+                    return False
+            elif dict1[field] != dict2[field]:
                 return False
-        elif not near(dict1[field], dict2[field]):
+        elif not near(dict1[field], dict2[field], dif):
             return False
     return True
 
 
-def dict_near_in(dict1: dict, list_of_dicts: List[dict]) -> bool:
+def list_near(list1: list, list2: list, dif=1e-9) -> bool:
+    """Find if list1 is near to list2, using near for floats"""
+    if len(list1) != len(list2):
+        return False
+    for field1, field2 in zip(list1, list2):
+        if not (isinstance(field1, float) and isinstance(field2, float)):
+            if field1 != field2:
+                return False
+        elif not near(field1, field2, dif):
+            return False
+    return True
+
+
+def dict_near_in(dict1: dict, list_of_dicts: List[dict], dif=1e-9) -> bool:
     """Find if dict1 is close to a dict inside list_of_dicts"""
     for dict2 in list_of_dicts:
-        if dict_near(dict1, dict2):
+        if dict_near(dict1, dict2, dif):
             return True
     return False
 
 
-def find_dict_near_index(dict1: dict, list_of_dicts: List[dict]) -> int:
+def find_dict_near_index(dict1: dict, list_of_dicts: List[dict], dif=1e-9) -> int:
     """Find the index of a dict close to dict1 in list_of_dicts"""
     for index, dict2 in enumerate(list_of_dicts):
-        if dict_near(dict1, dict2):
+        if dict_near(dict1, dict2, dif):
             return index
     raise ValueError
 
 
-def near_in(float1: float, list_of_floats: list) -> bool:
+def near_in(float1: float, list_of_floats: list, dif=1e-9) -> bool:
     """Find if float1 is close to a float in list_of_floats"""
     for float2 in list_of_floats:
         if not (isinstance(float2, float) or isinstance(float2, int)):
             continue
-        if near(float1, float2):
+        if near(float1, float2, dif):
             return True
     return False
 
