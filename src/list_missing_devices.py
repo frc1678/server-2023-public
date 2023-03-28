@@ -17,6 +17,8 @@ def missing_devices():
         "Lenovo Tab E7 #29-33 are not included in the tablet cases unless tablets have been switched out."
     )
     devices = adb_communicator.get_attached_devices()
+    # Counter for all connected devices
+    total_devices_connected = 0
     # Gets all devices
     for device in adb_communicator.DEVICE_SERIAL_NUMBERS:
         # Checks if device is connected
@@ -24,6 +26,8 @@ def missing_devices():
             console.print(f"[red]{adb_communicator.DEVICE_SERIAL_NUMBERS[device]}")
         else:
             console.print(f"[green]{adb_communicator.DEVICE_SERIAL_NUMBERS[device]}")
+            total_devices_connected += 1
+    print(f"Total Devices Connected: {total_devices_connected}")
 
 
 if __name__ == "__main__":
