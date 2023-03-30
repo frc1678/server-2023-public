@@ -555,8 +555,14 @@ class PredictedAimCalc(BaseCalculations):
                 break
             aim_score = aims_in_match[0]["predicted_score"]
             opponent_score = aims_in_match[1]["predicted_score"]
-            predicted_win_chance = round(win_chance(aim_score - opponent_score), 5)
-            aims_in_match[0]["win_chance"], aims_in_match[1]["win_chance"] = (
+            # Make the point difference always positive for more accurate calculations
+            point_difference = aim_score - opponent_score
+            flipped = point_difference < 0
+            predicted_win_chance = round(win_chance(point_difference * (-1 if flipped else 1)), 5)
+            (
+                aims_in_match[1 if flipped else 0]["win_chance"],
+                aims_in_match[0 if flipped else 1]["win_chance"],
+            ) = (
                 predicted_win_chance,
                 1 - predicted_win_chance,
             )
@@ -577,9 +583,12 @@ class PredictedAimCalc(BaseCalculations):
             aim_score = aims_in_match[0]["predicted_score"]
             opponent_score = aims_in_match[1]["predicted_score"]
             point_difference = aim_score - opponent_score
+            # Make point difference always positive for more accurate calculations
+            flipped = point_difference < 0
             if aims_in_match[0]["has_actual_data"]:
-                point_differences.append(point_difference)
-                won.append(int(aims_in_match[0]["won_match"]))
+                point_differences.append(point_difference * (-1 if flipped else 1))
+                win = aims_in_match[0]["won_match"]
+                won.append(int(not win if flipped else win))
         point_differences_array = np.array(point_differences).reshape(-1, 1)
         won_array = np.array(won)
         logr = LogisticRegression()

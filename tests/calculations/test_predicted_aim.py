@@ -34,12 +34,12 @@ class TestPredictedAimCalc:
             {
                 "match_number": 3,
                 "alliance_color": "R",
-                "team_list": ["1678", "1533", "7229"],
+                "team_list": ["1678", "1533", "2468"],
             },
             {
                 "match_number": 3,
                 "alliance_color": "B",
-                "team_list": ["1678", "1533", "2468"],
+                "team_list": ["1678", "1533", "7229"],
             },
         ]
         self.filtered_aims_list = [
@@ -56,12 +56,12 @@ class TestPredictedAimCalc:
             {
                 "match_number": 3,
                 "alliance_color": "R",
-                "team_list": ["1678", "1533", "7229"],
+                "team_list": ["1678", "1533", "2468"],
             },
             {
                 "match_number": 3,
                 "alliance_color": "B",
-                "team_list": ["1678", "1533", "2468"],
+                "team_list": ["1678", "1533", "7229"],
             },
         ]
         self.expected_updates = [
@@ -97,7 +97,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 192.53333,
+                "predicted_score": 191.93333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -109,7 +109,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 191.93333,
+                "predicted_score": 192.53333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -160,10 +160,10 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 192.53333,
+                "predicted_score": 191.93333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.92377,
+                "win_chance": 1 - 0.92377,
             },
             {
                 "match_number": 3,
@@ -173,10 +173,10 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 191.93333,
+                "predicted_score": 192.53333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 1 - 0.92377,
+                "win_chance": 0.92377,
             },
         ]
         self.expected_playoffs_alliances = [{"alliance_num": 1, "picks": ["1678", "1533", "7229"]}]
@@ -580,7 +580,7 @@ class TestPredictedAimCalc:
         assert self.test_calc.get_actual_values(
             {
                 "match_number": 3,
-                "alliance_color": "R",
+                "alliance_color": "B",
                 "team_list": ["1678", "1533", "7229"],
             },
             self.tba_match_data,
@@ -594,7 +594,7 @@ class TestPredictedAimCalc:
         assert self.test_calc.get_actual_values(
             {
                 "match_number": 3,
-                "alliance_color": "B",
+                "alliance_color": "R",
                 "team_list": ["1678", "1533", "2468"],
             },
             self.tba_match_data,
@@ -695,10 +695,9 @@ class TestPredictedAimCalc:
             },
         ]
         predicted_win_chance = self.test_calc.get_predicted_win_chance(match_list, aims)
-        assert predicted_win_chance(-10) == 0.008404776287221662
-        assert predicted_win_chance(-1) == 0.6934716286186654
-        assert predicted_win_chance(0) == 0.8080157677406733
-        assert predicted_win_chance(3) == 0.9644107365854077
+        assert predicted_win_chance(0) == 0.4634287128417273
+        assert predicted_win_chance(3) == 0.7405684767137776
+        assert predicted_win_chance(10) == 0.978924852564896
 
     def test_run(self):
         self.test_server.db.delete_data("obj_team")
