@@ -220,7 +220,9 @@ class SimPrecisionCalc(BaseCalculations):
 
     def update_sim_precision_calcs(self, unconsolidated_sims):
         """Creates scout-in-match precision updates"""
-        tba_match_data = tba_communicator.tba_request(f"event/{utils.TBA_EVENT_KEY}/matches")
+        tba_match_data: List[dict] = tba_communicator.tba_request(
+            f"event/{utils.TBA_EVENT_KEY}/matches"
+        )
         updates = []
         for sim in unconsolidated_sims:
             sim_data = self.server.db.find("unconsolidated_totals", sim)[0]
@@ -232,10 +234,13 @@ class SimPrecisionCalc(BaseCalculations):
                 if (
                     match["match_number"] == sim_data["match_number"]
                     and match["comp_level"] == "qm"
+                    and match["score_breakdown"] != {}
                 ):
                     # Convert match timestamp from Unix time (on TBA) to human readable
                     update["timestamp"] = datetime.fromtimestamp(match["actual_time"])
                     break
+            else:
+                continue
             if (sim_precision := self.calc_sim_precision(sim_data, tba_match_data)) != {}:
                 update.update(sim_precision)
             updates.append(update)
