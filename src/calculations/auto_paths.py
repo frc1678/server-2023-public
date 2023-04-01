@@ -111,15 +111,18 @@ class AutoPathCalc(BaseCalculations):
         tim_auto_values = {}
         for variable in auto_variables:
             tim_auto_values[variable] = calculated_tim[variable]
+        # Create match_numbers, because auto path documents have multiple match numbers now
+        tim_auto_values["match_numbers"] = [calculated_tim["match_number"]]
 
         return tim_auto_values
 
-    def create_auto_fields(self, auto_timeline: List[Dict], subj_tim: Dict) -> Dict:
+    def create_auto_fields(self, tim, subj_tim: Dict) -> Dict:
         """Creates auto fields for one tim such as score_1, intake_1, etc using the consolidated_timeline"""
         # TODO: USE A SCHEMA FOR THIS FUNCTION (very hardcoded rn ur welcome)
         # counters to cycle through scores and intakes
         intake_count = 1
         score_count = 1
+        # Use subj_tim to figure out which pieces are in which auto position
         if subj_tim != {}:
             num_enum = {"one": 1, "two": 2, "three": 3, "four": 4}
             piece_enum = {0: "cone", 1: "cube", 2: "none"}
@@ -139,8 +142,14 @@ class AutoPathCalc(BaseCalculations):
             "score_3_piece": None,
             "score_3_position": None,
         }
+
+        # Look up if they got mobiility in tba_tims and add it as a variable
+        update["mobility"] = self.server.db.find(
+            "tba_tim", {"match_number": tim["match_number"], "team_number": tim["team_number"]}
+        )[0]["mobility"]
+
         # For each action in the consolidated timeline, add it to one of the new fields (if it applies)
-        for action in auto_timeline:
+        for action in tim["auto_timeline"]:
             # BUG: action_type can sometimes be null, need better tests in auto_paths, more edge cases
             if action["action_type"] is None:
                 log.warning("auto_paths: action_type is null")
@@ -164,11 +173,147 @@ class AutoPathCalc(BaseCalculations):
                 intake_count += 1
         return update
 
+    def group_auto_paths(self, tim, calculated_tims):
+        """Compares auto path with other auto paths at the same start position"""
+        # Find all current auto paths with this team number and start position
+        current_documents = self.server.db.find(
+            "auto_paths",
+            {"team_number": tim["team_number"], "start_position": tim["start_position"]},
+        )
+        # Add the current calculated_tims into current documents (because these tims aren't in server yet)
+        current_documents.extend(
+            [
+                calculated_tim
+                for calculated_tim in calculated_tims
+                if (
+                    calculated_tim["team_number"] == tim["team_number"]
+                    and calculated_tim["start_position"] == tim["start_position"]
+                )
+            ]
+        )
+        # List of all charge levels that can be put in the same auto path (because all are attempting to engage in auto)
+        charge_levels = ["F", "D", "E"]
+        # List of all scoring positions (fail and None are in here to not break the indexing)
+        scoring_rows = [None, "fail", "low", "mid", "high"]
+
+        # If current_documents is empty, that means this is the first auto path at this start position
+        if not current_documents:
+            tim["matches_ran"] = 1
+            tim["path_number"] = 1
+            # Sets to 0 or 1 depending on if it engages or not
+            tim["auto_charge_successes"] = int(tim["auto_charge_level"] == "E")
+            for i in range(1, 4):
+                tim[f"score_{i}_piece_successes"] = int(
+                    tim[f"score_{i}_piece"] != "fail" and tim[f"score_{i}_piece"] is not None
+                )
+                # The highest scoring position's successes is equal to the successes bc this is the first match ran
+                tim[f"score_{i}_max_piece_successes"] = tim[f"score_{i}_piece_successes"]
+        else:
+            for document in current_documents:
+                # Checks to see if intake fields match, then we can compare the rest manually
+                if all(
+                    tim[field] == value
+                    for field, value in document.items()
+                    if field
+                    in ["intake_1_position", "intake_2_position", "mobility", "preloaded_gamepiece"]
+                ):
+                    # Make a copy, in case later down the if statements the auto paths do not match
+                    old_tim = tim.copy()
+                    # Checks to see if both documents have an attempt at charging (not "N")
+                    if (
+                        document["auto_charge_level"] in charge_levels
+                        and tim["auto_charge_level"] in charge_levels
+                    ):
+                        # Add to auto_charge_successes here because it could get overriden in the next line
+                        tim["auto_charge_successes"] = document["auto_charge_successes"] + int(
+                            tim["auto_charge_level"] == "E"
+                        )
+                        # Display the highest auto charge level for this path
+                        tim["auto_charge_level"] = max(
+                            document["auto_charge_level"],
+                            tim["auto_charge_level"],
+                            key=charge_levels.index,
+                        )
+                    # If one is "N", and the other is not "N", this means they are different auto paths because one attempted to charge
+                    # and the other did not
+                    elif document["auto_charge_level"] != tim["auto_charge_level"]:
+                        continue
+                    # Reset variable in order to continue the loop if this loop is broken out of
+                    reset = False
+                    # Use loop with numbers from 1-3 in order to iterate through scores and positions
+                    for i in range(1, 4):
+                        # If the scored pieces do not match but one of them is a fail, then the path is the same (but the piece wasn't scored)
+                        if tim[f"score_{i}_piece"] != document[f"score_{i}_piece"] and not (
+                            tim[f"score_{i}_piece"] == "fail"
+                            or document[f"score_{i}_piece"] == "fail"
+                        ):
+                            reset = True
+                            break
+                        if tim[f"score_{i}_piece"] == "fail" or tim[f"score_{i}_piece"] is None:
+                            # Save document data, so that the current path does not override it
+                            tim[f"score_{i}_piece"] = document[f"score_{i}_piece"]
+                            tim[f"score_{i}_position"] = document[f"score_{i}_position"]
+                            tim[f"score_{i}_piece_successes"] = document[
+                                f"score_{i}_piece_successes"
+                            ]
+                            tim[f"score_{i}_max_piece_successes"] = document[
+                                f"score_{i}_max_piece_successes"
+                            ]
+                            # Continue here, because if the current path has a failed score, then successes does not need to be updated
+                            continue
+                        tim[f"score_{i}_piece_successes"] = (
+                            document[f"score_{i}_piece_successes"] + 1
+                        )
+                        # If the positions are equal, that means the max was scored again (because the document always contains the max)
+                        if tim[f"score_{i}_position"] == document[f"score_{i}_position"]:
+                            tim[f"score_{i}_max_piece_successes"] = (
+                                document[f"score_{i}_max_piece_successes"] + 1
+                            )
+                        # If the current path has a higher scoring position, change the max successes and the position
+                        elif scoring_rows.index(
+                            document[f"score_{i}_position"]
+                        ) < scoring_rows.index(tim[f"score_{i}_position"]):
+                            tim[f"score_{i}_max_piece_successes"] = 1
+                        # This is run when the current path did not score in the maximum row seen
+                        else:
+                            tim[f"score_{i}_max_piece_successes"] = document[
+                                f"score_{i}_max_piece_successes"
+                            ]
+                            # Make sure that the curent max doesn't get overriden
+                            tim[f"score_{i}_position"] = document[f"score_{i}_position"]
+                    # Use reset variable to reset any changes made to the tim, and continue the loop because the paths do not match
+                    if reset:
+                        tim = old_tim
+                        continue
+                    # Because of a lack of subjective data sometimes (usually on the 2nd day), sometimes we do not know the piece
+                    # that was picked up, but it could still be the same auto path, so we must ignore checking it
+                    # This code is just to make sure that we don't override the piece to null when it is the same auto path
+                    if tim["intake_1_piece"] is None:
+                        tim["intake_1_piece"] = document["intake_1_piece"]
+                    if tim["intake_2_piece"] is None:
+                        tim["intake_2_piece"] = document["intake_2_piece"]
+
+                    tim["matches_ran"] = document["matches_ran"] + 1
+                    tim["match_numbers"].extend(document["match_numbers"])
+                    tim["path_number"] = document["path_number"]
+                    break
+            else:
+                # If there are no matching documents, that means this is a new auto path at the same start position
+                tim["matches_ran"] = 1
+                tim["path_number"] = len(current_documents) + 1
+                tim["auto_charge_successes"] = int(tim["auto_charge_level"] == "E")
+                for i in range(1, 4):
+                    tim[f"score_{i}_piece_successes"] = int(
+                        tim[f"score_{i}_piece"] != "fail" and tim[f"score_{i}_piece"] is not None
+                    )
+                    # The highest scoring position's successes is equal to the successes bc this is the first match ran
+                    tim[f"score_{i}_max_piece_successes"] = tim[f"score_{i}_piece_successes"]
+        return tim
+
     def calculate_auto_paths(self, tims: List[Dict]) -> List[Dict]:
         """Calculates auto data for the given tims, which looks like
         [{"team_number": 1678, "match_number": 42}, {"team_number": 1706, "match_number": 56}, ...]"""
-        calculated_tims = tims
-
+        calculated_tims = []
         for tim in tims:
             # Get data for the tim from MongoDB
             unconsolidated_obj_tims = self.server.db.find("unconsolidated_obj_tim", tim)
@@ -179,17 +324,28 @@ class AutoPathCalc(BaseCalculations):
                 subj_tim = subj_tim[0]
 
             # Run calculations on the team in match
-            calculated_tims[tims.index(tim)].update(self.get_consolidated_auto_variables(obj_tim))
-            calculated_tims[tims.index(tim)].update(
+            tim.update(self.get_consolidated_auto_variables(obj_tim))
+            tim.update(
                 {
                     "auto_timeline": self.consolidate_timelines(
                         self.get_unconsolidated_auto_timelines(unconsolidated_obj_tims)
                     )
                 }
             )
-            calculated_tims[tims.index(tim)].update(
-                self.create_auto_fields(calculated_tims[tims.index(tim)]["auto_timeline"], subj_tim)
-            )
+            tim.update(self.create_auto_fields(tim, subj_tim))
+            tim.update(self.group_auto_paths(tim, calculated_tims))
+
+            # Delete match number because it is a useless field for auto paths
+            del tim["match_number"]
+            # Check to see if an outdated version of the path is in calculated_tims, and remove it if it is
+            for calculated_tim in calculated_tims:
+                if (
+                    calculated_tim["team_number"] == tim["team_number"]
+                    and calculated_tim["start_position"] == tim["start_position"]
+                    and calculated_tim["path_number"] == tim["path_number"]
+                ):
+                    calculated_tims.remove(calculated_tim)
+            calculated_tims.append(tim)
         return calculated_tims
 
     def run(self):
@@ -238,6 +394,7 @@ class AutoPathCalc(BaseCalculations):
                     update,
                     {
                         "team_number": update["team_number"],
-                        "match_number": update["match_number"],
+                        "start_position": update["start_position"],
+                        "path_number": update["path_number"],
                     },
                 )
