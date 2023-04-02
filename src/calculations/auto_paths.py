@@ -238,6 +238,9 @@ class AutoPathCalc(BaseCalculations):
                     # and the other did not
                     elif document["auto_charge_level"] != tim["auto_charge_level"]:
                         continue
+                    # Code is run if both are "N", which means that the auto_charge_successes should not be incremented
+                    else:
+                        tim["auto_charge_successes"] = document["auto_charge_successes"]
                     # Reset variable in order to continue the loop if this loop is broken out of
                     reset = False
                     # Use loop with numbers from 1-3 in order to iterate through scores and positions
