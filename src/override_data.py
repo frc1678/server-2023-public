@@ -28,8 +28,15 @@ if ROLLBACK_BLOCKLIST_OR_DATA not in ["0", "1", "2"]:
     print("Please enter a valid number", file=sys.stderr)
     sys.exit()
 
+# Find if the user wants to UNDO this action
+UNDO = input(
+    f"Do you want to {'UNDO blocklisting' if ROLLBACK_BLOCKLIST_OR_DATA != '2' else 'CLEAR overrides on'} this {['match', 'qr', 'team'][int(ROLLBACK_BLOCKLIST_OR_DATA)]}? (y/N)"
+)
+UNDO = UNDO.lower() == "y"
 
-print("WARNING: data from matching QR codes will be blocklisted or deleted")
+print(
+    f"WARNING: data from matching QR codes will be {'un' if UNDO else ''}{'blocklisted' if ROLLBACK_BLOCKLIST_OR_DATA != '2' else 'overriden'}"
+)
 
 # User input for match to delete
 INVALID_MATCH = input("Enter the match to blocklist: ")
@@ -53,7 +60,7 @@ PATTERN_ELEMENTS = [
 # If the user requests to blocklist a specific QR code
 if ROLLBACK_BLOCKLIST_OR_DATA == "1":
     # Takes user input for scout name
-    SCOUT_NAME = input("Enter the scout name of the QR code to delete: ")
+    SCOUT_NAME = input("Enter the scout name of the QR code to blocklist: ")
     # Modifies the regex pattern elements to include the scout name
     PATTERN_ELEMENTS.insert(4, (SCHEMA["generic_data"]["scout_name"][0] + SCOUT_NAME + ".*"))
 elif ROLLBACK_BLOCKLIST_OR_DATA == "2":
@@ -89,7 +96,7 @@ num_blocklisted = 0
 
 for qr_code in db.find("raw_qr"):
     # If the QR code is already blocklisted, go to the next QR code
-    if qr_code in BLOCKLISTED_QRS:
+    if (not UNDO) and qr_code in BLOCKLISTED_QRS:
         continue
     # Iterates through all regex pattern objects
     for PATTERN in PATTERNS:
@@ -100,10 +107,12 @@ for qr_code in db.find("raw_qr"):
     else:
         if ROLLBACK_BLOCKLIST_OR_DATA == "2":
             # Uses the update_qr_data_override function to change the value of override[DATA_NAME] to NEW_VALUE
-            db.update_qr_data_override({"data": qr_code["data"]}, DATA_NAME, NEW_VALUE)
+            db.update_qr_data_override(
+                {"data": qr_code["data"]}, DATA_NAME, NEW_VALUE, clear=not UNDO
+            )
         else:
-            # Uses the update_qr_blocklist_status function to change the value of blocklisted to True
-            db.update_qr_blocklist_status({"data": qr_code["data"]})
+            # Uses the update_qr_blocklist_status function to change the value of blocklisted to True, or False if undoing
+            db.update_qr_blocklist_status({"data": qr_code["data"]}, blocklist=not UNDO)
         num_blocklisted += 1
 
 if num_blocklisted == 0:

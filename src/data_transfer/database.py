@@ -128,15 +128,18 @@ class Database:
             return
         self.db[collection].update_one(query, {"$set": new_data}, upsert=True)
 
-    def update_qr_blocklist_status(self, query) -> None:
+    def update_qr_blocklist_status(self, query, blocklist=True) -> None:
         """Changes the status of a raw qr matching 'query' from blocklisted: true to blocklisted: false
         Lowers risk of data loss from using normal update."""
-        self.db["raw_qr"].update_one(query, {"$set": {"blocklisted": True}})
+        self.db["raw_qr"].update_one(query, {"$set": {"blocklisted": blocklist}})
 
-    def update_qr_data_override(self, query, datapoint, new_value) -> None:
+    def update_qr_data_override(self, query, datapoint, new_value, clear=False) -> None:
         """Changes the override of a datapoint of a raw qr matching 'query' to new_value
         Lowers risk of data loss from using normal update."""
-        self.db["raw_qr"].update_one(query, {"$set": {f"override.{datapoint}": new_value}})
+        if clear:
+            self.db["raw_qr"].update_one(query, {"$set": {f"override": {}}})
+        else:
+            self.db["raw_qr"].update_one(query, {"$set": {f"override.{datapoint}": new_value}})
 
     def _enable_validation(self, collection: str, file: str):
         sch = utils.read_schema("schema/" + file)
