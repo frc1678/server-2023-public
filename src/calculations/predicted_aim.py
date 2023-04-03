@@ -402,6 +402,21 @@ class PredictedAimCalc(BaseCalculations):
         """
         if getattr(predicted_values, "link") >= 5:
             return 1.0
+        elif getattr(predicted_values, "link") == 4:
+            # Use the coopertition criteria met percentage to gain the chances of a link RP with 4 links
+            # If it doesn't exist use 0.75 (seems to be the average percentage in most comps)
+            try:
+                return round(
+                    (
+                        tba_communicator.tba_request(f"event/{self.server.TBA_EVENT_KEY}/insights")[
+                            "qual"
+                        ]["coopertition"][2]
+                    )
+                    / 100,
+                    2,
+                )
+            except:
+                return 0.75
         return 0.0
 
     def calculate_predicted_charge_rp(self, predicted_values, obj_team_data, team_numbers):
