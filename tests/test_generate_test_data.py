@@ -246,6 +246,7 @@ CORRECT_SCHEMA_DATAPOINT_COLLECTIONS = [
     {
         "first_pickability": 84.4422,
         "second_pickability": 84.4422,
+        "test_second_pickability": 84.4422,
         "team_number": "6604",
     },
     # Predicted AIM
