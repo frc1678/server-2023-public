@@ -160,8 +160,7 @@ class SubjTeamCalcs(base_calculations.BaseCalculations):
             )
             for team, driver_ability in normalized_abilities.items():
                 calculations[team] = calculations.get(team, {})
-                # Add 2 to driver ability in order to move the lowest scores closer to 0 instead of negative
-                calculations[team][calc_name] = driver_ability + 2
+                calculations[team][calc_name] = driver_ability
         return calculations
 
     def run(self):

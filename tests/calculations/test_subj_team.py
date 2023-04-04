@@ -161,7 +161,7 @@ class TestSubjTeamCalcs:
             "team_number": "118",
             "driver_field_awareness": 0.9259,
             "driver_quickness": 0.55555,
-            "driver_ability": 0.65632,
+            "driver_ability": -1.3439,
             "auto_pieces_start_position": [0, 0, 1, 1],
         }
         assert dict_near(expected_robonauts, robonauts, 0.01)
@@ -169,7 +169,7 @@ class TestSubjTeamCalcs:
             "team_number": "1678",
             "driver_field_awareness": 1.296,
             "driver_quickness": 0.666667,
-            "driver_ability": 3.053327,
+            "driver_ability": 1.053327,
             "auto_pieces_start_position": [1, 1, 0.333333, 0.66],
         }
         assert dict_near(expected_citrus, citrus, 0.01)
@@ -177,7 +177,7 @@ class TestSubjTeamCalcs:
             "team_number": "254",
             "driver_field_awareness": 1.481,
             "driver_quickness": 0.555555,
-            "driver_ability": 2.29057,
+            "driver_ability": 0.29057,
             "auto_pieces_start_position": [0.333333, 0.666666, 0, 0],
         }
         assert dict_near(expected_chezy, chezy, 0.01)
