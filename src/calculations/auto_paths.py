@@ -150,6 +150,10 @@ class AutoPathCalc(BaseCalculations):
 
         # For each action in the consolidated timeline, add it to one of the new fields (if it applies)
         for action in tim["auto_timeline"]:
+            # BUG: action_type sometimes doesn't exist for a timeline action
+            if action.get("action_type") is None:
+                log.warning("auto_paths: action_type does not exist")
+                continue
             # BUG: action_type can sometimes be null, need better tests in auto_paths, more edge cases
             if action["action_type"] is None:
                 log.warning("auto_paths: action_type is null")
@@ -311,6 +315,30 @@ class AutoPathCalc(BaseCalculations):
                     )
                     # The highest scoring position's successes is equal to the successes bc this is the first match ran
                     tim[f"score_{i}_max_piece_successes"] = tim[f"score_{i}_piece_successes"]
+
+        # This is a field, which is added to obj_team, which says if a robot has middle compatability
+        # A robot has middle compatability if it starts in the middle, gets the mobility, and docks/engages
+        if (
+            tim["start_position"] == "2"
+            and tim["mobility"]
+            and tim["auto_charge_level"] in ["D", "E"]
+        ):
+            # Find the current team document from the obj_team collection
+            current_team = self.server.db.find("obj_team", {"team_number": tim["team_number"]})[0]
+            # Add the middle_compatibility field
+            current_team.update({"middle_compatibility": True})
+            team_num = current_team["team_number"]
+            self.server.db.update_document("obj_team", current_team, {"team_number": team_num})
+            log.info(f"Update compatibility for team number: {team_num}")
+        else:
+            current_team = self.server.db.find("obj_team", {"team_number": tim["team_number"]})[0]
+            # Checks to see if the field exists, if not set it to False
+            # This is to avoid accidently setting it to False after it has been set to true
+            if "middle_compatibility" not in current_team:
+                current_team.update({"middle_compatibility": False})
+                self.server.db.update_document(
+                    "obj_team", current_team, {"team_number": current_team["team_number"]}
+                )
         return tim
 
     def calculate_auto_paths(self, tims: List[Dict]) -> List[Dict]:

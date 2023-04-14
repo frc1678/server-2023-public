@@ -31,6 +31,9 @@
 - import_path: calculations.tba_team
   class_name: TBATeamCalc
 
+- import_path: calculations.auto_paths
+  class_name: AutoPathCalc
+
 - import_path: calculations.pickability
   class_name: PickabilityCalc
 
@@ -45,6 +48,3 @@
 
 - import_path: calculations.scout_precision
   class_name: ScoutPrecisionCalc
-
-- import_path: calculations.auto_paths
-  class_name: AutoPathCalc

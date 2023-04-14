@@ -11,6 +11,8 @@ import pytest
 
 class TestAutoPathCalc:
 
+    obj_teams = [{"team_number": "254"}, {"team_number": "4414"}, {"team_number": "1678"}]
+
     tba_tims = [
         {
             "match_number": 42,
@@ -623,6 +625,7 @@ class TestAutoPathCalc:
         self.test_server.db.insert_documents("unconsolidated_obj_tim", self.unconsolidated_obj_tims)
         self.test_server.db.insert_documents("subj_tim", self.subj_tims)
         self.test_server.db.insert_documents("tba_tim", self.tba_tims)
+        self.test_server.db.insert_documents("obj_team", self.obj_teams)
 
     def test___init__(self):
         assert self.test_calculator.server == self.test_server
