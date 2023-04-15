@@ -179,7 +179,10 @@ class TestPredictedAimCalc:
                 "win_chance": 0.92377,
             },
         ]
-        self.expected_playoffs_alliances = [{"alliance_num": 1, "picks": ["1678", "1533", "7229"]}]
+        self.expected_playoffs_alliances = [
+            {"alliance_num": 1, "picks": ["1678", "1533", "7229"]},
+            {"alliance_num": 9, "picks": ["1678", "1533", "254"]},
+        ]
         self.full_predicted_values = predicted_aim.PredictedAimScores(
             auto_dock_successes=0.5,
             auto_engage_successes=0.5,
@@ -442,7 +445,7 @@ class TestPredictedAimCalc:
             {
                 "name": "Alliance 1",
                 "decines": [],
-                "picks": ["frc1678", "frc1533", "frc7229"],
+                "picks": ["frc1678", "frc1533", "frc7229", "frc254"],
                 "status": {
                     "playoff_average": None,
                     "level": "f",
