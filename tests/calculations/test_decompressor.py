@@ -28,7 +28,7 @@ class TestDecompressor:
             "score_cube_mid": "AE",
             "score_cube_low": "AF",
             "intake_ground": "AG",
-            "intake_station": "AH",
+            "intake_double": "AH",
             "intake_low_row": "AI",
             "intake_mid_row": "AJ",
             "intake_high_row": "AK",
@@ -41,6 +41,8 @@ class TestDecompressor:
             "auto_intake_three": "AR",
             "auto_intake_four": "AS",
             "score_fail": "AT",
+            "intake_single": "AU",
+            "supercharge": "AV",
         }
         # Test a few values for each type to make sure they make sense
         assert 5 == self.test_decompressor.convert_data_type("5", "int")
