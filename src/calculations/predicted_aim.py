@@ -31,6 +31,7 @@ class PredictedAimScores:
     tele_park_successes: float = 0.0
     tele_engage_successes: float = 0.0
     link: float = 0.0
+    supercharge: float = 0.0
 
 
 class LogisticRegression:
@@ -98,6 +99,7 @@ class PredictedAimCalc(BaseCalculations):
         "tele_park_successes": 2,
         "tele_engage_successes": 10,
         "link": 5,
+        "supercharge": 3,
     }
 
     def __init__(self, server):
@@ -131,6 +133,104 @@ class PredictedAimCalc(BaseCalculations):
 
         # Maximum number of links possible is 9
         predicted_values.link = min(predicted_values.link, 9)
+
+    def set_max_carryover(self, predicted_values, current, max, leftover=None, optional_max=None):
+        """Helper function for calculate_predicted_alliance_score, carrying over anything from current over max to leftover"""
+        if getattr(predicted_values, current) > max:
+            if leftover is not None:
+                setattr(
+                    predicted_values,
+                    leftover,
+                    getattr(predicted_values, leftover) + getattr(predicted_values, current) - max,
+                )
+            setattr(predicted_values, current, max)
+        if optional_max is not None and getattr(predicted_values, current) > optional_max:
+            if leftover is not None:
+                setattr(
+                    predicted_values,
+                    leftover,
+                    getattr(predicted_values, leftover)
+                    + getattr(predicted_values, current)
+                    - optional_max,
+                )
+            setattr(predicted_values, current, optional_max)
+
+    def calculate_predicted_alliance_grid(self, predicted_values):
+        self.set_max_carryover(predicted_values, "auto_cone_high", 6, "auto_cone_mid")
+        self.set_max_carryover(
+            predicted_values,
+            "auto_cube_high",
+            3,
+            "auto_cube_mid",
+            7 - predicted_values.auto_cone_high,
+        )
+        self.set_max_carryover(
+            predicted_values,
+            "auto_cone_mid",
+            6,
+            "auto_gamepieces_low",
+            7 - (predicted_values.auto_cone_high + predicted_values.auto_cube_high),
+        )
+        self.set_max_carryover(
+            predicted_values,
+            "auto_cube_mid",
+            3,
+            "auto_gamepieces_low",
+            7
+            - (
+                predicted_values.auto_cone_high
+                + predicted_values.auto_cube_high
+                + predicted_values.auto_cone_mid
+            ),
+        )
+        self.set_max_carryover(
+            predicted_values,
+            "auto_gamepieces_low",
+            7
+            - (
+                predicted_values.auto_cone_high
+                + predicted_values.auto_cube_high
+                + predicted_values.auto_cone_mid
+                + predicted_values.auto_cube_mid
+            ),
+        )
+
+        self.set_max_carryover(
+            predicted_values, "tele_cone_high", 6 - predicted_values.auto_cone_high, "tele_cone_mid"
+        )
+        self.set_max_carryover(
+            predicted_values,
+            "tele_cone_mid",
+            6 - predicted_values.auto_cone_mid,
+            "tele_gamepieces_low",
+        )
+        self.set_max_carryover(
+            predicted_values, "tele_cube_high", 3 - predicted_values.auto_cube_high, "tele_cube_mid"
+        )
+        self.set_max_carryover(
+            predicted_values,
+            "tele_cube_mid",
+            3 - predicted_values.auto_cube_mid,
+            "tele_gamepieces_low",
+        )
+        # If the grid is full count supercharge
+        if all(
+            [
+                predicted_values.auto_cube_high + predicted_values.tele_cube_high == 3,
+                predicted_values.auto_cone_high + predicted_values.tele_cone_high == 6,
+                predicted_values.auto_cube_mid + predicted_values.tele_cube_mid == 3,
+                predicted_values.auto_cone_mid + predicted_values.tele_cone_mid == 6,
+                predicted_values.auto_gamepieces_low + predicted_values.tele_gamepieces_low >= 9,
+            ]
+        ):
+            self.set_max_carryover(
+                predicted_values,
+                "tele_gamepieces_low",
+                9 - predicted_values.auto_gamepieces_low,
+                "supercharge",
+            )
+        else:
+            self.set_max_carryover(predicted_values, "tele_gamepieces_low", 9)
 
     def calculate_predicted_charge_success_rate(self, predicted_values, obj_team):
         # Only one robot can charge in auto, assume that the team sends the robot with
@@ -175,34 +275,6 @@ class PredictedAimCalc(BaseCalculations):
         predicted_values.tele_gamepieces_low += obj_team["tele_avg_cone_low"]
         predicted_values.tele_cone_mid += obj_team["tele_avg_cone_mid"]
         predicted_values.tele_cone_high += obj_team["tele_avg_cone_high"]
-
-        # Check each predicted value isn't greater than the maximum possible value. If it is, set it to the maximum
-        # If auto pieces + tele pieces are more than what is allowed for that piece in that row, take away the tele pieces first
-        if predicted_values.auto_gamepieces_low > 9:
-            predicted_values.tele_gamepieces_low = 0
-            predicted_values.auto_gamepieces_low = 9
-        if predicted_values.auto_gamepieces_low + predicted_values.tele_gamepieces_low > 9:
-            predicted_values.tele_gamepieces_low = 9 - predicted_values.auto_gamepieces_low
-        if predicted_values.auto_cube_mid > 3:
-            predicted_values.tele_cube_mid = 0
-            predicted_values.auto_cube_mid = 3
-        if predicted_values.auto_cube_mid + predicted_values.tele_cube_mid > 3:
-            predicted_values.tele_cube_mid = 3 - predicted_values.auto_cube_mid
-        if predicted_values.auto_cone_mid > 6:
-            predicted_values.tele_cone_mid = 0
-            predicted_values.auto_cone_mid = 6
-        if predicted_values.auto_cone_mid + predicted_values.tele_cone_mid > 6:
-            predicted_values.tele_cone_mid = 6 - predicted_values.auto_cone_mid
-        if predicted_values.auto_cube_high > 3:
-            predicted_values.tele_cube_high = 0
-            predicted_values.auto_cube_high = 3
-        if predicted_values.auto_cube_high + predicted_values.tele_cube_high > 3:
-            predicted_values.tele_cube_high = 3 - predicted_values.auto_cube_high
-        if predicted_values.auto_cone_high > 6:
-            predicted_values.tele_cone_high = 0
-            predicted_values.auto_cone_high = 6
-        if predicted_values.auto_cone_high + predicted_values.tele_cone_high > 6:
-            predicted_values.tele_cone_high = 6 - predicted_values.auto_cone_high
 
     def calculate_predicted_alliance_auto_score(self, predicted_values):
         """Calculates the predicted auto score for an alliance.
@@ -301,23 +373,29 @@ class PredictedAimCalc(BaseCalculations):
         calculate_predicted_alliance_charge_score must be run after predicted_values is populated.
         """
         charge_score = 0
-        for data_field in dataclasses.asdict(predicted_values).keys():
-            if data_field in [
-                "auto_dock_successes",
-                "auto_engage_successes",
-            ]:
-                charge_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
-            # Can only engage or dock, so assume the alliance does the one with the highest expected score
-            # Finds which charging probability is higher, then adds the score to tele_score
-        dock_score, engage_score = [
+        # Can only engage or dock, so assume the alliance does the one with the highest expected score
+        # Finds which charging probability is higher, then adds the score to tele_score
+        auto_dock_score, auto_engage_score = [
+            getattr(predicted_values, field) * self.POINTS[field]
+            for field in ["auto_dock_successes", "auto_engage_successes"]
+        ]
+        auto_larger_score = ["auto_dock_successes", "auto_engage_successes"][
+            int(auto_engage_score > auto_dock_score)
+        ]
+        charge_score += (
+            getattr(predicted_values, auto_larger_score) * self.POINTS[auto_larger_score]
+        )
+
+        tele_dock_score, tele_engage_score = [
             getattr(predicted_values, field) * self.POINTS[field]
             for field in ["tele_dock_successes", "tele_engage_successes"]
         ]
-        larger_score = ["tele_dock_successes", "tele_engage_successes"][
-            int(engage_score > dock_score)
+        tele_larger_score = ["tele_dock_successes", "tele_engage_successes"][
+            int(tele_engage_score > tele_dock_score)
         ]
-        dock_or_engage_probability = getattr(predicted_values, larger_score)
-        charge_score += dock_or_engage_probability * self.POINTS[larger_score]
+        charge_score += (
+            getattr(predicted_values, tele_larger_score) * self.POINTS[tele_larger_score]
+        )
         return round(charge_score, 5)
 
     def calculate_predicted_alliance_score(
@@ -348,7 +426,7 @@ class PredictedAimCalc(BaseCalculations):
             self.calculate_predicted_charge_success_rate(predicted_values, team)
 
             predicted_values.mobility += tba_team["mobility_successes"] / team["matches_played"]
-
+        self.calculate_predicted_alliance_grid(predicted_values)
         self.calculate_predicted_link_score(predicted_values, obj_team)
 
         for data_field in dataclasses.asdict(predicted_values).keys():
@@ -400,9 +478,9 @@ class PredictedAimCalc(BaseCalculations):
 
         predicted_values is a dataclass which stores the predicted number of pieces scored and success rates.
         """
-        if getattr(predicted_values, "link") >= 5:
+        if getattr(predicted_values, "link") >= 6:
             return 1.0
-        elif getattr(predicted_values, "link") == 4:
+        elif getattr(predicted_values, "link") == 5:
             # Use the coopertition criteria met percentage to gain the chances of a link RP with 4 links
             # If it doesn't exist use 0.75 (seems to be the average percentage in most comps)
             try:
