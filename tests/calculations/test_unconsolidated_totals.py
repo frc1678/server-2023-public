@@ -6,10 +6,172 @@ from calculations import base_calculations
 from calculations import unconsolidated_totals
 from server import Server
 import pytest
+from unittest.mock import patch
 
 
 @pytest.mark.clouddb
 class TestUnconsolidatedTotals:
+    tba_test_data = [
+        {
+            "match_number": 42,
+            "actual_time": 1100291640,
+            "comp_level": "qm",
+            "score_breakdown": {
+                "blue": {
+                    "foulPoints": 8,
+                    "autoMobilityPoints": 15,
+                    "autoGamePiecePoints": 12,
+                    "teleopGamePiecePoints": 40,
+                    "autoCommunity": {
+                        "B": [
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                        ],
+                        "M": [
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                        ],
+                        "T": [
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "Cube",
+                            "Cone",
+                        ],
+                    },
+                    "teleopCommunity": {
+                        "B": [
+                            "Cone",
+                            "Cube",
+                            "None",
+                            "Cone",
+                            "Cube",
+                            "Cube",
+                            "Cube",
+                            "Cube",
+                            "None",
+                        ],
+                        "M": [
+                            "None",
+                            "None",
+                            "None",
+                            "Cone",
+                            "Cube",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                        ],
+                        "T": [
+                            "Cone",
+                            "Cube",
+                            "Cone",
+                            "None",
+                            "None",
+                            "None",
+                            "Cone",
+                            "Cube",
+                            "Cone",
+                        ],
+                    },
+                },
+                "red": {
+                    "foulPoints": 10,
+                    "autoMobilityPoints": 0,
+                    "autoGamePiecePoints": 6,
+                    "teleopGamePiecePoints": 63,
+                    "autoCommunity": {
+                        "B": [
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                        ],
+                        "M": [
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                        ],
+                        "T": [
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                            "Cone",
+                        ],
+                    },
+                    "teleopCommunity": {
+                        "B": [
+                            "Cone",
+                            "Cube",
+                            "Cube",
+                            "Cone",
+                            "Cube",
+                            "Cube",
+                            "Cube",
+                            "Cube",
+                            "None",
+                        ],
+                        "M": [
+                            "None",
+                            "None",
+                            "Cone",
+                            "Cone",
+                            "Cube",
+                            "None",
+                            "None",
+                            "None",
+                            "None",
+                        ],
+                        "T": [
+                            "Cone",
+                            "Cube",
+                            "Cone",
+                            "Cone",
+                            "Cube",
+                            "Cone",
+                            "Cone",
+                            "Cube",
+                            "Cone",
+                        ],
+                    },
+                },
+            },
+        },
+    ]
     unconsolidated_tims = [
         {
             "schema_version": 6,
@@ -165,7 +327,8 @@ class TestUnconsolidatedTotals:
 
     def test_calculate_unconsolidated_tims(self):
         self.test_server.db.insert_documents("unconsolidated_obj_tim", self.unconsolidated_tims)
-        self.test_calculator.run()
+        with patch("data_transfer.tba_communicator.tba_request", return_value=self.tba_test_data):
+            self.test_calculator.run()
         result = self.test_server.db.find("unconsolidated_totals")
         assert len(result) == 3
         calculated_tim = result[0]
@@ -218,7 +381,8 @@ class TestUnconsolidatedTotals:
         return_value=[{"o": {"team_number": "1", "match_number": 2}}],
     )
     def test_in_list_check1(self, entries_since_last_dummy, caplog):
-        self.test_calculator.run()
+        with patch("data_transfer.tba_communicator.tba_request", return_value=self.tba_test_data):
+            self.test_calculator.run()
         assert len([rec.message for rec in caplog.records if rec.levelname == "WARNING"]) > 0
 
     @mock.patch.object(
@@ -230,5 +394,6 @@ class TestUnconsolidatedTotals:
         unconsolidated_totals.UnconsolidatedTotals, "update_calcs", return_value=[{}]
     )
     def test_in_list_check2(self, entries_since_last_dummy, update_calcs_dummy, caplog):
-        self.test_calculator.run()
+        with patch("data_transfer.tba_communicator.tba_request", return_value=self.tba_test_data):
+            self.test_calculator.run()
         assert len([rec.message for rec in caplog.records if rec.levelname == "WARNING"]) == 0

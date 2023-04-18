@@ -8,6 +8,7 @@ import utils
 from calculations.base_calculations import BaseCalculations
 from typing import List, Union, Dict
 import logging
+from data_transfer import tba_communicator
 
 log = logging.getLogger(__name__)
 
@@ -146,6 +147,20 @@ class ObjTIMCalcs(BaseCalculations):
     def calculate_tim_counts(self, unconsolidated_tims: List[Dict]) -> dict:
         """Given a list of unconsolidated TIMs, returns the calculated count based data fields"""
         calculated_tim = {}
+
+        for num_1, tim in enumerate(unconsolidated_tims):
+            alliance = "blue"
+            if tim["alliance_color_is_red"]:
+                alliance = "red"
+
+            if self.grid_status[tim["match_number"]][alliance] == False:
+                timeline = tim["timeline"]
+                for num, action_dict in enumerate(timeline):
+                    if action_dict["action_type"] == "supercharge":
+                        unconsolidated_tims[num_1]["timeline"][num + 1][
+                            "action_type"
+                        ] = "score_fail"
+
         for calculation, filters in self.schema["timeline_counts"].items():
             unconsolidated_counts = []
             # Variable type of a calculation is in the schema, but it's not a filter
@@ -240,12 +255,34 @@ class ObjTIMCalcs(BaseCalculations):
             calculated_tims.append(calculated_tim)
         return calculated_tims
 
+    def get_grid_status(self, matches):
+        grid_status = {}
+        for match in matches:
+            alliance_status = {}
+            for alliance in ["red", "blue"]:
+                alliance_status[alliance] = True
+                for row in match["score_breakdown"][alliance]["teleopCommunity"].values():
+                    if "None" in row:
+                        alliance_status[alliance] = False
+
+            grid_status[match["match_number"]] = alliance_status
+
+        return grid_status
+
     def run(self):
         """Executes the OBJ TIM calculations"""
+
+        tba_match_data: List[dict] = tba_communicator.tba_request(
+            f"event/{utils.TBA_EVENT_KEY}/matches"
+        )
+
+        self.grid_status = self.get_grid_status(tba_match_data)
+
         # Get oplog entries
         tims = []
         # Check if changes need to be made to teams
         if (entries := self.entries_since_last()) != []:
+
             for entry in entries:
                 team_num = entry["o"]["team_number"]
                 if team_num not in self.teams_list:
