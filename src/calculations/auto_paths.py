@@ -195,6 +195,8 @@ class AutoPathCalc(BaseCalculations):
                 )
             ]
         )
+        # Make a copy, in case later down the if statements the auto paths do not match
+        old_tim = tim.copy()
         # List of all charge levels that can be put in the same auto path (because all are attempting to engage in auto)
         charge_levels = ["F", "D", "E"]
         # List of all scoring positions (fail and None are in here to not break the indexing)
@@ -221,8 +223,6 @@ class AutoPathCalc(BaseCalculations):
                     if field
                     in ["intake_1_position", "intake_2_position", "mobility", "preloaded_gamepiece"]
                 ):
-                    # Make a copy, in case later down the if statements the auto paths do not match
-                    old_tim = tim.copy()
                     # Checks to see if both documents have an attempt at charging (not "N")
                     if (
                         document["auto_charge_level"] in charge_levels
@@ -318,24 +318,118 @@ class AutoPathCalc(BaseCalculations):
 
         # This is a field, which is added to obj_team, which says if a robot has middle compatability
         # A robot has middle compatability if it starts in the middle, gets the mobility, and docks/engages
+        # Find the current team document from the obj_team collection
+        current_team = self.server.db.find("obj_team", {"team_number": tim["team_number"]})[0]
         if (
             tim["start_position"] == "2"
             and tim["mobility"]
             and tim["auto_charge_level"] in ["D", "E"]
         ):
-            # Find the current team document from the obj_team collection
-            current_team = self.server.db.find("obj_team", {"team_number": tim["team_number"]})[0]
-            # Add the middle_compatibility field
-            current_team.update({"middle_compatibility": True})
-            team_num = current_team["team_number"]
-            self.server.db.update_document("obj_team", current_team, {"team_number": team_num})
-            log.info(f"Update compatibility for team number: {team_num}")
+            # Find number of matches ran
+            matches_ran = tim["matches_ran"]
+            for document in current_documents:
+                matches_ran += document["matches_ran"]
+
+            # Calculate middle compatibility and Add it to current_team
+            if "middle_compatibility" in current_team:
+                current_team.update(
+                    {
+                        "middle_compatibility": (
+                            (current_team["middle_compatibility"] * (matches_ran - 1)) + 1
+                        )
+                        / matches_ran
+                    }
+                )
+            else:
+                current_team.update({"middle_compatibility": 1})
+            # Update to server
+            self.server.db.update_document(
+                "obj_team", current_team, {"team_number": current_team["team_number"]}
+            )
+        elif tim["start_position"] == "2":
+            # Find number of matches ran, current documents is a list of all start positions at 2
+            matches_ran = tim["matches_ran"]
+            for document in current_documents:
+                matches_ran += document["matches_ran"]
+            # Calculate middle compatibility and Add it to current_team
+            if "middle_compatibility" in current_team:
+                current_team.update(
+                    {
+                        "middle_compatibility": (
+                            current_team["middle_compatibility"] * (matches_ran - 1)
+                        )
+                        / matches_ran
+                    }
+                )
+            else:
+                current_team.update({"middle_compatibility": 0})
+            # Update to server
+            self.server.db.update_document(
+                "obj_team", current_team, {"team_number": current_team["team_number"]}
+            )
         else:
-            current_team = self.server.db.find("obj_team", {"team_number": tim["team_number"]})[0]
-            # Checks to see if the field exists, if not set it to False
-            # This is to avoid accidently setting it to False after it has been set to true
+            # Checks to see if the field exists, if not set it to 0
+            # This is to avoid accidently setting it to 0 after it has calculated
             if "middle_compatibility" not in current_team:
-                current_team.update({"middle_compatibility": False})
+                current_team.update({"middle_compatibility": 0})
+                self.server.db.update_document(
+                    "obj_team", current_team, {"team_number": current_team["team_number"]}
+                )
+        if (
+            tim["start_position"] == "3"
+            and tim["mobility"]
+            and old_tim["score_1_piece"] != "fail"
+            and old_tim["score_2_piece"] != "fail"
+            and old_tim["score_1_piece"] != None
+            and old_tim["score_2_piece"] != None
+        ):
+            # Find number of matches ran
+            matches_ran = tim["matches_ran"]
+            for document in current_documents:
+                matches_ran += document["matches_ran"]
+
+            # Calculate cable bump compatibility and Add it to current_team
+            if "cable_bump_compatibility" in current_team:
+                current_team.update(
+                    {
+                        "cable_bump_compatibility": (
+                            (current_team["cable_bump_compatibility"] * (matches_ran - 1)) + 1
+                        )
+                        / matches_ran
+                    }
+                )
+            else:
+                current_team.update({"cable_bump_compatibility": 1})
+            # Update to server
+            self.server.db.update_document(
+                "obj_team", current_team, {"team_number": current_team["team_number"]}
+            )
+        elif tim["start_position"] == "3":
+            # Find number of matches ran, current documents is a list of all start positions at 2
+            matches_ran = tim["matches_ran"]
+            for document in current_documents:
+                matches_ran += document["matches_ran"]
+            # Calculate cable_bump compatibility and Add it to current_team
+            if "cable_bump_compatibility" in current_team:
+                current_team.update(
+                    {
+                        "cable_bump_compatibility": (
+                            current_team["cable_bump_compatibility"] * (matches_ran - 1)
+                        )
+                        / matches_ran
+                    }
+                )
+            else:
+                current_team.update({"cable_bump_compatibility": 0})
+            # Update to server
+            self.server.db.update_document(
+                "obj_team", current_team, {"team_number": current_team["team_number"]}
+            )
+        else:
+            # Checks to see if the field exists, if not set it to 0
+            # This is to avoid accidently setting it to 0 after it has calculated
+            if "cable_bump_compatibility" not in current_team:
+                current_team.update({"cable_bump_compatibility": 0})
                 self.server.db.update_document(
                     "obj_team", current_team, {"team_number": current_team["team_number"]}
                 )
