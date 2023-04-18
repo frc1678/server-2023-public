@@ -73,7 +73,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 1.0,
                 "won_match": True,
-                "predicted_score": 192.53333,
+                "predicted_score": 280.83333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -85,7 +85,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 1.0,
                 "actual_rp2": 1.0,
                 "won_match": False,
-                "predicted_score": 191.93333,
+                "predicted_score": 279.33333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -97,7 +97,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 191.93333,
+                "predicted_score": 279.33333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -109,7 +109,7 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 192.53333,
+                "predicted_score": 280.83333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
             },
@@ -118,10 +118,10 @@ class TestPredictedAimCalc:
             {
                 "alliance_num": 1,
                 "picks": ["1678", "1533", "7229"],
-                "predicted_score": 192.53333,
-                "predicted_auto_score": 136.2,
-                "predicted_tele_score": 56.33333,
-                "predicted_grid_score": 162.0,
+                "predicted_score": 280.83333,
+                "predicted_auto_score": 169.5,
+                "predicted_tele_score": 219.63333,
+                "predicted_grid_score": 250.3,
                 "predicted_charge_score": 22.0,
             }
         ]
@@ -134,10 +134,10 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 1.0,
                 "won_match": True,
-                "predicted_score": 192.53333,
+                "predicted_score": 280.83333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.92377,
+                "win_chance": 0.96789,
             },
             {
                 "match_number": 1,
@@ -147,10 +147,10 @@ class TestPredictedAimCalc:
                 "actual_rp1": 1.0,
                 "actual_rp2": 1.0,
                 "won_match": False,
-                "predicted_score": 191.93333,
+                "predicted_score": 279.33333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 1 - 0.92377,
+                "win_chance": 1 - 0.96789,
             },
             {
                 "match_number": 3,
@@ -160,10 +160,10 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 191.93333,
+                "predicted_score": 279.33333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 1 - 0.92377,
+                "win_chance": 1 - 0.96789,
             },
             {
                 "match_number": 3,
@@ -173,16 +173,13 @@ class TestPredictedAimCalc:
                 "actual_rp1": 0.0,
                 "actual_rp2": 0.0,
                 "won_match": False,
-                "predicted_score": 192.53333,
+                "predicted_score": 280.83333,
                 "predicted_rp1": 0.25,
                 "predicted_rp2": 1.0,
-                "win_chance": 0.92377,
+                "win_chance": 0.96789,
             },
         ]
-        self.expected_playoffs_alliances = [
-            {"alliance_num": 1, "picks": ["1678", "1533", "7229"]},
-            {"alliance_num": 9, "picks": ["1678", "1533", "254"]},
-        ]
+        self.expected_playoffs_alliances = [{"alliance_num": 1, "picks": ["1678", "1533", "7229"]}]
         self.full_predicted_values = predicted_aim.PredictedAimScores(
             auto_dock_successes=0.5,
             auto_engage_successes=0.5,
@@ -445,7 +442,7 @@ class TestPredictedAimCalc:
             {
                 "name": "Alliance 1",
                 "decines": [],
-                "picks": ["frc1678", "frc1533", "frc7229", "frc254"],
+                "picks": ["frc1678", "frc1533", "frc7229"],
                 "status": {
                     "playoff_average": None,
                     "level": "f",
@@ -472,39 +469,39 @@ class TestPredictedAimCalc:
     def test_calculate_predicted_grid_score(self):
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[0])
         assert near(self.blank_predicted_values.auto_gamepieces_low, 3.5)
-        assert near(self.blank_predicted_values.auto_cube_mid, 3)
+        assert near(self.blank_predicted_values.auto_cube_mid, 4.5)
         assert near(self.blank_predicted_values.auto_cone_mid, 3.5)
-        assert near(self.blank_predicted_values.auto_cube_high, 3)
+        assert near(self.blank_predicted_values.auto_cube_high, 7.5)
         assert near(self.blank_predicted_values.auto_cone_high, 6.0)
-        assert near(self.blank_predicted_values.tele_gamepieces_low, 5.5)
-        assert near(self.blank_predicted_values.tele_cube_mid, 0)
+        assert near(self.blank_predicted_values.tele_gamepieces_low, 5.6)
+        assert near(self.blank_predicted_values.tele_cube_mid, 3.5)
         assert near(self.blank_predicted_values.tele_cone_mid, 2.5)
-        assert near(self.blank_predicted_values.tele_cube_high, 0)
-        assert near(self.blank_predicted_values.tele_cone_high, 0)
+        assert near(self.blank_predicted_values.tele_cube_high, 2.2)
+        assert near(self.blank_predicted_values.tele_cone_high, 4.3)
 
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[1])
         assert near(self.blank_predicted_values.auto_gamepieces_low, 7.2)
-        assert near(self.blank_predicted_values.auto_cube_mid, 3)
-        assert near(self.blank_predicted_values.auto_cone_mid, 6)
-        assert near(self.blank_predicted_values.auto_cube_high, 3)
-        assert near(self.blank_predicted_values.auto_cone_high, 6)
-        assert near(self.blank_predicted_values.tele_gamepieces_low, 1.8)
-        assert near(self.blank_predicted_values.tele_cube_mid, 0)
-        assert near(self.blank_predicted_values.tele_cone_mid, 0)
-        assert near(self.blank_predicted_values.tele_cube_high, 0)
-        assert near(self.blank_predicted_values.tele_cone_high, 0)
+        assert near(self.blank_predicted_values.auto_cube_mid, 9.1)
+        assert near(self.blank_predicted_values.auto_cone_mid, 7.1)
+        assert near(self.blank_predicted_values.auto_cube_high, 15.1)
+        assert near(self.blank_predicted_values.auto_cone_high, 12.1)
+        assert near(self.blank_predicted_values.tele_gamepieces_low, 11.4)
+        assert near(self.blank_predicted_values.tele_cube_mid, 7.1)
+        assert near(self.blank_predicted_values.tele_cone_mid, 5.1)
+        assert near(self.blank_predicted_values.tele_cube_high, 4.5)
+        assert near(self.blank_predicted_values.tele_cone_high, 8.7)
 
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[2])
-        assert near(self.blank_predicted_values.auto_gamepieces_low, 9)
-        assert near(self.blank_predicted_values.auto_cube_mid, 3)
-        assert near(self.blank_predicted_values.auto_cone_mid, 6)
-        assert near(self.blank_predicted_values.auto_cube_high, 3)
-        assert near(self.blank_predicted_values.auto_cone_high, 6)
-        assert near(self.blank_predicted_values.tele_gamepieces_low, 0)
-        assert near(self.blank_predicted_values.tele_cube_mid, 0)
-        assert near(self.blank_predicted_values.tele_cone_mid, 0)
-        assert near(self.blank_predicted_values.tele_cube_high, 0)
-        assert near(self.blank_predicted_values.tele_cone_high, 0)
+        assert near(self.blank_predicted_values.auto_gamepieces_low, 11.1)
+        assert near(self.blank_predicted_values.auto_cube_mid, 13.8)
+        assert near(self.blank_predicted_values.auto_cone_mid, 10.8)
+        assert near(self.blank_predicted_values.auto_cube_high, 22.8)
+        assert near(self.blank_predicted_values.auto_cone_high, 18.3)
+        assert near(self.blank_predicted_values.tele_gamepieces_low, 17.4)
+        assert near(self.blank_predicted_values.tele_cube_mid, 10.8)
+        assert near(self.blank_predicted_values.tele_cone_mid, 7.8)
+        assert near(self.blank_predicted_values.tele_cube_high, 6.9)
+        assert near(self.blank_predicted_values.tele_cone_high, 13.2)
 
     def test_calculate_predicted_alliance_score(self):
         assert near(
@@ -514,7 +511,7 @@ class TestPredictedAimCalc:
                 self.tba_team,
                 ["1678", "1533", "7229"],
             ),
-            192.53333,
+            280.83333,
         )
 
         try:
@@ -535,7 +532,7 @@ class TestPredictedAimCalc:
 
     def test_calculate_predicted_link_rp(self):
         assert self.test_calc.calculate_predicted_link_rp(self.blank_predicted_values) == 0
-        assert self.test_calc.calculate_predicted_link_rp(self.full_predicted_values) == 1
+        assert self.test_calc.calculate_predicted_link_rp(self.full_predicted_values) == 0.75
 
     def test_calculate_predicted_charge_rp(self):
         assert (
