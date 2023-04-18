@@ -372,6 +372,8 @@ class TestDecompressor:
             "drivetrain_motor_type": 3,
             "has_vision": False,
             "has_communication_device": True,
+            "is_forkable": False,
+            "has_ground_intake": False,
             "weight": 3.9524,
             "length": 3.9524,
             "width": 3.2931,
@@ -381,15 +383,110 @@ class TestDecompressor:
             "drivetrain": "swerve",
             "drivetrain_motors": 4,
             "drivetrain_motor_type": "falcon",
+            "is_forkable": False,
+            "has_ground_intake": False,
             "has_vision": False,
             "has_communication_device": True,
             "weight": 3.9524,
             "length": 3.9524,
             "width": 3.2931,
         }
+        citrus_seal = {
+            "team_number": "3448",
+            "drivetrain": 0,
+            "drivetrain_motors": 0,
+            "drivetrain_motor_type": 0,
+            "has_vision": False,
+            "has_communication_device": False,
+            "is_forkable": True,
+            "has_ground_intake": True,
+            "weight": 0,
+            "length": 0,
+            "width": 0,
+        }
+        new_expected_obj_pit = {
+            "team_number": "3448",
+            "drivetrain": "tank",
+            "drivetrain_motors": 4,
+            "drivetrain_motor_type": "minicim",
+            "is_forkable": True,
+            "has_ground_intake": True,
+            "has_vision": False,
+            "has_communication_device": True,
+            "weight": 3.9524,
+            "length": 3.9524,
+            "width": 3.2931,
+        }
+        raw2_obj_pit = {
+            "team_number": "1678",
+            "drivetrain": 2,
+            "drivetrain_motors": 4,
+            "drivetrain_motor_type": 3,
+            "has_vision": False,
+            "has_communication_device": True,
+            "is_forkable": False,
+            "has_ground_intake": False,
+            "weight": 3.9524,
+            "length": 3.9524,
+            "width": 3.2931,
+        }
+        expected2_obj_pit = {
+            "team_number": "1678",
+            "drivetrain": "swerve",
+            "drivetrain_motors": 4,
+            "drivetrain_motor_type": "falcon",
+            "is_forkable": True,
+            "has_ground_intake": True,
+            "has_vision": False,
+            "has_communication_device": True,
+            "weight": 3.9524,
+            "length": 3.9524,
+            "width": 3.2931,
+        }
+        citrus2_seal = {
+            "team_number": "1678",
+            "drivetrain": 0,
+            "drivetrain_motors": 0,
+            "drivetrain_motor_type": 0,
+            "has_vision": False,
+            "has_communication_device": False,
+            "is_forkable": True,
+            "has_ground_intake": True,
+            "weight": 0,
+            "length": 0,
+            "width": 0,
+        }
+        new2_expected_obj_pit = {
+            "team_number": "1678",
+            "drivetrain": "tank",
+            "drivetrain_motors": 0,
+            "drivetrain_motor_type": "minicim",
+            "is_forkable": True,
+            "has_ground_intake": True,
+            "has_vision": False,
+            "has_communication_device": False,
+            "weight": 0,
+            "length": 0,
+            "width": 0,
+        }
+
         assert (
             self.test_decompressor.decompress_pit_data(raw_obj_pit, "raw_obj_pit")
             == expected_obj_pit
+        )
+        self.test_server.db.insert_documents("raw_obj_pit", expected_obj_pit)
+        assert (
+            self.test_decompressor.decompress_pit_data(citrus_seal, "raw_obj_pit")
+            == new_expected_obj_pit
+        )
+        assert (
+            self.test_decompressor.decompress_pit_data(citrus2_seal, "raw_obj_pit")
+            == new2_expected_obj_pit
+        )
+        self.test_server.db.insert_documents("raw_obj_pit", new2_expected_obj_pit)
+        assert (
+            self.test_decompressor.decompress_pit_data(raw2_obj_pit, "raw_obj_pit")
+            == expected2_obj_pit
         )
 
     def test_run(self):

@@ -13,6 +13,7 @@ from calculations import base_calculations
 from calculations import qr_state
 from calculations.qr_state import QRState
 import logging
+from data_transfer import database
 
 log = logging.getLogger(__name__)
 
@@ -297,6 +298,13 @@ class Decompressor(base_calculations.BaseCalculations):
             pit_schema = self.SUBJ_PIT_SCHEMA
 
         decompressed_data = {}
+        db = database.Database()
+        # Use team number to find if team already has pit data inserted into the db
+        current_data = [
+            document
+            for document in db.find(pit_type)
+            if document["team_number"] == pit_data["team_number"]
+        ]
 
         for name, value in pit_data.items():
             # if variable is an Enum, decompress it
@@ -307,6 +315,47 @@ class Decompressor(base_calculations.BaseCalculations):
                         break
             else:
                 decompressed_data[name] = value
+
+        if len(current_data) > 0:
+            team_num = decompressed_data["team_number"]
+            current_document = current_data[0]
+            for name, value in decompressed_data.items():
+                if current_document[name] == value:
+                    continue
+                # If type is a boolean, since default is false, if one is true, that means it was scouted, therefore we put true
+                if pit_schema["schema"][name]["type"] == "bool":
+                    if current_document[name] or value:
+                        decompressed_data.update({name: True})
+                # For nums, the default is 0, if the new document has a 0, go with the previously inserted one, else let the new one be inserted
+                elif (
+                    pit_schema["schema"][name]["type"] == "int"
+                    or pit_schema["schema"][name]["type"] == "float"
+                ):
+                    if current_document[name] != 0 and value == 0:
+                        decompressed_data.update({name: current_document[name]})
+                    elif current_document[name] != 0 and value != 0:
+                        log.warning(
+                            f"Both pit scouts collected data for team: {team_num} for the field: {name} and came up with different values"
+                        )
+                # For the enum strings, they must be compared individually
+                elif name == "drivetrain":
+                    if value != "no_data":
+                        continue
+                    if current_document[name] != "no_data":
+                        decompressed_data.update({name: current_document[name]})
+                        continue
+                    log.warning(
+                        f"Both pit scouts collected data for team: {team_num} for the field: {name} and came up with different values"
+                    )
+                elif name == "drivetrain_motor_type":
+                    if value != "no_data":
+                        continue
+                    if current_document[name] != "no_data":
+                        decompressed_data.update({name: current_document[name]})
+                        continue
+                    log.warning(
+                        f"Both pit scouts collected data for team: {team_num} for the field: {name} and came up with different values"
+                    )
         return decompressed_data
 
     def check_scout_ids(self):
