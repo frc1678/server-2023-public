@@ -119,11 +119,29 @@ class TestPredictedAimCalc:
                 "alliance_num": 1,
                 "picks": ["1678", "1533", "7229"],
                 "predicted_score": 280.83333,
-                "predicted_auto_score": 169.5,
+                "predicted_auto_score": 61.2,
                 "predicted_tele_score": 219.63333,
                 "predicted_grid_score": 250.3,
                 "predicted_charge_score": 22.0,
-            }
+            },
+            {
+                "alliance_num": 9,
+                "picks": ["1678", "1533", "7229"],
+                "predicted_score": 280.83333,
+                "predicted_auto_score": 61.2,
+                "predicted_tele_score": 219.63333,
+                "predicted_grid_score": 250.3,
+                "predicted_charge_score": 22.0,
+            },
+            {
+                "alliance_num": 17,
+                "picks": ["1678", "1533", "7229"],
+                "predicted_score": 280.83333,
+                "predicted_auto_score": 61.2,
+                "predicted_tele_score": 219.63333,
+                "predicted_grid_score": 250.3,
+                "predicted_charge_score": 22.0,
+            },
         ]
         self.expected_results = [
             {
@@ -179,7 +197,11 @@ class TestPredictedAimCalc:
                 "win_chance": 0.96789,
             },
         ]
-        self.expected_playoffs_alliances = [{"alliance_num": 1, "picks": ["1678", "1533", "7229"]}]
+        self.expected_playoffs_alliances = [
+            {"alliance_num": 1, "picks": ["1678", "1533", "7229"]},
+            {"alliance_num": 9, "picks": ["1678", "1533", "7229"]},
+            {"alliance_num": 17, "picks": ["1678", "1533", "7229"]},
+        ]
         self.full_predicted_values = predicted_aim.PredictedAimScores(
             auto_dock_successes=0.5,
             auto_engage_successes=0.5,
@@ -460,13 +482,18 @@ class TestPredictedAimCalc:
         assert self.test_calc.server == self.test_server
 
     def test_calculate_predicted_link_score(self):
-        self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[0])
+        """Test if the number of links is calculated correctly"""
+        self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[4])
+        self.test_calc.calculate_predicted_link_score(self.blank_predicted_values, self.obj_team)
+        assert near(self.blank_predicted_values.link, 0)
+
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[1])
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[2])
         self.test_calc.calculate_predicted_link_score(self.blank_predicted_values, self.obj_team)
         assert near(self.blank_predicted_values.link, 9)
 
     def test_calculate_predicted_grid_score(self):
+        """Test if the grid obj_team values are added to the total predicted_values correctly"""
         self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, self.obj_team[0])
         assert near(self.blank_predicted_values.auto_gamepieces_low, 3.5)
         assert near(self.blank_predicted_values.auto_cube_mid, 4.5)
@@ -503,7 +530,54 @@ class TestPredictedAimCalc:
         assert near(self.blank_predicted_values.tele_cube_high, 6.9)
         assert near(self.blank_predicted_values.tele_cone_high, 13.2)
 
+    def test_calculate_predicted_alliance_grid(self):
+        """Check that the final predicted grid is made possible (i.e. no more than 6 high cones)"""
+        for team in self.obj_team[:3]:
+            self.test_calc.calculate_predicted_grid_score(self.blank_predicted_values, team)
+        self.test_calc.calculate_predicted_alliance_grid(self.blank_predicted_values)
+        assert near(self.blank_predicted_values.auto_cone_high, 6)
+        assert near(self.blank_predicted_values.auto_cone_mid, 0)
+        assert near(self.blank_predicted_values.auto_cube_high, 1)
+        assert near(self.blank_predicted_values.auto_cube_mid, 0)
+        assert near(self.blank_predicted_values.auto_gamepieces_low, 0)
+        assert near(self.blank_predicted_values.tele_cone_high, 0)
+        assert near(self.blank_predicted_values.tele_cone_mid, 6)
+        assert near(self.blank_predicted_values.tele_cube_high, 2)
+        assert near(self.blank_predicted_values.tele_cube_mid, 3)
+        assert near(self.blank_predicted_values.tele_gamepieces_low, 9)
+        assert near(self.blank_predicted_values.supercharge, 36.1)
+
+    def test_calculate_predicted_charge_success_rate(self):
+        """Test that the predicted charge success rates are calculated correctly each time a team is added"""
+        self.test_calc.calculate_predicted_charge_success_rate(
+            self.blank_predicted_values, self.obj_team[0]
+        )
+        assert near(self.blank_predicted_values.auto_dock_successes, 1)
+        assert near(self.blank_predicted_values.auto_engage_successes, 0)
+        assert near(self.blank_predicted_values.tele_dock_successes, 0.5)
+        assert near(self.blank_predicted_values.tele_engage_successes, 0.5)
+        assert near(self.blank_predicted_values.tele_park_successes, 0)
+
+        self.test_calc.calculate_predicted_charge_success_rate(
+            self.blank_predicted_values, self.obj_team[1]
+        )
+        assert near(self.blank_predicted_values.auto_dock_successes, 0)
+        assert near(self.blank_predicted_values.auto_engage_successes, 1)
+        assert near(self.blank_predicted_values.tele_dock_successes, 0.5)
+        assert near(self.blank_predicted_values.tele_engage_successes, 1)
+        assert near(self.blank_predicted_values.tele_park_successes, 0.5)
+
+        self.test_calc.calculate_predicted_charge_success_rate(
+            self.blank_predicted_values, self.obj_team[2]
+        )
+        assert near(self.blank_predicted_values.auto_dock_successes, 0)
+        assert near(self.blank_predicted_values.auto_engage_successes, 1)
+        assert near(self.blank_predicted_values.tele_dock_successes, 1)
+        assert near(self.blank_predicted_values.tele_engage_successes, 1)
+        assert near(self.blank_predicted_values.tele_park_successes, 1)
+
     def test_calculate_predicted_alliance_score(self):
+        """Test the total predicted_score is correct"""
         assert near(
             self.test_calc.calculate_predicted_alliance_score(
                 self.blank_predicted_values,
@@ -513,7 +587,7 @@ class TestPredictedAimCalc:
             ),
             280.83333,
         )
-
+        # Make sure there are no errors with no data
         try:
             self.test_calc.calculate_predicted_alliance_score(
                 self.blank_predicted_values,
@@ -531,10 +605,12 @@ class TestPredictedAimCalc:
             assert self.test_calc.get_playoffs_alliances() == self.expected_playoffs_alliances
 
     def test_calculate_predicted_link_rp(self):
+        """Test that the chance of getting the link rp is calculated correctly"""
         assert self.test_calc.calculate_predicted_link_rp(self.blank_predicted_values) == 0
         assert self.test_calc.calculate_predicted_link_rp(self.full_predicted_values) == 0.75
 
     def test_calculate_predicted_charge_rp(self):
+        """Thest that the chance of getting the charge rp is calculated correctly"""
         assert (
             self.test_calc.calculate_predicted_charge_rp(
                 self.blank_predicted_values, self.obj_team, ["1000", "1000", "1000"]
@@ -549,6 +625,7 @@ class TestPredictedAimCalc:
         )
 
     def test_get_actual_values(self):
+        """Test getting actual values from TBA"""
         assert self.test_calc.get_actual_values(
             {
                 "match_number": 1,
@@ -621,18 +698,26 @@ class TestPredictedAimCalc:
             assert self.test_calc.update_predicted_aim(self.aims_list) == self.expected_updates
 
     def test_update_playoffs_alliances(self):
+        """Test that we correctly calculate data for each of the playoff alliances"""
         self.test_server.db.delete_data("predicted_aim")
         with patch(
             "calculations.predicted_aim.PredictedAimCalc.get_playoffs_alliances",
             return_value=self.expected_playoffs_alliances,
         ):
-            assert self.test_calc.update_playoffs_alliances() == self.expected_playoffs_updates
+            playoff_update = self.test_calc.update_playoffs_alliances()
+        assert playoff_update == self.expected_playoffs_updates
+        # Make sure auto score + tele score = total score
+        assert near(
+            playoff_update[0]["predicted_auto_score"] + playoff_update[0]["predicted_tele_score"],
+            playoff_update[0]["predicted_score"],
+        )
 
     def test_calculate_predicted_win_chance(self):
         with patch("data_transfer.database.Database.find", return_value=self.expected_updates):
             assert self.test_calc.calculate_predicted_win_chance() == self.expected_results
 
     def test_get_predicted_win_chance(self):
+        """Check that the function generated by the logistic regression makes sense"""
         match_list = list(range(1, 6))
         aims = [
             {
@@ -695,6 +780,7 @@ class TestPredictedAimCalc:
             },
         ]
         predicted_win_chance = self.test_calc.get_predicted_win_chance(match_list, aims)
+        # Bigger point difference => larger chance of winning
         assert predicted_win_chance(0) == 0.4634287128417273
         assert predicted_win_chance(3) == 0.7405684767137776
         assert predicted_win_chance(10) == 0.978924852564896
@@ -721,7 +807,7 @@ class TestPredictedAimCalc:
             # Removes the matching expected result to protect against duplicates from the calculation
             self.expected_results.remove(document)
         result2 = self.test_server.db.find("predicted_alliances")
-        assert len(result2) == 1
+        assert len(result2) == 3
         for document in result2:
             del document["_id"]
             assert document in self.expected_playoffs_updates

@@ -296,6 +296,7 @@ class PredictedAimCalc(BaseCalculations):
                 "tele_cone_mid",
                 "tele_cone_high",
                 "link",
+                "supercharge",
             ]:
                 # Adds auto grid score to auto_score
                 auto_score += getattr(predicted_values, data_field) * self.POINTS[data_field]
@@ -465,20 +466,44 @@ class PredictedAimCalc(BaseCalculations):
         playoffs_alliances = []
 
         for alliance in tba_playoffs_data:
-            team_data = {
-                "alliance_num": int(alliance["name"][-1]),
-                "picks": [team[3:] for team in alliance["picks"][:3]],
-            }
-            playoffs_alliances.append(team_data)
-            if len(alliance["picks"]) > 3:
-                team_data = {
+            # Add captain, 1st, and 2nd pick
+            playoffs_alliances.append(
+                {
+                    "alliance_num": int(alliance["name"][-1]),
+                    "picks": [team[3:] for team in alliance["picks"][:3]],
+                }
+            )
+            # Add captain, 1st, and 3rd pick
+            playoffs_alliances.append(
+                {
                     "alliance_num": int(alliance["name"][-1]) + 8,
                     "picks": [
-                        team[3:] for team in (alliance["picks"][:2] + [alliance["picks"][3]])
+                        team[3:]
+                        for team in (
+                            alliance["picks"][:2]
+                            + [
+                                alliance["picks"][3]
+                                if len(alliance["picks"]) > 3
+                                else alliance["picks"][2]
+                            ]
+                        )
                     ],
                 }
-                playoffs_alliances.append(team_data)
-
+            )
+            # Add captain, 2nd, and 3rd pick
+            playoffs_alliances.append(
+                {
+                    "alliance_num": int(alliance["name"][-1]) + 16,
+                    "picks": [
+                        team[3:]
+                        for team in (
+                            alliance["picks"][0] + alliance["picks"][2:4]
+                            if len(alliance["picks"]) > 3
+                            else alliance["picks"][:3]
+                        )
+                    ],
+                }
+            )
         return playoffs_alliances
 
     def calculate_predicted_link_rp(self, predicted_values):
