@@ -1,5 +1,3 @@
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
-
 import pytest
 from unittest.mock import patch
 

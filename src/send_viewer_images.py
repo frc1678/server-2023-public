@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Send pit robot images to the Download folder of the viewer phones."""
 
 import os

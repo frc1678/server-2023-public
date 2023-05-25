@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Holds functions for database communication.
 
 All communication with the MongoDB local database go through this file.

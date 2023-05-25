@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Elegantly displays attached and missing devices."""
 
 from data_transfer import adb_communicator

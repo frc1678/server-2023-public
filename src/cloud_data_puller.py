@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Updates local database with data pulled from cloud DB."""
 
 import re

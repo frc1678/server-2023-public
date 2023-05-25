@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Defines class methods to consolidate and calculate Team In Match (TIM) data."""
 
 import copy

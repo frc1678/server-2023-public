@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Sets up the MongoDB document for a competition, should be run before every competition."""
 
 import re

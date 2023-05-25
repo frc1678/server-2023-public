@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Adds QR codes to a blocklist in the local database based on match number, blocklists
 a specific QR code based on match number and tablet serial number, or overrides datatapoins
 for specific TIMs based on match number and team number.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Implements server side compressed
 
 This is used to allow QR codes to be modified and fake data to be generated for system tests.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Export data from local MongoDB database to CSV file for picklist editor spreadsheet.
 
 Timestamps files. Data exports also used for analysts in stands at competition.

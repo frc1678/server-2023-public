@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 FRC Team 1678: Citrus Circuits
+
 """Sets up a machine for use or testing of the server.
 
 To be run for every new clone of server.
