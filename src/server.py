@@ -3,11 +3,11 @@
 """Contains the server class."""
 import console  # DON'T DELETE THIS LINE. This initializes the logging system
 import importlib
-from typing import List
+from typing import List, Type
 
 import yaml
 
-from calculations.base_calculations import BaseCalculations
+from calculations import base_calculations
 from data_transfer import database, cloud_db_updater
 import utils
 import logging
@@ -35,9 +35,9 @@ class Server:
             self.cloud_db_updater = None
         self.calc_all_data = self.ask_calc_all_data()
 
-        self.calculations: List[BaseCalculations] = self.load_calculations()
+        self.calculations = self.load_calculations()
 
-    def load_calculations(self):
+    def load_calculations(self) -> List["base_calculations.BaseCalculations"]:
         """Imports calculation modules and creates instances of calculation classes."""
         with open(self.CALCULATIONS_FILE) as f:
             calculation_load_list = yaml.load(f, Loader=yaml.Loader)
@@ -53,7 +53,9 @@ class Server:
                 continue
             # Get calculation class from module
             try:
-                cls = getattr(module, calc["class_name"])
+                cls: Type["base_calculations.BaseCalculations"] = getattr(
+                    module, calc["class_name"]
+                )
                 # Append an instance of calculation class to the calculations list
                 # We pass `self` as the only argument to the `__init__` method of the calculation
                 # class so the calculations can get access to server instance variables such as the

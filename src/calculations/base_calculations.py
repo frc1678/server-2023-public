@@ -3,6 +3,8 @@ import json
 import pymongo
 import statistics
 
+import server
+
 import utils
 import logging
 
@@ -13,7 +15,7 @@ class BaseCalculations:
     # Used for converting to a type that is given as a string
     STR_TYPES = {"str": str, "float": float, "int": int, "bool": bool}
 
-    def __init__(self, server):
+    def __init__(self, server: "server.Server"):
         self.server = server
         self.oplog = self.server.oplog
         self.calc_all_data = self.server.calc_all_data
